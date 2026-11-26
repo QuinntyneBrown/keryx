@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API · key-created — Keryx mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="api">
+<meta name="mock:state" content="key-created">
+<meta name="description" content="Just after creating a key: the full key is shown once with a Copy button, and the new product is listed.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar__head">
+    <a class="brand" href="../../pages/overview/default.html" aria-label="Keryx, go to overview"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word">keryx</span></a>
+    <span class="sidebar__tag">Admin</span>
+  </div>
+  <nav class="sidebar__nav" aria-label="Primary">
+    <a class="nav-link" href="../../pages/overview/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+    <a class="nav-link" href="../../pages/articles/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>Articles</a>
+    <a class="nav-link" href="../../pages/runs/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>Runs<span class="nav-link__badge" aria-label="2 failing sources">2</span></a>
+    <a class="nav-link" href="../../pages/sources/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>Sources</a>
+    <a class="nav-link" href="../../pages/api/default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>API</a>
+    <a class="nav-link" href="../../pages/settings/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar__foot">
+    <p class="sidebar__caption">Next collection</p>
+    <p class="sidebar__value num">12:00 PM <span>· in 2h 14m</span></p>
+    <p class="sidebar__caption">Every 6 hours, Toronto time</p>
+    <div class="sidebar__user">
+      <span class="avatar" aria-hidden="true">DA</span>
+      <div>
+        <p class="sidebar__user-name truncate">Daniel Adeyemi</p>
+        <p class="sidebar__caption truncate">Owner</p>
+      </div>
+    </div>
+  </div>
+</aside>
+<main id="main" class="app__main">
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>API</h1>
+      <p class="page-header__description">Products read Keryx news through this API. Manage who has access and see how it’s used.</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--primary" role="button" href="../../dialogs/new-api-key/default.html"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>New API key</a></div>
+  </header>
+  <div class="page-body stack stack--xl">
+    <div class="callout" role="status">
+      <p class="callout__title">Key created for “Covenant Cycling site”. Copy it now — it won’t be shown again.</p>
+      <div class="copy-field">
+        <code class="copy-field__value truncate">kx_live_R8vN2qLm0aXe5TbW9yKc3HdF</code>
+        <a class="btn" role="button" href="../../notifications/api-toast/success.html"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</a>
+      </div>
+    </div>
+    <section class="card summary-card" aria-label="API usage">
+      <div class="summary-card__lead">
+        <p class="text-caption">Base URL</p>
+        <code class="summary-card__value truncate">https://api.keryx.ca/v1</code>
+      </div>
+      <dl class="stats summary-card__stats">
+        <div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div>
+        <div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div>
+        <div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div>
+      </dl>
+    </section>
+    <section aria-labelledby="consumers-title">
+      <h2 class="text-h3" id="consumers-title" style="margin-bottom: var(--space-3)">Consumers &amp; keys</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="visually-hidden">Consumers and keys</caption>
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col" class="from-lg">Key</th>
+              <th scope="col" class="from-lg">Scopes</th>
+              <th scope="col" class="num from-lg">Requests · 24h</th>
+              <th scope="col" class="num from-lg">Errors</th>
+              <th scope="col" class="from-lg">Last call</th>
+              <th scope="col" class="table__col-actions table__col-actions--wide"><span class="visually-hidden">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">Covenant Cycling site</span> <span class="badge badge--brand">New</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_live_R8vN…</span> · 0 requests · never</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_live_R8vN…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span></span></td>
+              <td class="num from-lg">0</td>
+              <td class="num table__muted from-lg">—</td>
+              <td class="table__muted table__nowrap from-lg">never</td>
+              <td class="num"><button class="btn btn--ghost btn--sm" type="button" aria-label="Revoke the key for Covenant Cycling site">Revoke</button></td>
+            </tr>
+            <tr>
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">Keryx Mobile (iOS &amp; Android)</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_live_7Hq2…</span> · 48,210 requests · just now</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_live_7Hq2…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span><span class="tag">events:read</span></span></td>
+              <td class="num from-lg">48,210</td>
+              <td class="num table__muted from-lg">0.02%</td>
+              <td class="table__muted table__nowrap from-lg">just now</td>
+              <td class="num"><button class="btn btn--ghost btn--sm" type="button" aria-label="Revoke the key for Keryx Mobile (iOS &amp; Android)">Revoke</button></td>
+            </tr>
+            <tr>
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">GTA Faith &amp; Fitness newsletter</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_live_c91L…</span> · 96 requests · 6:15 AM</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_live_c91L…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span></span></td>
+              <td class="num from-lg">96</td>
+              <td class="num table__muted from-lg">0%</td>
+              <td class="table__muted table__nowrap from-lg">6:15 AM</td>
+              <td class="num"><button class="btn btn--ghost btn--sm" type="button" aria-label="Revoke the key for GTA Faith &amp; Fitness newsletter">Revoke</button></td>
+            </tr>
+            <tr>
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">Kingdom Strong website widget</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_live_Pz0e…</span> · 3,402 requests · 2 min ago</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_live_Pz0e…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span></span></td>
+              <td class="num from-lg">3,402</td>
+              <td class="num table__muted from-lg">0.4%</td>
+              <td class="table__muted table__nowrap from-lg">2 min ago</td>
+              <td class="num"><a class="btn btn--ghost btn--sm" role="button" href="../../dialogs/revoke-api-key/default.html" aria-label="Revoke the key for Kingdom Strong website widget">Revoke</a></td>
+            </tr>
+            <tr>
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">Temple Fit partner app</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_live_4mWb…</span> · 1,118 requests · 11 min ago</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_live_4mWb…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span><span class="tag">sources:read</span></span></td>
+              <td class="num from-lg">1,118</td>
+              <td class="num table__muted from-lg">0%</td>
+              <td class="table__muted table__nowrap from-lg">11 min ago</td>
+              <td class="num"><button class="btn btn--ghost btn--sm" type="button" aria-label="Revoke the key for Temple Fit partner app">Revoke</button></td>
+            </tr>
+            <tr class="table__row--revoked">
+              <td class="table__primary">
+                <span class="cluster" style="flex-wrap: nowrap; min-width: 0"><span class="table__title truncate">Old staging key</span> <span class="badge">Revoked</span></span>
+                <span class="table__sub until-lg"><span class="mono">kx_test_aa03…</span> · 0 requests · Feb 2</span>
+              </td>
+              <td class="table__nowrap from-lg"><span class="cluster mono table__muted" style="gap: var(--space-1-5)"><svg class="icon icon--sm icon--muted" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>kx_test_aa03…</span></td>
+              <td class="from-lg"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span></span></td>
+              <td class="num from-lg">0</td>
+              <td class="num table__muted from-lg">—</td>
+              <td class="table__muted table__nowrap from-lg">Feb 2</td>
+              <td class="num"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section aria-labelledby="endpoints-title">
+      <h2 class="text-h3" id="endpoints-title" style="margin-bottom: var(--space-3)">Endpoints</h2>
+      <div class="split">
+        <ul class="list">
+            <li><a class="list__item list__item--interactive endpoint" href="../../pages/api/default.html" aria-current="true">
+              <span class="endpoint__sig"><span class="endpoint__method">GET</span>/v1/articles</span>
+              <span class="endpoint__desc">Published articles, newest first. Filter by region, category, org, since.</span>
+            </a></li><li><a class="list__item list__item--interactive endpoint" href="../../pages/api/default.html">
+              <span class="endpoint__sig"><span class="endpoint__method">GET</span>/v1/articles/{id}</span>
+              <span class="endpoint__desc">One article with summary, tags and canonical link.</span>
+            </a></li><li><a class="list__item list__item--interactive endpoint" href="../../pages/api/default.html">
+              <span class="endpoint__sig"><span class="endpoint__method">GET</span>/v1/organizations</span>
+              <span class="endpoint__desc">Christian fitness organisations Keryx tracks.</span>
+            </a></li><li><a class="list__item list__item--interactive endpoint" href="../../pages/api/default.html">
+              <span class="endpoint__sig"><span class="endpoint__method">GET</span>/v1/categories</span>
+              <span class="endpoint__desc">Categories and article counts.</span>
+            </a></li><li><a class="list__item list__item--interactive endpoint" href="../../pages/api/endpoint.html">
+              <span class="endpoint__sig"><span class="endpoint__method">GET</span>/v1/status</span>
+              <span class="endpoint__desc">Last run time and pipeline health, for consumers to show freshness.</span>
+            </a></li>
+        </ul>
+        <div class="code-panel">
+          <div class="code-panel__head"><span>Example request</span><span class="code-panel__status">200 OK</span></div>
+          <pre class="code-panel__block" tabindex="0" aria-label="Example request">curl https://api.keryx.ca/v1/articles?region=toronto&amp;limit=2 \
+  -H "Authorization: Bearer kx_live_…"</pre>
+          <pre class="code-panel__block" tabindex="0" aria-label="Example response">{
+  &quot;data&quot;: [
+    {
+      &quot;id&quot;: &quot;art_18432&quot;,
+      &quot;title&quot;: &quot;Shepherd’s 5K returns to Lakefront Promenade&quot;,
+      &quot;organization&quot;: &quot;Shepherd’s 5K&quot;,
+      &quot;category&quot;: &quot;races-challenges&quot;,
+      &quot;region&quot;: &quot;mississauga&quot;,
+      &quot;published_at&quot;: &quot;2025-03-11T08:14:00-04:00&quot;,
+      &quot;url&quot;: &quot;https://shepherds5k.ca/news/2025-registration&quot;
+    },
+    { &quot;id&quot;: &quot;art_18431&quot;, &quot;title&quot;: &quot;Grace Barbell Club opens…&quot; }
+  ],
+  &quot;next_cursor&quot;: &quot;eyJpZCI6MTg0MzB9&quot;
+}</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+<p class="mock-note" style="bottom: 5rem; right: 1rem;">The full key is visible only on this visit. Leaving the page removes the callout for good.</p>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">API</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="key-created.html" aria-current="page">key-created</a></li>
+    <li><a href="endpoint.html">endpoint</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

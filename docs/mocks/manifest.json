@@ -1,0 +1,279 @@
+{
+  "project": "Keryx",
+  "required_states": {
+    "page": [
+      "default",
+      "loading",
+      "empty",
+      "error"
+    ],
+    "dialog": [
+      "default",
+      "busy",
+      "invalid"
+    ],
+    "notification": [
+      "info",
+      "success",
+      "warning",
+      "danger"
+    ]
+  },
+  "screens": [
+    {
+      "id": "overview",
+      "kind": "page",
+      "title": "Overview",
+      "route": "/",
+      "states": [
+        "default",
+        "healthy",
+        "running",
+        "failed",
+        "loading",
+        "empty",
+        "error",
+        "partial"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "articles",
+      "kind": "page",
+      "title": "Articles",
+      "route": "/articles",
+      "states": [
+        "default",
+        "selected",
+        "selected-published",
+        "selected-hidden",
+        "review",
+        "no-results",
+        "loading",
+        "empty",
+        "error",
+        "edge"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "runs",
+      "kind": "page",
+      "title": "Runs",
+      "route": "/runs",
+      "states": [
+        "default",
+        "success",
+        "failed",
+        "running",
+        "problems",
+        "no-results",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "sources",
+      "kind": "page",
+      "title": "Sources",
+      "route": "/sources",
+      "states": [
+        "default",
+        "filtered",
+        "menu",
+        "no-results",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "api",
+      "kind": "page",
+      "title": "API",
+      "route": "/api",
+      "states": [
+        "default",
+        "key-created",
+        "endpoint",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "settings",
+      "kind": "page",
+      "title": "Settings",
+      "route": "/settings",
+      "not_applicable": {
+        "empty": "Settings always has values; there is no empty collection."
+      },
+      "states": [
+        "default",
+        "dirty",
+        "invalid",
+        "submitting",
+        "success",
+        "loading",
+        "error"
+      ]
+    },
+    {
+      "id": "add-source",
+      "kind": "dialog",
+      "title": "Add a source",
+      "opens_from": "sources",
+      "states": [
+        "default",
+        "tested",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "edit-source",
+      "kind": "dialog",
+      "title": "Edit source",
+      "opens_from": "sources",
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "remove-source",
+      "kind": "dialog",
+      "title": "Remove source",
+      "opens_from": "sources",
+      "not_applicable": {
+        "invalid": "A confirmation with no inputs."
+      },
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "new-api-key",
+      "kind": "dialog",
+      "title": "New API key",
+      "opens_from": "api",
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "revoke-api-key",
+      "kind": "dialog",
+      "title": "Revoke API key",
+      "opens_from": "api",
+      "not_applicable": {
+        "invalid": "A confirmation with no inputs."
+      },
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ]
+    },
+    {
+      "id": "add-keyword",
+      "kind": "dialog",
+      "title": "Add a topic",
+      "opens_from": "settings",
+      "not_applicable": {
+        "busy": "Adds the chip to the form only; nothing is sent until Settings is saved."
+      },
+      "states": [
+        "default",
+        "invalid"
+      ]
+    },
+    {
+      "id": "collection-toast",
+      "kind": "notification",
+      "title": "Collection toast",
+      "opens_from": "overview",
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "stacked"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "article-toast",
+      "kind": "notification",
+      "title": "Article toast",
+      "opens_from": "articles",
+      "not_applicable": {
+        "warning": "Article actions either complete or fail; there is no partial outcome to warn about."
+      },
+      "states": [
+        "info",
+        "success",
+        "with-action",
+        "danger"
+      ]
+    },
+    {
+      "id": "source-toast",
+      "kind": "notification",
+      "title": "Source toast",
+      "opens_from": "sources",
+      "not_applicable": {
+        "info": "Every source action reports an outcome; none is merely informational."
+      },
+      "states": [
+        "success",
+        "with-action",
+        "warning",
+        "danger"
+      ]
+    },
+    {
+      "id": "run-toast",
+      "kind": "notification",
+      "title": "Run toast",
+      "opens_from": "runs",
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "api-toast",
+      "kind": "notification",
+      "title": "API toast",
+      "opens_from": "api",
+      "not_applicable": {
+        "info": "Key actions report an outcome; none is merely informational."
+      },
+      "states": [
+        "success",
+        "warning",
+        "danger"
+      ]
+    }
+  ]
+}

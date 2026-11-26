@@ -19,3 +19,6 @@ test-results/
 # Python bytecode from the docs tools
 __pycache__/
 *.whl
+
+# Mock screenshots (docs/mocks)
+docs/mocks/.cache/
