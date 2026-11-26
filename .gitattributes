@@ -1,0 +1,7 @@
+# Prettier checks LF line endings on every platform.
+* text=auto eol=lf
+*.png binary
+*.woff2 binary
+*.mp3 binary
+*.mp4 binary
+*.ico binary
