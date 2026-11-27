@@ -87,15 +87,21 @@ internal sealed class GetRunHandler(IAppDbContext db) : IRequestHandler<GetRun, 
     /// <summary>An issue as listed on a run: that run's detail, and what it concerns.</summary>
     private static RunIssueDto IssueOf(RunIssue issue, string detail, Dictionary<long, Keryx.Domain.Sources.Source> sources)
     {
-        var (type, id, name) = issue switch
-        {
-            { SourceId: { } sourceId } when sources.TryGetValue(sourceId, out var source) => ("source", source.PublicId, source.OrganizationName),
-            { Stage: { } stage } => ("stage", RunWords.Stage(stage), (string?)null),
-            _ => ("worker", RunWords.Worker(issue.Worker), null),
-        };
+        var (type, id, name) = IssueSubject.Of(issue, sources);
         return new RunIssueDto(issue.PublicId, RunWords.Severity(issue.Severity), RunWords.Kind(issue.Kind), type, id, name, detail,
             issue.ConsecutiveRuns, issue.Since, issue.State == IssueState.Muted);
     }
+}
+
+/// <summary>What an issue concerns: a source by its organization's name, a stage, or the worker itself.</summary>
+internal static class IssueSubject
+{
+    public static (string Type, string? Id, string? Name) Of(RunIssue issue, Dictionary<long, Keryx.Domain.Sources.Source> sources) => issue switch
+    {
+        { SourceId: { } sourceId } when sources.TryGetValue(sourceId, out var source) => ("source", source.PublicId, source.OrganizationName),
+        { Stage: { } stage } => ("stage", RunWords.Stage(stage), null),
+        _ => ("worker", RunWords.Worker(issue.Worker), null),
+    };
 }
 
 /// <summary>No run has the id asked for; the code follows the <c>…_not_found</c> pattern of L2-083.</summary>

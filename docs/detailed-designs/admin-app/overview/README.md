@@ -126,7 +126,7 @@ The slice runs from the routed Overview page to four admin read endpoints.
 | `GET /admin/v1/runs` | `worker=collection`, `page=1`, `page_size=14` | page envelope of `RunSummaryDto` (`id`, `started_at`, `outcome`, `added`, …), newest first; the store reverses it to oldest first | View run history design |
 | `GET /admin/v1/runs/{id}` | — | `RunDto` with `sources_checked`, `sources_total`, `added` while running | View run history design |
 | `GET /admin/v1/articles` | `page=1`, `page_size=7` | `items`, `total`, `page`, `page_size`; `total` gives "View all 18,432" | Review articles design |
-| `GET /admin/v1/issues` (path `<TO SUPPLY>`) | `state=open`, `page_size=5` | `items` of `id`, `run_id`, `severity`, `kind`, `subject_name`, `consecutive_runs`, `since`; `total` gives "3 open" | ProblemDetails with trace id |
+| `GET /admin/v1/issues` | `state=open`, `page_size=5` (1 to 50, default 10) | `items` of `id`, `run_id` (the run it last occurred in), `severity`, `kind`, `subject_type`, `subject_id`, `subject_name`, `detail`, `consecutive_runs`, `since`; `total` gives "3 open"; `page_size` | `400` `invalid_filter` (a state other than `open`) or `invalid_page` |
 
 **Backend**
 
@@ -140,8 +140,9 @@ The slice runs from the routed Overview page to four admin read endpoints.
   shell's `ScheduleStore` is not built yet, and Overview reads the time from its own status until
   it is. A seeded news query counts as a source.
 - **`AdminIssuesController`** / **`GetOpenIssuesQuery`** / **`GetOpenIssuesQueryHandler`** —
-  read `RunIssue` rows that are open and not muted, ordered errors before warnings, then by time
-  `<TO SUPPLY>` (the order within a severity is not stated), bounded by `page_size`.
+  read `RunIssue` rows that are open and not muted, ordered errors before warnings, then the
+  longest streak (`consecutive_runs`), then the oldest (`since`), bounded by `page_size` (built as
+  `ListOpenIssues`).
 - **`AdminRunsController`**, **`AdminArticlesController`** — reused as defined by the View run
   history and Review articles designs.
 
