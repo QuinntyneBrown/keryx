@@ -11,6 +11,8 @@ namespace Keryx.Application.Abstractions;
 /// </summary>
 public interface IAppDbContext
 {
+    DbSet<Keryx.Domain.Staff.StaffMember> StaffMembers { get; }
+
     DbSet<Region> Regions { get; }
 
     DbSet<Category> Categories { get; }

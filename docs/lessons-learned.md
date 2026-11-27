@@ -94,3 +94,6 @@ and running the worker's host on its own, made every schedule test deterministic
 - A fixed OpenID Connect discovery document in the API fixture lets the production challenge
   handler generate the redirect, nonce, state and PKCE values without contacting an identity
   provider. Keep a separate startup check for missing deployment settings.
+- Verify the current-person endpoint separately for an anonymous browser, an authenticated
+  non-staff identity, and a staff identity. Assert the exact JSON field names so a provider
+  subject or additional claim cannot become part of the response by accident.

@@ -12,6 +12,8 @@ namespace Keryx.Infrastructure.Persistence;
 /// </summary>
 public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : DbContext(options), IAppDbContext
 {
+    public DbSet<Keryx.Domain.Staff.StaffMember> StaffMembers => Set<Keryx.Domain.Staff.StaffMember>();
+
     public DbSet<Region> Regions => Set<Region>();
 
     public DbSet<Category> Categories => Set<Category>();

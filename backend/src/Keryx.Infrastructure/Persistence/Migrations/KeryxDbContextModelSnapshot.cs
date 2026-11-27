@@ -172,6 +172,25 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.ToTable("Sources", (string)null);
                 });
 
+            modelBuilder.Entity("Keryx.Domain.Staff.StaffMember", b =>
+                {
+                    b.Property<string>("SubjectId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("SubjectId");
+
+                    b.ToTable("StaffMembers");
+                });
+
             modelBuilder.Entity("Keryx.Domain.Sources.Source", b =>
                 {
                     b.HasOne("Keryx.Domain.Reference.Region", null)

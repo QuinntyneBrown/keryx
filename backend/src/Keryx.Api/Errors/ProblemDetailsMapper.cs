@@ -44,6 +44,11 @@ internal sealed partial class ProblemDetailsMapper(IProblemDetailsService proble
         var problem = context.ProblemDetails;
         problem.Extensions.Remove("traceId");
         problem.Extensions[TraceId] = Activity.Current?.TraceId.ToHexString() ?? context.HttpContext.TraceIdentifier;
+        if (problem.Status == StatusCodes.Status403Forbidden && context.HttpContext.Request.Path.StartsWithSegments("/admin/v1"))
+        {
+            problem.Extensions.TryAdd(Code, "not_staff");
+        }
+
         if (!problem.Extensions.ContainsKey(Code) && CodeOf(problem.Status) is { } code)
         {
             problem.Extensions[Code] = code;

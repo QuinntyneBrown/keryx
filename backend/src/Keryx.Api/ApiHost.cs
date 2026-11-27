@@ -61,6 +61,10 @@ public static class ApiHost
         builder.Services.AddStaffOidc();
         builder.Services.AddAntiforgery(AdminAntiforgery.Configure);
         builder.Services.AddAuthorizationBuilder()
+            .AddPolicy("Staff", policy => policy
+                .AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .RequireClaim("roles", builder.Configuration["Keryx:Oidc:StaffClaim"] ?? "KeryxStaff"))
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
         var app = builder.Build();

@@ -15,6 +15,7 @@ committed.
 | `ConnectionStrings__Keryx` | The connection string of the Keryx database (PostgreSQL), for example `Host=…;Database=keryx;Username=…;Password=…`. | None: required. | Yes | API, worker, CLI |
 | `Keryx__Oidc__Authority` | HTTPS issuer for the staff identity provider. | Required. | No | API |
 | `Keryx__Oidc__ClientId` | Client registered with the provider for authorization code flow with PKCE. Register the absolute API callback URL ending in `/admin/v1/auth/callback`. | Required. | No | API |
+| `Keryx__Oidc__StaffClaim` | Value required in the signed identity provider token’s `roles` claim to authorize staff operations. | `KeryxStaff` | No | API |
 | `Keryx__Oidc__ClientSecret` | Confidential client credential when required by the provider. | Unset. | Yes | API |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Where traces, metrics and logs are sent: the address of an OpenTelemetry (OTLP) collector, for example `http://collector:4317`. | Unset: nothing is exported, and the process runs the same. | No | API, worker |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | How they are sent: `grpc` or `http/protobuf`. | `grpc` | No | API, worker |
