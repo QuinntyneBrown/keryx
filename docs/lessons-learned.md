@@ -16,10 +16,19 @@ worked when applied. Newest entries go at the bottom.
 - **Running a mutated build.** After a mutation proof the sources were restored but not
   rebuilt, so a manual check ran the broken binary and seemed to show a leak of the query
   string into a span. Rebuild after restoring, before running anything from `bin`.
-- **A metric recorded after its span.** ASP.NET Core exports a request's span before it records
-  `http.server.request.duration`, so a test that waited for the span and then read the metrics
-  failed now and then. Await the measurement itself (a `MeterListener` on the host's own
-  `IMeterFactory`), then flush.
+- **A metric shared by every host in the test process.** The OpenTelemetry SDK listens to a
+  meter by its name, process-wide. In a test process one host's provider therefore aggregates
+  every host's requests, and when any host is disposed the metric they shared is ended: the
+  next host to start gets a second metric of the same name. A test that read "the"
+  `http.server.request.duration` metric read the wrong one now and then: it passed every
+  local run and failed on CI's first. Read every exported metric of that name, ask for a
+  route no other test uses, and flush a provider once, from a host of the test's own. Spans
+  cross hosts the same way: match a span by a trace id the test chose.
+- **A race fixed on a guess.** The same test had failed once before, and the first fix assumed
+  the span was exported before the duration was recorded. A short probe later showed the
+  opposite (the measurement comes first, on the request's own thread) and the real cause
+  above. Probe the order of events before fixing a race; a fix that only makes the failure
+  rarer is not a fix.
 - **A failure log nobody can prevent.** On a database that was never migrated, the Npgsql
   provider looks for the history table by selecting from it, so the first `migrate` logs one
   failed command. No public EF Core API avoids it; `tools/deploy/configuration.md` says to
@@ -55,15 +64,17 @@ worked when applied. Newest entries go at the bottom.
   wrapper with `:empty`, or the gap and the padding stay.
 - **A health call that retries hides the answer.** `curl --retry` treats `503` as a reason to
   retry; call `/health/ready` once and read the status.
-- **Run CI's steps locally first.** Each job's steps were run as CI runs them before the
-  workflow was pushed: Release for the backend, and the built app for the frontend
-  (`KX_SERVE_BUILT=1`).
+- **Run CI's steps locally first, and expect CI to differ.** Each job's steps were run as CI
+  runs them before the workflow was pushed: Release for the backend, and the built app for the
+  frontend (`KX_SERVE_BUILT=1`). The workflow itself was right first time; the runner's
+  different timing still found the shared-metric failure above. A test that depends on what
+  other test classes do at the same moment passes locally by luck.
 
 **How earlier lessons worked**
 
 This is the first entry; the rules in `AGENTS.md` under "Development" stood in for earlier
 lessons and held. Judging every command by its exit status caught a format failure a pipe
 would have hidden. "Honest red" caught tests that passed at once and proved nothing until the
-rule was broken. Reading the initial total after each new Angular API kept `main` inside its budget
-(223.86 kB against 250 kB). Keeping background services out of the shared test host, and
-running the worker's host on its own, made every schedule test deterministic.
+rule was broken. Reading the initial total after each new Angular API kept `main` inside its
+budget (223.86 kB against 250 kB). Keeping background services out of the shared test host,
+and running the worker's host on its own, made every schedule test deterministic.

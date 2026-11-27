@@ -3,9 +3,9 @@
 // Description: The API and the worker emit traces, metrics and logs and run with no OTLP endpoint, and a request's span carries its route template, method and status and nothing of the URL
 
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Net;
 using Keryx.Api.Tests.Fakes;
+using Keryx.Api.Tests.Probes;
 using Keryx.Api.Tests.Workers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -129,54 +129,40 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
         }
     }
 
-    // L2-094 AC1, metrics: a request is measured, by its route template.
+    // L2-094 AC1 and AC2, metrics: a request is measured, by its route template and never its path.
     [Fact]
     public async Task Given_no_OTLP_endpoint_When_a_request_is_served_Then_its_duration_is_measured_by_route_template()
     {
-        // A request's duration is recorded after its span ends: await the measurement itself, of
-        // this host's own meters, before asking for what would be exported.
-        var measured = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var meters = factory.Services.GetRequiredService<IMeterFactory>();
-        using var listener = new MeterListener();
-        listener.InstrumentPublished = (instrument, self) =>
-        {
-            if (ReferenceEquals(instrument.Meter.Scope, meters) && instrument.Name == "http.server.request.duration")
-            {
-                self.EnableMeasurementEvents(instrument);
-            }
-        };
-        listener.SetMeasurementEventCallback<double>((_, _, tags, _) =>
-        {
-            foreach (var tag in tags)
-            {
-                if (tag.Key == "http.route" && Equals(tag.Value, "/health/ready"))
-                {
-                    measured.TrySetResult();
-                }
-            }
-        });
-        listener.Start();
+        // A host of its own: what it would export is flushed once, here, and read once.
+        await using var api = new Factory();
 
-        await RequestAndAwaitSpanAsync("/health/ready", HttpStatusCode.OK);
-        await measured.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+        // The duration is recorded just before the span stops, on the request's own thread: once
+        // the span has been exported, the measurement has been made.
+        await RequestAndAwaitSpanAsync(api, "/test/probe/items/0190c0de", HttpStatusCode.OK);
+        Assert.True(api.Services.GetRequiredService<MeterProvider>().ForceFlush());
 
-        Assert.True(factory.Services.GetRequiredService<MeterProvider>().ForceFlush());
-
-        var duration = factory.ExportedMetrics.Snapshot().Last(metric => metric.Name == "http.server.request.duration");
+        // The SDK hears a meter by its name, from every host in the process, and a host disposed
+        // by another test ends the metric they shared. This host's requests are then in one of
+        // several metrics of the same name: read them all.
         var routes = new List<string>();
-        foreach (ref readonly var point in duration.GetMetricPoints())
+        foreach (var duration in api.ExportedMetrics.Snapshot().Where(metric => metric.Name == "http.server.request.duration"))
         {
-            foreach (var tag in point.Tags)
+            foreach (ref readonly var point in duration.GetMetricPoints())
             {
-                Assert.DoesNotContain(Token, $"{tag.Value}", StringComparison.Ordinal);
-                if (tag.Key == "http.route")
+                foreach (var tag in point.Tags)
                 {
-                    routes.Add($"{tag.Value}");
+                    var value = $"{tag.Value}";
+                    Assert.DoesNotContain(Token, value, StringComparison.Ordinal);
+                    Assert.DoesNotContain("0190c0de", value, StringComparison.Ordinal);
+                    if (tag.Key == "http.route")
+                    {
+                        routes.Add(value);
+                    }
                 }
             }
         }
 
-        Assert.Contains("/health/ready", routes);
+        Assert.Contains(ProbeController.ItemRoute, routes);
     }
 
     [Fact]
@@ -212,11 +198,14 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
         Assert.Equal(1, worker.Probe.Runs);
     }
 
-    private async Task<Activity> RequestAndAwaitSpanAsync(string path, HttpStatusCode expected)
+    private Task<Activity> RequestAndAwaitSpanAsync(string path, HttpStatusCode expected) =>
+        RequestAndAwaitSpanAsync(factory, path, expected);
+
+    private static async Task<Activity> RequestAndAwaitSpanAsync(Factory api, string path, HttpStatusCode expected)
     {
         // The request names its own trace, so the test can tell its span from its neighbours'.
         var traceId = ActivityTraceId.CreateRandom();
-        using var client = factory.CreateClient();
+        using var client = api.CreateClient();
         using var request = new HttpRequestMessage(
             HttpMethod.Get, new Uri($"{path}?email={Uri.EscapeDataString(Personal)}&token={Token}", UriKind.Relative));
         request.Headers.Add("traceparent", $"00-{traceId}-{ActivitySpanId.CreateRandom()}-01");
@@ -226,7 +215,7 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
         Assert.Equal(expected, response.StatusCode);
 
         // The span ends after the response is written: await it, never sleep.
-        return await factory.ExportedSpans.WaitForAsync(
+        return await api.ExportedSpans.WaitForAsync(
             span => span.Kind == ActivityKind.Server && span.TraceId == traceId, Describe, $"the server span of {path}");
     }
 
