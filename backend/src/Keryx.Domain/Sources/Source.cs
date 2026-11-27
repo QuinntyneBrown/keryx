@@ -45,6 +45,36 @@ public sealed class Source
 
     public int ConsecutiveFailures { get; private set; }
 
+    /// <summary>Why the last fetch failed, as a word from the fixed list of L2-002; null when it did not.</summary>
+    public string? FailureReason { get; private set; }
+
+    /// <summary>How many items of the last fetch were held for review (L2-004 AC3).</summary>
+    public int HeldCount { get; private set; }
+
+    /// <summary>The last fetch failed, after its final attempt: the source is failing (L2-004 AC2).</summary>
+    public void RecordFetchFailed(DateTimeOffset at, string reason)
+    {
+        LastFetchedAt = at;
+        FailureReason = reason;
+        ConsecutiveFailures++;
+        HeldCount = 0;
+        Health = SourceHealth.Failing;
+    }
+
+    /// <summary>
+    /// The last fetch succeeded with <paramref name="held"/> items held for review: the source
+    /// needs a look when any is, and is healthy otherwise (L2-004 AC1, AC3, AC4).
+    /// </summary>
+    public void RecordFetchSucceeded(DateTimeOffset at, int held)
+    {
+        LastFetchedAt = at;
+        LastSucceededAt = at;
+        FailureReason = null;
+        ConsecutiveFailures = 0;
+        HeldCount = held;
+        Health = held > 0 ? SourceHealth.NeedsLook : SourceHealth.Healthy;
+    }
+
     /// <summary>A source staff added (L2-001); the next collection run fetches it.</summary>
     public static Source Add(SourceKind kind, string address, string organizationName, string regionSlug, DateTimeOffset now) =>
         new()

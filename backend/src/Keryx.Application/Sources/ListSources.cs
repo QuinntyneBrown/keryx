@@ -24,9 +24,9 @@ public sealed record SourcePage(
     int NeedsLookCount);
 
 /// <summary>
-/// A source as the list shows it. The held count and the 30-day yield are filled by the runs that
-/// collect articles (journeys 4 to 6); until a run records them they are 0, and the failure
-/// reason is null.
+/// A source as the list shows it. Health, its failure reason and the held count follow the last
+/// collection run's fetch (L2-004). The 30-day yield counts stored articles, which arrive with
+/// journey 5; until then it is 0.
 /// </summary>
 public sealed record SourceListItem(
     string Id,
@@ -79,9 +79,9 @@ internal sealed class ListSourcesHandler(IAppDbContext db) : IRequestHandler<Lis
                 row.source.RegionSlug,
                 row.Name,
                 SourceWords.Health(row.source.Health),
-                null,
+                row.source.FailureReason,
                 row.source.ConsecutiveFailures,
-                0,
+                row.source.HeldCount,
                 0,
                 row.source.LastFetchedAt))],
             total,

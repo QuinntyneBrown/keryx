@@ -43,17 +43,19 @@ The pipeline runs in the Keryx Worker. Every fetch and rule sits behind a contra
   switch, topics, exclusions, geography), so a settings change applies from the next run. It
   calls `ICollectionPipeline.ExecuteAsync`, records each `StageResult` on the `Run`, sets the
   outcome, saves, and releases the lease.
-- **`ICollectionPipeline`** / **`CollectionPipeline`** — contract in `Keryx.Application`,
-  implementation in `Keryx.Worker` bound in the worker's composition root. It links the six
-  stage classes with bounded `System.Threading.Channels` channels (capacity `<TO SUPPLY>`), so
-  items stream from stage to stage and memory does not grow with the number of sources.
+- **`CollectionPipeline`** — class in `Keryx.Application` that reaches sources and the database
+  only through contracts, so the API test host runs it as the worker does (ADR 0010). Fetched
+  sources stream to one reader through a bounded `System.Threading.Channels` channel of capacity
+  16, so memory does not grow with the number of sources. Until journey 5 the `deduplicate`,
+  `store` and `publish` stages finish `done` with zero counts (ADR 0010).
 - **`FetchStage`** — fetches each source through `ISourceFetcher` (`HttpSourceFetcher`), with at
   most 8 hosts at once and one request in flight per host (L2-022). Each attempt has the
   per-source time-out from Settings (default 30 seconds), enforced by a cancellation timer created
   from `TimeProvider`; at 30 seconds the attempt is abandoned. A timed-out or transient failure is
-  retried up to 3 attempts in total; `FetchRetryPolicy.DelayBefore` gives increasing delays (base
-  delay and growth `<TO SUPPLY>`). Any exception from one source is caught in that source's task,
-  recorded as a failed source with its reason and an issue, and never propagates; the other
+  retried up to 3 attempts in total by the fetcher itself, 1 then 2 seconds apart or as
+  `Retry-After` says (fetch-respectfully-and-safely), so the stage adds no retry of its own. Any
+  exception from one source is caught in that source's task, recorded as a failed source with
+  reason `refused` and an issue, and never propagates; the other
   sources continue. The stage reports `sources_checked` as each source finishes, and its summary
   gives `sources_ok` and `sources_failed`; it is `done_with_warnings` when any source failed.
 - **`ParseStage`** — turns each fetched document into bounded `ParsedItem` values through

@@ -327,10 +327,16 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text");
+
                     b.Property<string>("Health")
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
+
+                    b.Property<int>("HeldCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Kind")
                         .IsRequired()

@@ -1,0 +1,155 @@
+using System.Threading.Channels;
+using Keryx.Application.Abstractions;
+using Keryx.Application.Scoring;
+using Keryx.Application.Sources;
+using Keryx.Domain.Collection;
+using Keryx.Domain.Sources;
+using Microsoft.EntityFrameworkCore;
+
+namespace Keryx.Application.Collection;
+
+/// <summary>
+/// The six stages of a collection run (L2-007), over the contracts that reach sources (L2-008).
+/// Sources are fetched at most <see cref="FetchConcurrency"/> at once; the fetcher itself keeps
+/// one request per host, times out each attempt and retries up to 3 attempts (L2-022). Each
+/// fetched source streams through a bounded channel to one reader, which parses and classifies
+/// its items, records the source's health and advances the run's progress, so memory does not
+/// grow with the number of sources (L2-087). A source that fails, or throws, is recorded as
+/// failed and the others continue. The deduplicate, store and publish stages arrive with
+/// journeys 5 and 6 (ADR 0010).
+/// </summary>
+public sealed class CollectionPipeline(
+    IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, TimeProvider time)
+{
+    /// <summary>How many sources are fetched at once (L2-022).</summary>
+    internal const int FetchConcurrency = 8;
+
+    /// <summary>How many fetched sources may wait for the reader.</summary>
+    internal const int ChannelCapacity = 16;
+
+    /// <summary>The kinds read over plain HTTP; the platform kinds and news queries need clients not built yet.</summary>
+    private static readonly SourceKind[] Fetchable = [SourceKind.Rss, SourceKind.Website];
+
+    public async Task<RunCounts> ExecuteAsync(Run run, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        // The settings in force when the run starts; a change applies from the next run.
+        var settings = await db.Settings.AsNoTracking().SingleAsync(cancellationToken).ConfigureAwait(false);
+        var scoring = ScoringSettings.From(settings);
+        var timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
+        var sources = await db.Sources.Where(source => Fetchable.Contains(source.Kind)).OrderBy(source => source.Id)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var places = await db.Regions.AsNoTracking().ToDictionaryAsync(region => region.Slug, region => region.Name, cancellationToken).ConfigureAwait(false);
+        run.BeginExecution(sources.Count);
+        foreach (var stage in new[] { PipelineStage.Fetch, PipelineStage.Parse, PipelineStage.Classify })
+        {
+            run.RecordStage(stage, StageStatus.Running, 0, new Dictionary<string, int>());
+        }
+
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        var started = time.GetTimestamp();
+        var fetched = Channel.CreateBounded<(Source Source, SourceFetchResult Result)>(new BoundedChannelOptions(ChannelCapacity)
+        {
+            SingleReader = true,
+        });
+        var fetching = FetchAllAsync(sources, timeout, fetched.Writer, cancellationToken);
+
+        int ok = 0, failed = 0, items = 0, relevant = 0, held = 0, offTopic = 0;
+        long parseTicks = 0, classifyTicks = 0;
+        await foreach (var (source, result) in fetched.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var at = time.GetUtcNow();
+            var parseStarted = time.GetTimestamp();
+            var feed = !result.Succeeded || result.NotModified ? null : parser.Parse(source.Kind, result.Content);
+            parseTicks += time.GetTimestamp() - parseStarted;
+            if (!result.Succeeded || (!result.NotModified && feed is null))
+            {
+                failed++;
+                source.RecordFetchFailed(at, SourceTestResult.Words(result.Failure ?? FetchFailureReason.InvalidContent));
+            }
+            else
+            {
+                ok++;
+                var classifyStarted = time.GetTimestamp();
+                var sourceHeld = 0;
+                var place = places.GetValueOrDefault(source.RegionSlug, string.Empty);
+                foreach (var item in feed?.Items ?? [])
+                {
+                    items++;
+                    var score = scorer.Score(new ScoringItem(item.Title, item.Summary, place), scoring);
+                    switch (PublicationPolicy.Classify(score.Value, settings.PublishThreshold))
+                    {
+                        case PublicationStatus.Published:
+                            relevant++;
+                            break;
+                        case PublicationStatus.NeedsReview:
+                            held++;
+                            sourceHeld++;
+                            break;
+                        default:
+                            offTopic++;
+                            break;
+                    }
+                }
+
+                classifyTicks += time.GetTimestamp() - classifyStarted;
+                source.RecordFetchSucceeded(at, sourceHeld);
+            }
+
+            run.SourceChecked();
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        await fetching.ConfigureAwait(false);
+        var fetchMs = Milliseconds(time.GetTimestamp() - started);
+        run.RecordStage(PipelineStage.Fetch, failed > 0 ? StageStatus.DoneWithWarnings : StageStatus.Done, fetchMs,
+            new Dictionary<string, int> { ["sources_ok"] = ok, ["sources_failed"] = failed });
+        run.RecordStage(PipelineStage.Parse, StageStatus.Done, Milliseconds(parseTicks), new Dictionary<string, int> { ["items"] = items });
+        run.RecordStage(PipelineStage.Classify, held > 0 ? StageStatus.DoneWithWarnings : StageStatus.Done, Milliseconds(classifyTicks),
+            new Dictionary<string, int> { ["relevant"] = relevant, ["held"] = held, ["off_topic"] = offTopic });
+        // Journeys 5 and 6 fill these stages (ADR 0010); until then they store and publish nothing.
+        run.RecordStage(PipelineStage.Deduplicate, StageStatus.Done, 0, new Dictionary<string, int> { ["duplicates"] = 0, ["rejected"] = 0 });
+        run.RecordStage(PipelineStage.Store, StageStatus.Done, 0, new Dictionary<string, int> { ["added"] = 0, ["updated"] = 0, ["unchanged"] = 0 });
+        run.RecordStage(PipelineStage.Publish, StageStatus.Done, 0, new Dictionary<string, int> { ["published"] = 0 });
+        return new RunCounts { Held = held, OffTopic = offTopic, SourcesOk = ok, SourcesFailed = failed };
+    }
+
+    /// <summary>
+    /// Fetches every source, a few at once. A source that throws is recorded as refused and the
+    /// others continue; the channel is completed whatever happens, so the reader always ends.
+    /// </summary>
+    private async Task FetchAllAsync(
+        List<Source> sources, TimeSpan timeout, ChannelWriter<(Source, SourceFetchResult)> writer, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Parallel.ForEachAsync(
+                sources.Select(source => (source.Kind, Address: source.Address, Source: source)),
+                new ParallelOptions { MaxDegreeOfParallelism = FetchConcurrency, CancellationToken = cancellationToken },
+                async (entry, token) =>
+                {
+                    SourceFetchResult result;
+                    try
+                    {
+                        result = Uri.TryCreate(entry.Address, UriKind.Absolute, out var address)
+                            ? await fetcher.FetchAsync(new SourceFetchRequest(entry.Kind, address, timeout), token).ConfigureAwait(false)
+                            : SourceFetchResult.Failed(FetchFailureReason.InvalidContent);
+                    }
+                    catch (Exception exception) when (exception is not OperationCanceledException || !token.IsCancellationRequested)
+                    {
+                        result = SourceFetchResult.Failed(FetchFailureReason.Refused);
+                    }
+
+                    await writer.WriteAsync((entry.Source, result), token).ConfigureAwait(false);
+                }).ConfigureAwait(false);
+            writer.Complete();
+        }
+        catch (Exception exception)
+        {
+            writer.Complete(exception);
+        }
+    }
+
+    private long Milliseconds(long ticks) => (long)time.GetElapsedTime(0, ticks).TotalMilliseconds;
+}

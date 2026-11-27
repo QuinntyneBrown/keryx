@@ -25,6 +25,7 @@ public static class ApplicationServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<Sources.SafeAddressCheck>();
         services.AddScoped<Sources.SourceTester>();
+        services.AddScoped<Collection.CollectionPipeline>();
         services.AddSingleton<Scoring.IRelevanceScorer, Scoring.RelevanceScorer>();
         return services;
     }
