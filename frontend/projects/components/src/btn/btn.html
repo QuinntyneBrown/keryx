@@ -4,7 +4,7 @@
   </a>
 } @else {
   <button
-    type="button"
+    [type]="submit() ? 'submit' : 'button'"
     [attr.class]="classes()"
     [disabled]="disabled() || busy()"
     [attr.aria-busy]="busy() || null"

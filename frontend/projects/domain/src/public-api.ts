@@ -9,3 +9,9 @@ export {
   type SourceHealthLabel,
   type SourceCounts,
 } from './sources/source-words';
+export {
+  isAcceptableAddress,
+  sourceFormValidation,
+  type SourceFormEntries,
+  type SourceFormErrors,
+} from './sources/source-form-validation';

@@ -16,6 +16,7 @@ export class AddSourceDialog {
   readonly organisation: Locator;
   readonly organisationError: Locator;
   readonly region: Locator;
+  readonly regionError: Locator;
   readonly regionOptions: Locator;
   readonly hint: Locator;
   readonly failure: Locator;
@@ -38,6 +39,7 @@ export class AddSourceDialog {
     this.organisationError = this.root.locator('#source-org-error');
     this.region = this.root.locator('#source-region');
     this.regionOptions = this.region.locator('option');
+    this.regionError = this.root.locator('#source-region-error');
     this.hint = this.root.locator('.dialog__body .alert').last();
     this.failure = this.root.locator('.dialog__body .alert--danger');
     this.cancel = this.root.locator('.dialog__foot .btn', { hasText: 'Cancel' });

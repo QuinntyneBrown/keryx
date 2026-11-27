@@ -58,7 +58,8 @@ The feature is a vertical slice from the Add a source dialog to the database.
   test fetch runs once the URL is valid.". The wording for an unreachable result is `<TO SUPPLY>`.
 - **`sourceFormValidation`** — pure helper in the domain library with unit tests. It returns the
   messages "Enter a full URL starting with https://, like https://lifepointfit.ca/events." and
-  "Enter the organisation’s name as it publishes it.". On submit with failures the dialog sends
+  "Enter the organisation’s name as it publishes it.", and, with no region chosen, "Choose the
+  region the organisation is in.". On submit with failures the dialog sends
   nothing, sets `aria-invalid="true"` and `aria-describedby` on each invalid field, moves focus to
   the first, and clears no entry.
 - **Busy** — on a valid submit the "Add source" button shows its busy state; `disableClose` and a

@@ -23,6 +23,8 @@ export class Btn {
   readonly label = input<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly busy = input(false, { transform: booleanAttribute });
+  /** Submits the form it is in: Enter in a field presses it too. */
+  readonly submit = input(false, { transform: booleanAttribute });
   readonly activated = output<void>();
   /** A plain click on the link: the `href` to follow without loading the document again. */
   readonly navigate = output<string>();

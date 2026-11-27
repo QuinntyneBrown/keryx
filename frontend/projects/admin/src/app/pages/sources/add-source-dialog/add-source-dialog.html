@@ -4,6 +4,7 @@
   [titleId]="titleId"
   [descriptionId]="descriptionId"
   (dismiss)="close()"
+  (submitted)="submit(urlInput, organisationInput, regionSelect)"
 >
   <fieldset>
     <legend>Type</legend>
@@ -14,21 +15,49 @@
           [value]="option.value"
           [checked]="kind() === option.value"
           (chosen)="kind.set($any($event))"
-          >{{ option.label }}</kx-choice-card
+          ><kx-icon [name]="option.icon" size="sm" />{{ option.label }}</kx-choice-card
         >
       }
     </kx-choice-grid>
   </fieldset>
-  <kx-field label="URL" for="source-url">
-    <kx-input controlId="source-url" type="url" inputmode="url" mono [(value)]="url" />
+  <kx-field label="URL" for="source-url" [error]="errors().url" errorId="source-url-error">
+    <kx-input
+      #urlInput
+      controlId="source-url"
+      type="url"
+      inputmode="url"
+      mono
+      [invalid]="!!errors().url"
+      [describedBy]="errors().url ? 'source-url-error' : undefined"
+      [(value)]="url"
+    />
   </kx-field>
   <kx-field-grid>
-    <kx-field label="Organisation" for="source-org">
-      <kx-input controlId="source-org" [(value)]="organisation" />
+    <kx-field
+      label="Organisation"
+      for="source-org"
+      [error]="errors().organisation"
+      errorId="source-org-error"
+    >
+      <kx-input
+        #organisationInput
+        controlId="source-org"
+        [invalid]="!!errors().organisation"
+        [describedBy]="errors().organisation ? 'source-org-error' : undefined"
+        [(value)]="organisation"
+      />
     </kx-field>
-    <kx-field label="Region" for="source-region">
+    <kx-field
+      label="Region"
+      for="source-region"
+      [error]="errors().region"
+      errorId="source-region-error"
+    >
       <kx-select
+        #regionSelect
         controlId="source-region"
+        [invalid]="!!errors().region"
+        [describedBy]="errors().region ? 'source-region-error' : undefined"
         placeholder="Choose a region"
         [options]="regionOptions()"
         [(value)]="region"
@@ -39,5 +68,5 @@
     >Paste a URL and Keryx runs a test fetch before anything is added.</kx-alert
   >
   <kx-btn slot="actions" variant="ghost" (activated)="close()">Cancel</kx-btn>
-  <kx-btn slot="actions" variant="primary">Add source</kx-btn>
+  <kx-btn slot="actions" variant="primary" submit>Add source</kx-btn>
 </kx-dialog>

@@ -16,6 +16,12 @@ describe('Btn', () => {
     expect(control.getAttribute('type')).toBe('button');
   });
 
+  it('submits its form when it is the submit button', () => {
+    const { control } = render({ submit: true });
+
+    expect(control.getAttribute('type')).toBe('submit');
+  });
+
   it('is a link, not a button, when it has an href', () => {
     const { control } = render({ href: '/', variant: 'primary' });
 

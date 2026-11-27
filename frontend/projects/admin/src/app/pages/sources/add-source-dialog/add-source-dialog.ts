@@ -9,17 +9,25 @@ import {
   Dialog,
   Field,
   FieldGrid,
+  Icon,
+  type IconName,
   Input,
   Select,
 } from '@kx/components';
+import { sourceFormValidation, type SourceFormErrors } from '@kx/domain';
 
 /** The kinds staff can add, in the order of the cards; `news_query` is seeded only. */
-const KINDS: readonly { value: SourceKind; label: string }[] = [
-  { value: 'rss', label: 'RSS' },
-  { value: 'website', label: 'Website' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'eventbrite', label: 'Eventbrite' },
+const KINDS: readonly { value: SourceKind; label: string; icon: IconName }[] = [
+  { value: 'rss', label: 'RSS', icon: 'rss' },
+  { value: 'website', label: 'Website', icon: 'globe' },
+  { value: 'instagram', label: 'Instagram', icon: 'instagram' },
+  { value: 'eventbrite', label: 'Eventbrite', icon: 'calendar' },
 ];
+
+/** A control the dialog can move focus to. */
+interface Focusable {
+  focus(): void;
+}
 
 /** The ids the CDK container is labelled and described by. */
 export const ADD_SOURCE_TITLE_ID = 'add-source-title';
@@ -31,7 +39,7 @@ export const ADD_SOURCE_DESCRIPTION_ID = 'add-source-description';
  */
 @Component({
   selector: 'kx-add-source-dialog',
-  imports: [Alert, Btn, ChoiceCard, ChoiceGrid, Dialog, Field, FieldGrid, Input, Select],
+  imports: [Alert, Btn, ChoiceCard, ChoiceGrid, Dialog, Field, FieldGrid, Icon, Input, Select],
   templateUrl: './add-source-dialog.html',
   styleUrl: './add-source-dialog.scss',
 })
@@ -48,6 +56,17 @@ export class AddSourceDialog {
   protected readonly organisation = signal('');
   protected readonly region = signal('');
   private readonly regions = signal<Region[]>([]);
+  /** Whether staff have tried to add: from then on each field's error follows its entry. */
+  private readonly attempted = signal(false);
+  protected readonly errors = computed<SourceFormErrors>(() =>
+    this.attempted()
+      ? sourceFormValidation({
+          url: this.url(),
+          organisation: this.organisation(),
+          region: this.region(),
+        })
+      : {},
+  );
   protected readonly regionOptions = computed(() =>
     this.regions().map((region) => ({ value: region.slug, label: region.name })),
   );
@@ -58,6 +77,26 @@ export class AddSourceDialog {
       (regions) => this.regions.set(regions),
       () => undefined,
     );
+  }
+
+  /**
+   * "Add source", or Enter in a field. With an entry wrong, nothing is sent, each wrong field
+   * says why and focus moves to the first of them; no entry is cleared (L2-064 AC3).
+   */
+  protected submit(url: Focusable, organisation: Focusable, region: Focusable): void {
+    this.attempted.set(true);
+    const errors = this.errors();
+    const first = errors.url
+      ? url
+      : errors.organisation
+        ? organisation
+        : errors.region
+          ? region
+          : null;
+    if (first) {
+      first.focus();
+      return;
+    }
   }
 
   protected close(): void {

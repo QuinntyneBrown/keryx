@@ -113,6 +113,70 @@ test.describe('Add a source', () => {
     await expect(dialog.type('RSS')).not.toBeChecked();
   });
 
+  // L2-064 AC3.
+  test('says what is wrong, sends nothing and keeps every entry', async ({ page, api }) => {
+    answerSourcesScreen(api);
+    let posts = 0;
+    api.on('POST', '/admin/v1/sources', () => {
+      posts += 1;
+      return { status: 500 };
+    });
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.addSource.click();
+    await dialog.type('Website').check();
+    await dialog.url.fill('lifepointfit');
+    await dialog.region.selectOption({ label: 'Scarborough' });
+
+    await dialog.submit.click();
+
+    await expect(dialog.urlError).toHaveText(
+      'Enter a full URL starting with https://, like https://lifepointfit.ca/events.',
+    );
+    await expect(dialog.organisationError).toHaveText(
+      'Enter the organisation’s name as it publishes it.',
+    );
+    await expect(dialog.url).toHaveAttribute('aria-invalid', 'true');
+    await expect(dialog.url).toHaveAccessibleDescription(
+      'Enter a full URL starting with https://, like https://lifepointfit.ca/events.',
+    );
+    await expect(dialog.organisation).toHaveAttribute('aria-invalid', 'true');
+    await expect(dialog.organisation).toHaveAccessibleDescription(
+      'Enter the organisation’s name as it publishes it.',
+    );
+    await expect(dialog.region).not.toHaveAttribute('aria-invalid');
+    await expect(dialog.url).toBeFocused();
+    await expect(dialog.url).toHaveValue('lifepointfit');
+    await expect(dialog.type('Website')).toBeChecked();
+    await expect(dialog.region).toHaveValue('scarborough');
+    expect(posts).toBe(0);
+
+    // Once fixed, a field's error goes as it is corrected.
+    await dialog.url.fill('https://lifepointfit.ca/events');
+    await expect(dialog.urlError).toHaveCount(0);
+    await expect(dialog.url).not.toHaveAttribute('aria-invalid');
+  });
+
+  test('asks for a region and moves focus to it when it is the first wrong field', async ({
+    page,
+    api,
+  }) => {
+    answerSourcesScreen(api);
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.addSource.click();
+    await dialog.url.fill('https://lifepointfit.ca/events');
+    await dialog.organisation.fill('LifePoint Fitness Ministry');
+
+    await dialog.organisation.press('Enter');
+
+    await expect(dialog.regionError).toHaveText('Choose the region the organisation is in.');
+    await expect(dialog.region).toHaveAttribute('aria-invalid', 'true');
+    await expect(dialog.region).toBeFocused();
+  });
+
   // L2-064 AC8, L2-074: a bottom sheet below 640 px.
   test('is a bottom sheet on a narrow screen', async ({ page, api }) => {
     await page.setViewportSize({ width: 375, height: 700 });
