@@ -19,7 +19,7 @@ namespace Keryx.Application.Collection;
 /// journeys 5 and 6 (ADR 0010).
 /// </summary>
 public sealed class CollectionPipeline(
-    IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, TimeProvider time)
+    IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, SourceIssueTracker issues, TimeProvider time)
 {
     /// <summary>How many sources are fetched at once (L2-022).</summary>
     internal const int FetchConcurrency = 8;
@@ -40,6 +40,11 @@ public sealed class CollectionPipeline(
         var sources = await db.Sources.Where(source => Fetchable.Contains(source.Kind)).OrderBy(source => source.Id)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         var places = await db.Regions.AsNoTracking().ToDictionaryAsync(region => region.Slug, region => region.Name, cancellationToken).ConfigureAwait(false);
+        // The worker's run before this one: an issue seen there and again here continues its streak.
+        long? previousRunId = await db.Runs.AsNoTracking()
+            .Where(other => other.Worker == run.Worker && other.Id != run.Id && other.StartedAt <= run.StartedAt)
+            .OrderByDescending(other => other.StartedAt).ThenByDescending(other => other.Id)
+            .Select(other => (long?)other.Id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
         run.BeginExecution(sources.Count);
         foreach (var stage in new[] { PipelineStage.Fetch, PipelineStage.Parse, PipelineStage.Classify })
         {
@@ -66,7 +71,9 @@ public sealed class CollectionPipeline(
             if (!result.Succeeded || (!result.NotModified && feed is null))
             {
                 failed++;
-                source.RecordFetchFailed(at, SourceTestResult.Words(result.Failure ?? FetchFailureReason.InvalidContent));
+                var reason = result.Failure ?? FetchFailureReason.InvalidContent;
+                source.RecordFetchFailed(at, SourceTestResult.Words(reason));
+                await issues.FailedAsync(run, previousRunId, source, reason, timeout, at, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -95,6 +102,7 @@ public sealed class CollectionPipeline(
 
                 classifyTicks += time.GetTimestamp() - classifyStarted;
                 source.RecordFetchSucceeded(at, sourceHeld);
+                await issues.SucceededAsync(run, previousRunId, source, sourceHeld, settings.PublishThreshold, at, cancellationToken).ConfigureAwait(false);
             }
 
             run.SourceChecked();

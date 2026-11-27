@@ -59,7 +59,15 @@ checks anything itself.
   `Close` change the state; `Close` also clears a mute.
 - **`IssueOccurrence`** — one row per issue per run, holding that run's detail, so a muted issue
   is still listed on its run with `muted: true`.
-- **`IssueTracker`** — domain service called by the pipeline. When a source fails, it continues
+- **`IssueTracker`** — `SourceIssueTracker` in `Keryx.Application`, called by the pipeline for
+  each source (it reads the issues through `IAppDbContext`). A fetch failure is an `error`:
+  `not_found` is `source_not_found`, `timeout` is `source_timeout`, `invalid_content` is
+  `source_invalid`, and `blocked_by_robots`, `refused` and `unsafe_address` are
+  `source_blocked`. Its detail is a sentence such as "Nothing was found at
+  https://redeemedrun.ca/feed." or "The source did not answer within 30s on 3 attempts.". A
+  source with items held for review has an `items_held` `warning`, "6 items held for review:
+  their relevance score is between 0.45 and 0.60.". A failure of another kind closes the
+  source's other issues. When a source fails, it continues
   the open or muted issue of the same source and kind if that issue occurred in the worker's
   previous run (`consecutive_runs` + 1, `since` unchanged), and otherwise opens a new issue with
   `consecutive_runs` 1. When a source succeeds without that problem, it closes the source's

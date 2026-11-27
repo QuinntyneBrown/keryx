@@ -46,15 +46,16 @@ public sealed class CollectionSchedulerTests
     }
 
     [Fact]
-    public async Task Given_the_worker_starts_30_seconds_before_a_slot_When_it_has_ticked_Then_it_waits_30_seconds_not_a_minute()
+    public async Task Given_the_worker_starts_40_seconds_before_a_slot_When_it_has_ticked_Then_it_waits_40_seconds_not_a_minute()
     {
         await using var worker = new WorkerHarness(FakeSchemaVersion.AtExpected);
         await SeedAsync(worker);
-        worker.Time.SetUtcNow(new DateTimeOffset(2026, 11, 27, 16, 59, 30, TimeSpan.Zero));
+        // 40 seconds: no other timer of the worker has that due time (the gate's is 30, the runner's 10).
+        worker.Time.SetUtcNow(new DateTimeOffset(2026, 11, 27, 16, 59, 20, TimeSpan.Zero));
         await worker.StartAsync();
 
-        await worker.Time.TimerAsync(TimeSpan.FromSeconds(30), Within);
-        worker.Time.Advance(TimeSpan.FromSeconds(30));
+        await worker.Time.TimerAsync(TimeSpan.FromSeconds(40), Within);
+        worker.Time.Advance(TimeSpan.FromSeconds(40));
         await worker.Time.TimerAsync(Recheck, Within);
         await worker.StopAsync();
 

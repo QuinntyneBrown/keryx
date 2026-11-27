@@ -76,6 +76,26 @@ public sealed class RunIssue
         Since = now,
     };
 
+    /// <summary>A problem with one source, first seen now (L2-020).</summary>
+    public static RunIssue ForSource(RunWorker worker, IssueSeverity severity, IssueKind kind, long sourceId, string detail, DateTimeOffset now) => new()
+    {
+        PublicId = PublicIds.New("iss"),
+        Worker = worker,
+        Severity = severity,
+        Kind = kind,
+        SourceId = sourceId,
+        Detail = detail,
+        ConsecutiveRuns = 1,
+        Since = now,
+    };
+
+    /// <summary>It happened again in the next run: the streak grows and <see cref="Since"/> stays (L2-020 AC1).</summary>
+    public void Continue(string detail)
+    {
+        ConsecutiveRuns++;
+        Detail = detail;
+    }
+
     /// <summary>The problem is over; a later recurrence is a new issue. Closing clears a mute.</summary>
     public void Close() => State = IssueState.Closed;
 }
