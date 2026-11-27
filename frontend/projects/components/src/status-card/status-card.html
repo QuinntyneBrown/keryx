@@ -1,0 +1,19 @@
+<section class="card card--flush status-card" aria-labelledby="status-title">
+  <div class="status-card__main">
+    <div class="status-card__summary">
+      <span [attr.class]="iconClasses()"><kx-icon [name]="icon()" size="lg" /></span>
+      <div class="status-card__text">
+        <p class="status-card__eyebrow">{{ eyebrow() }}</p>
+        <h2 class="status-card__headline" id="status-title">{{ headline() }}</h2>
+        <p class="status-card__meta">
+          {{ meta() }}
+          @if (reference(); as id) {
+            · <span class="mono status-card__id">{{ id }}</span>
+          }
+        </p>
+      </div>
+    </div>
+    <kx-stats class="status-card__stats" [items]="stats()" />
+  </div>
+  <ng-content />
+</section>

@@ -52,9 +52,10 @@ test.describe('Document foundations', () => {
     expect(await doc.durationMs('--duration-slow')).toBe(0);
   });
 
-  // L2-088 AC5: Geist comes from the app's own origin as woff2 with font-display: swap, and only
-  // the face used on the screen is preloaded. Geist Mono is declared but nothing here uses it.
-  test('serves Geist from its own origin and preloads only that face', async ({
+  // L2-088 AC5: the fonts come from the app's own origin as woff2 with font-display: swap, and
+  // only Geist, the face every screen uses, is preloaded. Geist Mono, which Overview uses for the
+  // run id, loads when a screen first uses it.
+  test('serves the fonts from their own origin and preloads only Geist', async ({
     page,
     baseURL,
   }) => {
@@ -62,15 +63,20 @@ test.describe('Document foundations', () => {
 
     await doc.open();
 
+    await expect.poll(() => doc.fontRequests()).toHaveLength(2);
     const requested = doc.fontRequests();
-    expect(requested).toHaveLength(1);
     expect(requested[0]).toMatch(/\/Geist-Variable\.woff2$/);
-    expect(new URL(requested[0]).origin).toBe(new URL(baseURL ?? '').origin);
-    expect(await doc.preloadedFonts()).toEqual(requested);
+    expect(requested[1]).toMatch(/\/GeistMono-Variable\.woff2$/);
+    for (const font of requested) {
+      expect(new URL(font).origin).toBe(new URL(baseURL ?? '').origin);
+    }
+    expect(await doc.preloadedFonts()).toEqual([requested[0]]);
     expect(await doc.bodyStyle('font-family')).toMatch(/^"?Geist"?,/);
-    expect(await doc.declaredFaces()).toEqual([
-      { family: 'Geist', display: 'swap', status: 'loaded' },
-      { family: 'Geist Mono', display: 'swap', status: 'unloaded' },
-    ]);
+    await expect
+      .poll(() => doc.declaredFaces())
+      .toEqual([
+        { family: 'Geist', display: 'swap', status: 'loaded' },
+        { family: 'Geist Mono', display: 'swap', status: 'loaded' },
+      ]);
   });
 });

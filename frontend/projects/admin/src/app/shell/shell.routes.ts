@@ -13,8 +13,8 @@ export default [
       {
         path: '',
         pathMatch: 'full',
-        title: 'Admin · Keryx',
-        loadComponent: () => import('../pages/home-placeholder/home-placeholder'),
+        title: 'Overview · Keryx',
+        loadComponent: () => import('../pages/overview/overview'),
       },
       {
         path: 'articles',

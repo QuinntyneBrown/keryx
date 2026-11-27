@@ -2,9 +2,8 @@ import type { Locator, Page, Response } from '@playwright/test';
 
 /**
  * The admin shell: the frame every screen sits in (docs/design-system/components/app.html,
- * sidebar.html, brand.html, skip-link.html). Until journey 2 it is the placeholder of ADR 0004:
- * the frame, the lockup and one empty-state card. The locators are the design system's BEM
- * classes, which the mocks and the components library share.
+ * sidebar.html, brand.html, skip-link.html), opened at `/`, where Overview sits. The locators are
+ * the design system's BEM classes, which the mocks and the components library share.
  */
 export class ShellPage {
   readonly skipLink: Locator;
@@ -20,11 +19,8 @@ export class ShellPage {
   readonly tag: Locator;
   readonly navigation: Locator;
   readonly headings: Locator;
-  readonly placeholder: Locator;
-  readonly placeholderText: Locator;
+  readonly description: Locator;
   /** The card's icon disc and action row, which take no room while nothing is in them. */
-  readonly placeholderIcon: Locator;
-  readonly placeholderActions: Locator;
   /** The sidebar footer and the signed-in person in it. */
   readonly footer: Locator;
   readonly avatar: Locator;
@@ -46,10 +42,7 @@ export class ShellPage {
     this.tag = this.sidebar.locator('.sidebar__tag');
     this.navigation = page.getByRole('navigation');
     this.headings = page.locator('h1');
-    this.placeholder = this.main.locator('.empty');
-    this.placeholderText = this.placeholder.locator('.empty__text');
-    this.placeholderIcon = this.placeholder.locator('.empty__icon');
-    this.placeholderActions = this.placeholder.locator('.empty__actions');
+    this.description = this.main.locator('.page-header__description');
     this.footer = this.sidebar.locator('.sidebar__foot');
     this.avatar = this.footer.locator('.sidebar__user .avatar');
     this.userName = this.footer.locator('.sidebar__user-name');

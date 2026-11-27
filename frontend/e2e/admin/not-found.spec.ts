@@ -37,7 +37,7 @@ test.describe('Not found', () => {
     await screen.overviewLink.click();
 
     await expect.poll(() => screen.path()).toBe('/');
-    await expect(screen.heading).not.toHaveText('Page not found');
+    await expect(screen.screenHeading).toHaveText('Overview');
     expect(await screen.documentWasKept()).toBe(true);
   });
 

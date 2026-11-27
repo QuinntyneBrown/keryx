@@ -1,0 +1,112 @@
+// The status card (docs/design-system/components/status-card.html): a flush card.
+@use '../breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.status-card {
+  overflow: hidden;
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.status-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-5);
+}
+
+.status-card__summary {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.status-card__text {
+  min-width: 0;
+}
+
+.status-card__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--size-tile-lg);
+  height: var(--size-tile-lg);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+}
+
+.status-card__icon--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-icon);
+}
+
+.status-card__icon--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-icon);
+}
+
+.status-card__icon--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-icon);
+}
+
+.status-card__icon--info {
+  background: var(--color-info-bg);
+  color: var(--color-info-icon);
+}
+
+.status-card__eyebrow {
+  color: var(--color-fg-muted);
+}
+
+.status-card__headline {
+  margin-top: var(--space-0-5);
+  overflow-wrap: anywhere;
+}
+
+// The meta line wraps between its parts; the run id stays whole.
+.status-card__meta {
+  margin-top: var(--space-1-5);
+  color: var(--color-fg-muted);
+}
+
+.status-card__id {
+  white-space: nowrap;
+}
+
+.status-card__stats {
+  padding-top: var(--space-5);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+@include bp.from(768) {
+  .status-card__main {
+    padding: var(--space-6);
+  }
+
+  .status-card__headline {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+@include bp.from(1280) {
+  .status-card__main {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-10);
+  }
+
+  .status-card__stats {
+    padding-top: 0;
+    padding-left: var(--space-10);
+    border-top: 0;
+    border-left: var(--border-width-hairline) solid var(--color-border-default);
+  }
+}

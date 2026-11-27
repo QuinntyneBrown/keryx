@@ -10,6 +10,8 @@ export class NotFoundPage {
   readonly overviewLink: Locator;
   readonly sidebar: Locator;
   readonly currentLinks: Locator;
+  /** The heading of whatever screen is shown. */
+  readonly screenHeading: Locator;
 
   constructor(private readonly page: Page) {
     const card = page.locator('main .empty.empty--card');
@@ -18,6 +20,7 @@ export class NotFoundPage {
     this.overviewLink = card.locator('.empty__actions a.btn.btn--primary');
     this.sidebar = page.locator('aside.sidebar');
     this.currentLinks = page.locator('[aria-current="page"]');
+    this.screenHeading = page.locator('main h1');
   }
 
   async open(path: string): Promise<void> {

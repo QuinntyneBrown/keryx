@@ -1,0 +1,49 @@
+// Stats (docs/design-system/components/stat.html).
+:host {
+  display: block;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat__label {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+.stat__value {
+  margin-top: var(--space-1);
+  font: var(--text-stat);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.stat__value--lg {
+  font: var(--text-stat-lg);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.stat__value--sm {
+  margin-top: var(--space-1-5);
+  font: var(--text-stat-sm);
+}
+
+.stat__unit {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg-subtle);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.stat__sub {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

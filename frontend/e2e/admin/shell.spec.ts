@@ -1,14 +1,14 @@
 // Acceptance Test
 // Traces to: L2-088, L2-091, L2-092, L2-097, L2-098
-// Description: The admin app opens on the shell placeholder, built only from design-system components
+// Description: The admin app opens on Overview inside the shell, built only from design-system components
 
 import { expect, test } from '../fixtures/test';
 import { ShellPage } from '../page-objects/admin/shell.page';
 
-// The stand-in copy of ADR 0004; journey 2 replaces it with the routed screens.
-const PLACEHOLDER_TEXT = 'The admin screens are not built yet.';
+// Overview's description: text only its own lazy chunk holds.
+const OVERVIEW_TEXT = 'Christian fitness news collected across Toronto & the GTA.';
 
-test.describe('Admin shell placeholder', () => {
+test.describe('Admin shell', () => {
   // L2-097 AC3, L2-098 AC1 and AC4, L2-091 AC3, L2-092 AC7.
   test(
     'opens on the frame with the lockup as the home link and one heading',
@@ -18,7 +18,7 @@ test.describe('Admin shell placeholder', () => {
 
       await shell.open();
 
-      await expect.poll(() => shell.title()).toBe('Admin · Keryx');
+      await expect.poll(() => shell.title()).toBe('Overview · Keryx');
       await expect(shell.frame).toHaveCount(1);
       await expect(shell.main).toHaveCount(1);
       await expect(shell.main).toHaveAttribute('id', 'main');
@@ -27,15 +27,12 @@ test.describe('Admin shell placeholder', () => {
       await expect(shell.wordmark).toHaveText('keryx');
       await expect(shell.tag).toHaveText('Admin');
       await expect(shell.headings).toHaveCount(1);
-      await expect(shell.headings).toHaveText('Keryx Admin');
-      await expect(shell.placeholderText).toHaveText(PLACEHOLDER_TEXT);
-      // The card has no icon and no action: neither an empty disc nor an empty row is drawn.
-      await expect(shell.placeholderIcon).toBeHidden();
-      await expect(shell.placeholderActions).toBeHidden();
-      // ADR 0006: each screen's link arrives with the screen: Articles, Sources, API and Settings so far.
+      await expect(shell.headings).toHaveText('Overview');
+      // ADR 0006: each screen's link arrives with the screen; Runs comes with journey 14.
       await expect(shell.navigation).toHaveCount(1);
       await expect(shell.navigation).toHaveAccessibleName('Primary');
       await expect(shell.navigation.getByRole('link')).toHaveText([
+        'Overview',
         'Articles',
         'Sources',
         'API',
@@ -76,9 +73,9 @@ test.describe('Admin shell placeholder', () => {
     const shell = new ShellPage(page);
 
     await shell.open();
-    await expect(shell.placeholderText).toHaveText(PLACEHOLDER_TEXT);
+    await expect(shell.description).toHaveText(OVERVIEW_TEXT);
 
-    const holding = await shell.scriptsHolding(PLACEHOLDER_TEXT);
+    const holding = await shell.scriptsHolding('Christian fitness news collected across Toronto');
     const initial = await shell.initialScripts();
     expect(holding).toHaveLength(1);
     expect(initial.length).toBeGreaterThan(0);
@@ -107,7 +104,7 @@ test.describe('Admin shell placeholder', () => {
 
     await shell.brand.click();
 
-    await expect(shell.headings).toHaveText('Keryx Admin');
+    await expect(shell.headings).toHaveText('Overview');
     expect(shell.path()).toBe('/');
     expect(await shell.documentWasKept()).toBe(true);
   });

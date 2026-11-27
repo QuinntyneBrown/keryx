@@ -1,5 +1,6 @@
 import { test as base, expect, type ConsoleMessage } from '@playwright/test';
 import { ApiHandlers } from './api-handlers';
+import { overviewStatus } from './overview';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
@@ -48,6 +49,8 @@ export const test = base.extend<Fixtures>({
     handlers.on('GET', '/admin/v1/me', () => ({
       json: { name: 'Daniel Adeyemi', initials: 'DA', role: 'Owner' },
     }));
+    // Overview opens at `/`, where sign-in and the shell land.
+    handlers.on('GET', '/admin/v1/overview/status', () => ({ json: overviewStatus() }));
     await use(handlers);
   },
 

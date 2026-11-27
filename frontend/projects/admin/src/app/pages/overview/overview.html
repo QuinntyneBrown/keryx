@@ -1,0 +1,16 @@
+<kx-page-header
+  title="Overview"
+  description="Christian fitness news collected across Toronto & the GTA."
+/>
+<kx-page-body>
+  @if (card(); as shown) {
+    <kx-status-card
+      [eyebrow]="shown.eyebrow"
+      [headline]="shown.headline"
+      [meta]="shown.meta"
+      [reference]="shown.reference"
+      [tone]="shown.tone"
+      [stats]="shown.stats"
+    />
+  }
+</kx-page-body>

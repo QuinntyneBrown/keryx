@@ -41,3 +41,5 @@ export { Toolbar } from './search/toolbar';
 export { DetailPanel, type DetailAction } from './detail-panel/detail-panel';
 export { Dl, type DlItem } from './dl/dl';
 export { Skeleton } from './skeleton/skeleton';
+export { Stats, type StatItem } from './stats/stats';
+export { StatusCard, type StatusTone } from './status-card/status-card';
