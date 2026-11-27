@@ -121,7 +121,7 @@ command. It has no admin app part.
     the linked `article_id`.
   - organizations: (`name`, `id`), normalized name for the `q` prefix, `region`, `kind`.
   - sources: the sources list's sort key; admin list filters are indexed by their own designs.
-  The exact definitions depend on the database engine, which is `<TO SUPPLY>`.
+  The exact definitions are PostgreSQL's ([ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)).
 - **Response compression** — ASP.NET Core response compression with Brotli and gzip for
   `application/json` and `application/problem+json`, enabled for HTTPS. Bodies over 1 KB are
   compressed when the client accepts it; smaller bodies may also be compressed. Response bodies

@@ -39,7 +39,7 @@ the notifications.
 ## Description
 
 The slice runs from the API screen in the Keryx Admin application through the admin API to the
-relational database (engine `<TO SUPPLY>`) via EF Core.
+relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core.
 
 **Admin app (`frontend/projects/admin`)**
 

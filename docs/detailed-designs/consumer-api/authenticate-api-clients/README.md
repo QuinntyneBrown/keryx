@@ -53,7 +53,7 @@ declare which scope policy each endpoint uses.
 ## Description
 
 The slice runs from the consuming product's HTTPS request through the API's middleware to the
-relational database (engine `<TO SUPPLY>`) via EF Core. It has no admin app part.
+relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core. It has no admin app part.
 
 - **`ClientRateLimiter`** (`Keryx.Api`, middleware) — applies two limits, reading the clock from
   `TimeProvider`. Before authentication, it refuses a request with `429` when the caller's

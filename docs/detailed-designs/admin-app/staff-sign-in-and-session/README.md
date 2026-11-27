@@ -57,7 +57,7 @@ Account section on the Settings page.
 ## Description
 
 The slice runs from the admin app's routes and HTTP pipeline through the Keryx API's
-authentication to the identity provider and the relational database (engine `<TO SUPPLY>`) via
+authentication to the identity provider and the relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via
 EF Core.
 
 **Admin app (`frontend/projects/admin`)**

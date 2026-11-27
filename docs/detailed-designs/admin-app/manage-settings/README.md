@@ -34,7 +34,7 @@ operational alerts (`L2-077`, `L2-078`).
 ## Description
 
 The slice runs from the routed Settings page in the Keryx Admin app to the settings row in the
-Keryx database, a relational database (engine `<TO SUPPLY>`) via EF Core.
+Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core.
 
 **Frontend — `admin` app (`frontend/projects/admin`)**
 

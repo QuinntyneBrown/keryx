@@ -101,8 +101,8 @@ database, and out through the regions endpoint.
 
 **Infrastructure (`Keryx.Infrastructure`)**
 
-- **`KeryxDbContext`** — maps the records with EF Core onto a relational database (engine
-  `<TO SUPPLY>`). A value converter stores every `DateTimeOffset` as UTC. Each wall-clock time
+- **`KeryxDbContext`** — maps the records with EF Core onto a relational database (PostgreSQL,
+  [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)). A value converter stores every `DateTimeOffset` as UTC. Each wall-clock time
   (event start, schedule) has its IANA zone in a column beside it.
 
 **API (`Keryx.Api`)**

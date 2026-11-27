@@ -58,8 +58,11 @@ person endpoint of the staff sign-in design (`L2-039`).
   `HttpOverviewApi`. It imports no CDK module; dialogs and overlays load with the screens that
   open them.
 - **`AppShell`** — routed layout component (`app/shell/app-shell.ts`, `.html`, `.scss`). It
-  composes `SkipLink`, `Sidebar` and a `<main id="main" class="app__main">` holding the
-  `router-outlet`. It builds the six `NavItem` values and sets `aria-current="page"` on exactly
+  composes `SkipLink`, `App` and `Sidebar` from the components library and projects the
+  `router-outlet` into `App`'s `<main id="main" class="app__main">`; it has no markup of its
+  own. Until the screens exist it is the placeholder of
+  [ADR 0004](../../../adr/0004-shell-placeholder-until-the-admin-shell.md): the frame, the
+  lockup and an `Empty` card. It builds the six `NavItem` values and sets `aria-current="page"` on exactly
   one link through `routerLinkActive` with `ariaCurrentWhenActive="page"`. It moves focus to the
   main region when the skip link is activated.
 - **`SessionStore`** — app-wide session state owned by the Staff sign-in and session design. The
@@ -81,6 +84,9 @@ one encapsulated BEM stylesheet each, selector prefix `kx-`)
 
 - **`SkipLink`** (`skip-link`) — "Skip to content" link, the first focusable element; it
   targets `#main`.
+- **`App`** (`app`, elements `app__main`, `app__content`; with `PageBody`, `page-body`) — the
+  frame: a slot for the sidebar and the one `main` landmark, in the default, split and bare
+  arrangements of its design-system page.
 - **`Sidebar`** (`sidebar`, elements `sidebar__head`, `sidebar__tag`, `sidebar__nav`,
   `sidebar__foot`, `sidebar__caption`, `sidebar__value`, `sidebar__user`,
   `sidebar__user-name`) — navigation frame. It projects the brand and the links, and renders
@@ -128,13 +134,15 @@ one encapsulated BEM stylesheet each, selector prefix `kx-`)
 
 **Build and assets**
 
-- **`angular.json` budgets** — `initial` error at 250 kB and `anyComponentStyle` error at 8 kB.
-  The build fails beyond either. `L2-088` states the initial limit as "transferred"; Angular
-  measures budgets on uncompressed output, so the configured byte value that corresponds to
-  250 kB transferred is `<TO SUPPLY>`.
+- **`angular.json` budgets** — `initial` error at 250 kB (warning at 240 kB) and
+  `anyComponentStyle` error at 8 kB (warning at 6 kB), both on uncompressed output, which is
+  what Angular budgets measure and what `L2-088` states (decision 14 of
+  [L2.md](../../../specs/L2.md)). The build fails beyond either; raising one needs a stated
+  reason.
 - **Deferred content** — the run chart (Overview), the API example panel (API) and the article
   detail panel (Articles) sit in `@defer` blocks owned by their screens' designs.
-- **Fonts** — Geist and Geist Mono `woff2` files are bundled from `docs/mocks/assets/fonts/`,
+- **Fonts** — Geist and Geist Mono `woff2` files are bundled from
+  `docs/design-system/assets/fonts/` (copied to the app's `foundations/assets/fonts/`),
   declared in the global stylesheet with `@font-face` and `font-display: swap`, served from the
   app's own origin, and only the faces used above the fold are preloaded in `index.html`.
 - **Favicon** — `frontend/public/favicon.ico` holds the mark at 16, 24, 32, 48, 64, 128 and

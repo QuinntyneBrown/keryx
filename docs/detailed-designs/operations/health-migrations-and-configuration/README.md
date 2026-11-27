@@ -31,21 +31,29 @@ run as `failed` with reason `interrupted`, and exits within 30 seconds.
 - **`/health/live`** — `MapHealthChecks` with a predicate that runs no check; it answers `200`
   without touching the database. It is `AllowAnonymous` and excluded from the OpenAPI document.
 - **`/health/ready`** — runs `DatabaseReadinessCheck`; it answers `200` when healthy and `503`
-  otherwise. It is `AllowAnonymous`. `MinimalHealthResponseWriter` writes the status word only:
-  no version, host, exception or check detail.
+  otherwise. It is `AllowAnonymous`. `MinimalHealthResponseWriter` writes the status word only
+  (`Healthy` or `Unhealthy`, as `text/plain`): no version, host, exception or check detail.
 - **`SchemaStatusLogger`** — hosted service that runs `DatabaseReadinessCheck` once at startup.
   When the schema is behind, it logs a warning to run `migrate`. It never migrates.
 - **Startup validation** — `Program` binds each options class with
-  `ValidateDataAnnotations().ValidateOnStart()`. On `OptionsValidationException` it writes the
-  names of the missing settings, never their values, and exits with a non-zero code
-  (`<TO SUPPLY>`).
+  `ValidateDataAnnotations().ValidateOnStart()`. Each `[Required]` member carries the message
+  "Missing required setting: `<key>`", where the key is the environment variable's name
+  (`ConnectionStrings__Keryx`). On `OptionsValidationException` the process writes those
+  messages to standard error, never a value, and exits with code `2`. The worker and the CLI
+  do the same.
 
 **Infrastructure (`Keryx.Infrastructure`)**
 
 - **`DatabaseReadinessCheck`** — `IHealthCheck` shared by the API and the worker. It is healthy
-  only when `Database.CanConnectAsync` succeeds and the last applied migration equals the
-  build's expected schema version (`GetAppliedMigrationsAsync` against `GetMigrations`). A
-  database ahead of the build is not ready either.
+  only when the database can be reached and the last applied migration equals the build's
+  expected schema version. A database ahead of the build is not ready either. It reads both
+  facts through `ISchemaVersion` and never throws: a failure to connect is "not ready".
+- **`ISchemaVersion`** / **`EfSchemaVersion`** — the one place that asks EF Core about the
+  schema: `Database.CanConnectAsync`, then `GetAppliedMigrationsAsync` against `GetMigrations`.
+  A provider with no migrations (the tests' EF Core InMemory) is at the expected version. A
+  test injects a fake to stand for a database that is behind or unreachable.
+- **`IDatabaseMigrator`** / **`EfDatabaseMigrator`** — applies the pending migrations
+  (`Database.MigrateAsync`) and returns how many it applied. Only the CLI resolves it.
 - **`KeryxOptions`** classes — `DatabaseOptions`, `IdentityProviderOptions`, `AdminOptions`,
   `PublicApiOptions`, `MailOptions`, `PlatformCredentialsOptions`, `FetchOptions`,
   `RateLimitOptions`, `SessionOptions`, `DataProtectionOptions`, each with `[Required]` on its
@@ -55,22 +63,31 @@ run as `failed` with reason `interrupted`, and exits within 30 seconds.
 
 - **`WorkerReadinessGate`** — awaited by `CollectionScheduler`, `RetentionWorker` and
   `AlertDigestWorker` before their first schedule. It runs `DatabaseReadinessCheck` and, while
-  unhealthy, reports not ready and re-checks. The re-check interval, read through
-  `TimeProvider`, and how the worker reports not ready (log, metric or a health endpoint) are
-  `<TO SUPPLY>`.
+  unhealthy, reports not ready and re-checks every 30 seconds, timed through `TimeProvider`.
+  It reports through the log: one warning when it starts waiting, naming `migrate`, and one
+  information line when the database becomes ready. The worker serves no HTTP endpoint.
 - **Graceful shutdown** — `HostOptions.ShutdownTimeout` is 30 seconds. The stopping token
   cancels the current source fetch. `CollectionPipeline` then sends `RecordRunFailureCommand`
   with reason `interrupted` (run recording subsystem, `L2-019`) and the process exits.
 
 **CLI (`Keryx.Cli`)**
 
-- **`migrate`** — `dotnet run --project src/Keryx.Cli -- migrate` calls
-  `Database.MigrateAsync`. It applies pending migrations and exits `0`; run again, it changes
-  nothing and exits `0`.
+- **`migrate`** — `dotnet run --project src/Keryx.Cli -- migrate` calls `IDatabaseMigrator`
+  (`Database.MigrateAsync`). It applies pending migrations and exits `0`; run again, it changes
+  nothing and exits `0`. An unknown command prints the usage and exits `1`; a missing required
+  setting exits `2`.
 - **`seed`** — sends `SeedDataCommand`. `SeedDataCommandHandler` upserts by natural key:
   regions by `slug`, categories by `slug`, the single `Settings` row when absent, and news query
-  sources by a fixed seed key. Each therefore exists exactly once after any number of runs. The
-  list of GTA regions and of seeded news queries is `<TO SUPPLY>`.
+  sources by a fixed seed key. Each therefore exists exactly once after any number of runs.
+  A row that already exists is left as it is, so a second run changes nothing. The seed data
+  (`SeedData` in `Keryx.Domain`) is:
+
+  | Kind | Rows |
+  |------|------|
+  | Regions, in rank order | `toronto`, `scarborough`, `mississauga`, `brampton`, `markham`, `vaughan`, `oakville`, `richmond-hill`, `pickering`, `ajax` (the regions and default focus areas the mocks show), then `gta`, `ontario`, `canada`, `global`. Every zone is `America/Toronto` except `global`, which is `Etc/UTC`. |
+  | Categories | `events` Events, `races-challenges` Races & Challenges, `gyms-studios` Gyms & Studios, `ministry-programs` Ministry Programs, `nutrition` Nutrition, `faith-wellness` Faith & Wellness |
+  | Settings | Interval 6 hours, timeout 30 seconds, publish threshold 0.60, the mocks' nine topics, three exclusions and nine focus areas, Ontario-wide on, national off, merge duplicates on, retention 24 months, no alert e-mail, alert after 3 failures, alert on a failed run on, daily digest on |
+  | News query sources | Seed key `toronto-church-fitness`: "Toronto church fitness", query `"church" AND (fitness OR run) near:Toronto`, region `gta` |
 
 **Configuration (`tools/deploy/`)**
 
@@ -97,16 +114,19 @@ run as `failed` with reason `interrupted`, and exits within 30 seconds.
   | Session lifetime | `Keryx__Session__LifetimeHours` | No | 12 (`L2-041`) |
   | Data-protection key store | `Keryx__DataProtection__*` | Yes | none (required with more than one instance, `L2-084`) |
 
-  The final key names and which settings are required are `<TO SUPPLY>` until each is
-  introduced.
+  A setting joins `configuration.md` and startup validation in the journey that introduces it,
+  and its key is final from then on. Journey 1 introduces `ConnectionStrings__Keryx` (required
+  by the API, the worker and the CLI) and the OpenTelemetry variables (all optional).
 
 **CI (`.github/workflows/`)**
 
 - **`ci.yml`** — GitHub Actions workflow with a 5-minute job timeout. It runs Prettier and
   ESLint checks, the Angular build, `dotnet format --verify-no-changes`, the .NET build, and one
-  critical acceptance path per feature: the `Keryx.Api.Tests` tests tagged critical (EF Core
-  InMemory, fake sources) and the Playwright specs tagged critical (fixtures, Chromium only). It
-  calls no real source and no real database. The tag names are `<TO SUPPLY>`.
+  critical acceptance path per feature: the `Keryx.Api.Tests` project (EF Core InMemory, fake
+  sources) and the Playwright specs tagged `@critical` (fixtures, Chromium only). It calls no
+  real source and no real database. The frontend and the backend are two jobs side by side,
+  each checked out sparsely and each with a 5-minute timeout. `Keryx.Application.Tests` is
+  built in CI and run locally.
 
 ## Requirements
 

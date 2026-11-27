@@ -45,7 +45,7 @@ subsystem runs the deletion this feature defines for usage hours.
 
 The slice runs from the consumer API's request pipeline, which records usage, through the admin
 API to the API screen of the Keryx Admin application, and stores usage in the relational
-database (engine `<TO SUPPLY>`) via EF Core.
+database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core.
 
 **Recording usage (`Keryx.Api`, `Keryx.Application`, `Keryx.Infrastructure`)**
 

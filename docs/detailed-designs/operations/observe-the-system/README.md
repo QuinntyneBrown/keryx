@@ -31,7 +31,11 @@ as `trace_id`.
   — extension called by the API and the worker. It registers the OpenTelemetry SDK with the
   ASP.NET Core and `HttpClient` instrumentations, the activity sources and meters below, and the
   OpenTelemetry logging provider. It adds the OTLP exporter only when `OTEL_EXPORTER_OTLP_ENDPOINT`
-  is set. Sampling and export intervals are `<TO SUPPLY>`.
+  is set. Sampling and export intervals are the SDK's defaults (every trace sampled, spans and
+  logs exported in batches every 5 seconds, metrics every 60 seconds); each can be changed
+  through the standard `OTEL_*` variables without a build. The API adds the ASP.NET Core
+  instrumentation through the extension's callback, so `Keryx.Infrastructure` and the worker
+  carry no web dependency.
 - **`TelemetryRedactionProcessor`** — `BaseProcessor<Activity>` that runs before export. It
   keeps an allow-list of tags (`http.route`, `http.request.method`,
   `http.response.status_code`, `keryx.source.id`, `keryx.run.id`, `keryx.stage`,
@@ -79,7 +83,7 @@ as `trace_id`.
 - `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_SERVICE_NAME` (defaults
   `keryx-api` and `keryx-worker`) and `OTEL_RESOURCE_ATTRIBUTES` are documented in
   `tools/deploy/` (health, migrations and configuration feature). The OTLP protocol default is
-  `<TO SUPPLY>`.
+  the SDK's, `grpc`; `http/protobuf` is chosen with `OTEL_EXPORTER_OTLP_PROTOCOL`.
 
 ## Requirements
 

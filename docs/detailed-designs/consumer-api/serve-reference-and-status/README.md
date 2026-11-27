@@ -30,8 +30,8 @@ collection subsystem.
 
 ## Description
 
-The slice runs from the consuming product's HTTPS request to the relational database (engine
-`<TO SUPPLY>`) via EF Core. It has no admin app part and takes no query parameters.
+The slice runs from the consuming product's HTTPS request to the relational database (PostgreSQL,
+[ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core. It has no admin app part and takes no query parameters.
 
 - **`CategoriesController`**, **`RegionsController`** and **`StatusController`**
   (`Keryx.Api`) — expose `GET /v1/categories`, `GET /v1/regions` and `GET /v1/status`. Each

@@ -35,7 +35,7 @@ and the endpoint stays paged.
 ## Description
 
 The slice runs from the routed Runs page in the Keryx Admin app to the run records in the
-Keryx database, a relational database (engine `<TO SUPPLY>`) via EF Core.
+Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core.
 
 **Frontend — `admin` app (`frontend/projects/admin`)**
 

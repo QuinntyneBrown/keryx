@@ -78,8 +78,8 @@ The layout each viewport class shows is the table of `L2-090`:
 | LG | 992–1199 px | Top bar below 1024 px; sidebar from 1024 px | As MD | Table | Side by side from 1024 px |
 | XL | ≥ 1200 px | Sidebar | As MD | Table | Side by side |
 
-- **Global foundations** — `tokens.css` (the mocks' `assets/tokens.css`) holds the switch
-  points as tokens. A Sass partial `_breakpoints.scss` mirrors them as `rem` values, because a
+- **Global foundations** — `tokens.css` (the design system's `tokens/tokens.css`, copied
+  byte for byte to the app's `foundations/tokens/`) holds the switch points as tokens. A Sass partial `_breakpoints.scss` mirrors them as `rem` values, because a
   media query cannot read a custom property; its mixins are named by switch-point width
   (`from(640)`, `until(1024)`), not by class letter, so the token `--layout-breakpoint-sm`
   (640 px) is not confused with the SM class (576 px). Layout changes are CSS media queries in
@@ -172,15 +172,23 @@ The layout each viewport class shows is the table of `L2-090`:
   emulated encapsulation, `OnPush`, inputs and outputs only, no app service, token or router,
   and a stylesheet that styles only its own BEM block. Screens compose these components; a
   composite with no design-system equivalent is built from them in the `admin` app.
-- **Component catalogue** — `docs/design-system/components/` does not exist yet; the design
-  system holds brand assets only. Until its pages exist, component names and blocks are taken
-  from the mocks' kit (`docs/mocks/assets/ui.css`). The catalogue itself is `<TO SUPPLY>`.
+- **Component catalogue** — `docs/design-system/components/` holds one page per component,
+  named after its BEM block, which is also its folder in the library. The component CSS is
+  `docs/design-system/assets/components.css`; the mocks import it, so a mock and its
+  design-system page render the same rules. Journey 1 built `skip-link`, `app`, `sidebar`,
+  `brand` and `empty`.
+- **Reuse** — a page or dialog in the `admin` app orchestrates and composes; it draws nothing
+  itself. Before writing markup, find the design-system component for it; if the library does
+  not have it yet, build it there first.
 - **Tokens only** — colours, sizes, radii, shadows, durations and z-indices are read from tokens
   by role; no hex colour or raw duration appears outside the token file.
-- **Enforcement** — ESLint (angular-eslint) enforces library boundaries and forbids an app
-  import from a library. A stylesheet lint for raw hex values and durations is not in the
-  workspace's toolchain (Prettier and angular-eslint only); adding one is `<TO SUPPLY>` and
-  needs an ADR. These are lint rules, not tests: the repository forbids architecture tests.
+- **Enforcement** — ESLint enforces the library boundaries with `eslint-plugin-boundaries`
+  ([ADR 0003](../../../adr/0003-eslint-boundaries-for-the-dependency-direction.md)): no library
+  imports the app, `components` takes only types from `api`, and `components` may not import
+  the router or `HttpClient`. angular-eslint enforces the `kx` prefix, a file per type and
+  emulated encapsulation. A stylesheet lint for raw hex values and durations is not in the
+  toolchain; adding one needs an ADR. These are lint rules, not tests: the repository forbids
+  architecture tests.
 - **Visual sweep** — Playwright compares each built screen in each state with its mock at 360,
   768 and 1280 px in light and dark (run on request), checking layout, copy, order, states and
   the presence of the mock's BEM class names. A state or component missing from the mocks and

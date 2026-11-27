@@ -27,8 +27,8 @@ serve articles and serve events features define, held in one place, `ServedRecor
 
 ## Description
 
-The slice runs from the consuming product's HTTPS request to the relational database (engine
-`<TO SUPPLY>`) via EF Core. It has no admin app part.
+The slice runs from the consuming product's HTTPS request to the relational database (PostgreSQL,
+[ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core. It has no admin app part.
 
 - **`OrganizationsController`** (`Keryx.Api`) — exposes `GET /v1/organizations` and
   `GET /v1/organizations/{id}` under the `sources:read` scope policy; it sends one MediatR

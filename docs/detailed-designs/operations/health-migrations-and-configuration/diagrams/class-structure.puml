@@ -17,9 +17,28 @@ interface IHealthCheck {
   +CheckHealthAsync(context, ct): Task<HealthCheckResult>
 }
 class DatabaseReadinessCheck {
-  -KeryxDbContext db
+  -ISchemaVersion schema
   +CheckHealthAsync(context, ct): Task<HealthCheckResult>
-  -ExpectedSchemaVersion(): string
+}
+interface ISchemaVersion {
+  +ReadAsync(ct): Task<SchemaState>
+}
+class EfSchemaVersion {
+  -KeryxDbContext db
+  +ReadAsync(ct): Task<SchemaState>
+}
+class SchemaState <<record>> {
+  +bool Reachable
+  +string? Applied
+  +string? Expected
+  +bool Ready
+}
+interface IDatabaseMigrator {
+  +MigrateAsync(ct): Task<int>
+}
+class EfDatabaseMigrator {
+  -KeryxDbContext db
+  +MigrateAsync(ct): Task<int>
 }
 class MinimalHealthResponseWriter {
   +{static} WriteAsync(http: HttpContext, report: HealthReport): Task
@@ -47,6 +66,7 @@ class SeedDataCommandHandler {
 }
 class DatabaseOptions {
   +[Required] string ConnectionString
+  +{static} Key = "ConnectionStrings__Keryx"
 }
 class IdentityProviderOptions {
   +[Required] string Authority
@@ -69,6 +89,11 @@ class RateLimitOptions {
 }
 
 DatabaseReadinessCheck ..|> IHealthCheck
+DatabaseReadinessCheck ..> ISchemaVersion : reads
+EfSchemaVersion ..|> ISchemaVersion
+ISchemaVersion ..> SchemaState : returns
+EfDatabaseMigrator ..|> IDatabaseMigrator
+MigrateCommand ..> IDatabaseMigrator : calls
 SchemaStatusLogger ..> DatabaseReadinessCheck : runs
 WorkerReadinessGate ..> DatabaseReadinessCheck : runs
 MinimalHealthResponseWriter ..> DatabaseReadinessCheck : reports status of

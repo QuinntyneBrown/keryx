@@ -36,8 +36,8 @@ rules shared by every `/v1` endpoint belong to the API contract, errors and cach
 
 ## Description
 
-The slice runs from the consuming product's HTTPS request to the relational database (engine
-`<TO SUPPLY>`) via EF Core. It has no admin app part.
+The slice runs from the consuming product's HTTPS request to the relational database (PostgreSQL,
+[ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core. It has no admin app part.
 
 - **`ArticlesController`** (`Keryx.Api`) — exposes `GET /v1/articles` and
   `GET /v1/articles/{id}` under the `articles:read` scope policy. It binds the query string into

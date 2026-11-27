@@ -28,8 +28,8 @@ performance rules belong to the API contract, errors and caching feature.
 
 ## Description
 
-The slice runs from the consuming product's HTTPS request to the relational database (engine
-`<TO SUPPLY>`) via EF Core. It has no admin app part.
+The slice runs from the consuming product's HTTPS request to the relational database (PostgreSQL,
+[ADR 0001](../../../adr/0001-postgresql-and-the-backend-packages.md)) via EF Core. It has no admin app part.
 
 - **`EventsController`** (`Keryx.Api`) — exposes `GET /v1/events` and `GET /v1/events/{id}`
   under the `events:read` scope policy. It sends one MediatR request per call and checks nothing
