@@ -155,7 +155,10 @@ or its hash; after the create response, only `key_prefix` is returned by any end
   copied by hand when the clipboard is refused.
 - Until journey 21 (report-api-usage) adds the usage summary, the usage columns and the
   endpoints, the API screen shows the header, the callout, the empty and error states, and the
-  table's Product, Key, Scopes and Revoke columns.
+  table's Product, Key, Scopes and Revoke columns. Until then the Revoke dialog's body reads
+  "Each new request with this key will get 401 Unauthorized. This can’t be undone — create a new
+  key to reconnect it."; journey 21 puts the requests in the last 24 hours before it.
+- After a revoke, the row's Revoke button is gone, so focus moves to "New API key".
 - On a failed revoke the dialog shows "Keryx couldn’t revoke the key", "Nothing changed. Try
   again in a moment." and the reference, and the key stays active.
 

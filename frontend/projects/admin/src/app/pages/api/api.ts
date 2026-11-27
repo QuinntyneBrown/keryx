@@ -101,9 +101,38 @@ export default class Api {
     );
   }
 
-  /** Opens "Revoke API key" (journey 7, next slice). */
-  protected revoke(client: ApiClientDto): void {
-    void client;
+  /**
+   * Opens "Revoke API key" for a client, focus on "Cancel". A revoke marks the row and warns,
+   * offering a new key and no Undo; focus moves to "New API key", since the row's Revoke is gone
+   * (L2-069 AC2).
+   */
+  protected async revoke(client: ApiClientDto, newKeyButton: Btn): Promise<void> {
+    const opener = document.activeElement;
+    const [{ Dialog }, dialog] = await Promise.all([
+      import('@angular/cdk/dialog'),
+      import('./revoke-api-key-dialog/revoke-api-key-dialog'),
+    ]);
+    const ref = this.injector.get(Dialog).open<ApiClientDto>(dialog.RevokeApiKeyDialog, {
+      injector: this.injector,
+      data: client,
+      ariaModal: true,
+      ariaLabelledBy: dialog.REVOKE_API_KEY_TITLE_ID,
+      ariaDescribedBy: dialog.REVOKE_API_KEY_DESCRIPTION_ID,
+      autoFocus: dialog.REVOKE_API_KEY_AUTO_FOCUS,
+      restoreFocus: opener instanceof HTMLElement ? opener : true,
+      backdropClass: 'kx-backdrop',
+    });
+    ref.closed.subscribe((revoked) => {
+      if (!revoked) return;
+      this.store.revoked(revoked);
+      newKeyButton.focus();
+      this.notifier.notify({
+        tone: 'warning',
+        title: 'Key revoked',
+        text: `${revoked.product_name} now gets 401 Unauthorized. Create a new key to reconnect it.`,
+        action: { label: 'New API key', run: () => void this.newKey() },
+      });
+    });
   }
 
   protected retry(): void {

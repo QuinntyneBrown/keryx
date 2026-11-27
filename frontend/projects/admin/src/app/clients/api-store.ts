@@ -1,5 +1,11 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { API_CLIENTS_API, ApiProblem, type ApiClientPage, type CreatedApiClientDto } from '@kx/api';
+import {
+  API_CLIENTS_API,
+  ApiProblem,
+  type ApiClientDto,
+  type ApiClientPage,
+  type CreatedApiClientDto,
+} from '@kx/api';
 
 export type ApiClientsState =
   | { status: 'loading' }
@@ -66,5 +72,16 @@ export class ApiStore {
     }
     this.newest.set(client.id);
     this.revealed.set({ productName: client.product_name, key });
+  }
+
+  /** A key was revoked: its row stays, marked revoked (L2-036 AC3). */
+  revoked(client: ApiClientDto): void {
+    const state = this.current();
+    if (state.status !== 'ready') return;
+    const { page } = state;
+    this.current.set({
+      status: 'ready',
+      page: { ...page, items: page.items.map((item) => (item.id === client.id ? client : item)) },
+    });
   }
 }

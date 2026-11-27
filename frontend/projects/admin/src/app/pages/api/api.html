@@ -4,6 +4,7 @@
   description="Products read Keryx news through this API. Manage who has access and see how it’s used."
 >
   <kx-btn
+    #newKeyButton
     slot="actions"
     variant="primary"
     [disabled]="state.status === 'error'"
@@ -105,7 +106,7 @@
                     variant="ghost"
                     small
                     [label]="'Revoke the key for ' + row.client.product_name"
-                    (activated)="revoke(row.client)"
+                    (activated)="revoke(row.client, newKeyButton)"
                     >Revoke</kx-btn
                   >
                 }

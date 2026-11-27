@@ -91,7 +91,6 @@ export class NewApiKeyDialog {
 
   /** Sends the request once; the dialog stays open, busy, until the answer (L2-068 AC3, AC6). */
   private async save(name: Focusable): Promise<void> {
-    if (this.busy()) return;
     this.busy.set(true);
     this.failure.set(null);
     this.ref.disableClose = true;

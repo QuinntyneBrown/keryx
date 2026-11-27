@@ -1,0 +1,27 @@
+<kx-dialog
+  small
+  [title]="'Revoke the key for ' + client.product_name + '?'"
+  [description]="'Requests with ' + client.key_prefix + '… stop working immediately.'"
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  [closeDisabled]="busy()"
+  (dismiss)="close()"
+  (submitted)="confirm()"
+>
+  @if (failure(); as failure) {
+    <kx-alert tone="danger" announcement="alert" title="Keryx couldn’t revoke the key"
+      >Nothing changed. Try again in a moment.
+      @if (failure.reference; as reference) {
+        <span class="mono">Reference {{ reference }}</span>
+      }
+    </kx-alert>
+  }
+  <p>
+    Each new request with this key will get 401 Unauthorized. This can’t be undone — create a new
+    key to reconnect it.
+  </p>
+  <kx-btn slot="actions" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="danger-solid" submit [busy]="busy()">{{
+    busy() ? 'Revoking…' : 'Revoke key'
+  }}</kx-btn>
+</kx-dialog>
