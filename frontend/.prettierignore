@@ -1,0 +1,10 @@
+dist/
+out-tsc/
+.angular/
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+package-lock.json
+# Byte-for-byte copies of docs/design-system/tokens/tokens.css
+projects/*/src/foundations/tokens/tokens.css

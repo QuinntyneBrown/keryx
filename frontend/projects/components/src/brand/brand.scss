@@ -1,0 +1,102 @@
+// The Keryx lockup (docs/design-system/components/brand.html). Brand colours are fixed: they do
+// not follow the theme. The four component tokens are the only re-skinning surface.
+:host {
+  display: contents;
+}
+
+.brand {
+  --brand-mark-size: var(--size-avatar);
+  --brand-tile: var(--color-shell-raised);
+  --brand-strokes: var(--color-brand);
+  --brand-word: inherit;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  text-decoration: none;
+  color: var(--brand-word);
+}
+
+.brand__mark {
+  width: var(--brand-mark-size);
+  height: var(--brand-mark-size);
+  flex: none;
+}
+
+.brand__tile {
+  fill: var(--brand-tile);
+}
+
+.brand__strokes {
+  fill: none;
+  stroke: var(--brand-strokes);
+  stroke-width: 4.2;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+// The wordmark is 0.9 x the mark, Geist ExtraBold, lowercase, tightly tracked.
+.brand__word {
+  font-size: calc(var(--brand-mark-size) * 0.9);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-wordmark);
+  text-transform: lowercase;
+}
+
+.brand--on-ink {
+  --brand-tile: var(--color-brand-ink-raised);
+  --brand-word: var(--color-brand-paper);
+}
+
+.brand--on-light {
+  --brand-tile: var(--color-brand-ink);
+  --brand-word: var(--color-brand-ink);
+}
+
+.brand--on-volt {
+  --brand-tile: transparent;
+  --brand-strokes: var(--color-brand-ink);
+  --brand-word: var(--color-brand-ink);
+}
+
+.brand--stacked {
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.brand--16 {
+  --brand-mark-size: var(--icon-size-md);
+}
+
+.brand--24 {
+  --brand-mark-size: var(--space-6);
+}
+
+.brand--32 {
+  --brand-mark-size: var(--space-8);
+}
+
+.brand--40 {
+  --brand-mark-size: var(--space-10);
+}
+
+.brand--64 {
+  --brand-mark-size: var(--space-16);
+}
+
+.brand--96 {
+  --brand-mark-size: var(--space-24);
+}
+
+.brand--64,
+.brand--96 {
+  gap: var(--space-4);
+}
+
+// As a link the lockup is a control: its target is 44px tall on touch devices.
+@media (pointer: coarse) {
+  a.brand {
+    min-height: var(--target-comfortable);
+  }
+}

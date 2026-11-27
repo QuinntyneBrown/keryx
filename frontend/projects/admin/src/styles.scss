@@ -1,0 +1,9 @@
+// Global styles are foundations only (AGENTS.md): the tokens with their @font-face rules, the
+// reset and the utilities. Everything that is drawn is a component in the components library.
+//
+// foundations/tokens/tokens.css and foundations/assets/fonts/ are byte-for-byte copies of
+// docs/design-system/tokens/tokens.css and docs/design-system/assets/fonts/: refresh them
+// together, and never edit the copies.
+@use 'foundations/tokens/tokens';
+@use 'foundations/reset';
+@use 'foundations/utilities';

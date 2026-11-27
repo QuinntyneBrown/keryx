@@ -1,0 +1,46 @@
+// The frame (docs/design-system/components/app.html): a column below 1024px, where the sidebar
+// is a top bar, and the sidebar's column beside the content from 1024px.
+@use '../breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.app__main {
+  min-width: 0;
+  flex: 1;
+}
+
+// Focus lands here from the skip link and on navigation; a ring round the whole region would
+// say nothing a person needs.
+.app__main:focus {
+  outline: none;
+}
+
+@include bp.from(1024) {
+  .app {
+    display: grid;
+    grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr);
+  }
+}
+
+// Shell-less variant (sign-in, access denied): no sidebar, so no sidebar grid column.
+.app.app--bare {
+  display: flex;
+}
+
+.app__main--split {
+  display: flex;
+  overflow-x: clip;
+}
+
+.app__content {
+  min-width: 0;
+  flex: 1;
+}

@@ -1,0 +1,8 @@
+/* Unit tests of the domain library: Vitest through the CLI's unit-test builder (ADR 0002). */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  },
+  "include": ["**/*.ts"]
+}

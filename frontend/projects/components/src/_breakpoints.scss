@@ -1,0 +1,36 @@
+// The design system's switch points (tokens --layout-breakpoint-sm to -2xl), mirrored in rem
+// because a media query cannot read a custom property. The mixins are named by the width in
+// pixels, not by a class letter: `from(640)` is --layout-breakpoint-sm, which is not the SM
+// viewport class (576 px) of L2-090.
+//
+//   @use '../breakpoints' as bp;
+//   @include bp.from(1024) { … }   // 1024 px and wider
+//   @include bp.until(1024) { … }  // narrower than 1024 px
+@use 'sass:map';
+
+$switch-points: (
+  640: 40rem,
+  768: 48rem,
+  1024: 64rem,
+  1280: 80rem,
+  1536: 96rem,
+);
+
+@function -switch-point($width) {
+  @if not map.has-key($switch-points, $width) {
+    @error 'No switch point at #{$width}px. The design system has #{map.keys($switch-points)}.';
+  }
+  @return map.get($switch-points, $width);
+}
+
+@mixin from($width) {
+  @media (min-width: -switch-point($width)) {
+    @content;
+  }
+}
+
+@mixin until($width) {
+  @media (max-width: (-switch-point($width) - 0.01rem)) {
+    @content;
+  }
+}

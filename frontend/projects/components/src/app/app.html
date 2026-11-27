@@ -1,0 +1,15 @@
+<div [attr.class]="classes()">
+  <ng-content select="[slot=sidebar]" />
+  <main id="main" [attr.class]="mainClasses()" tabindex="-1">
+    @if (split()) {
+      <div class="app__content">
+        <ng-container [ngTemplateOutlet]="content" />
+      </div>
+      <ng-content select="[slot=panel]" />
+    } @else {
+      <ng-container [ngTemplateOutlet]="content" />
+    }
+  </main>
+</div>
+
+<ng-template #content><ng-content /></ng-template>

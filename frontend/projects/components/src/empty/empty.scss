@@ -1,0 +1,73 @@
+// The empty state (docs/design-system/components/empty.html): centred, with a subtle icon disc
+// that takes the danger or success tint by modifier.
+:host {
+  display: contents;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-12) var(--space-5);
+  text-align: center;
+}
+
+.empty--card {
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.empty--compact {
+  padding: var(--space-8) var(--space-5);
+}
+
+.empty__icon {
+  display: grid;
+  place-items: center;
+  width: var(--size-tile-lg);
+  height: var(--size-tile-lg);
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+}
+
+.empty--error .empty__icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-icon);
+}
+
+.empty--success .empty__icon {
+  background: var(--color-success-bg);
+  color: var(--color-success-icon);
+}
+
+.empty__title {
+  font: var(--text-h3);
+}
+
+.empty__text {
+  max-width: var(--layout-measure-narrow);
+  color: var(--color-fg-muted);
+}
+
+.empty__ref {
+  font: var(--text-code);
+  color: var(--color-fg-subtle);
+}
+
+.empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+// A slot nothing was projected into takes no room: no disc with no icon, no row with no button.
+.empty__icon:empty,
+.empty__actions:empty {
+  display: none;
+}
