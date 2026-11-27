@@ -122,7 +122,7 @@ The slice runs from the routed Overview page to four admin read endpoints.
 
 | Endpoint | Request | Response | Errors |
 |---|---|---|---|
-| `GET /admin/v1/overview/status` (path `<TO SUPPLY>`) | — | `last_run` and `current_run` (each `null` or `id`, `started_at`, `finished_at`, `duration_ms`, `outcome`, `failure_code`, `added`, `sources_ok`, `sources_checked`, `sources_total`), `has_sources`, `has_runs` | ProblemDetails with trace id |
+| `GET /admin/v1/overview/status` | — | `last_run` and `current_run` (each `null` or `id`, `started_at`, `finished_at`, `duration_ms`, `outcome`, `failure_code`, `added`, `sources_ok`, `sources_checked`, `sources_total`), `has_sources`, `has_runs`, `next_run_at` (UTC) and `time_zone` | ProblemDetails with trace id |
 | `GET /admin/v1/runs` | `worker=collection`, `page=1`, `page_size=14` | page envelope of `RunSummaryDto` (`id`, `started_at`, `outcome`, `added`, …), newest first; the store reverses it to oldest first | View run history design |
 | `GET /admin/v1/runs/{id}` | — | `RunDto` with `sources_checked`, `sources_total`, `added` while running | View run history design |
 | `GET /admin/v1/articles` | `page=1`, `page_size=7` | `items`, `total`, `page`, `page_size`; `total` gives "View all 18,432" | Review articles design |
@@ -131,9 +131,14 @@ The slice runs from the routed Overview page to four admin read endpoints.
 **Backend**
 
 - **`AdminOverviewController`** — `GetStatus` sends one `GetOverviewStatusQuery`.
-- **`GetOverviewStatusQueryHandler`** — reads the latest finished collection `Run`, the running
-  one if any, and whether any `Source` and any `Run` exist, through `IAppDbContext`. It serves
-  counts and durations as numbers and the failure as a `failure_code`.
+- **`GetOverviewStatusQueryHandler`** (built as `GetOverviewStatus`) — reads the latest finished
+  collection `Run`, the running one if any, and whether any `Source` and any `Run` exist, through
+  `IAppDbContext`. It serves counts and durations as numbers and the failure as a `failure_code`:
+  `<stage>_failed` when a stage failed (`store_failed` reads "database unreachable"),
+  `interrupted` when a restart cut the run short, otherwise `unexpected`. It also serves the next
+  run's time from `GetNextRun`, so Overview's Next run stat needs no request of its own; the
+  shell's `ScheduleStore` is not built yet, and Overview reads the time from its own status until
+  it is. A seeded news query counts as a source.
 - **`AdminIssuesController`** / **`GetOpenIssuesQuery`** / **`GetOpenIssuesQueryHandler`** —
   read `RunIssue` rows that are open and not muted, ordered errors before warnings, then by time
   `<TO SUPPLY>` (the order within a severity is not stated), bounded by `page_size`.
