@@ -18,5 +18,6 @@
   @if (reference(); as reference) {
     <p class="empty__ref">Reference {{ reference }}</p>
   }
+  <ng-content select="[slot=notice]" />
   <div class="empty__actions"><ng-content select="[slot=actions]" /></div>
 </div>

@@ -1,0 +1,16 @@
+<div [attr.class]="'alert alert--' + tone()" [attr.role]="announcement() ?? null">
+  <kx-icon
+    class="alert__icon"
+    [name]="
+      tone() === 'success'
+        ? 'success'
+        : tone() === 'danger' || tone() === 'warning'
+          ? 'warning'
+          : 'info'
+    "
+  />
+  <div class="alert__body">
+    <p class="alert__title">{{ title() }}</p>
+    <ng-content />
+  </div>
+</div>

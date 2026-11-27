@@ -107,3 +107,6 @@ and running the worker's host on its own, made every schedule test deterministic
   bundle. Using the existing components' attribute binding brought the initial total below
   the scaffold. The production CSS optimizer can also serialize 150ms as .15s. Compare the
   measured duration in milliseconds so a change in its value still fails the behavior test.
+- The sign-in mock already supplies separate copy and actions for provider errors, session
+  expiry and sign-out. Test each URL state directly. Keep the expiry message accurate for
+  both idle and absolute limits, since the API returns the same code for both.

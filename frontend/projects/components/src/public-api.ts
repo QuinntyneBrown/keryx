@@ -9,3 +9,4 @@ export { Sidebar } from './sidebar/sidebar';
 export { SkipLink } from './skip-link/skip-link';
 export { Btn } from './btn/btn';
 export { Icon } from './icon/icon';
+export { Alert } from './alert/alert';

@@ -21,3 +21,17 @@ test(
     await expect.poll(() => requestedReturn).toBe('/articles?region=toronto');
   },
 );
+
+for (const [state, heading, action] of [
+  ['error', 'Keryx couldn’t sign you in', 'Try again'],
+  ['session-expired', 'Your session ended', 'Sign in again'],
+  ['signed-out', 'You’re signed out', 'Sign in'],
+]) {
+  test('shows the ' + state + ' sign-in state', async ({ page }) => {
+    const screen = new SignInPage(page);
+    await screen.open('/sign-in?state=' + state + '&ref=req_example');
+    await expect(screen.notice).toContainText(heading);
+    await expect(screen.button).toHaveAccessibleName(action);
+    if (state === 'error') await expect(screen.notice).toContainText('Reference req_example');
+  });
+}

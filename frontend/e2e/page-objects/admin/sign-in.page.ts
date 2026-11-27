@@ -11,6 +11,10 @@ export class SignInPage {
     return this.page.getByRole('button');
   }
 
+  get notice() {
+    return this.page.locator('.alert');
+  }
+
   get navigation() {
     return this.page.getByRole('navigation');
   }

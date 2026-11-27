@@ -8,9 +8,46 @@
       text="The admin is for Keryx staff. You sign in with your organisation account; Keryx never sees or stores your password."
     >
       <kx-brand slot="brand" />
+      @if (state === 'error') {
+        <kx-alert
+          slot="notice"
+          tone="danger"
+          announcement="alert"
+          title="Keryx couldn’t sign you in"
+        >
+          <p>
+            Nothing was changed. Try again; if it keeps failing, send this reference to whoever runs
+            Keryx.
+            @if (reference) {
+              <span class="mono">Reference {{ reference }}</span>
+            }
+          </p>
+        </kx-alert>
+      }
+      @if (state === 'session-expired') {
+        <kx-alert slot="notice" tone="neutral" announcement="status" title="Your session ended">
+          <p>
+            Sign in again to return to the screen you were using. Everything you had saved is still
+            saved.
+          </p>
+        </kx-alert>
+      }
+      @if (state === 'signed-out') {
+        <kx-alert slot="notice" tone="success" announcement="status" title="You’re signed out">
+          <p>On a shared computer, close this tab as well.</p>
+        </kx-alert>
+      }
       <kx-btn slot="actions" variant="primary" [busy]="busy()" (activated)="start()">
         <kx-icon slot="icon" name="sign-in" size="sm" />
-        {{ busy() ? 'Redirecting…' : 'Sign in' }}
+        {{
+          busy()
+            ? 'Redirecting…'
+            : state === 'error'
+              ? 'Try again'
+              : state === 'session-expired'
+                ? 'Sign in again'
+                : 'Sign in'
+        }}
       </kx-btn>
     </kx-empty>
   </kx-page-body>
