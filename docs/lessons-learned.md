@@ -395,3 +395,46 @@ RSS source made the issue. And a leak check for the word "issue" matched the leg
 **How earlier lessons worked.** "Build an EF subquery outside the lambda" was applied first time:
 the served-article counts inside the category and region projections are captured variables.
 "Name the open decision when you close it" closed all five of this design's `<TO SUPPLY>`s.
+
+## Journey 11: Staff reviews articles
+
+**What slowed it.** Three tests that passed with the rule broken. Fast key presses through the
+status tabs dropped a choice, but real key presses were too slow to show it until the keys were
+dispatched in one task, and the bug was then in the Tabs component's dedupe against an input
+that had not updated yet. A missing 300 ms debounce went unnoticed because the router cancels
+superseded navigations, so only the last term was ever fetched. And the panel opened in a
+CDK dialog that Playwright called hidden, because its container was 0 × 0 around a
+`position: fixed` panel. Two Angular costs also surfaced: the first `[style.--x]` binding and
+the first `@defer` each grew the initial bundle by about 6 kB from a lazy screen.
+
+- **Dedupe where the state updates at once, never against an input.** A signal input changes
+  only on the next change detection, so a component that ignores "the value I already have"
+  drops a second change made in the same task. Emit every choice and let the owner of the state
+  (here the page's query, set before navigating) decide.
+- **Prove a same-task race by dispatching in one task.** `page.evaluate` sending each `keydown`
+  to `document.activeElement` in a loop is deterministic; `keyboard.press` in a loop is not.
+- **A debounce or a delay is proven by a fake clock in a unit test**, not by an e2e count: the
+  router and `AbortController` hide extra requests. Put the timer in a small domain helper
+  (`searchPause`, `skeletonDelay`) and advance `vi.useFakeTimers()` to 299 and 300 ms. In e2e,
+  `page.clock.install()` then `runFor(1000)` fast-forwards past a pause when an absence after
+  it must be shown.
+- **No style bindings, no `@defer` until one pays for itself.** `[style.--value]` pulled 5.2 kB of
+  styling instructions into `main`, and `@defer` 6.6 kB of its runtime, both from a lazy screen.
+  An SVG with a bound `width` attribute draws a meter with neither inline styles nor style
+  bindings (the lint rule forbids `[attr.style]`). Measure with the stats JSON of a base build in
+  a scratch worktree.
+- **Give a CDK dialog's pane a size when its content is fixed.** `width: '100%'` and
+  `height: '100%'` make the dialog's box the panel's, so it is visible to tests and to
+  assistive technology's geometry.
+- **A line whose removal no test notices is either missing a test or dead.** Closing the dialog
+  before navigating was redundant once the URL change closed it, so it went; a source fallback
+  needed a renamed-source case to matter.
+- **Extract a shared fetch helper at the third copy.** `readJson` replaced three private copies.
+
+**How earlier lessons worked.** "Read the initial total after each new Angular API" caught both
+6 kB growths before commit, and diffing `--stats-json` inputs against a base build named the
+chunk at once. "Honest red" found all three weak tests above; each survived mutation and got a
+test that fails for the right reason. "Close a CDK dialog by its ref" held: the page keeps the
+ref and closes it when the viewport widens. Deferred: Publish and Hide in the panel (journey
+12), "Run now" and the next run's time in the empty state (journey 15), "Export CSV" (journey
+22).
