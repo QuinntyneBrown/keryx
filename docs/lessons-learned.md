@@ -275,3 +275,33 @@ the article detail that use `publicationStatusFor` (journeys 11 and 18), the sta
 itself (journey 12), and an event with no linked article (none is made yet: every event comes
 from an article).
 
+## Journey 7: Staff issues an API key
+
+**What slowed it.** The initial bundle. The API screen's first `[class.x]` binding brought
+Angular's styling instructions into `main` (+4.66 kB, over the 255 kB budget) although the screen
+is lazy; bisecting by putting files back to `HEAD` found it in three builds, and `[attr.class]`
+with the whole class string brought `main` back. Five library components were also missing
+(`badge`, `tag`, `callout`, `copy-field`, `check` with `check-list`) and were built first.
+
+- **Bind `[attr.class]`, never `[class.x]` or `[style.x]`.** Every library component already did;
+  a screen's template is no exception, because the instructions live in `@angular/core`, which
+  is in `main`. Read the initial total after any new template binding form.
+- **Ask "visible" of the dialog's `.dialog`, not of the CDK container.** The container has no box
+  of its own (the panel is fixed-positioned), so `toBeVisible()` on `getByRole('dialog')` waits
+  for ever; assert the role's name and description on the container, and visibility on `.dialog`.
+- **A guard the disabled control already gives is dead code.** Removing `if (this.busy()) return`
+  before a request left every test green, because the busy button is disabled; it was removed,
+  not kept as untested defence.
+- **Prove "gone when the visit ends" with a store that leaks.** A mutant that kept the revealed key
+  in a module variable failed the leave-and-return test, which a mutant of the `onDestroy` reset
+  alone could not show: the screen's store dies with the screen.
+- **A rule that needs the next slice survives until then.** "A revoked client's name is free"
+  survived the create slice's mutations and was killed by the revoke slice's test; note such
+  survivors when they appear rather than forcing a test early.
+
+**How earlier lessons worked.** "A session does not outlive a jump of the clock" struck again (a
+one-hour advance gave 401) and was fixed by a five-minute gap that proves the same rule.
+"InMemory raises no DbUpdateException" was applied up front: the name race is proven by the
+`SaveFault` switch. Deferred: the 401 for a revoked key on `/v1` (journey 8), the audit entries
+(journey 24), and the usage numbers in the table and the Revoke dialog (journey 21).
+
