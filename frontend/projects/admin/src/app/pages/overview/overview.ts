@@ -87,6 +87,13 @@ export default class Overview {
     () => ready(this.store.status())?.time_zone ?? 'America/Toronto',
   );
 
+  /** The shapes of the status card's stats, which its skeletons follow while it loads. */
+  protected readonly loadingStats: readonly StatItem[] = [
+    { label: 'New articles', value: '' },
+    { label: 'Sources OK', value: '' },
+    { label: 'Next run', value: '', size: 'sm', sub: '' },
+  ];
+
   /** The status card's words and stats for the last run. */
   protected readonly card = computed(() => {
     const status = ready(this.store.status());

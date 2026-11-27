@@ -2,7 +2,10 @@
   title="Overview"
   description="Christian fitness news collected across Toronto & the GTA."
 />
-<kx-page-body>
+<kx-page-body [busy]="store.loading()">
+  @if (store.slow()) {
+    <p class="visually-hidden" role="status">Loading the overview…</p>
+  }
   @if (store.allFailed()) {
     <kx-empty
       card
@@ -41,6 +44,10 @@
             text: 'The latest articles and issues are up to date; only the run status failed.',
           }"
         />
+      } @else if (store.status().state === 'loading') {
+        @if (store.slow()) {
+          <kx-status-card loading [stats]="loadingStats" />
+        }
       } @else if (card(); as shown) {
         <kx-status-card
           [eyebrow]="shown.eyebrow"
@@ -83,6 +90,10 @@
                 text: 'The run status and issues are up to date; only this list failed.',
               }"
             />
+          } @else if (store.latest().state === 'loading') {
+            @if (store.slow()) {
+              <kx-list [entries]="[]" [placeholders]="7" />
+            }
           } @else if (latest(); as shown) {
             @if (shown.failedNotice; as notice) {
               <kx-empty
@@ -113,6 +124,14 @@
                 text: 'The run status and latest articles are up to date; only this list failed.',
               }"
             />
+          } @else if (store.issues().state === 'loading') {
+            @if (store.slow()) {
+              <kx-stack list gap="sm">
+                @for (slot of [1, 2, 3]; track slot) {
+                  <li><kx-issue-card loading /></li>
+                }
+              </kx-stack>
+            }
           } @else if (attention(); as shown) {
             @if (shown.cards.length) {
               <kx-stack list gap="sm">

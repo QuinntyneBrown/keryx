@@ -46,6 +46,31 @@
   height: var(--space-5);
 }
 
+.skeleton--stat {
+  width: calc(var(--space-12) + var(--space-2));
+  height: calc(var(--space-6) + var(--space-1));
+  margin-top: var(--space-1);
+}
+
+.skeleton--circle {
+  flex: none;
+  width: var(--size-tile-lg);
+  height: var(--size-tile-lg);
+  border-radius: var(--radius-full);
+}
+
+.skeleton--icon {
+  flex: none;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  border-radius: var(--radius-full);
+}
+
+.skeleton--chart {
+  height: var(--size-chart);
+  margin-top: var(--space-3);
+}
+
 .skeleton--pill {
   width: var(--space-20);
   height: var(--space-5);

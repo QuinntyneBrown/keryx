@@ -6,6 +6,7 @@ import {
   signal,
   type WritableSignal,
 } from '@angular/core';
+import { skeletonDelay } from '@kx/domain';
 import {
   ApiProblem,
   ARTICLES_API,
@@ -49,6 +50,7 @@ export class OverviewStore {
   private readonly runs = inject(RUNS_API);
   private readonly articles = inject(ARTICLES_API);
   private readonly controller = new AbortController();
+  private readonly skeleton = skeletonDelay();
 
   readonly status = signal<Section<OverviewStatus>>({ state: 'loading' });
   /** The last runs, newest first as served. */
@@ -61,6 +63,10 @@ export class OverviewStore {
   readonly now = signal(new Date());
   /** Try again is repeating every request. */
   readonly retrying = signal(false);
+  /** The first answers have taken over 300 ms: skeletons stand in for what is loading (L2-046 AC1). */
+  readonly slow = signal(false);
+  /** A section is still loading for the first time. */
+  readonly loading = computed(() => this.sections.some((section) => section().state === 'loading'));
   /** A section's Try again is repeating its request. */
   readonly retryingSection = signal<SectionName | null>(null);
 
@@ -91,6 +97,7 @@ export class OverviewStore {
     inject(DestroyRef).onDestroy(() => {
       clearInterval(clock);
       this.controller.abort();
+      this.skeleton.cancel();
     });
   }
 
@@ -116,6 +123,7 @@ export class OverviewStore {
    * the answers are shown at once when the last arrives, so a retry's error stays until then.
    */
   async load(names: readonly SectionName[] = SECTIONS, together = false): Promise<void> {
+    if (this.loading()) this.skeleton.run(() => this.slow.set(true));
     const shows = await Promise.all(
       names.map(async (name) => {
         const show = await this.readers[name]();
@@ -124,6 +132,8 @@ export class OverviewStore {
       }),
     );
     if (together) for (const show of shows) show();
+    this.skeleton.cancel();
+    this.slow.set(false);
     if (!this.controller.signal.aborted) this.now.set(new Date());
   }
 

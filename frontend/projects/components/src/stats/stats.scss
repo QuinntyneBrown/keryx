@@ -43,6 +43,18 @@
   letter-spacing: var(--letter-spacing-normal);
 }
 
+// A skeleton laid over a line of a loading stat, centred on it.
+.stat__placeholder {
+  position: relative;
+}
+
+.stat__placeholder > kx-skeleton {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  translate: 0 -50%;
+}
+
 .stat__sub {
   font: var(--text-caption);
   color: var(--color-fg-muted);

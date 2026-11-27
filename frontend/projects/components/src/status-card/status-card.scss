@@ -31,6 +31,22 @@
   min-width: 0;
 }
 
+.status-card__text--loading {
+  flex: 1;
+}
+
+// A skeleton laid over a line of the loading card, centred on it.
+.status-card__placeholder {
+  position: relative;
+}
+
+.status-card__placeholder > kx-skeleton {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  translate: 0 -50%;
+}
+
 .status-card__icon {
   display: grid;
   flex: none;
@@ -68,6 +84,8 @@
 
 .status-card__headline {
   margin-top: var(--space-0-5);
+  font: var(--text-h2);
+  letter-spacing: var(--letter-spacing-tight);
   overflow-wrap: anywhere;
 }
 

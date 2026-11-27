@@ -15,6 +15,8 @@ import { booleanAttribute, Component, computed, input } from '@angular/core';
 export class PageBody {
   readonly form = input(false, { transform: booleanAttribute });
   readonly centered = input(false, { transform: booleanAttribute });
+  /** Its content is loading: assistive technology waits for it (`aria-busy`). */
+  readonly busy = input(false, { transform: booleanAttribute });
 
   protected readonly classes = computed(() =>
     [

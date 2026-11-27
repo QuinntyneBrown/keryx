@@ -1,4 +1,10 @@
 <ul class="list">
+  @for (slot of slots(); track slot) {
+    <li class="list__item">
+      <div class="list__body"><kx-skeleton [width]="80" /><kx-skeleton [width]="40" /></div>
+      <kx-skeleton class="list__aside--loading" />
+    </li>
+  }
   @for (entry of entries(); track entry.id) {
     <li class="list__item">
       <div class="list__body">

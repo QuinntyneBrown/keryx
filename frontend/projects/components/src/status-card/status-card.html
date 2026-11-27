@@ -1,24 +1,51 @@
-<section class="card card--flush status-card" aria-labelledby="status-title">
-  <div class="status-card__main">
-    <div class="status-card__summary">
-      <span [attr.class]="iconClasses()"><kx-icon [name]="icon()" size="lg" /></span>
-      <div class="status-card__text">
-        <p class="status-card__eyebrow">{{ eyebrow() }}</p>
-        <h2 class="status-card__headline" id="status-title">{{ headline() }}</h2>
-        <p class="status-card__meta">
-          {{ meta() }}
-          @if (reference(); as id) {
-            · <span class="mono status-card__id">{{ id }}</span>
-          }
-        </p>
+@if (loading()) {
+  <div class="card card--flush status-card">
+    <div class="status-card__main">
+      <div class="status-card__summary">
+        <kx-skeleton shape="circle" />
+        <!-- Each line holds a no-break space, so it is as tall as the line it stands for. -->
+        <div class="status-card__text status-card__text--loading">
+          <p class="status-card__eyebrow status-card__placeholder">
+            <kx-skeleton [width]="20" />&nbsp;
+          </p>
+          <p class="status-card__headline status-card__placeholder">
+            <kx-skeleton shape="title" />&nbsp;
+          </p>
+          <p class="status-card__meta status-card__placeholder">
+            <kx-skeleton [width]="40" />&nbsp;
+          </p>
+        </div>
       </div>
+      <kx-stats class="status-card__stats" loading [items]="stats()" />
     </div>
-    <kx-stats class="status-card__stats" [items]="stats()" />
-  </div>
-  @if (historyCaption(); as caption) {
     <div class="status-card__history">
-      <p class="text-caption">{{ caption }}</p>
-      <ng-content />
+      <p class="text-caption status-card__placeholder"><kx-skeleton [width]="30" />&nbsp;</p>
+      <kx-skeleton shape="chart" />
     </div>
-  }
-</section>
+  </div>
+} @else {
+  <section class="card card--flush status-card" aria-labelledby="status-title">
+    <div class="status-card__main">
+      <div class="status-card__summary">
+        <span [attr.class]="iconClasses()"><kx-icon [name]="icon()" size="lg" /></span>
+        <div class="status-card__text">
+          <p class="status-card__eyebrow">{{ eyebrow() }}</p>
+          <h2 class="status-card__headline" id="status-title">{{ headline() }}</h2>
+          <p class="status-card__meta">
+            {{ meta() }}
+            @if (reference(); as id) {
+              · <span class="mono status-card__id">{{ id }}</span>
+            }
+          </p>
+        </div>
+      </div>
+      <kx-stats class="status-card__stats" [items]="stats()" />
+    </div>
+    @if (historyCaption(); as caption) {
+      <div class="status-card__history">
+        <p class="text-caption">{{ caption }}</p>
+        <ng-content />
+      </div>
+    }
+  </section>
+}

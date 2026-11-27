@@ -162,6 +162,17 @@ issue cards, "All runs", the problems link and the page error's "Go to runs" ope
 screen, so they arrive in journey 14, which builds it (ADR 0006); until then a card is not a
 link and the page error offers "Try again" alone.
 
+**Loading** (`L2-046` AC1) — when the first answers take over 300 ms, each section still loading
+shows skeletons drawn by its own component (`StatusCard`, `Stats`, `List` and `IssueCard` each
+have a loading form), the page body carries `aria-busy="true"` and one status sentence reads
+"Loading the overview…". The section headings stay as text: they are known before any answer
+and they label their sections, where the mock draws skeleton bars. Each skeleton line sits in
+the element it stands for with a no-break space, so it is exactly as tall as the line that
+replaces it, and the stats follow the shapes of the real ones (a small value with a sub-line for
+Next run). Nothing shifts from SM to XL; at XS the run headline and meta line wrap onto a second
+line, which no skeleton can foresee without the text, so the lists below move down by those
+lines. A section's slow Try again keeps its own busy button and does not mark the page loading.
+
 **Section errors** (`L2-045` AC5) — a section that fails shows its error in its place with a
 "Try again" that repeats its request alone, busy meanwhile, while the others stay shown. Only
 Latest articles has a mock (`partial.html`): "Latest articles didn't load", "The run status and

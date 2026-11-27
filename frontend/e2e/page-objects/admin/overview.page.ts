@@ -44,6 +44,11 @@ export class OverviewPage {
   readonly attentionError: Locator;
   readonly statusError: Locator;
   readonly chartError: Locator;
+  readonly body: Locator;
+  readonly loadingStatus: Locator;
+  readonly statusSkeletons: Locator;
+  readonly latestSkeletonRows: Locator;
+  readonly issueSkeletons: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.locator('main h1');
@@ -84,6 +89,11 @@ export class OverviewPage {
     this.attentionError = this.attention.locator('.empty--error');
     this.statusError = page.locator('main .page-body .stack > kx-empty > .empty--error');
     this.chartError = this.statusCard.locator('.status-card__history .empty--error');
+    this.body = page.locator('main .page-body');
+    this.loadingStatus = this.body.locator('.visually-hidden[role="status"]');
+    this.statusSkeletons = this.statusCard.locator('.skeleton');
+    this.latestSkeletonRows = this.latest.locator('.list__item:has(.skeleton)');
+    this.issueSkeletons = this.attention.locator('.issue-card:has(.skeleton)');
     this.navLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', {
       name: 'Overview',
     });

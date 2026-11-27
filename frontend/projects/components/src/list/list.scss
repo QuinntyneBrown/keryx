@@ -42,6 +42,12 @@
   color: var(--color-fg-muted);
 }
 
+// The aside's skeleton is a fifth of the row, as the loading mock draws it.
+.list__aside--loading {
+  flex: none;
+  width: 20%;
+}
+
 .list__aside {
   display: flex;
   flex: none;
