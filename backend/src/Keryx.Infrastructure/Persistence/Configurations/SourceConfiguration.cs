@@ -1,3 +1,4 @@
+using Keryx.Application.Sources;
 using Keryx.Domain.Reference;
 using Keryx.Domain.Sources;
 using Microsoft.EntityFrameworkCore;
@@ -15,32 +16,18 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>
     {
         builder.ToTable("Sources");
         builder.HasKey(source => source.Id);
-        builder.Property(source => source.Kind).HasConversion(kind => Word(kind), word => Kind(word)).HasMaxLength(16);
+        builder.Property(source => source.Kind).HasConversion(kind => SourceWords.Kind(kind), word => SourceWords.KindOf(word)!.Value).HasMaxLength(16);
         builder.Property(source => source.Address).HasMaxLength(2048);
         builder.Property(source => source.OrganizationName).HasMaxLength(120);
         builder.Property(source => source.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
         builder.Property(source => source.SeedKey).HasMaxLength(ReferenceConfiguration.SlugLength);
         builder.HasOne<Region>().WithMany().HasForeignKey(source => source.RegionSlug).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(source => source.SeedKey).IsUnique();
+        builder.Property(source => source.PublicId).HasMaxLength(PublicIdLength);
+        builder.HasIndex(source => source.PublicId).IsUnique();
+        builder.Property(source => source.Health).HasConversion(health => SourceWords.Health(health), word => SourceWords.HealthOf(word)!.Value).HasMaxLength(16);
     }
 
-    private static string Word(SourceKind kind) => kind switch
-    {
-        SourceKind.Rss => "rss",
-        SourceKind.Website => "website",
-        SourceKind.Instagram => "instagram",
-        SourceKind.Eventbrite => "eventbrite",
-        SourceKind.NewsQuery => "news_query",
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown source kind."),
-    };
-
-    private static SourceKind Kind(string word) => word switch
-    {
-        "rss" => SourceKind.Rss,
-        "website" => SourceKind.Website,
-        "instagram" => SourceKind.Instagram,
-        "eventbrite" => SourceKind.Eventbrite,
-        "news_query" => SourceKind.NewsQuery,
-        _ => throw new ArgumentOutOfRangeException(nameof(word), word, "Unknown source kind."),
-    };
+    /// <summary>A prefix of up to 3 letters, the underscore and 12 characters.</summary>
+    internal const int PublicIdLength = 16;
 }
