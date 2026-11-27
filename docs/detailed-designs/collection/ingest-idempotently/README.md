@@ -42,7 +42,9 @@ the `IDeduplicator` contract.
   `source_key`), so a second insert of the same identity cannot succeed.
 - **`PublicId`** — value object for public ids with the prefixes `art_`, `run_`, `src_` (and
   `org_`, `evt_` from L2-017 and L2-028). An id is issued once, never reused, and never changes.
-  The generation scheme is `<TO SUPPLY>`; the mocks show `run_2418`.
+  It is the prefix and 12 random base32 characters (`PublicIds`,
+  [ADR 0007](../../../adr/0007-public-ids-are-random-and-prefixed.md)); the mocks' `run_2418` is
+  illustrative.
 - **`HeadlineSimilarity`** — domain service. `Normalize` lower-cases, removes punctuation and
   collapses whitespace into words. `Score` is one minus the word-level edit distance divided by
   the longer headline's word count, to two decimals, so one word changed in ten scores exactly
@@ -66,14 +68,19 @@ the `IDeduplicator` contract.
   time).
 - **`DeduplicateStage`** — counts `added`, `updated`, `unchanged`, `duplicates` and `rejected`
   from the match results; an unchanged item counts as neither added nor updated.
-- **`StoreStage`** and **`PublishStage`** — stage and apply the changes. A new record gets a
+- **`StoreStage`** and **`PublishStage`** — stage and apply the changes. `ArticleIngestion`
+  matches and counts each source's items as they are read and writes one `StagedArticle` row per
+  item (`add`, `update` or `seen`); `ArticlePublication` applies the run's rows to the live
+  articles in one save and deletes them, and its `published` count is the articles added or
+  updated. An item's link is matched against the articles held and the rows this run already
+  staged, so one story from two sources in the same run is one article. A new record gets a
   `PublicId` and one provenance entry; a matched record keeps its id and `first_seen_at`, its
   provenance entry for that source gets `last_seen_at` set to the run's start time, and a merge
   adds a provenance entry for the second source.
 - **`Provenance`** — domain entity with `RecordKind`, `RecordId`, `SourceId`, a snapshot of
   `SourceName`, `Url`, `FirstSeenAt` and `LastSeenAt`. The snapshot keeps the source's name and
-  URL readable after the source is removed; whether a removed source is soft-deleted or its
-  foreign key set to null is `<TO SUPPLY>` (owned by the source catalogue design).
+  URL readable after the source is removed: removing a source sets the entry's `SourceId` to
+  null, and the read serves `source_id` `null` with the stored name and URL.
 - **Read** — the admin record endpoints (for articles, `GET /admin/v1/articles/{id}`) serve
   `provenance` as a list of `source_id`, `source_name`, `url`, `first_seen_at` and
   `last_seen_at`. The admin app renders those values as text and opens a link only as

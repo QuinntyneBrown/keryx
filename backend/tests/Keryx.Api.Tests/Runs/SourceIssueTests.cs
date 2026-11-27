@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Keryx.Api.Tests.Session;
-using Keryx.Application.Collection;
 using Keryx.Domain.Collection;
 using Keryx.Domain.Sources;
 using Keryx.Infrastructure.Persistence;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using static Keryx.Api.Tests.Runs.CollectionRuns;
 
 namespace Keryx.Api.Tests.Runs;
 
@@ -129,45 +129,5 @@ public sealed class SourceIssueTests
         Assert.Equal("items_held", issue.GetProperty("kind").GetString());
         Assert.Equal("World Faith Fit", issue.GetProperty("subject_name").GetString());
         Assert.Equal("1 item held for review: its relevance score is between 0.45 and 0.60.", issue.GetProperty("detail").GetString());
-    }
-
-    private static async Task<JsonElement> ReadRunAsync(HttpClient client, string runId) =>
-        await client.GetFromJsonAsync<JsonElement>(new Uri($"/admin/v1/runs/{runId}", UriKind.Relative), TestContext.Current.CancellationToken);
-
-    private static async Task AddSourceAsync(ApiFactory factory, SourceKind kind, string address, string name, string region)
-    {
-        await using var scope = factory.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<KeryxDbContext>();
-        db.Sources.Add(Source.Add(kind, address, name, region, factory.Time.GetUtcNow()));
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-    }
-
-    /// <summary>A pending run named by the lease, as a slot makes it, then the pipeline over it.</summary>
-    private static async Task<string> RunAsync(ApiFactory factory)
-    {
-        string runId;
-        await using (var scope = factory.Services.CreateAsyncScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<KeryxDbContext>();
-            var run = Run.Start(RunWorker.Collection, RunTrigger.Schedule, factory.Time.GetUtcNow());
-            db.Runs.Add(run);
-            var lease = await db.RunLeases.SingleOrDefaultAsync(TestContext.Current.CancellationToken);
-            if (lease is null)
-            {
-                lease = RunLease.For(RunWorker.Collection, factory.Time.GetUtcNow());
-                db.RunLeases.Add(lease);
-            }
-
-            lease.Claim(run.PublicId);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-            runId = run.PublicId;
-        }
-
-        await using (var scope = factory.Services.CreateAsyncScope())
-        {
-            await scope.ServiceProvider.GetRequiredService<ISender>().Send(new RunCollectionCommand(), TestContext.Current.CancellationToken);
-        }
-
-        return runId;
     }
 }

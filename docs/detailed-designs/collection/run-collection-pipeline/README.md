@@ -47,8 +47,9 @@ The pipeline runs in the Keryx Worker. Every fetch and rule sits behind a contra
 - **`CollectionPipeline`** — class in `Keryx.Application` that reaches sources and the database
   only through contracts, so the API test host runs it as the worker does (ADR 0010). Fetched
   sources stream to one reader through a bounded `System.Threading.Channels` channel of capacity
-  16, so memory does not grow with the number of sources. Until journey 5 the `deduplicate`,
-  `store` and `publish` stages finish `done` with zero counts (ADR 0010).
+  16, so memory does not grow with the number of sources. The reader matches and stages each
+  source's items as it reads them (`deduplicate`, `store`), and `publish` applies the run's
+  staged rows at the end (ADR 0010).
 - **`FetchStage`** — fetches each source through `ISourceFetcher` (`HttpSourceFetcher`), with at
   most 8 hosts at once and one request in flight per host (L2-022). Each attempt has the
   per-source time-out from Settings (default 30 seconds), enforced by a cancellation timer created

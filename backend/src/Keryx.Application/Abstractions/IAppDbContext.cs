@@ -31,5 +31,9 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences { get; }
 
+    DbSet<Keryx.Domain.Catalogue.Article> Articles { get; }
+
+    DbSet<Keryx.Domain.Catalogue.StagedArticle> StagedArticles { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

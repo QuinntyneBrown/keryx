@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Catalogue;
 using Keryx.Application.Scoring;
 using Keryx.Application.Sources;
 using Keryx.Domain.Collection;
@@ -15,11 +16,12 @@ namespace Keryx.Application.Collection;
 /// fetched source streams through a bounded channel to one reader, which parses and classifies
 /// its items, records the source's health and advances the run's progress, so memory does not
 /// grow with the number of sources (L2-087). A source that fails, or throws, is recorded as
-/// failed and the others continue. The deduplicate, store and publish stages arrive with
-/// journeys 5 and 6 (ADR 0010).
+/// failed and the others continue. Each source's items are matched and staged as they are read
+/// (deduplicate and store), and the publish stage applies the run's staged changes in one save.
 /// </summary>
 public sealed class CollectionPipeline(
-    IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, SourceIssueTracker issues, TimeProvider time)
+    IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, SourceIssueTracker issues,
+    ArticleIngestion ingestion, ArticlePublication publication, TimeProvider time)
 {
     /// <summary>How many sources are fetched at once (L2-022).</summary>
     internal const int FetchConcurrency = 8;
@@ -46,7 +48,7 @@ public sealed class CollectionPipeline(
             .OrderByDescending(other => other.StartedAt).ThenByDescending(other => other.Id)
             .Select(other => (long?)other.Id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
         run.BeginExecution(sources.Count);
-        foreach (var stage in new[] { PipelineStage.Fetch, PipelineStage.Parse, PipelineStage.Classify })
+        foreach (var stage in new[] { PipelineStage.Fetch, PipelineStage.Parse, PipelineStage.Classify, PipelineStage.Deduplicate, PipelineStage.Store })
         {
             run.RecordStage(stage, StageStatus.Running, 0, new Dictionary<string, int>());
         }
@@ -61,7 +63,8 @@ public sealed class CollectionPipeline(
         var fetching = FetchAllAsync(sources, timeout, fetched.Writer, cancellationToken);
 
         int ok = 0, failed = 0, items = 0, relevant = 0, held = 0, offTopic = 0;
-        long parseTicks = 0, classifyTicks = 0;
+        long parseTicks = 0, classifyTicks = 0, storeTicks = 0;
+        var counts = new IngestionCounts();
         await foreach (var (source, result) in fetched.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
             var at = time.GetUtcNow();
@@ -81,11 +84,14 @@ public sealed class CollectionPipeline(
                 var classifyStarted = time.GetTimestamp();
                 var sourceHeld = 0;
                 var place = places.GetValueOrDefault(source.RegionSlug, string.Empty);
+                var classified = new List<(FeedItem, decimal, PublicationStatus)>();
                 foreach (var item in feed?.Items ?? [])
                 {
                     items++;
                     var score = scorer.Score(new ScoringItem(item.Title, item.Summary, place), scoring);
-                    switch (PublicationPolicy.Classify(score.Value, settings.PublishThreshold))
+                    var status = PublicationPolicy.Classify(score.Value, settings.PublishThreshold);
+                    classified.Add((item, score.Value, status));
+                    switch (status)
                     {
                         case PublicationStatus.Published:
                             relevant++;
@@ -101,6 +107,9 @@ public sealed class CollectionPipeline(
                 }
 
                 classifyTicks += time.GetTimestamp() - classifyStarted;
+                var storeStarted = time.GetTimestamp();
+                await ingestion.StageAsync(run, source, classified, counts, cancellationToken).ConfigureAwait(false);
+                storeTicks += time.GetTimestamp() - storeStarted;
                 source.RecordFetchSucceeded(at, sourceHeld);
                 await issues.SucceededAsync(run, previousRunId, source, sourceHeld, settings.PublishThreshold, at, cancellationToken).ConfigureAwait(false);
             }
@@ -116,11 +125,28 @@ public sealed class CollectionPipeline(
         run.RecordStage(PipelineStage.Parse, StageStatus.Done, Milliseconds(parseTicks), new Dictionary<string, int> { ["items"] = items });
         run.RecordStage(PipelineStage.Classify, held > 0 ? StageStatus.DoneWithWarnings : StageStatus.Done, Milliseconds(classifyTicks),
             new Dictionary<string, int> { ["relevant"] = relevant, ["held"] = held, ["off_topic"] = offTopic });
-        // Journeys 5 and 6 fill these stages (ADR 0010); until then they store and publish nothing.
-        run.RecordStage(PipelineStage.Deduplicate, StageStatus.Done, 0, new Dictionary<string, int> { ["duplicates"] = 0, ["rejected"] = 0 });
-        run.RecordStage(PipelineStage.Store, StageStatus.Done, 0, new Dictionary<string, int> { ["added"] = 0, ["updated"] = 0, ["unchanged"] = 0 });
-        run.RecordStage(PipelineStage.Publish, StageStatus.Done, 0, new Dictionary<string, int> { ["published"] = 0 });
-        return new RunCounts { Held = held, OffTopic = offTopic, SourcesOk = ok, SourcesFailed = failed };
+        run.RecordStage(PipelineStage.Deduplicate, StageStatus.Done, 0,
+            new Dictionary<string, int> { ["duplicates"] = counts.Duplicates, ["rejected"] = counts.Rejected });
+        run.RecordStage(PipelineStage.Store, StageStatus.Done, Milliseconds(storeTicks),
+            new Dictionary<string, int> { ["added"] = counts.Added, ["updated"] = counts.Updated, ["unchanged"] = counts.Unchanged });
+        run.RecordStage(PipelineStage.Publish, StageStatus.Running, 0, new Dictionary<string, int>());
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var publishStarted = time.GetTimestamp();
+        var published = await publication.PublishAsync(run, cancellationToken).ConfigureAwait(false);
+        run.RecordStage(PipelineStage.Publish, StageStatus.Done, Milliseconds(time.GetTimestamp() - publishStarted),
+            new Dictionary<string, int> { ["published"] = published });
+        return new RunCounts
+        {
+            Added = counts.Added,
+            Updated = counts.Updated,
+            Unchanged = counts.Unchanged,
+            Duplicates = counts.Duplicates,
+            Held = held,
+            OffTopic = offTopic,
+            Rejected = counts.Rejected,
+            SourcesOk = ok,
+            SourcesFailed = failed,
+        };
     }
 
     /// <summary>

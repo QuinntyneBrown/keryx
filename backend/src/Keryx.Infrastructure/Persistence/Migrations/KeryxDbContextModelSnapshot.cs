@@ -22,6 +22,160 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Keryx.Domain.Catalogue.Article", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CollectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegionSlug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("Score")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)");
+
+                    b.Property<long?>("SourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(1300)
+                        .HasColumnType("character varying(1300)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RegionSlug");
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("Url")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "CollectedAt");
+
+                    b.ToTable("Articles", (string)null);
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.StagedArticle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RegionSlug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("RunId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Score")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)");
+
+                    b.Property<long>("SourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SourceName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(1300)
+                        .HasColumnType("character varying(1300)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RunId", "Url");
+
+                    b.ToTable("StagedArticles", (string)null);
+                });
+
             modelBuilder.Entity("Keryx.Domain.Collection.IssueOccurrence", b =>
                 {
                     b.Property<long>("Id")
@@ -432,6 +586,78 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StaffSessions");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.Article", b =>
+                {
+                    b.HasOne("Keryx.Domain.Reference.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionSlug")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Keryx.Domain.Sources.Source", null)
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.OwnsMany("Keryx.Domain.Catalogue.Provenance", "Provenance", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bigint");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<long>("Id"));
+
+                            b1.Property<long>("ArticleId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<DateTimeOffset>("FirstSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTimeOffset>("LastSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<long?>("SourceId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("SourceName")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)");
+
+                            b1.Property<string>("Url")
+                                .IsRequired()
+                                .HasMaxLength(2048)
+                                .HasColumnType("character varying(2048)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ArticleId");
+
+                            b1.HasIndex("SourceId");
+
+                            b1.ToTable("ArticleProvenance", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ArticleId");
+
+                            b1.HasOne("Keryx.Domain.Sources.Source", null)
+                                .WithMany()
+                                .HasForeignKey("SourceId")
+                                .OnDelete(DeleteBehavior.SetNull);
+                        });
+
+                    b.Navigation("Provenance");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.StagedArticle", b =>
+                {
+                    b.HasOne("Keryx.Domain.Collection.Run", null)
+                        .WithMany()
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Keryx.Domain.Collection.IssueOccurrence", b =>

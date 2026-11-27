@@ -1,0 +1,95 @@
+using System.Text.Json;
+using Keryx.Domain.Catalogue;
+using Keryx.Domain.Collection;
+using Keryx.Domain.Reference;
+using Keryx.Domain.Sources;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Keryx.Infrastructure.Persistence.Configurations;
+
+/// <summary>
+/// Articles and their provenance. The canonical link is unique, so one story is one row; a
+/// provenance entry keeps its source's name and URL when the source is removed.
+/// </summary>
+internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
+{
+    public const int UrlLength = 2048;
+
+    public void Configure(EntityTypeBuilder<Article> builder)
+    {
+        builder.ToTable("Articles");
+        builder.HasKey(article => article.Id);
+        builder.Property(article => article.PublicId).HasMaxLength(SourceConfiguration.PublicIdLength);
+        builder.HasIndex(article => article.PublicId).IsUnique();
+        builder.Property(article => article.Url).HasMaxLength(UrlLength);
+        builder.HasIndex(article => article.Url).IsUnique();
+        builder.Property(article => article.Title).HasMaxLength(ArticleTitle.MaxLength);
+        builder.Property(article => article.Summary).HasMaxLength(ArticleSummary.MaxLength);
+        builder.Property(article => article.Category).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.Property(article => article.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.HasOne<Region>().WithMany().HasForeignKey(article => article.RegionSlug).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Source>().WithMany().HasForeignKey(article => article.SourceId).OnDelete(DeleteBehavior.SetNull);
+        builder.Property(article => article.Tags).HasConversion(Tags.Converter, Tags.Comparer).HasMaxLength(1300);
+        builder.Property(article => article.Score).HasPrecision(3, 2);
+        builder.Property(article => article.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
+        builder.Property(article => article.Fingerprint).HasMaxLength(64);
+        builder.HasIndex(article => new { article.Status, article.CollectedAt });
+        builder.OwnsMany(article => article.Provenance, entry =>
+        {
+            entry.ToTable("ArticleProvenance");
+            entry.WithOwner().HasForeignKey("ArticleId");
+            entry.Property<long>("Id");
+            entry.HasKey("Id");
+            entry.Property(provenance => provenance.SourceName).HasMaxLength(120);
+            entry.Property(provenance => provenance.Url).HasMaxLength(UrlLength);
+            entry.HasOne<Source>().WithMany().HasForeignKey(provenance => provenance.SourceId).OnDelete(DeleteBehavior.SetNull);
+        });
+        builder.Navigation(article => article.Provenance).HasField("_provenance");
+    }
+}
+
+/// <summary>The changes a run has staged and not yet published.</summary>
+internal sealed class StagedArticleConfiguration : IEntityTypeConfiguration<StagedArticle>
+{
+    public void Configure(EntityTypeBuilder<StagedArticle> builder)
+    {
+        builder.ToTable("StagedArticles");
+        builder.HasKey(staged => staged.Id);
+        builder.Ignore(staged => staged.Facts);
+        builder.HasOne<Run>().WithMany().HasForeignKey(staged => staged.RunId).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(staged => staged.Action).HasConversion<string>().HasMaxLength(8);
+        builder.Property(staged => staged.SourceName).HasMaxLength(120);
+        builder.Property(staged => staged.Url).HasMaxLength(ArticleConfiguration.UrlLength);
+        builder.HasIndex(staged => new { staged.RunId, staged.Url });
+        builder.Property(staged => staged.Title).HasMaxLength(ArticleTitle.MaxLength);
+        builder.Property(staged => staged.Summary).HasMaxLength(ArticleSummary.MaxLength);
+        builder.Property(staged => staged.Category).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.Property(staged => staged.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.Property(staged => staged.Tags).HasConversion(Tags.Converter, Tags.Comparer).HasMaxLength(1300);
+        builder.Property(staged => staged.Score).HasPrecision(3, 2);
+        builder.Property(staged => staged.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
+    }
+}
+
+internal static class Tags
+{
+    public static readonly Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<IReadOnlyList<string>, string> Converter = new(
+        tags => JsonSerializer.Serialize(tags, JsonSerializerOptions.Default),
+        json => JsonSerializer.Deserialize<List<string>>(json, JsonSerializerOptions.Default) ?? new List<string>());
+
+    public static readonly ValueComparer<IReadOnlyList<string>> Comparer = new(
+        (left, right) => left!.SequenceEqual(right!),
+        tags => tags.Aggregate(0, (hash, tag) => HashCode.Combine(hash, tag)),
+        tags => tags.ToList());
+}
+
+internal static class Words
+{
+    public static readonly System.Linq.Expressions.Expression<Func<PublicationStatus, string>> Status = status =>
+        status == PublicationStatus.Published ? "published" : status == PublicationStatus.NeedsReview ? "needs_review" : "hidden";
+
+    public static readonly System.Linq.Expressions.Expression<Func<string, PublicationStatus>> StatusOf = word =>
+        word == "published" ? PublicationStatus.Published : word == "needs_review" ? PublicationStatus.NeedsReview : PublicationStatus.Hidden;
+}
