@@ -19,8 +19,11 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        // A required setting that is missing stops the process as it starts, by name (L2-096).
         services.AddOptions<DatabaseOptions>()
-            .Configure(options => options.ConnectionString = configuration.GetConnectionString(DatabaseOptions.ConnectionName));
+            .Configure(options => options.ConnectionString = configuration.GetConnectionString(DatabaseOptions.ConnectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString), DatabaseOptions.MissingConnectionString)
+            .ValidateOnStart();
 
         services.AddDbContext<KeryxDbContext>((provider, options) =>
             options.UseNpgsql(provider.GetRequiredService<IOptions<DatabaseOptions>>().Value.ConnectionString));

@@ -2,18 +2,23 @@ using System.Globalization;
 using Keryx.Application;
 using Keryx.Application.Seeding;
 using Keryx.Infrastructure;
+using Keryx.Infrastructure.Hosting;
 using Keryx.Infrastructure.Persistence.Schema;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Keryx.Cli;
 
 /// <summary>The CLI's commands, behind one entry a test can call with its own writers.</summary>
 public static class KeryxCli
 {
-    /// <summary>The exit code of a command line that names no known command.</summary>
+    /// <summary>
+    /// The exit code of a command line that names no known command. A missing required setting
+    /// exits with <see cref="HostRunner.MissingSettingExitCode"/>.
+    /// </summary>
     public const int UsageExitCode = 1;
 
     public const string Usage = """
@@ -49,17 +54,24 @@ public static class KeryxCli
             return UsageExitCode;
         }
 
-        using var host = Build(configure);
-        var scope = host.Services.CreateAsyncScope();
-        await using (scope.ConfigureAwait(false))
-        {
-            var line = args[0] == Migrate
-                ? await MigrateAsync(scope.ServiceProvider, cancellationToken).ConfigureAwait(false)
-                : await SeedAsync(scope.ServiceProvider, cancellationToken).ConfigureAwait(false);
-            await output.WriteLineAsync(line).ConfigureAwait(false);
-        }
+        return await HostRunner.GuardAsync(
+            async () =>
+            {
+                using var host = Build(configure);
+                // The host is never started, so the settings are checked here as a start would.
+                host.Services.GetService<IStartupValidator>()?.Validate();
+                var scope = host.Services.CreateAsyncScope();
+                await using (scope.ConfigureAwait(false))
+                {
+                    var line = args[0] == Migrate
+                        ? await MigrateAsync(scope.ServiceProvider, cancellationToken).ConfigureAwait(false)
+                        : await SeedAsync(scope.ServiceProvider, cancellationToken).ConfigureAwait(false);
+                    await output.WriteLineAsync(line).ConfigureAwait(false);
+                }
 
-        return 0;
+                return 0;
+            },
+            error).ConfigureAwait(false);
     }
 
     /// <summary>
