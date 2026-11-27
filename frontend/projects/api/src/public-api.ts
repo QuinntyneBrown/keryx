@@ -48,8 +48,11 @@ export {
   RUNS_API,
   type OpenIssue,
   type OpenIssuePage,
+  type RunDetail,
+  type RunIssue,
   type RunPage,
   type RunQuery,
   type RunSummary,
   type RunsApi,
+  type StageResult,
 } from './runs/runs-api';

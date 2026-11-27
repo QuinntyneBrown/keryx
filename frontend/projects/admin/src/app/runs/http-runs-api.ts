@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import type { OpenIssuePage, RunPage, RunQuery, RunsApi } from '@kx/api';
+import type { OpenIssuePage, RunDetail, RunPage, RunQuery, RunsApi } from '@kx/api';
 import { readJson } from '../session/read-json';
 
 /** The run history reads over fetch, with the staff session's cookie (ADR 0005). */
@@ -12,6 +12,10 @@ export class HttpRunsApi implements RunsApi {
       page_size: String(query.pageSize),
     });
     return readJson<RunPage>(`/admin/v1/runs?${params}`, signal);
+  }
+
+  get(id: string, signal: AbortSignal): Promise<RunDetail> {
+    return readJson<RunDetail>(`/admin/v1/runs/${encodeURIComponent(id)}`, signal);
   }
 
   openIssues(pageSize: number, signal: AbortSignal): Promise<OpenIssuePage> {

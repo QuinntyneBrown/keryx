@@ -15,7 +15,7 @@
 | 11 | Staff reviews articles | Staff search, filter and open articles with provenance | 4 | 100 |
 | 12 | Staff publishes or hides an article | Staff overrule the score, with Undo | 2 | 100 |
 | 13 | Staff checks the Overview | Staff see last run, new articles, issues and next run | 4 | 100 |
-| 14 | Staff reviews run history | Staff inspect each run's stages, counts and issues | 4 | 15 |
+| 14 | Staff reviews run history | Staff inspect each run's stages, counts and issues | 4 | 25 |
 | 15 | Staff starts a collection now | Staff start a run on demand and follow it live | 2 | 0 |
 | 16 | Staff retries failed sources | Staff refetch only a run's failed sources | 2 | 0 |
 | 17 | Staff maintains sources | Staff see source health, edit and remove sources | 4 | 0 |

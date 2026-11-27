@@ -1,0 +1,18 @@
+<div class="card">
+  <div class="card__head">
+    <div>
+      <div class="card__title-row">
+        <h2 [id]="headingId()">{{ heading() }}</h2>
+        @if (badge(); as shown) {
+          <kx-badge dot [tone]="shown.tone">{{ shown.text }}</kx-badge>
+        }
+      </div>
+      @if (meta(); as text) {
+        <!-- prettier-ignore -->
+        <p class="card__meta">@if (reference(); as id) {<span class="mono">{{ id }}</span> · }{{ text }}</p>
+      }
+    </div>
+    <ng-content select="[slot=actions]" />
+  </div>
+  <ng-content />
+</div>

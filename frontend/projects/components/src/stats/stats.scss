@@ -1,4 +1,5 @@
 // Stats (docs/design-system/components/stat.html).
+@use '../breakpoints' as bp;
 :host {
   display: block;
 }
@@ -7,6 +8,22 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
+}
+
+.stats--4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@include bp.from(640) {
+  .stats--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stats--ruled {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
 }
 
 .stat {
@@ -34,6 +51,10 @@
 .stat__value--sm {
   margin-top: var(--space-1-5);
   font: var(--text-stat-sm);
+}
+
+.stat__value--danger {
+  color: var(--color-danger-fg);
 }
 
 .stat__unit {

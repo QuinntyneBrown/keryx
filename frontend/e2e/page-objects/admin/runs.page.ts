@@ -12,6 +12,13 @@ export class RunsPage {
   readonly runMetas: Locator;
   readonly runWords: Locator;
   readonly runFlags: Locator;
+  readonly current: Locator;
+  readonly detail: Locator;
+  readonly detailHeading: Locator;
+  readonly detailBadge: Locator;
+  readonly detailMeta: Locator;
+  readonly tileLabels: Locator;
+  readonly tileValues: Locator;
 
   constructor(private readonly page: Page) {
     const main = page.locator('main');
@@ -25,6 +32,13 @@ export class RunsPage {
     this.runMetas = this.runs.locator('.list__meta');
     this.runWords = this.runs.locator('.visually-hidden');
     this.runFlags = this.runs.locator('.run-item__flag');
+    this.current = this.runs.and(page.locator('[aria-current="true"]'));
+    this.detail = main.locator('section[aria-labelledby="run-title"]');
+    this.detailHeading = this.detail.locator('#run-title');
+    this.detailBadge = this.detail.locator('.card__title-row .badge');
+    this.detailMeta = this.detail.locator('.card__meta');
+    this.tileLabels = this.detail.locator('.stats .stat__label');
+    this.tileValues = this.detail.locator('.stats .stat__value');
   }
 
   /** Each run's icon tone, in list order. */
@@ -32,6 +46,11 @@ export class RunsPage {
     return this.runs.evaluateAll((items) =>
       items.map((item) => item.querySelector('[data-tone]')?.getAttribute('data-tone') ?? null),
     );
+  }
+
+  /** The page's address after the path: its query string. */
+  search(): string {
+    return new URL(this.page.url()).search;
   }
 
   async open(query = ''): Promise<void> {

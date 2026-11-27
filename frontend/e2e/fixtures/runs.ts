@@ -51,3 +51,33 @@ export function shellSchedule(overrides: Record<string, unknown> = {}): Record<s
     ...overrides,
   };
 }
+
+/**
+ * A run's detail as `GET /admin/v1/runs/{id}` serves it, from its row in the history: 64 sources,
+ * those that did not fail OK, and run_2418's 18 duplicates. No stage and no issue unless given.
+ */
+export function runDetail(
+  id: string,
+  overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  const row = RUN_HISTORY.find((run) => run.id === id) ?? RUN_HISTORY[0];
+  const failed = row['sources_failed'] as number;
+  return {
+    ...row,
+    worker: 'collection',
+    failure_reason: null,
+    correlation_id: null,
+    updated: 3,
+    unchanged: 120,
+    duplicates: id === 'run_2418' ? 18 : 5,
+    held: 0,
+    off_topic: 0,
+    rejected: 0,
+    sources_ok: 64 - failed,
+    sources_checked: 64,
+    sources_total: 64,
+    stages: [],
+    issues: [],
+    ...overrides,
+  };
+}

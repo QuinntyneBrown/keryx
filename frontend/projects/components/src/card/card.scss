@@ -1,0 +1,39 @@
+// The card (docs/design-system/components/card.html).
+@use '../breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.card {
+  padding: var(--space-5);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+@include bp.from(768) {
+  .card {
+    padding: var(--space-6);
+  }
+}
+
+.card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.card__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.card__meta {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}

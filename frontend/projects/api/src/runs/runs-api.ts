@@ -49,9 +49,52 @@ export interface OpenIssuePage {
   page_size: number;
 }
 
-/** The run history reads (View run history design, L2-044, L2-045, L2-056). */
+/** One pipeline stage of a run: its status, how long it took, its named counts, a generic reason. */
+export interface StageResult {
+  stage: string;
+  status: string;
+  duration_ms: number;
+  counts: Record<string, number>;
+  reason: string | null;
+}
+
+/** A problem a run raised. Its names and detail came from a source: render them as text. */
+export interface RunIssue {
+  id: string;
+  severity: 'error' | 'warning';
+  kind: string;
+  subject_type: string;
+  subject_id: string | null;
+  subject_name: string | null;
+  detail: string;
+  consecutive_runs: number;
+  since: string;
+  muted: boolean;
+}
+
+/** A run as staff read it (L2-019): every count a number, its six stages and its issues. */
+export interface RunDetail extends RunSummary {
+  worker: string;
+  failure_reason: string | null;
+  correlation_id: string | null;
+  updated: number;
+  unchanged: number;
+  duplicates: number;
+  held: number;
+  off_topic: number;
+  rejected: number;
+  sources_ok: number;
+  sources_checked: number;
+  sources_total: number;
+  stages: StageResult[];
+  issues: RunIssue[];
+}
+
+/** The run history reads (View run history design, L2-044, L2-045, L2-056, L2-057). */
 export interface RunsApi {
   list(query: RunQuery, signal: AbortSignal): Promise<RunPage>;
+  /** One run with its stages and issues; refuses `run_not_found`. */
+  get(id: string, signal: AbortSignal): Promise<RunDetail>;
   /** The `pageSize` most severe open issues: errors first, then the longest streak. */
   openIssues(pageSize: number, signal: AbortSignal): Promise<OpenIssuePage>;
 }

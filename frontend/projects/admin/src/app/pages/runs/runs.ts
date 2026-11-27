@@ -1,9 +1,19 @@
-import { Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RUNS_API } from '@kx/api';
-import { List, PageBody, PageHeader, Rail, type RunListItem } from '@kx/components';
+import {
+  Card,
+  List,
+  PageBody,
+  PageHeader,
+  Rail,
+  Stats,
+  type RunListItem,
+  type StatItem,
+} from '@kx/components';
 import {
   formatCollectedAt,
+  formatDuration,
   runFailedFlag,
   runLineMeta,
   runOutcomeLabel,
@@ -23,7 +33,7 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-runs',
-  imports: [List, PageBody, PageHeader, Rail],
+  imports: [Card, List, PageBody, PageHeader, Rail, Stats],
   templateUrl: './runs.html',
   styleUrl: './runs.scss',
   providers: [{ provide: RUNS_API, useClass: HttpRunsApi }, RunsStore],
@@ -32,6 +42,10 @@ export default class Runs {
   protected readonly store = inject(RunsStore);
   private readonly schedule = inject(ScheduleStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  /** The zone times read in: the schedule's, or Toronto's until it is read. */
+  private readonly zone = computed(() => this.schedule.schedule()?.time_zone ?? TORONTO);
 
   /** "Scheduled every 6 hours · next at 12:00 PM (in 2h 14m)" once the schedule is read. */
   protected readonly description = computed(() => {
@@ -43,12 +57,13 @@ export default class Runs {
   protected readonly runs = computed((): RunListItem[] => {
     const page = this.store.page();
     if (!page) return [];
-    const zone = this.schedule.schedule()?.time_zone ?? TORONTO;
+    const zone = this.zone();
     const now = this.schedule.now();
+    const selected = this.store.selected();
     return page.items.map((run) => ({
       id: run.id,
       href: `/runs?run=${run.id}`,
-      current: false,
+      current: run.id === selected,
       tone: runTone(run.outcome) as RunListItem['tone'],
       word: runOutcomeLabel(run.outcome),
       title: formatCollectedAt(run.started_at, now, zone),
@@ -57,12 +72,40 @@ export default class Runs {
     }));
   });
 
+  /** The chosen run's card: its start, its outcome, its reference and how it ran (L2-057 AC1). */
+  protected readonly detail = computed(() => {
+    const run = this.store.detail();
+    if (!run) return null;
+    const tiles: StatItem[] = [
+      { label: 'New articles', value: String(run.added), size: 'md' },
+      { label: 'Duplicates skipped', value: String(run.duplicates), size: 'md' },
+      { label: 'Sources OK', value: String(run.sources_ok), size: 'md' },
+      {
+        label: 'Sources failed',
+        value: String(run.sources_failed),
+        size: 'md',
+        ...(run.sources_failed > 0 ? { tone: 'danger' as const } : {}),
+      },
+    ];
+    return {
+      heading: formatCollectedAt(run.started_at, this.schedule.now(), this.zone()),
+      badge: { text: runOutcomeLabel(run.outcome), tone: runTone(run.outcome) },
+      reference: run.id,
+      meta: `${run.trigger === 'manual' ? 'Manual' : 'Schedule'} · took ${formatDuration(run.duration_ms ?? 0)}`,
+      tiles,
+    };
+  });
+
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);
   }
 
   constructor() {
     this.schedule.load();
+    const subscription = this.route.queryParamMap.subscribe((params) =>
+      this.store.request(params.get('run')),
+    );
+    inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
     void this.store.load();
   }
 }

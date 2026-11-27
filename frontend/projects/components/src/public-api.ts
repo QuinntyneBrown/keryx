@@ -51,3 +51,4 @@ export { Rail } from './stack/rail';
 export { Stack } from './stack/stack';
 export { Progress } from './progress/progress';
 export { Spinner } from './spinner/spinner';
+export { Card } from './card/card';
