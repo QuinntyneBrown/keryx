@@ -61,7 +61,7 @@ jobs:
 
       - name: Restore the Playwright browser
         id: browser
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
@@ -83,7 +83,7 @@ jobs:
 
       - name: Keep the Playwright traces
         if: failure() && steps.specs.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
@@ -116,7 +116,7 @@ jobs:
 
       # Versions are pinned centrally (Directory.Packages.props), so it and the projects key the cache.
       - name: Restore the NuGet cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/**/*.csproj') }}
