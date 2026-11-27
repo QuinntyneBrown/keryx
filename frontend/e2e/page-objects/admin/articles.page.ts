@@ -39,6 +39,8 @@ export class ArticlesPage {
   readonly panelTags: Locator;
   readonly panelAlert: Locator;
   readonly toast: Locator;
+  /** Below 1024 px the panel opens in a modal dialog over the screen. */
+  readonly dialog: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -66,7 +68,7 @@ export class ArticlesPage {
     this.emptyTitle = this.empty.locator('.empty__title');
     this.emptyText = this.empty.locator('.empty__text');
     this.clearSearch = this.empty.locator('.empty__actions .btn');
-    this.detail = page.locator('main aside.detail-panel');
+    this.detail = page.locator('aside.detail-panel');
     this.panelId = this.detail.locator('.detail-panel__head .mono');
     this.panelClose = this.detail.locator('.detail-panel__head .icon-btn');
     this.panelStatus = this.detail.locator('.detail-panel__body .badge').first();
@@ -78,6 +80,7 @@ export class ArticlesPage {
     this.panelTags = this.detail.locator('.dl dd .badge');
     this.panelAlert = this.detail.locator('.alert');
     this.toast = page.locator('.toast-region .toast');
+    this.dialog = page.getByRole('dialog');
   }
 
   async open(query = ''): Promise<void> {

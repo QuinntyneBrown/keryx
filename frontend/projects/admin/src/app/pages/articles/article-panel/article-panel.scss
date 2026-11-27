@@ -1,0 +1,14 @@
+// The article panel lays out library components: tags wrap, and a long source name truncates.
+:host {
+  display: contents;
+}
+
+.article-panel__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.article-panel__source {
+  display: block;
+}

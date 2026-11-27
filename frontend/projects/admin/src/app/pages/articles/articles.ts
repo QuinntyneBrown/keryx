@@ -1,12 +1,18 @@
-import { Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+} from '@angular/core';
+import type { DialogRef } from '@angular/cdk/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ARTICLES_API, NOTIFIER, type ArticleRow, type ArticleStatus } from '@kx/api';
 import {
-  Alert,
   Badge,
   Btn,
-  DetailPanel,
-  Dl,
   Empty,
   Icon,
   Meter,
@@ -18,7 +24,6 @@ import {
   Table,
   Tabs,
   Toolbar,
-  type DlItem,
   type SelectOption,
   type TabItem,
   type TableColumn,
@@ -47,6 +52,10 @@ import {
 } from '@kx/domain';
 import { ArticlesStore } from '../../articles/articles-store';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
+import { ArticlePanel, type ArticlePanelView } from './article-panel/article-panel';
+
+/** Below this width an open article covers the screen in a modal dialog (L2-051 AC2). */
+const NARROW = '(max-width: 63.99rem)';
 
 /** Each status tab's element id suffix: `tab-review` labels the panel for "Needs review". */
 const TAB_IDS: Record<'all' | ArticleStatus, string> = {
@@ -66,11 +75,9 @@ const PARAMS = ['status', 'q', 'region', 'category', 'page', 'article'] as const
 @Component({
   selector: 'kx-articles',
   imports: [
-    Alert,
+    ArticlePanel,
     Badge,
     Btn,
-    DetailPanel,
-    Dl,
     Empty,
     Icon,
     Meter,
@@ -92,6 +99,12 @@ export default class Articles {
   private readonly route = inject(ActivatedRoute);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly notifier = inject(NOTIFIER);
+  private readonly injector = inject(Injector);
+  /** The open article's dialog below 1024 px, and the article it shows. */
+  private dialog: { ref: DialogRef<unknown, ArticlePanel>; id: string } | null = null;
+  private readonly media = matchMedia(NARROW);
+  /** Whether the screen is narrower than 1024 px, where the panel is a modal dialog. */
+  protected readonly narrow = signal(this.media.matches);
   /** The staff member's zone, in which collection times read (mocks: "Today, 6:03 AM"). */
   private readonly timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   protected readonly store = inject(ArticlesStore);
@@ -110,22 +123,11 @@ export default class Articles {
   /** Whether the panel takes focus when it shows: it does when a person opened it. */
   protected readonly focusPanel = signal(false);
 
-  protected readonly facts: DlItem[] = [
-    { key: 'organization', term: 'Organisation' },
-    { key: 'source', term: 'Source' },
-    { key: 'category', term: 'Category' },
-    { key: 'region', term: 'Region' },
-    { key: 'published', term: 'Published' },
-    { key: 'collected', term: 'Collected' },
-    { key: 'relevance', term: 'Relevance' },
-    { key: 'tags', term: 'Tags' },
-  ];
-
   /**
    * The open article as the panel shows it, in a list of at most one, so a different article
    * draws a new panel, which takes focus when a person opened it.
    */
-  protected readonly panel = computed(() => {
+  protected readonly panel = computed<ArticlePanelView[]>(() => {
     const detail = this.store.detail();
     if (!detail) return [];
     const regions = new Map(this.store.regions().map((region) => [region.slug, region.name]));
@@ -238,7 +240,16 @@ export default class Articles {
       void this.reload();
       void this.showArticle(this.query().article);
     });
-    inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
+    const resized = () => {
+      this.narrow.set(this.media.matches);
+      void this.syncDialog();
+    };
+    this.media.addEventListener('change', resized);
+    inject(DestroyRef).onDestroy(() => {
+      subscription.unsubscribe();
+      this.media.removeEventListener('change', resized);
+      this.closeDialog();
+    });
   }
 
   protected chooseTab(id: string): void {
@@ -281,7 +292,10 @@ export default class Articles {
     this.change({ article: id });
   }
 
-  /** Closes the panel and returns focus to the title that opened it (L2-051 AC3). */
+  /**
+   * Closes the panel and returns focus to the title that opened it (L2-051 AC3). The URL's
+   * change closes the dialog, if the panel is in one.
+   */
   protected closePanel(): void {
     const id = this.query().article;
     this.focusPanel.set(false);
@@ -291,10 +305,52 @@ export default class Articles {
     this.change({ article: null });
   }
 
+  /**
+   * Below 1024 px shows the open article in a modal dialog, and from 1024 px closes it so the
+   * panel sits beside the list. The CDK dialog and its code load when first wanted.
+   */
+  private async syncDialog(): Promise<void> {
+    const view = this.panel()[0];
+    if (!this.narrow() || !view) {
+      this.closeDialog();
+      return;
+    }
+    if (this.dialog?.id === view.id) return;
+    this.closeDialog();
+    const { Dialog } = await import('@angular/cdk/dialog');
+    const current = this.panel()[0];
+    if (!this.narrow() || current?.id !== view.id || this.dialog) return;
+    const ref = this.injector.get(Dialog).open<unknown, unknown, ArticlePanel>(ArticlePanel, {
+      injector: this.injector,
+      ariaModal: true,
+      ariaLabelledBy: 'detail-title',
+      autoFocus: '.detail-panel__title',
+      restoreFocus: false,
+      disableClose: true,
+      // The dialog is the screen: the panel covers it, and the dialog's box is the panel's.
+      width: '100%',
+      height: '100%',
+      backdropClass: 'kx-backdrop',
+    });
+    ref.componentRef?.setInput('shown', view);
+    ref.componentInstance?.closed.subscribe(() => this.closePanel());
+    this.dialog = { ref, id: view.id };
+  }
+
+  /** Closes the dialog by its ref, before any navigation, without changing the URL. */
+  private closeDialog(): void {
+    const dialog = this.dialog;
+    this.dialog = null;
+    dialog?.ref.close();
+  }
+
   /** Opens the URL's article; one that is missing or unreadable leaves the list and says so. */
   private async showArticle(id: string | null): Promise<void> {
     const result = await this.store.openArticle(id);
-    if (result !== 'missing' && result !== 'failed') return;
+    if (result === 'shown' || result === 'closed') {
+      void this.syncDialog();
+      return;
+    }
     this.notifier.notify(
       result === 'missing'
         ? {

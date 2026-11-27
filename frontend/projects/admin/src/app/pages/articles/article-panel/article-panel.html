@@ -1,0 +1,50 @@
+<kx-detail-panel
+  closeLabel="Close article details"
+  [reference]="shown().id"
+  [status]="shown().status"
+  [statusTone]="shown().tone ?? 'neutral'"
+  [title]="shown().title"
+  [summary]="shown().detail.summary"
+  [url]="shown().url"
+  [focusOnOpen]="focusOnOpen()"
+  (closed)="closed.emit()"
+>
+  <kx-dl
+    [items]="facts"
+    [values]="{
+      organization: organizationFact,
+      source: sourceFact,
+      category: categoryFact,
+      region: regionFact,
+      published: publishedFact,
+      collected: collectedFact,
+      relevance: relevanceFact,
+      tags: tagsFact,
+    }"
+  />
+  <ng-template #organizationFact
+    ><span dir="auto">{{ shown().organization }}</span></ng-template
+  >
+  <ng-template #sourceFact
+    ><span class="article-panel__source truncate" dir="auto">{{
+      shown().source
+    }}</span></ng-template
+  >
+  <ng-template #categoryFact>{{ shown().category }}</ng-template>
+  <ng-template #regionFact>{{ shown().region }}</ng-template>
+  <ng-template #publishedFact>{{ shown().published }}</ng-template>
+  <ng-template #collectedFact>{{ shown().collected }}</ng-template>
+  <ng-template #relevanceFact>
+    <kx-meter [value]="shown().detail.relevance" [text]="shown().relevance" [tone]="shown().tone" />
+  </ng-template>
+  <ng-template #tagsFact>
+    <span class="article-panel__tags">
+      @for (tag of shown().detail.tags; track $index) {
+        <kx-badge>{{ tag }}</kx-badge>
+      }
+    </span>
+  </ng-template>
+  @if (shown().alert; as alert) {
+    <kx-alert [tone]="alert.tone">{{ alert.text }}</kx-alert>
+  }
+</kx-detail-panel>

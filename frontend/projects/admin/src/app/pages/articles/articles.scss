@@ -12,16 +12,6 @@
   flex: 1;
   min-width: 0;
 }
-
-.articles__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.articles__source {
-  display: block;
-}
 .articles__toolbar {
   margin-top: var(--space-4);
 }

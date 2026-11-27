@@ -49,7 +49,10 @@ The slice runs from the routed Articles page to three admin read endpoints.
   initial bundle (`L2-088`), which costs more than it saves. With the panel open, the page lays
   the list and the panel side by side from 1024 px, as `app__main--split` does (the router
   outlet sits inside the frame's `main`, so the page draws the split itself); below 1024 px the
-  panel covers the screen with a Close button. It moves focus to the table
+  panel covers the screen with a Close button, in a modal CDK Dialog (loaded when first wanted)
+  that takes focus to the title and keeps it inside. The screen follows the viewport while an
+  article is open: widening past 1024 px closes the dialog and shows the panel beside the list,
+  and narrowing does the reverse, with the article still named in the URL. It moves focus to the table
   caption after a page change, returns focus to the opener row when the panel closes and to the
   search field after "Clear search". "Clear search" clears the search, the region and the
   category and keeps the status tab, so its "all N articles" is that tab's total. When filters

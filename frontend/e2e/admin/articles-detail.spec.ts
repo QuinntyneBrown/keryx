@@ -101,7 +101,7 @@ test.describe('Article detail panel', () => {
     await articles.panelClose.click();
 
     await expect(articles.detail).toHaveCount(0);
-    expect(articles.query().has('article')).toBe(false);
+    await expect.poll(() => articles.query().has('article')).toBe(false);
     await expect(articles.row(1).title).toBeFocused();
     await expect(articles.panelClose).toHaveCount(0);
   });
@@ -150,7 +150,7 @@ test.describe('Article detail panel', () => {
     await expect(articles.toast).toContainText('Article not found');
     await expect(articles.rows).toHaveCount(3);
     await expect(articles.detail).toHaveCount(0);
-    expect(articles.query().has('article')).toBe(false);
+    await expect.poll(() => articles.query().has('article')).toBe(false);
   });
 
   test('shows the list and says so when the article cannot be read', async ({ page, api }) => {
@@ -165,7 +165,7 @@ test.describe('Article detail panel', () => {
     await expect(articles.toast).toContainText('Article didn’t load');
     await expect(articles.rows).toHaveCount(3);
     await expect(articles.detail).toHaveCount(0);
-    expect(articles.query().has('article')).toBe(false);
+    await expect.poll(() => articles.query().has('article')).toBe(false);
   });
 
   test('says why a hidden article is hidden, and nothing for a published one', async ({
