@@ -50,8 +50,9 @@ layers. All time is read from `TimeProvider`; no code reads `DateTime.Now`.
   change, slots follow the wall clock: with a 6-hour interval the 06:00 slot is 06:00 local time
   on both sides of the change. Only the 1-hour interval meets a local time that does not exist
   (02:00 on the spring change) or occurs twice (01:00 on the autumn change). The design yields
-  no slot for the missing time and one slot, at the first occurrence, for the repeated time; the
-  intended reading of "none is skipped or doubled" for those two hours is `<TO SUPPLY>`.
+  no slot for the missing time and one slot, at the first occurrence, for the repeated time:
+  "none is skipped or doubled" means every wall-clock slot that exists runs exactly once, so the
+  1-hour schedule has 23 slots on the spring day and 24 on the autumn day.
 - **`ScheduleInterval`** — value object that accepts 1, 3, 6, 12 or 24 hours; `Default` is 6.
 - **`RunLease`** — domain entity, one row per worker, with `ActiveRunId`,
   `LastScheduledSlotAt` and a concurrency token `Version`. A second claim made concurrently
