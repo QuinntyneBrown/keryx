@@ -15,7 +15,9 @@ public sealed class OpenApiDocumentTests
     {
         var document = await DocumentAsync();
 
-        Assert.Equal(["/v1/articles", "/v1/articles/{id}", "/v1/events", "/v1/events/{id}", "/v1/organizations", "/v1/organizations/{id}", "/v1/sources"], document.GetProperty("paths").EnumerateObject().Select(path => path.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(
+            ["/v1/articles", "/v1/articles/{id}", "/v1/categories", "/v1/events", "/v1/events/{id}", "/v1/organizations", "/v1/organizations/{id}", "/v1/regions", "/v1/sources", "/v1/status"],
+            document.GetProperty("paths").EnumerateObject().Select(path => path.Name).Order(StringComparer.Ordinal));
         var scheme = document.GetProperty("components").GetProperty("securitySchemes").EnumerateObject().Single().Value;
         Assert.Equal(("http", "bearer"), (scheme.GetProperty("type").GetString(), scheme.GetProperty("scheme").GetString()));
     }
@@ -55,6 +57,10 @@ public sealed class OpenApiDocumentTests
         { "/v1/organizations/{id}", "401", ["invalid_api_key"] },
         { "/v1/sources", "400", ["invalid_cursor", "invalid_limit"] },
         { "/v1/sources", "403", ["insufficient_scope"] },
+        { "/v1/categories", "401", ["invalid_api_key"] },
+        { "/v1/regions", "401", ["invalid_api_key"] },
+        { "/v1/status", "401", ["invalid_api_key"] },
+        { "/v1/status", "429", ["rate_limited"] },
     };
 
     [Fact]
@@ -112,6 +118,9 @@ public sealed class OpenApiDocumentTests
             Fields("/v1/events/{id}"));
         Assert.Equal(["article_count", "id", "kind", "name", "region", "website_url"], Fields("/v1/organizations/{id}"));
         Assert.Equal(["data", "next_cursor"], Fields("/v1/sources"));
+        Assert.Equal(["data"], Fields("/v1/categories"));
+        Assert.Equal(["data"], Fields("/v1/regions"));
+        Assert.Equal(["articles_total", "last_run_at", "next_run_at", "status"], Fields("/v1/status"));
         var sourcesPage = schemas.GetProperty(document.GetProperty("paths").GetProperty("/v1/sources").GetProperty("get").GetProperty("responses").GetProperty("200")
             .GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref").GetString()!.Split('/')[^1]);
         var item = sourcesPage.GetProperty("properties").GetProperty("data").GetProperty("items").GetProperty("$ref").GetString()!.Split('/')[^1];

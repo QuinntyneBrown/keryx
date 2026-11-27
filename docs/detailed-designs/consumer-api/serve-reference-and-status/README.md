@@ -38,12 +38,13 @@ The slice runs from the consuming product's HTTPS request to the relational data
   requires an authenticated API client with no scope policy and sends one MediatR request.
 - **`ListCategoriesQuery`** / **`ListCategoriesQueryHandler`** — reads the seeded categories
   with a left-joined, grouped count of served articles per category, in one query. A category
-  with no served article has `article_count` 0. The order of the categories is `<TO SUPPLY>`;
-  this design keeps the order of L2-015.
+  with no served article has `article_count` 0. The categories come in the order of L2-015, by
+  their seeded rank.
 - **`ListRegionsQuery`** / **`ListRegionsQueryHandler`** — reads the regions ordered by rank,
   Toronto first and `global` last, each with `slug`, `name`, `time_zone` and a served-article
   `article_count`, in one query. Settings can add regions (L2-018), so the handler bounds the
-  list at 100 entries (L2-031); the behaviour beyond 100 regions is `<TO SUPPLY>`.
+  list at 100 entries (L2-031): beyond 100, the first 100 by rank are served (then by slug for
+  equal ranks), which keeps Toronto first.
 - **`GetStatusQuery`** / **`GetStatusQueryHandler`** — reads the latest `collection` run by
   `started_at` and the collection interval from Settings. It derives:
   - `last_run_at` — the start of the latest collection run, whatever its outcome, so after a
@@ -51,17 +52,17 @@ The slice runs from the consuming product's HTTPS request to the relational data
   - `status` — `running` while the latest run has no outcome, otherwise its outcome:
     `succeeded`, `completed_with_issues` or `failed`.
   - `next_run_at` — the next scheduled time after the current time, read from `TimeProvider`,
-    computed by the collection schedule rule of L2-005 (aligned to midnight Toronto time). The
-    class name of that rule belongs to the collection design and is `<TO SUPPLY>` here.
+    computed by the collection schedule rule of L2-005 (aligned to midnight Toronto time),
+    `CollectionSchedule.NextSlotAfter`, the rule the admin overview's next run also reads.
   - `articles_total` — the count of served articles.
-  The values when no collection run has ever been recorded (`last_run_at` `null`, and the
-  `status` to serve) are `<TO SUPPLY>`. The status never names a source, an issue or an error
-  message.
+  When no collection run has ever been recorded, `last_run_at` and `status` are both `null`, so
+  `status` never holds a word outside the four of L2-030. Runs of other workers (retention, the
+  alert digest) are not read. The status never names a source, an issue or an error message.
 - **DTOs** — `ListDto<T>` (`data`); `CategoryDto` (`slug`, `name`, `article_count`);
   `RegionDto` (`slug`, `name`, `time_zone`, `article_count`); `StatusDto` (`last_run_at`,
   `status`, `next_run_at`, `articles_total`). Every count is a JSON number. The `data` envelope
-  matches the paged lists so every `/v1` list reads the same way; the requirements do not fix
-  it, and its confirmation is `<TO SUPPLY>`.
+  matches the paged lists so every `/v1` list reads the same way; these short lists have no
+  `next_cursor`.
 - **Domain types** (`Keryx.Domain`) — `Category`, `Region` (with rank and IANA zone), `Run`,
   `RunOutcome` and `Settings`. The Keryx CLI `seed` command creates the categories and regions
   exactly once (L2-095).
