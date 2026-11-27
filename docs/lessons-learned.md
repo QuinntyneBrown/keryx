@@ -339,3 +339,38 @@ needed: nothing here writes. Deferred: AC3 of L2-032 names staff hiding an artic
 with journey 12, so the changed-content case is proven here by a newly published article; the
 Data Protection key ring is not yet persisted, so cursors (and sessions) do not survive a restart
 or cross instances, and that store stays `<TO SUPPLY>` in authenticate-api-clients.
+
+## Journey 9: Product reads events and organizations
+
+**What slowed it.** A 500 with no log: the organization filters called a helper
+(`ServedRecordFilters.ServedArticles(articles)`) inside a LINQ lambda, which EF cannot inline,
+and the test host's logs are quiet. A throwaway test that sent the query through `ISender` and
+printed the exception found it in one run. The cursor also had to change shape: a list sorted
+by name needs a text sort value, which J8's time-only position could not hold.
+
+- **Build an EF subquery outside the lambda and capture it.** `var served = ServedArticles(articles);`
+  then `served.Any(...)` inside the `Where`/`Select`; a method call inside the expression is not
+  translated.
+- **When the API answers 500 in a test, send the request through `ISender` in a scratch test.**
+  The exception comes back whole, with the expression EF could not translate; delete the probe.
+- **Give a position a text sort value and serialise it as JSON.** A name may hold any character,
+  so the cursor holds `{list, filters, sort, id}` as JSON inside Data Protection; time-sorted
+  lists read `Time` from ticks. Changing the protector's purpose (`v2`) retires old cursors
+  cleanly.
+- **Seek with the comparison the database sorts with.** `Name.CompareTo(sort) > 0` follows the
+  same collation as `OrderBy(Name)` in PostgreSQL and the same comparer in InMemory, so the seek
+  and the sort agree; an ordinal comparison would not.
+- **Name a related record only when it reads on its own endpoint.** A source names its
+  organization only once that organization is listed, so no product meets an id that 404s.
+- **A guard only Keryx's own key can reach gets a codec test.** Payloads protected with Keryx's
+  key that are not positions (`null`, an array, missing fields), and ticks beyond
+  `DateTimeOffset.MaxValue`, are proven refused directly, since no product can forge them.
+- **A test that seeds too little issues no cursor.** Paging needs more listed rows than the limit;
+  count what the seed lists, not what it adds.
+
+**How earlier lessons worked.** "Work a fixture's numbers from the seeded settings" was applied up
+front (focus-area regions, a topic word in every title meant to publish) and spared the
+J8-style misses. "Assert every match before writing" saved a half-applied design edit: the script
+refused to write, though the commands after it in the same line still ran; keep edits and
+staging in separate commands. Deferred: source removal (journey 17) adds the active filter to
+`/v1/sources`; an event whose article staff hide (journey 12) is proven gone then.
