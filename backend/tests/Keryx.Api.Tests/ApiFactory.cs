@@ -36,6 +36,8 @@ public class ApiFactory : WebApplicationFactory<Program>
         ArgumentNullException.ThrowIfNull(builder);
         builder.UseEnvironment("Production");
         builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
+        // No OTLP endpoint, whatever the machine's environment says: a test reaches no network.
+        builder.UseSetting("OTEL_EXPORTER_OTLP_ENDPOINT", string.Empty);
         builder.ConfigureTestServices(services =>
         {
             services.UseTestStore(Store);

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Time.Testing;
 
 namespace Keryx.Api.Tests.Workers;
@@ -19,14 +20,18 @@ public sealed class WorkerHarness : IAsyncDisposable
 {
     private readonly IHost _host;
 
-    public WorkerHarness(SchemaState state, string connectionString = TestStore.UnusedConnection)
+    public WorkerHarness(SchemaState state, Action<IServiceCollection>? configure = null)
     {
         Schema = new FakeSchemaVersion(state);
         _host = WorkerHost.Build([], builder =>
         {
-            builder.Configuration.AddInMemoryCollection(
-                new Dictionary<string, string?>(StringComparer.Ordinal) { ["ConnectionStrings:Keryx"] = connectionString });
-            builder.Logging.ClearProviders();
+            // No OTLP endpoint, whatever the machine's environment says: a test reaches no network.
+            builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>(StringComparer.Ordinal)
+            {
+                ["ConnectionStrings:Keryx"] = TestStore.UnusedConnection,
+                ["OTEL_EXPORTER_OTLP_ENDPOINT"] = string.Empty,
+            });
+            builder.Logging.AddFilter<ConsoleLoggerProvider>(_ => false);
             builder.Logging.AddProvider(Logs);
             builder.Services.UseTestStore(TestStore.NewName());
             builder.Services.RemoveAll<TimeProvider>();
@@ -37,6 +42,7 @@ public sealed class WorkerHarness : IAsyncDisposable
             builder.Services.AddSingleton<IDatabaseMigrator>(Migrator);
             builder.Services.AddSingleton<ProbeWorker>();
             builder.Services.AddHostedService(provider => provider.GetRequiredService<ProbeWorker>());
+            configure?.Invoke(builder.Services);
         });
     }
 
@@ -48,6 +54,8 @@ public sealed class WorkerHarness : IAsyncDisposable
 
     /// <summary>The migrations, which the worker must never touch.</summary>
     public RecordingMigrator Migrator { get; } = new();
+
+    public IServiceProvider Services => _host.Services;
 
     public WorkerReadinessGate Gate => _host.Services.GetRequiredService<WorkerReadinessGate>();
 

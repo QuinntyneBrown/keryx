@@ -4,7 +4,10 @@ using Keryx.Api.Health;
 using Keryx.Application;
 using Keryx.Infrastructure;
 using Keryx.Infrastructure.Health;
+using Keryx.Infrastructure.Telemetry;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 
 namespace Keryx.Api;
 
@@ -17,6 +20,15 @@ public static class ApiHost
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddHostedService<SchemaStatusLogger>();
+
+        // Traces, metrics and logs (L2-094). ASP.NET Core's own request logs print the full URL,
+        // query string included, so they stay out of every log.
+        builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+        builder.Services.AddKeryxTelemetry(
+            builder.Configuration,
+            KeryxTelemetry.ApiServiceName,
+            tracing => tracing.AddAspNetCoreInstrumentation(),
+            metrics => metrics.AddAspNetCoreInstrumentation());
 
         // JSON property names are snake_case, in requests and in answers (L2 conventions).
         builder.Services.AddControllers().AddJsonOptions(options =>

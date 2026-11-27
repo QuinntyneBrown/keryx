@@ -13,6 +13,18 @@ committed.
 | Setting | Meaning | Default | Secret | Read by |
 |---------|---------|---------|--------|---------|
 | `ConnectionStrings__Keryx` | The connection string of the Keryx database (PostgreSQL), for example `Host=…;Database=keryx;Username=…;Password=…`. | None: required. | Yes | API, worker, CLI |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Where traces, metrics and logs are sent: the address of an OpenTelemetry (OTLP) collector, for example `http://collector:4317`. | Unset: nothing is exported, and the process runs the same. | No | API, worker |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | How they are sent: `grpc` or `http/protobuf`. | `grpc` | No | API, worker |
+| `OTEL_SERVICE_NAME` | The service name every trace, metric and log carries. | `keryx-api` for the API, `keryx-worker` for the worker. | No | API, worker |
+| `OTEL_RESOURCE_ATTRIBUTES` | More attributes for every trace, metric and log, as `key=value` pairs separated by commas, for example `deployment.environment.name=production`. | None. | No | API, worker |
+
+The OpenTelemetry SDK also reads its other standard `OTEL_*` variables (sampling, batch sizes,
+export intervals and timeouts). `OTEL_EXPORTER_OTLP_HEADERS` is a secret when it carries a
+collector's credential.
+
+A span carries the route template, the method, the status and an error's type, and nothing
+else: no path, query string, header or body. The request logs of ASP.NET Core, which print
+full URLs, are not written or exported.
 
 ## A required setting that is missing
 

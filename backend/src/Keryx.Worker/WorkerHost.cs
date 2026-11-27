@@ -1,5 +1,6 @@
 using Keryx.Application;
 using Keryx.Infrastructure;
+using Keryx.Infrastructure.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -17,6 +18,7 @@ public static class WorkerHost
         var builder = Host.CreateApplicationBuilder(args);
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddKeryxTelemetry(builder.Configuration, KeryxTelemetry.WorkerServiceName);
 
         // One gate, which every worker awaits before its first schedule.
         builder.Services.AddSingleton<WorkerReadinessGate>();

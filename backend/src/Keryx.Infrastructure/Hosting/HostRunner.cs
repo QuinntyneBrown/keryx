@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -21,6 +22,10 @@ public static class HostRunner
             async () =>
             {
                 using var host = build();
+
+                // Checked before the host starts: a missing setting is then one clear line, and
+                // not also the host's own log of a start that failed, with its stack trace.
+                host.Services.GetService<IStartupValidator>()?.Validate();
                 await host.RunAsync(cancellationToken).ConfigureAwait(false);
                 return 0;
             },
