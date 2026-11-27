@@ -68,6 +68,15 @@ public sealed class Article
     /// <summary>Who set its status: the run, from its score, or staff, whose decision a run never overwrites.</summary>
     public DecisionMaker DecidedBy { get; private set; }
 
+    /// <summary>The status it held before staff last decided it; null when staff never did.</summary>
+    public PublicationStatus? PreviousStatus { get; private set; }
+
+    /// <summary>Who had set the status staff last replaced; null when staff never decided it.</summary>
+    public DecisionMaker? PreviousDecidedBy { get; private set; }
+
+    /// <summary>When staff last decided it, in UTC.</summary>
+    public DateTimeOffset? DecidedAt { get; private set; }
+
     /// <summary>A digest of the stored facts: an item collected again with the same digest is unchanged.</summary>
     public string Fingerprint { get; private set; } = string.Empty;
 
@@ -111,6 +120,28 @@ public sealed class Article
             StatusReason = PublicationPolicy.Reason(facts.Status);
             Threshold = facts.Threshold;
         }
+    }
+
+    /// <summary>
+    /// Staff publish it whatever its score (L2-014 AC1). Returns false, changing nothing, when it is
+    /// already published.
+    /// </summary>
+    public bool Publish(DateTimeOffset now) => Decide(PublicationStatus.Published, now);
+
+    private bool Decide(PublicationStatus status, DateTimeOffset now)
+    {
+        if (Status == status)
+        {
+            return false;
+        }
+
+        PreviousStatus = Status;
+        PreviousDecidedBy = DecidedBy;
+        Status = status;
+        StatusReason = null;
+        DecidedBy = DecisionMaker.Staff;
+        DecidedAt = now;
+        return true;
     }
 
     /// <summary>The source was seen publishing it again: its entry's last-seen time moves, or a new source gets an entry.</summary>

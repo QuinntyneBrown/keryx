@@ -38,6 +38,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CollectedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DecidedBy")
                         .IsRequired()
                         .HasMaxLength(8)
@@ -53,6 +56,14 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
                     b.Property<long?>("OrganizationId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("PreviousDecidedBy")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("PreviousStatus")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<string>("PublicId")
                         .IsRequired()

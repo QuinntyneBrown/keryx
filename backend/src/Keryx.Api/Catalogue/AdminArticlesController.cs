@@ -29,4 +29,8 @@ public sealed class AdminArticlesController(ISender sender) : ControllerBase
 
     [HttpGet("{id}")]
     public Task<AdminArticleDto> Get(string id, CancellationToken cancellationToken) => sender.Send(new GetAdminArticle(id), cancellationToken);
+
+    /// <summary>Publishes the article whatever its score; the same decision again changes nothing.</summary>
+    [HttpPost("{id}/publish")]
+    public Task<ArticleDecisionDto> Publish(string id, CancellationToken cancellationToken) => sender.Send(new PublishArticle(id), cancellationToken);
 }
