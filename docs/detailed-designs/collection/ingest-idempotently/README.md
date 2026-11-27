@@ -33,8 +33,10 @@ the `IDeduplicator` contract.
 
 - **`CanonicalUrl`** — value object in `Keryx.Domain`. `TryCreate` parses an absolute
   `http(s)` URL, lower-cases the scheme and host, removes the fragment and the `utm_*`,
-  `fbclid` and `gclid` parameters, and fails for anything else. Further normalization rules
-  (trailing slash, default port, parameter order) are `<TO SUPPLY>`.
+  `fbclid` and `gclid` parameters (their names in any case), and fails for anything else. As
+  for a source's address, the default port and a trailing slash are removed; the path and the
+  other parameters keep their case and order, because a site may tell them apart. It is
+  `ItemUrl.Canonical` in `Keryx.Domain.Catalogue`.
 - **`RecordIdentity`** — value object: `SourceId` plus `Key`, where `KeyKind` is `feed_guid`,
   `platform_id` or `canonical_url`. The database holds a unique index on (`source_id`,
   `source_key`), so a second insert of the same identity cannot succeed.
