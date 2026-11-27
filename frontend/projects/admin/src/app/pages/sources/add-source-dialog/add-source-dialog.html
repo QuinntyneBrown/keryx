@@ -1,0 +1,43 @@
+<kx-dialog
+  title="Add a source"
+  description="Keryx will check it on every scheduled run."
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  (dismiss)="close()"
+>
+  <fieldset>
+    <legend>Type</legend>
+    <kx-choice-grid>
+      @for (option of kinds; track option.value) {
+        <kx-choice-card
+          name="source-type"
+          [value]="option.value"
+          [checked]="kind() === option.value"
+          (chosen)="kind.set($any($event))"
+          >{{ option.label }}</kx-choice-card
+        >
+      }
+    </kx-choice-grid>
+  </fieldset>
+  <kx-field label="URL" for="source-url">
+    <kx-input controlId="source-url" type="url" inputmode="url" mono [(value)]="url" />
+  </kx-field>
+  <kx-field-grid>
+    <kx-field label="Organisation" for="source-org">
+      <kx-input controlId="source-org" [(value)]="organisation" />
+    </kx-field>
+    <kx-field label="Region" for="source-region">
+      <kx-select
+        controlId="source-region"
+        placeholder="Choose a region"
+        [options]="regionOptions()"
+        [(value)]="region"
+      />
+    </kx-field>
+  </kx-field-grid>
+  <kx-alert tone="neutral"
+    >Paste a URL and Keryx runs a test fetch before anything is added.</kx-alert
+  >
+  <kx-btn slot="actions" variant="ghost" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="primary">Add source</kx-btn>
+</kx-dialog>

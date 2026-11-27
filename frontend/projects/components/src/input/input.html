@@ -1,0 +1,13 @@
+<input
+  [attr.class]="mono() ? 'input input--mono' : 'input'"
+  [id]="controlId()"
+  [type]="type()"
+  [attr.inputmode]="inputmode() ?? null"
+  [attr.autocomplete]="autocomplete()"
+  [attr.aria-invalid]="invalid() ? 'true' : null"
+  [attr.aria-describedby]="describedBy() ?? null"
+  [disabled]="disabled()"
+  [value]="value()"
+  (input)="update($event)"
+  (blur)="left.emit()"
+/>

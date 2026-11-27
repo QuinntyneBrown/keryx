@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { SOURCES_API, type SourceListItem } from '@kx/api';
 import {
@@ -38,6 +38,7 @@ const PURPOSE = 'Feeds, pages and queries Keryx checks on every run.';
 })
 export default class Sources {
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
   protected readonly store = inject(SourcesStore);
 
   protected readonly columns: TableColumn[] = [
@@ -68,6 +69,28 @@ export default class Sources {
 
   constructor() {
     void this.store.load();
+  }
+
+  /**
+   * Opens "Add a source" with this screen's injector, so it reaches the screen's API and store.
+   * The CDK dialog and the dialog's code load when it is first opened, not with the screen
+   * (ADR 0008). Focus starts in URL and returns to the pressed button when it closes.
+   */
+  protected async addSource(): Promise<void> {
+    const opener = document.activeElement;
+    const [{ Dialog }, dialog] = await Promise.all([
+      import('@angular/cdk/dialog'),
+      import('./add-source-dialog/add-source-dialog'),
+    ]);
+    this.injector.get(Dialog).open(dialog.AddSourceDialog, {
+      injector: this.injector,
+      ariaModal: true,
+      ariaLabelledBy: dialog.ADD_SOURCE_TITLE_ID,
+      ariaDescribedBy: dialog.ADD_SOURCE_DESCRIPTION_ID,
+      autoFocus: '#source-url',
+      restoreFocus: opener instanceof HTMLElement ? opener : true,
+      backdropClass: 'kx-backdrop',
+    });
   }
 
   protected retry(): void {

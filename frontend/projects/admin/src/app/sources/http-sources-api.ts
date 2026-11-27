@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ApiProblem, type SourcePage, type SourceQuery, type SourcesApi } from '@kx/api';
+import {
+  ApiProblem,
+  type Region,
+  type SourcePage,
+  type SourceQuery,
+  type SourcesApi,
+} from '@kx/api';
 
 /** The source catalogue over fetch, with the staff session's cookie (ADR 0005). */
 @Injectable()
@@ -11,6 +17,10 @@ export class HttpSourcesApi implements SourcesApi {
     });
     if (query.kind) search.set('kind', query.kind);
     return this.read<SourcePage>(`/admin/v1/sources?${search}`, signal);
+  }
+
+  async regions(signal: AbortSignal): Promise<Region[]> {
+    return (await this.read<{ items: Region[] }>('/admin/v1/regions', signal)).items;
   }
 
   private async read<T>(url: string, signal: AbortSignal): Promise<T> {

@@ -1,0 +1,7 @@
+// Overlays: the CDK's structural styles for the overlay container, panes and backdrops, which
+// every CDK dialog needs, and the backdrop's colour by its token. No component's look.
+@use '@angular/cdk/overlay-prebuilt.css';
+
+.kx-backdrop {
+  background: var(--color-bg-backdrop);
+}

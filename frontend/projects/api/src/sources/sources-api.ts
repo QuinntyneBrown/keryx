@@ -33,6 +33,13 @@ export interface SourcePage {
   needs_look_count: number;
 }
 
+/** A region staff choose from, Toronto first (L2-018). */
+export interface Region {
+  slug: string;
+  name: string;
+  time_zone: string;
+}
+
 export interface SourceQuery {
   page: number;
   pageSize: number;
@@ -42,6 +49,8 @@ export interface SourceQuery {
 /** The source catalogue (docs/detailed-designs/sources/). It rejects with an `ApiProblem`. */
 export interface SourcesApi {
   list(query: SourceQuery, signal: AbortSignal): Promise<SourcePage>;
+  /** The regions in rank order. */
+  regions(signal: AbortSignal): Promise<Region[]>;
 }
 
 export const SOURCES_API = new InjectionToken<SourcesApi>('Keryx sources');

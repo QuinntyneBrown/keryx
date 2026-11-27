@@ -3,6 +3,7 @@ export { CURRENT_STAFF, type CurrentStaff } from './session/current-staff';
 export { ApiProblem } from './errors/api-problem';
 export {
   SOURCES_API,
+  type Region,
   type SourceHealth,
   type SourceKind,
   type SourceListItem,

@@ -9,6 +9,7 @@ import { Icon } from '../icon/icon';
 })
 export class Alert {
   readonly tone = input<'info' | 'success' | 'warning' | 'danger' | 'neutral'>('info');
-  readonly title = input.required<string>();
+  /** Its first line, in bold; a short alert is its text alone. */
+  readonly title = input<string>();
   readonly announcement = input<'alert' | 'status'>();
 }

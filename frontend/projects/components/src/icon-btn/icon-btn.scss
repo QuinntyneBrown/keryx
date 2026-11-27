@@ -1,0 +1,41 @@
+// The icon button (docs/design-system/components/icon-btn.html). Its target is 44 × 44 px even
+// where it is drawn smaller: the hit area extends past the visible square.
+:host {
+  display: inline-flex;
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: max(100%, var(--target-min));
+  height: max(100%, var(--target-min));
+  translate: -50% -50%;
+}
+
+.icon-btn:hover {
+  background: var(--color-bg-subtle-hover);
+  color: var(--color-fg-default);
+}
+
+.icon-btn:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}

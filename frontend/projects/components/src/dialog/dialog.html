@@ -1,0 +1,21 @@
+<div class="dialog">
+  <form
+    [attr.class]="small() ? 'dialog__panel dialog__panel--sm' : 'dialog__panel'"
+    novalidate
+    (submit)="submit($event)"
+  >
+    <div class="dialog__head">
+      <div>
+        <h2 class="dialog__title" [id]="titleId()">{{ title() }}</h2>
+        @if (description(); as description) {
+          <p class="dialog__description" [attr.id]="descriptionId() ?? null">{{ description }}</p>
+        }
+      </div>
+      <kx-icon-btn label="Close" [disabled]="closeDisabled()" (activated)="dismiss.emit()">
+        <kx-icon name="close" />
+      </kx-icon-btn>
+    </div>
+    <div class="dialog__body"><ng-content /></div>
+    <div class="dialog__foot"><ng-content select="[slot=actions]" /></div>
+  </form>
+</div>

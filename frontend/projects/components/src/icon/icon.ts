@@ -13,7 +13,8 @@ export type IconName =
   | 'globe'
   | 'instagram'
   | 'calendar'
-  | 'search';
+  | 'search'
+  | 'close';
 
 @Component({ selector: 'kx-icon', templateUrl: './icon.html', styleUrl: './icon.scss' })
 export class Icon {

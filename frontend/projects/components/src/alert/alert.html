@@ -10,7 +10,9 @@
     "
   />
   <div class="alert__body">
-    <p class="alert__title">{{ title() }}</p>
+    @if (title(); as title) {
+      <p class="alert__title">{{ title }}</p>
+    }
     <ng-content />
   </div>
 </div>

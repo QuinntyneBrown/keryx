@@ -1,0 +1,9 @@
+<button
+  class="icon-btn"
+  type="button"
+  [attr.aria-label]="label()"
+  [disabled]="disabled()"
+  (click)="activated.emit()"
+>
+  <ng-content />
+</button>

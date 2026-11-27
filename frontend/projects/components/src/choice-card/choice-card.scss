@@ -1,0 +1,48 @@
+// The choice card (docs/design-system/components/choice-card.html). The state is the radio's:
+// checked, focused and disabled are read from it.
+:host {
+  display: contents;
+}
+
+.choice-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-5);
+  min-height: var(--control-height-md);
+  padding: var(--space-2);
+  border: var(--border-width-hairline) solid var(--color-border-emphasis);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  cursor: pointer;
+}
+
+.choice-card input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choice-card:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+  font-weight: var(--font-weight-medium);
+}
+
+.choice-card:hover {
+  color: var(--color-fg-default);
+}
+
+.choice-card:has(input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.choice-card:has(input:disabled) {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}

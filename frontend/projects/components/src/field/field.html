@@ -5,6 +5,11 @@
     <span class="field__label">{{ label() }}</span>
   }
   <ng-content />
+  @if (error(); as error) {
+    <p class="field__error" [attr.id]="errorId() ?? null">
+      <kx-icon name="warning" size="sm" />{{ error }}
+    </p>
+  }
   @if (help(); as help) {
     <p class="field__help">{{ help }}</p>
   }
