@@ -438,3 +438,41 @@ test that fails for the right reason. "Close a CDK dialog by its ref" held: the 
 ref and closes it when the viewport widens. Deferred: Publish and Hide in the panel (journey
 12), "Run now" and the next run's time in the empty state (journey 15), "Export CSV" (journey
 22).
+
+## Journey 12: Staff publishes or hides an article
+
+**What slowed it.** Little: the backend took three slices without a surprise, because the
+article already kept staff decisions through later runs (journey 6). Two plan changes came from
+reading the acceptance criteria against the slices. The Publish notification must carry a
+working Undo, so a separate Undo slice would have shipped a dead button first; the two became
+one slice. And "within the same session" needed the server to know the session, which the
+cookie's ticket did not carry.
+
+- **Fold a slice into the one whose output needs it.** When a criterion of slice A shows a control
+  whose behaviour is slice B, build them together rather than ship a control that does nothing.
+- **Put a server-side session's id in its ticket.** The ticket store adds the session's id as a
+  claim before serializing, so every later request carries it, and a rule can say "only the
+  session that did this". A session signed in before the claim existed has none, so the rule
+  must refuse an empty id: two such sessions would otherwise match each other.
+- **Make a design-time factory the startup project for migrations.** `dotnet ef migrations add`
+  with `-s src/Keryx.Infrastructure` uses `DesignTimeKeryxDbContextFactory`; the API project has
+  no EF design package.
+- **Signal inputs still call `ngOnChanges`.** A library component can react to an input's
+  transition (busy → idle) there, with a cleared `setTimeout` for after the render, and add no
+  `effect` or `afterNextRender` to the bundle.
+- **A dialog's component needs every input pushed.** A component opened by the CDK dialog takes
+  no template bindings, so the page sets each input (`shown`, `busy`) through `setInput` when
+  they change, and a test at the narrow width proves it.
+- **`:host:has(> .x)` lets a child component share a flex row without a host class binding**,
+  whose styling instructions would join the initial bundle.
+- **A field the screen never shows proves nothing when it updates.** Clearing `status_reason`
+  after a decision survived mutation (the alert shows only for statuses the rule set), so it
+  went; Undo reads the article again instead, which the restored alert proves.
+
+**How earlier lessons worked.** "Dispatch in one task" made the double-press test exact: two
+`click()` calls in one `evaluate` reach the store before the button can be disabled, and the
+store's guard is what stops the second. "Read the initial total after each new Angular API" held
+the bundle at 254.19 kB. "Name the open decision when you close it" closed all seven of this
+design's `<TO SUPPLY>`s, with auditing of decisions deferred to journey 24, which builds the
+audit log. The journey 9 deferral is closed: an event whose article staff hide is no longer
+listed or served.

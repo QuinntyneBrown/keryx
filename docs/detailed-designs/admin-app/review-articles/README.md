@@ -112,8 +112,8 @@ The slice runs from the routed Articles page to three admin read endpoints.
   the system hid (mock `selected-hidden`); a status staff chose shows neither. Source is the
   source's current name, or the name its first provenance entry kept once it was removed.
   Collected reads in the staff member's time zone: "Today, 6:03 AM", "Yesterday, 6:01 PM",
-  otherwise "Mon, Mar 9, 6:02 PM", with the year when it is not this one. Its actions, which journey 12 (decide on an article)
-  adds with their behaviour, follow the status:
+  otherwise "Mon, Mar 9, 6:02 PM", with the year when it is not this one. Its actions, built with their behaviour by journey 12
+  (decide on an article), follow the status:
   "Publish" and "Hide from API" when held, "Hide from API" when published, "Publish" when
   hidden. It emits `publish`, `hide` and `closed`; Escape and the `icon-btn` Close emit
   `closed`.

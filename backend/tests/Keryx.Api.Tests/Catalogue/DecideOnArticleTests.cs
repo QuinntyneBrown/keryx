@@ -7,7 +7,7 @@ using static Keryx.Api.Tests.Consumer.ConsumerApi;
 namespace Keryx.Api.Tests.Catalogue;
 
 // Acceptance Test
-// Traces to: L2-014 AC1, AC2, AC5, AC6
+// Traces to: L2-014 AC1, AC2, AC5, AC6; L2-028 (an event is served only with its published article)
 // Description: Staff publish or hide any article whatever its score; the consumer API follows on the
 // next request, the same decision again changes nothing, and an unknown id is article_not_found.
 public sealed class DecideOnArticleTests
@@ -108,6 +108,30 @@ public sealed class DecideOnArticleTests
         var after = await product.GetFromJsonAsync<JsonElement>(new Uri("/v1/articles", UriKind.Relative), TestContext.Current.CancellationToken);
         Assert.Empty(after.GetProperty("data").EnumerateArray());
         using var read = await product.GetAsync(new Uri($"/v1/articles/{id}", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.NotFound, read.StatusCode);
+    }
+
+    [Fact]
+    public async Task Given_a_published_article_of_an_event_When_staff_hide_it_Then_the_event_is_no_longer_listed_or_served()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var clinic = new Item("Sunrise running clinic in High Park", "https://redeemedrun.ca/n/clinic",
+            new DateTimeOffset(2026, 11, 20, 12, 0, 0, TimeSpan.Zero), EventStart: "2026-12-01T09:00:00-05:00", EventPlace: "High Park");
+        await CollectAsync(factory, Toronto, "Redeemed Run Club", "toronto", clinic);
+        using var staff = await StaffClient.OpenAsync(factory);
+        using var product = Client(factory, await KeyAsync(factory, "events:read"));
+        var eventId = await EventIdAsync(factory, clinic.Link);
+        var before = await product.GetFromJsonAsync<JsonElement>(new Uri("/v1/events", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal([eventId], before.GetProperty("data").EnumerateArray().Select(item => item.GetProperty("id").GetString()));
+
+        using (await DecideAsync(staff, await ArticleIdAsync(factory, clinic.Link), "hide"))
+        {
+        }
+
+        var after = await product.GetFromJsonAsync<JsonElement>(new Uri("/v1/events", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Empty(after.GetProperty("data").EnumerateArray());
+        using var read = await product.GetAsync(new Uri($"/v1/events/{eventId}", UriKind.Relative), TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.NotFound, read.StatusCode);
     }
 
