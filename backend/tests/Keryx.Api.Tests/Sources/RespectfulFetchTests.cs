@@ -132,6 +132,48 @@ public sealed class RespectfulFetchTests(RespectfulFetchTests.Factory factory) :
         Assert.Equal("invalid_content", body.GetProperty("reason").GetString());
     }
 
+    // L2-080 AC4: a page that asks not to be indexed yields nothing, and its body is not read.
+    [Theory]
+    [InlineData("noindex")]
+    [InlineData("noarchive, NoIndex")]
+    [InlineData("none")]
+    [InlineData("Keryx: noindex")]
+    public async Task Given_a_response_with_X_Robots_Tag_noindex_When_it_is_fetched_Then_it_is_marked_noindex_with_no_content(string tag)
+    {
+        var address = $"https://noindex{Math.Abs(tag.GetHashCode(StringComparison.Ordinal))}.example/feed";
+        factory.Web.On(address, () => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(Feed, new MediaTypeHeaderValue("application/rss+xml")),
+            Headers = { { "X-Robots-Tag", tag } },
+        });
+
+        var result = await factory.Services.GetRequiredService<ISourceFetcher>()
+            .FetchAsync(new SourceFetchRequest(Keryx.Domain.Sources.SourceKind.Rss, new Uri(address), TimeSpan.FromSeconds(30)), TestContext.Current.CancellationToken);
+
+        Assert.True(result.Succeeded);
+        Assert.True(result.NoIndex);
+        Assert.Equal(string.Empty, result.Content);
+    }
+
+    [Theory]
+    [InlineData("noarchive")]
+    [InlineData("otherbot: noindex")]
+    public async Task Given_a_response_with_another_X_Robots_Tag_When_it_is_fetched_Then_it_is_read(string tag)
+    {
+        var address = $"https://indexable{Math.Abs(tag.GetHashCode(StringComparison.Ordinal))}.example/feed";
+        factory.Web.On(address, () => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(Feed, new MediaTypeHeaderValue("application/rss+xml")),
+            Headers = { { "X-Robots-Tag", tag } },
+        });
+
+        var result = await factory.Services.GetRequiredService<ISourceFetcher>()
+            .FetchAsync(new SourceFetchRequest(Keryx.Domain.Sources.SourceKind.Rss, new Uri(address), TimeSpan.FromSeconds(30)), TestContext.Current.CancellationToken);
+
+        Assert.False(result.NoIndex);
+        Assert.Contains("Church fitness night", result.Content, StringComparison.Ordinal);
+    }
+
     // L2-022: every attempt has a timeout; three attempts at most.
     [Fact]
     public async Task Given_a_source_that_never_answers_When_it_is_tested_Then_three_attempts_time_out_and_the_reason_is_timeout()

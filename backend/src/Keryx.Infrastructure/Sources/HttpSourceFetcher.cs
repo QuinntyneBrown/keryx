@@ -223,11 +223,27 @@ public sealed class HttpSourceFetcher : ISourceFetcher, IDisposable
             return (SourceFetchResult.Failed(FetchFailureReason.InvalidContent), false, null);
         }
 
+        if (AsksNotToBeIndexed(response))
+        {
+            // Nothing from the page may be stored, so its body is not even read (L2-080 AC4).
+            return (SourceFetchResult.Fetched(string.Empty, type) with { NoIndex = true }, false, null);
+        }
+
         var content = await ReadBoundedAsync(response.Content, cancellationToken).ConfigureAwait(false);
         return content is null
             ? (SourceFetchResult.Failed(FetchFailureReason.InvalidContent), false, null)
             : (SourceFetchResult.Fetched(content, type), false, null);
     }
+
+    /// <summary>
+    /// Whether <c>X-Robots-Tag</c> holds <c>noindex</c> or <c>none</c>, for every crawler or for
+    /// Keryx by name (<c>keryx: noindex</c>); a directive for another crawler does not apply.
+    /// </summary>
+    private static bool AsksNotToBeIndexed(HttpResponseMessage response) =>
+        response.Headers.TryGetValues("X-Robots-Tag", out var values) && values
+            .SelectMany(value => value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Select(directive => directive.StartsWith("keryx:", StringComparison.OrdinalIgnoreCase) ? directive["keryx:".Length..].Trim() : directive)
+            .Any(directive => directive.Equals("noindex", StringComparison.OrdinalIgnoreCase) || directive.Equals("none", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The body as text, or null past 5 MB; decompressed bytes are what is counted.</summary>
     private static async Task<string?> ReadBoundedAsync(HttpContent content, CancellationToken cancellationToken)

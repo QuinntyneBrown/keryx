@@ -48,7 +48,10 @@ staff session.
 **Worker (`Keryx.Worker`)**
 
 - **`ParseStage`** — discards every item from a fetch or page that carries a noindex signal.
-  The run bucket that counts those items (`rejected` or another count) is `<TO SUPPLY>`.
+  The fetcher does not read the body of a response whose `X-Robots-Tag` holds `noindex` or
+  `none` (for every crawler, or for `keryx:` by name), so its items are never known and no
+  count holds them; the source has answered and counts under `sources_ok`. A directive for
+  another crawler (`otherbot: noindex`) does not apply.
 - **`StoreStage`** — stores only the `L2-015` and `L2-016` fields built by `ArticleFactory` and
   `EventFactory` (store records feature), after `ContactDetailScrubber` has run.
 

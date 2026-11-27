@@ -6,7 +6,7 @@
 | 2 | Staff signs in | Staff sign in through identity provider; non-staff refused | 4 | 100 |
 | 3 | Staff adds a source | Staff add and test-fetch a feed, page or organizer | 4 | 100 |
 | 4 | Worker collects on schedule | Scheduled run fetches every source safely through six pipeline stages | 8 | 100 |
-| 5 | Worker ingests idempotently | Repeat runs change nothing; duplicates merge; provenance kept | 4 | 40 |
+| 5 | Worker ingests idempotently | Repeat runs change nothing; duplicates merge; provenance kept | 4 | 50 |
 | 6 | Worker scores and publishes | Items scored for relevance, then published, held or hidden | 3 | 0 |
 | 7 | Staff issues an API key | Staff create a scoped key shown once, and revoke it | 3 | 0 |
 | 8 | Product reads articles | Consuming product lists and reads published articles with its key | 6 | 0 |

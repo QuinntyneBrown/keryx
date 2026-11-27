@@ -28,6 +28,12 @@ public enum FetchFailureReason
 /// <summary>What a fetch returned: bounded content and its type, nothing new, or why it failed.</summary>
 public sealed record SourceFetchResult(bool Succeeded, bool NotModified, string Content, string? ContentType, FetchFailureReason? Failure)
 {
+    /// <summary>
+    /// The source asked not to be indexed (<c>X-Robots-Tag: noindex</c>): nothing from it is stored,
+    /// and its body was not read (L2-080 AC4).
+    /// </summary>
+    public bool NoIndex { get; init; }
+
     public static SourceFetchResult Fetched(string content, string? contentType) => new(true, false, content, contentType, null);
 
     public static SourceFetchResult Unchanged() => new(true, true, string.Empty, null, null);

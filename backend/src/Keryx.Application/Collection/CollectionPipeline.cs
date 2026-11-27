@@ -69,9 +69,10 @@ public sealed class CollectionPipeline(
         {
             var at = time.GetUtcNow();
             var parseStarted = time.GetTimestamp();
-            var feed = !result.Succeeded || result.NotModified ? null : parser.Parse(source.Kind, result.Content);
+            // A page that asks not to be indexed yields nothing, and is not a failure (L2-080 AC4).
+            var feed = !result.Succeeded || result.NotModified || result.NoIndex ? null : parser.Parse(source.Kind, result.Content);
             parseTicks += time.GetTimestamp() - parseStarted;
-            if (!result.Succeeded || (!result.NotModified && feed is null))
+            if (!result.Succeeded || (!result.NotModified && !result.NoIndex && feed is null))
             {
                 failed++;
                 var reason = result.Failure ?? FetchFailureReason.InvalidContent;
@@ -85,6 +86,8 @@ public sealed class CollectionPipeline(
                 var sourceHeld = 0;
                 var place = places.GetValueOrDefault(source.RegionSlug, string.Empty);
                 var classified = new List<(FeedItem, decimal, PublicationStatus)>();
+                // An item with no usable link was dropped by the parser; it is counted, not stored (L2-011 AC2).
+                counts.Rejected += feed?.Rejected ?? 0;
                 foreach (var item in feed?.Items ?? [])
                 {
                     items++;
