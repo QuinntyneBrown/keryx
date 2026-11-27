@@ -2,13 +2,13 @@
 
 | Design | Effort | Complete |
 |---|---|---|
-| admin-shell | 3 days | 50% |
+| admin-shell | 3 days | 55% |
 | decide-on-article | 4 days | 90% |
 | export-articles | 2 days | 0% |
 | manage-settings | 5 days | 0% |
-| overview | 4 days | 0% |
-| page-states-dialogs-and-notifications | 4 days | 20% |
+| overview | 4 days | 85% |
+| page-states-dialogs-and-notifications | 4 days | 30% |
 | responsive-accessible-themed-ui | 4 days | 25% |
 | review-articles | 5 days | 95% |
 | staff-sign-in-and-session | 6 days | 100% |
-| view-run-history | 4 days | 0% |
+| view-run-history | 4 days | 20% |

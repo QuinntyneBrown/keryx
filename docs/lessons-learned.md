@@ -476,3 +476,48 @@ the bundle at 254.19 kB. "Name the open decision when you close it" closed all s
 design's `<TO SUPPLY>`s, with auditing of decisions deferred to journey 24, which builds the
 audit log. The journey 9 deferral is closed: an event whose article staff hide is no longer
 listed or served.
+
+## Journey 13: Staff checks the Overview
+
+**What slowed it.** The screen's states. The plan had 8 slices; reading the mocks against the
+criteria split the last one three ways (empty and page error, section errors, skeletons) and
+moved following a run live to journey 15, whose "follow it live" it is, so it landed as 10. The
+skeletons took the longest: the mock's bars are shorter than the lines they stand for, so the
+lists below jumped 22 px when the status arrived, and a second pass found the Next run stat (a
+small value with a sub-line) was the tallest of the row. Ten library components arrived with the
+screen (`Stats`, `StatusCard`, `RunChart`, `SectionHead`, `List`, `IssueCard`, `Stack`, `Rail`,
+`Progress`, `Spinner`), each from its design-system page.
+
+- **Put a skeleton inside the element it stands for.** A skeleton line in the real `<p>` with a
+  no-break space is exactly as tall as the line that replaces it at every breakpoint, where a
+  bar of tuned height is right at one. Give a loading component the shapes of what will come
+  (a stat's size, whether it has a sub-line) rather than a count. Text that wraps at XS cannot
+  be foreseen; say so in the design instead of tuning for one string.
+- **A bar's length as a `data-value` attribute with one rule per percent** keeps the design
+  system's markup (`<li class="run-chart__bar">`, `<div class="progress__bar">`) without a style
+  binding, and costs nothing in the initial bundle. Measured again here, the first `@defer` would
+  have cost 8.6 kB and broken the budget, so `L2-088` AC4's defer gave way to AC1's budget, as
+  journey 11 found.
+- **Show a retry's answers together.** When "Try again" repeats four requests, a section that
+  answers first makes the page stop being "all failed" and the error vanish while the rest are
+  still pending. Hold each answer as a function and run them once the last is in; the busy button
+  stays on screen as L2-073 asks.
+- **"All failed" is not "not all ready".** A test that holds one section open while the others
+  fail is what tells the page error (every request failed) from a partial failure, and it killed
+  the two mutants the empty and page-error slice left alive.
+- **A static `href` on a component's host passes an `href` check without the link.** Locate the
+  rendered element (`.empty__actions .btn`), not the component tag, or the test proves the
+  template, not the page.
+- **A count that equals another hides which one a field reads.** Sources checked and sources OK
+  were both 38 in the mock; a second case with 40 and 37 is what proved the bar reads the first.
+- **A calendar rule counts calendar days in the zone.** "Since Mon" by weekday up to six days
+  back is a difference of two `en-CA` day keys, not of 24-hour spans, which give different
+  answers for the same day at different hours.
+
+**How earlier lessons worked.** "Read the initial total after each new Angular API" caught
+`@defer` (262.75 kB against a 255 kB budget) before it was committed, and the total ended at
+253.71 kB. "Name the open decision when you close it" closed the design's issue-title and
+navigation-target `<TO SUPPLY>`s, recording what waits for the Runs screen (journey 14) and for
+following a run live (journey 15). "A line whose removal no test notices is either missing a
+test or dead" removed a redundant `Math.max` seed, a rounding of an exact division, a dead
+`min-width` and the progress bar's unreachable clamp.
