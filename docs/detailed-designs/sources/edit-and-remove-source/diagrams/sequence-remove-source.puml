@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Remove a source
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "RemoveSourceDialog" as dialog
+  participant "HttpSourcesApi" as client
+  participant "SourcesStore" as store
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RemoveSourceCommandHandler" as handler
+  participant "Source" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Choose "Remove source"
+page -> dialog : Open "Remove Redeemed Run Club Toronto?" with article count, focus on Cancel (L2-074)
+actor -> dialog : Press "Remove source"
+dialog -> dialog : Busy, closing blocked
+dialog -> client : removeSource(id)
+client -> controller : DELETE /admin/v1/sources/{id}
+controller -> handler : Send RemoveSourceCommand
+handler -> db : Load active source
+alt unknown id
+  handler --> controller : SourceNotFoundException
+  controller --> client : 404 source_not_found
+else found
+  handler -> entity : Remove(now from TimeProvider)
+  handler -> db : Save RemovedAt and AuditEntry, records and provenance untouched (L2-003)
+  alt save fails
+    handler --> controller : Exception
+    controller --> client : 500 ProblemDetails with trace_id
+    client --> dialog : Failure
+    dialog --> actor : Failed state, source still listed
+    dialog -> notifier : Danger "Keryx couldn’t remove the source" with "Try again"
+  else saved
+    handler --> controller : Done
+    controller --> client : 204
+    client --> dialog : Removed
+    dialog -> store : Drop the row, reload header counts
+    dialog -> page : Close, focus to the opener
+    dialog -> notifier : Info "Source removed" ... "Its articles stay in Keryx." with "Undo"
+  end
+end
+@enduml

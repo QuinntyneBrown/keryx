@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stack, cluster, rail and split — Keryx design system</title>
+<meta name="description" content="The layout primitives that put space between components, so no component carries an outer margin.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Containers and overlays</p>
+      <h1>Stack, cluster, rail and split</h1>
+      <p class="ds-lead">The layout primitives that put space between components, so no component carries an outer margin.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Layout utilities</span><span class="ds-pill">Block: <code>.stack</code>, <code>.cluster</code>, <code>.layout-rail</code>, <code>.split</code>, <code>.stats</code>, <code>.field-grid</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Components have no margin of their own. Vertical rhythm comes from <code>.stack</code>, inline groups from <code>.cluster</code>, and the two page grids from <code>.layout-rail</code> and <code>.split</code>. In Angular these are global utility classes, not components.</p>
+      <ul>
+        <li><b>Stack</b>: a column with one gap (8, 16, 24 or 32 px).</li>
+        <li><b>Cluster</b>: a wrapping row with an 8 px gap, aligned to the centre.</li>
+        <li><b>Rail</b>: content plus a 340 px rail from 1024 px (Overview), or rail first (Runs).</li>
+        <li><b>Split</b>: two near-equal columns from 1280 px (API endpoints and the code panel).</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="stack"><div class="stack ds-w" data-part="1"><div class="ds-box">item</div><div class="cluster" data-part="2"><div class="ds-box">a</div><div class="ds-box">b</div><div class="ds-box">c</div></div><div class="ds-box">item</div></div><span class="ds-callout" style="left: 96.6%; top: 101.4%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 2.7%; top: 35.7%;" aria-hidden="true">2</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Stack</b><small><code>display: flex; flex-direction: column; gap: var(--space-4)</code>.</small></div></li>
+          <li><div><b>Cluster</b><small><code>display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center</code>.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Stack gaps</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="cluster cluster--top cluster--md ds-w"><div class="stack stack--sm cluster--fill"><div class="ds-box">sm · 8</div><div class="ds-box">·</div><div class="ds-box">·</div></div><div class="stack  cluster--fill"><div class="ds-box">default · 16</div><div class="ds-box">·</div><div class="ds-box">·</div></div><div class="stack stack--lg cluster--fill"><div class="ds-box">lg · 24</div><div class="ds-box">·</div><div class="ds-box">·</div></div><div class="stack stack--xl cluster--fill"><div class="ds-box">xl · 32</div><div class="ds-box">·</div><div class="ds-box">·</div></div></div></div>
+        <div class="ds-example__caption"><span><code>.stack--sm</code>, <code>.stack</code>, <code>.stack--lg</code>, <code>.stack--xl</code></span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster cluster--top cluster--md ds-w"&gt;
+&lt;div class="stack stack--sm cluster--fill"&gt;
+&lt;div class="ds-box"&gt;sm · 8&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;&lt;/div&gt;
+&lt;div class="stack  cluster--fill"&gt;
+&lt;div class="ds-box"&gt;default · 16&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;&lt;/div&gt;
+&lt;div class="stack stack--lg cluster--fill"&gt;
+&lt;div class="ds-box"&gt;lg · 24&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;&lt;/div&gt;
+&lt;div class="stack stack--xl cluster--fill"&gt;
+&lt;div class="ds-box"&gt;xl · 32&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;
+&lt;div class="ds-box"&gt;·&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Cluster modifiers</h3>
+      <p>The modifiers below replace the inline styles the mocks used on clusters.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="stack ds-w"><div class="cluster cluster--between"><div class="ds-box">between</div><div class="ds-box">ends</div></div><div class="cluster cluster--end"><div class="ds-box">end</div></div><div class="cluster cluster--xs"><div class="ds-box">xs · 4</div><div class="ds-box">xs</div></div><div class="cluster cluster--sm"><div class="ds-box">sm · 6</div><div class="ds-box">sm</div></div><div class="cluster cluster--md"><div class="ds-box">md · 12</div><div class="ds-box">md</div></div></div></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack ds-w"&gt;
+&lt;div class="cluster cluster--between"&gt;
+&lt;div class="ds-box"&gt;between&lt;/div&gt;
+&lt;div class="ds-box"&gt;ends&lt;/div&gt;&lt;/div&gt;
+&lt;div class="cluster cluster--end"&gt;
+&lt;div class="ds-box"&gt;end&lt;/div&gt;&lt;/div&gt;
+&lt;div class="cluster cluster--xs"&gt;
+&lt;div class="ds-box"&gt;xs · 4&lt;/div&gt;
+&lt;div class="ds-box"&gt;xs&lt;/div&gt;&lt;/div&gt;
+&lt;div class="cluster cluster--sm"&gt;
+&lt;div class="ds-box"&gt;sm · 6&lt;/div&gt;
+&lt;div class="ds-box"&gt;sm&lt;/div&gt;&lt;/div&gt;
+&lt;div class="cluster cluster--md"&gt;
+&lt;div class="ds-box"&gt;md · 12&lt;/div&gt;
+&lt;div class="ds-box"&gt;md&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Rail and split</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="stack ds-w"><div class="layout-rail"><div class="ds-box">content · minmax(0, 1fr)</div><div class="ds-box">rail · 340 px from 1024 px</div></div><div class="layout-rail layout-rail--start"><div class="ds-box">rail first</div><div class="ds-box">content</div></div><div class="split"><div class="ds-box">1fr</div><div class="ds-box">1.1fr from 1280 px</div></div></div></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack ds-w"&gt;
+&lt;div class="layout-rail"&gt;
+&lt;div class="ds-box"&gt;content · minmax(0, 1fr)&lt;/div&gt;
+&lt;div class="ds-box"&gt;rail · 340 px from 1024 px&lt;/div&gt;&lt;/div&gt;
+&lt;div class="layout-rail layout-rail--start"&gt;
+&lt;div class="ds-box"&gt;rail first&lt;/div&gt;
+&lt;div class="ds-box"&gt;content&lt;/div&gt;&lt;/div&gt;
+&lt;div class="split"&gt;
+&lt;div class="ds-box"&gt;1fr&lt;/div&gt;
+&lt;div class="ds-box"&gt;1.1fr from 1280 px&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Gaps come from the spacing scale.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><div class="cluster"><span class="tag">--space-2</span><span class="tag">--space-4</span><span class="tag">--space-6</span><span class="tag">--space-8</span></div></div>
+        <div class="ds-example__caption"><span>Stack: 8, 16, 24, 32. Cluster: 4, 6, 8, 12.</span></div>
+      </div>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Layout utilities have no states.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col"></th><th scope="col">Default</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Stack</th><td><div class="stack stack--sm"><div class="ds-box">a</div><div class="ds-box">b</div></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="stack ds-w"><div class="ds-box">item</div><div class="cluster"><div class="ds-box">a</div><div class="ds-box">b</div></div></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="stack ds-w"><div class="ds-box">item</div><div class="cluster"><div class="ds-box">a</div><div class="ds-box">b</div></div></div></div></div></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li><code>.layout-rail</code> is one column below 1024 px and <code>1fr 340px</code> from there; <code>--start</code> puts the rail first.</li>
+        <li><code>.split</code> is one column below 1280 px.</li>
+        <li><code>.stats</code> is three columns; <code>.stats--4</code> is two columns below 640 px and four above.</li>
+        <li><code>.field-grid</code> is one column below 640 px and two above.</li>
+        <li><code>.from-lg</code> and <code>.until-lg</code> show an element only from, or only below, 1024 px.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>No colour. Gaps are spacing tokens, so they are the same in every theme.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Purely visual. They must not change the reading order: DOM order is visual order at every width, including when a rail moves below its content.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td>—</td><td>Not focusable. It is read in document order with the content around it.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>Nothing to focus. Children keep their DOM order for Tab.</p>
+      <h3>Labelling</h3>
+      <p>No labels. Do not put <code>role</code> on a layout wrapper.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Text on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>Not interactive, so no target size applies.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Sections of a page are 24 px apart (<code>.stack--lg</code>); the API page uses 32 px between its three larger blocks.</li>
+        <li>Inline groups of buttons or badges are 8 px apart.</li>
+        <li>If two things need a different gap from the scale, they are probably different groups.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="cluster cluster--xs"><span class="tag">articles:read</span><span class="tag">events:read</span></span></div><figcaption>Use a modifier for a tighter gap.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="cluster" style="gap: var(--space-1)"><span class="tag">articles:read</span><span class="tag">events:read</span></span></div><figcaption>The mocks set <code>style="gap: …"</code> on 141 clusters. Inline styles are banned in the product.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="stack ds-w"><div class="ds-box">card</div><div class="ds-box">card</div></div></div><figcaption>Let the parent set the space between children.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-w"><div class="ds-box" style="margin-bottom: 1.3rem">card</div><div class="ds-box">card</div></div></div><figcaption>A margin on the component, off the scale, breaks when the component moves.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Stack gaps</td><td><code>--space-2</code> <code>--space-4</code> <code>--space-6</code> <code>--space-8</code></td><td colspan="2"><span data-token="--space-2"></span> · <span data-token="--space-4"></span> · <span data-token="--space-6"></span> · <span data-token="--space-8"></span></td></tr>
+          <tr><td>Cluster gaps</td><td><code>--space-1</code> <code>--space-1-5</code> <code>--space-2</code> <code>--space-3</code></td><td colspan="2"><span data-token="--space-1"></span> · <span data-token="--space-1-5"></span> · <span data-token="--space-2"></span> · <span data-token="--space-3"></span></td></tr>
+          <tr><td>Rail width</td><td><code>--layout-rail-width</code></td><td colspan="2"><span data-token="--layout-rail-width"></span></td></tr>
+          <tr><td>Rail and split gap</td><td><code>--space-6</code> <code>--space-4</code></td><td colspan="2"><span data-token="--space-6"></span> · <span data-token="--space-4"></span></td></tr>
+          <tr><td>Flow margins</td><td><code>--space-2</code> <code>--space-3</code> <code>--space-4</code></td><td colspan="2"><span data-token="--space-2"></span> · <span data-token="--space-3"></span> · <span data-token="--space-4"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.stack</code>, <code>.cluster</code>, <code>.layout-rail</code>, <code>.split</code>, <code>.stats</code>, <code>.field-grid</code>. The Angular component lives in <code>frontend/projects/components/src/stack/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="page-body stack stack--lg"&gt;
+&lt;section class="card"&gt;…&lt;/section&gt;
+&lt;div class="layout-rail"&gt;
+&lt;section&gt;…&lt;/section&gt;
+&lt;section&gt;…&lt;/section&gt;&lt;/div&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.stack</code> + <code>--sm</code> <code>--lg</code> <code>--xl</code></td><td>Column with a gap.</td></tr>
+        <tr><td><code>.cluster</code> + <code>--between</code> <code>--end</code> <code>--xs</code> <code>--sm</code> <code>--md</code> <code>--nowrap</code> <code>--top</code> <code>--fill</code></td><td>Wrapping row and its options.</td></tr>
+        <tr><td><code>.layout-rail</code> + <code>--start</code></td><td>Content and a 340 px rail.</td></tr>
+        <tr><td><code>.split</code></td><td>Two columns from 1280 px.</td></tr>
+        <tr><td><code>.flow-sm</code> <code>.flow-md</code> <code>.flow-lg</code></td><td>Top margin of 8, 12 or 16 px for a lone element that follows another.</td></tr>
+        <tr><td><code>.from-lg</code> / <code>.until-lg</code></td><td>Visibility around the 1024 px breakpoint.</td></tr>
+        <tr><td><code>.truncate</code> <code>.num</code> <code>.mono</code> <code>.text-muted</code> <code>.text-subtle</code> <code>.text-caption</code> <code>.text-regular</code> <code>.visually-hidden</code></td><td>Text utilities.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/overview/default.html">pages/overview/default</a> (stack--lg, layout-rail)</li>
+        <li><a href="../../mocks/pages/runs/default.html">pages/runs/default</a> (layout-rail--start)</li>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (stack--xl, split)</li>
+        <li><a href="../../mocks/pages/articles/default.html">pages/articles/default</a> (from-lg / until-lg in table cells)</li>
+      </ul>
+      <p>Drift fixed during extraction: inline <code>style</code> attributes patched these utilities in the mocks: <code>gap</code> on 141 clusters, <code>flex-wrap: nowrap; min-width: 0</code> on 68, a long alignment override on 19, <code>margin-top</code> on 57 elements and <code>flex: 1</code> on 13. The modifiers <code>.cluster--xs/--sm/--md/--nowrap/--top/--fill</code>, <code>.flow-sm/-md/-lg</code> and <code>.text-regular</code> were added so product templates need no inline style. The mocks themselves were not rewritten.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

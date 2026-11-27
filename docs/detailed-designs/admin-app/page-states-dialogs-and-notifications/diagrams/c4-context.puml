@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Page states, dialogs and notifications
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+
+Rel(staff, keryx, "Sees page states, uses dialogs, reads notifications in", "HTTPS")
+Rel(staff, idp, "Signs in through", "OpenID Connect")
+@enduml

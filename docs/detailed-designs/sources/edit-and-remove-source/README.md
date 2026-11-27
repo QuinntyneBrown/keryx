@@ -1,0 +1,156 @@
+# Edit and remove a source
+
+## Overview
+
+Keryx collects from a catalogue of *sources*, each a feed, page, platform account or news query
+that belongs to an organization and a region. Sources change: a church moves its blog, a club
+renames itself, a feed stops being useful. This feature lets staff change a source's address,
+organization and region, and remove a source that should no longer be checked.
+
+- **active source** — source that has not been removed and that collection runs fetch
+- **removal** — staff action that stops Keryx checking a source while keeping everything already
+  collected from it
+- **provenance** — record of where a fact came from: the source, its URL, and when it was first
+  and last seen
+- **undo** — reversal of a removal from the "Source removed" notification, which makes the same
+  source active again
+
+Removal never deletes collected records. Every article, event and organization collected from a
+removed source stays stored and served with its provenance unchanged. A source added again later
+with the same kind and address is a new source; the items it yields match their existing records
+through stable identity (L2-009), so no duplicate appears.
+
+Staff reach "Edit source" from a row menu on the Sources screen or from a source's issue on the
+Runs screen, and "Remove source" from the row menu. Both open dialogs; nothing is edited inline.
+
+## Description
+
+The feature is a vertical slice from the two dialogs to the database.
+
+**Endpoints**
+
+- `GET /admin/v1/sources/{id}` — the source with `kind`, `address`, `organization_name`,
+  `region`, `health`, `failure_reason`, `consecutive_failures`, `last_fetched_at` and the number of
+  articles collected from it (field name `article_count` is this design's; the remove dialog reads
+  it).
+- `PUT /admin/v1/sources/{id}` — body `address`, `organization_name`, `region`. `200` with
+  `source` (the saved values) and `test` (the `SourceTestResultDto` of one test fetch of the saved
+  address). `400` `validation_failed` per field; `409` `source_exists` when the change would equal
+  another active source, with nothing changed. The kind is not editable (L2-003).
+- `DELETE /admin/v1/sources/{id}` — `204`. The source is no longer fetched or listed.
+- `POST /admin/v1/sources/{id}/restore` — the Undo of a removal; `200` with the source, or `409`
+  `source_exists` when an active source with the same kind and address was added meanwhile. The
+  specs name no endpoint for Undo, so this path is this design's proposal and is `<TO SUPPLY>`
+  for confirmation. A restore is used rather than a new create because `news_query` sources are
+  removable but not creatable (`kind_not_creatable`).
+- Every one of these answers `404` `source_not_found` for an unknown or malformed id, requires the
+  staff policy, and (except `GET`) writes an `AuditEntry` on success (L2-085).
+
+**Frontend (Keryx Admin)**
+
+- **`EditSourceDialog`** — CDK Dialog titled "Edit source" with the lead "Changes apply from the
+  next scheduled run.", holding the current URL, Organisation and Region in `field` blocks and the
+  hint "Keryx tests the address again when you save.". For a failing source it shows an `alert`
+  "Last fetch failed today at 6:01 AM" with the reason. "Save source" follows the busy, success,
+  invalid and failed behaviour of the Add a source dialog: one request while busy, the
+  `sourceFormValidation` messages, and on failure the `alert` "Keryx couldn’t save your changes"
+  with "Reference req_…" and every entry kept. `source_exists` marks the URL field. The success
+  notification copy for an edit is `<TO SUPPLY>`; no source-toast mock covers it.
+- **Opening from Runs** — `RunsPage` opens the same `EditSourceDialog` for an issue's source and
+  binds `SOURCES_API` in the dialog's injector; on save it refreshes its own data.
+- **`RemoveSourceDialog`** — CDK Dialog titled "Remove Redeemed Run Club Toronto?" (the
+  organization name) that says "Keryx stops checking redeemedrun.ca/feed." and "The 31 articles
+  already collected from this source stay in the database and in the API…". Focus starts on
+  "Cancel"; "Remove source" is a danger `btn`. On success the dialog closes, `SourcesStore` drops
+  the row and reloads the header counts, and `Notifier` shows the info toast "Source removed" /
+  "Redeemed Run Club Toronto is no longer checked. Its articles stay in Keryx." with "Undo". On
+  failure the dialog shows its failed state ("Keryx couldn’t remove the source", "Nothing
+  changed. Try again in a moment.", reference), the source stays listed, and a danger toast
+  "Keryx couldn’t remove the source" offers "Try again".
+- **Closing** — Cancel, Close, Escape or the backdrop close either dialog without change and
+  return focus to the control that opened it; while a request is in flight none of them closes
+  it (L2-074).
+- **`SourcesStore`** — `replaceRow(source)`, `removeRow(id)` and `restoreSource(id)`; after a
+  removal or a restore it reloads the current page and the header counts from
+  `GET /admin/v1/sources`.
+- **`SourcesApi`** (`SOURCES_API`) — `getSource`, `updateSource`, `removeSource` and
+  `restoreSource`, implemented by `HttpSourcesApi`.
+
+**Backend (Keryx API)**
+
+- **`AdminSourcesController`** — one action per endpoint, each sending one MediatR request
+  (`GetSourceQuery`, `UpdateSourceCommand`, `RemoveSourceCommand`, `RestoreSourceCommand`).
+- **`UpdateSourceCommandValidator`** — the address, organization and region rules of L2-001 and
+  L2-024, as for create.
+- **`UpdateSourceCommandHandler`** — loads the active source, normalizes the new address to
+  `CanonicalUrl`, refuses a collision with `source_exists`, calls `Source.Update`, and saves the
+  change and an `AuditEntry` in one unit of work. It then calls `SourceTester` once and returns
+  the result beside the saved source. The test leaves the stored health unchanged, as a test
+  fetch does under L2-002; whether a save should instead reset health is `<TO SUPPLY>`.
+- **`RemoveSourceCommandHandler`** — calls `Source.Remove(now)`, which sets `RemovedAt` from
+  `TimeProvider`. The row stays so every `Provenance` that references it keeps resolving. Active
+  sources exclude removed ones in the run's source list, in `GET /admin/v1/sources`, in
+  `GET /v1/sources`, and in the uniqueness check on kind and normalized address.
+- **`RestoreSourceCommandHandler`** — calls `Source.Restore()` unless an active duplicate exists.
+- **Open issues** — what happens to a removed source's open issues (L2-020) is `<TO SUPPLY>`.
+
+## Requirements
+
+The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier. Their acceptance criteria are in [L2.md](../../../specs/L2.md).
+
+| L2 ID | Refines (L1) | Requirement |
+|-------|--------------|-------------|
+| `L2-003` | `L1-001` | Edit and remove a source — Staff must be able to change a source's address, organization and region, and remove a source, without losing what was already collected from it. |
+| `L2-065` | `L1-014` | Edit and remove source dialogs — Staff edit a source, or remove it after confirming, through dialogs reached from the list or from a run's issue. |
+
+## Diagrams
+
+### System context
+
+Staff edit, remove and restore sources in Keryx. Consuming products keep reading the articles
+collected from a removed source.
+
+![C4 system context for editing and removing a source](diagrams/c4-context.png)
+
+### Containers
+
+The admin app calls the admin API, which updates or marks the source removed in the database; the
+Worker fetches only active sources from its next run.
+
+![C4 container view for editing and removing a source](diagrams/c4-container.png)
+
+### Components
+
+The two dialogs call `HttpSourcesApi`; the controller sends one command per action to its
+handler, and each handler acts on the `Source` entity.
+
+![C4 component view for editing and removing a source](diagrams/c4-component.png)
+
+### Class structure
+
+`Source` exposes `Update`, `Remove` and `Restore`. `Provenance` keeps referencing a removed source,
+which is why removal is a mark rather than a delete.
+
+![Class diagram for editing and removing a source](diagrams/class-structure.png)
+
+### Behaviour — edit a source
+
+The dialog sends one request; the handler refuses a collision with `source_exists`, saves the
+change, then test-fetches the saved address and returns both.
+
+![Sequence diagram for editing a source](diagrams/sequence-edit-source.png)
+
+### Behaviour — remove a source
+
+The dialog opens on "Cancel". A confirmed removal marks the source removed, leaves its records
+untouched, and is reported with "Undo"; a failure keeps the source listed and raises a danger
+notification.
+
+![Sequence diagram for removing a source](diagrams/sequence-remove-source.png)
+
+### Behaviour — undo a removal
+
+"Undo" restores the same source unless an active duplicate now exists, and the notification is
+replaced by none.
+
+![Sequence diagram for undoing a removal](diagrams/sequence-undo-remove.png)

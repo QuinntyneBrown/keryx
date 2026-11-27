@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Store an article
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionPipeline" as pipe
+  participant "StoreStage" as store
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ArticleFactory" as factory
+  participant "OrganizationResolver" as orgs
+  participant "RegionResolver" as regions
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+pipe -> store : Store classified item
+store -> orgs : ResolveOrCreate(organization name, source region)
+orgs -> db : Find by L2-010 normalized name
+db --> orgs : Organization or none
+alt organization cannot be determined
+  orgs --> store : null (admin app shows "Unknown")
+else known or created
+  orgs --> store : Organization
+end
+store -> regions : Resolve(place, source)
+regions --> store : Region (source region when place unresolved, L2-018)
+store -> factory : Create(item, classification, source)
+factory -> factory : Title whole up to 300 characters, or null (L2-015)
+factory -> factory : Summary at most 500 characters on a word boundary, else first sentence
+factory -> factory : Tags lower-cased, de-duplicated, at most 30
+factory -> factory : Exactly one of six categories
+factory --> store : Article without body, images or HTML
+store -> db : Save article with provenance in one unit of work
+db --> store : Commit result
+store --> pipe : Counts added, updated, unchanged
+@enduml

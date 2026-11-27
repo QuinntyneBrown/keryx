@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Read one organization
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "OrganizationsController" as controller
+  participant "EtagFilter" as etag
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetOrganizationQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/organizations/{id}
+auth -> auth : Authenticate Bearer key and apply sources:read policy
+auth -> controller : Authenticated client
+controller -> handler : Send GetOrganizationQuery
+handler -> served : Apply L2-029 listed rule
+served --> handler : Filtered query
+handler -> ctx : Find by public id (org_…) with article_count
+ctx -> db : One query
+db --> ctx : Row or none
+ctx --> handler : OrganizationDto or null
+alt null: nothing served, malformed id or unknown
+  handler --> mapper : NotFoundException (organization_not_found)
+  mapper --> product : 404 problem+json, code organization_not_found
+else listed
+  handler --> controller : OrganizationDto
+  controller --> etag : 200 result
+  etag --> product : 200 JSON organization with ETag
+end
+@enduml

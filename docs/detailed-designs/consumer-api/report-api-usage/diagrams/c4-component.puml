@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Report API usage
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "ApiPage", "Routed standalone component", "Tiles, Consumers & keys, Endpoints")
+  Component(store, "ApiStore", "Screen store on ApiPage providers", "Usage, one page of clients, chosen endpoint")
+  Component(format, "formatRelativeAge, formatErrorRate", "Domain library helpers", "Number to text")
+  Component(usageApi, "HttpApiUsageApi", "API_USAGE_API implementation", "GET /admin/v1/api-usage")
+  Component(clientsApi, "HttpApiClientsApi", "API_CLIENTS_API implementation", "GET /admin/v1/api-clients")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(mw, "ApiUsageMiddleware", "ASP.NET Core middleware", "Sends RecordApiUsageCommand per /v1 response")
+  Component(record, "RecordApiUsageCommandHandler", "MediatR handler", "Classifies and accumulates")
+  Component(acc, "InMemoryApiUsageAccumulator", "Infrastructure", "Counts per client and hour")
+  Component(flush, "ApiUsageFlushService", "Hosted service", "Sends FlushApiUsageCommand on a TimeProvider timer")
+  Component(flushH, "FlushApiUsageCommandHandler", "MediatR handler", "Upserts usage hours and last call")
+  Component(ctrl, "AdminApiClientsController, AdminApiUsageController", "ASP.NET Core controllers", "StaffPolicy")
+  Component(queries, "GetApiClientsQueryHandler, GetApiUsageQueryHandler", "MediatR handlers", "Sum the last 24 hours")
+  Component(summary, "ApiUsageSummary", "Domain", "Error rate and p95 from histogram counts")
+  ComponentDb(db, "Keryx database", "EF Core relational store", "ApiUsageHour, ApiClient")
+}
+Rel(product, mw, "Calls /v1", "HTTPS")
+Rel(mw, record, "Sends RecordApiUsageCommand")
+Rel(record, acc, "Adds request")
+Rel(flush, flushH, "Sends FlushApiUsageCommand")
+Rel(flushH, acc, "Drains")
+Rel(flushH, db, "Upserts", "EF Core")
+Rel(staff, page, "Opens /api")
+Rel(page, store, "Reads signals")
+Rel(page, format, "Formats numbers")
+Rel(store, usageApi, "get()")
+Rel(store, clientsApi, "list(page)")
+Rel(usageApi, ctrl, "GET", "JSON/HTTPS")
+Rel(clientsApi, ctrl, "GET", "JSON/HTTPS")
+Rel(ctrl, queries, "Sends GetApiUsageQuery, GetApiClientsQuery")
+Rel(queries, summary, "Computes")
+Rel(queries, db, "Reads", "EF Core")
+@enduml

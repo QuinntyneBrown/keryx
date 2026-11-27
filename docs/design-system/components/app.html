@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App shell — Keryx design system</title>
+<meta name="description" content="The frame every screen sits in: the ink sidebar, the main column, and optionally the article panel beside it.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>App shell</h1>
+      <p class="ds-lead">The frame every screen sits in: the ink sidebar, the main column, and optionally the article panel beside it.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Landmarks: <code>aside</code>, <code>nav</code>, <code>main</code></span><span class="ds-pill">Block: <code>.app</code>, <code>.page-body</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The shell places the <a href="sidebar.html">sidebar</a> and the <code>&lt;main&gt;</code> column, and gives the page body its margins. Three arrangements exist.</p>
+      <ul>
+        <li><b>Default</b>: sidebar and main. Below 1024 px they stack and the sidebar becomes a top bar.</li>
+        <li><b>Split</b> (<code>.app__main--split</code>): main holds the content and a <a href="detail-panel.html">detail panel</a> side by side, as on Articles.</li>
+        <li><b>Bare</b> (<code>.app--bare</code>): no sidebar. Used before sign-in and for access denied, where there is nothing to navigate to.</li>
+        <li><b>Page body</b>: <code>.page-body</code> applies the page margin; <code>--form</code> caps it at the form width; <code>--centered</code> centres one card for system pages.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="app"><div class="ds-templates"><figure><div class="ds-template ds-template--shell"><span class="is-shell" data-part="1">sidebar</span><span data-part="2">page header</span><span data-part="3">page body</span></div></figure></div><span class="ds-callout" style="left: 4.3%; top: 13.1%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 18.6%; top: 13.1%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 18.6%; top: 31.3%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Sidebar</b><small><code>--layout-sidebar-width</code> (240 px), sticky, full height from 1024 px; a top bar below.</small></div></li>
+          <li><div><b>Page header</b><small>Title, description and actions; see <a href="page-header.html">page header</a>.</small></div></li>
+          <li><div><b>Page body</b><small><code>--layout-margin</code> at the sides (20 px, 32 px from 768 px), <code>--space-10</code> below.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="ds-templates"><figure><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>page header</span><span>page body</span></div><figcaption>Default: <code>.app</code></figcaption></figure><figure><div class="ds-template ds-template--split"><span class="is-shell">sidebar</span><span>page header</span><span>table</span><span class="is-panel">detail panel</span></div><figcaption>Split: <code>.app__main--split</code></figcaption></figure><figure><div class="ds-template ds-template--bare"><span>one centred card</span></div><figcaption>Bare: <code>.app.app--bare</code> with <code>.page-body--centered</code></figcaption></figure></div></div>
+        <div class="ds-example__caption"><span>The three arrangements, schematically. Open the mocks under Sources to see them live.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-templates"&gt;
+&lt;figure&gt;
+&lt;div class="ds-template ds-template--shell"&gt;
+&lt;span class="is-shell"&gt;sidebar&lt;/span&gt;
+&lt;span&gt;page header&lt;/span&gt;
+&lt;span&gt;page body&lt;/span&gt;&lt;/div&gt;
+&lt;figcaption&gt;Default: &lt;code&gt;.app&lt;/code&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;
+&lt;div class="ds-template ds-template--split"&gt;
+&lt;span class="is-shell"&gt;sidebar&lt;/span&gt;
+&lt;span&gt;page header&lt;/span&gt;
+&lt;span&gt;table&lt;/span&gt;
+&lt;span class="is-panel"&gt;detail panel&lt;/span&gt;&lt;/div&gt;
+&lt;figcaption&gt;Split: &lt;code&gt;.app__main--split&lt;/code&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;
+&lt;div class="ds-template ds-template--bare"&gt;
+&lt;span&gt;one centred card&lt;/span&gt;&lt;/div&gt;
+&lt;figcaption&gt;Bare: &lt;code&gt;.app.app--bare&lt;/code&gt; with &lt;code&gt;.page-body--centered&lt;/code&gt;&lt;/figcaption&gt;&lt;/figure&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One shell. The sidebar is 240 px, the detail panel 400 px, the form body at most 896 px (which is also the width of the centred card)."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One shell. The sidebar is 240 px, the detail panel 400 px, the form body at most 896 px (which is also the width of the centred card).</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The shell has no interactive states; it has arrangements per screen state.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Arrangement</th><th scope="col">Class</th><th scope="col">Used by</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td><code>.app</code></td><td>Overview, Runs, Sources, API, Settings, Not found</td></tr>
+          <tr><th scope="row">Split</th><td><code>.app__main.app__main--split</code></td><td>Articles with an article selected</td></tr>
+          <tr><th scope="row">Bare</th><td><code>.app.app--bare</code></td><td>Sign in (all five states), Access denied</td></tr>
+          <tr><th scope="row">Form body</th><td><code>.page-body.page-body--form</code></td><td>Settings</td></tr>
+          <tr><th scope="row">Centred body</th><td><code>.page-body.page-body--centered</code></td><td>Sign in, Access denied, Not found</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>page header</span><span>page body</span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>page header</span><span>page body</span></div></div></div></div>
+      <ul>
+        <li>The sidebar is ink in both themes; in the dark theme it is one step darker than the canvas so it still reads as the frame.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 1024 px: one column. The sidebar is a top bar with the navigation scrolling sideways; its footer is hidden.</li>
+        <li>From 1024 px: a two-column grid, sidebar 240 px and main <code>minmax(0, 1fr)</code>.</li>
+        <li>Split: the detail panel is a 400 px sticky column from 1024 px and covers the screen below that. Between 1024 and 1535 px the table drops its optional columns to make room.</li>
+        <li>Bare ignores the grid at every width (<code>.app.app--bare</code> is two classes strong so it wins over the 1024 px rule); the centred card is capped at 896 px and starts <code>--space-12</code> from the top.</li>
+        <li>The shell is at least <code>100dvh</code> tall, so mobile browser chrome never clips it.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The shell has no colours of its own: the page shows <code>--color-bg-canvas</code> and the sidebar its shell tokens.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Landmarks: the sidebar is an <code>&lt;aside&gt;</code> holding <code>&lt;nav aria-label="Primary"&gt;</code>; the content is <code>&lt;main id="main"&gt;</code>; a <a href="skip-link.html">skip link</a> comes first. The bare shell has only the skip link and <code>&lt;main&gt;</code>.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Skip link, then the sidebar (brand, six links), then the main column.</td></tr>
+        <tr><td><kbd>Enter</kbd> on the skip link</td><td>Moves focus to <code>#main</code>.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>On navigation the router moves focus to the new page's <code>h1</code> so the title is announced. <code>&lt;main&gt;</code> has <code>tabindex="-1"</code> so the skip link can move focus there; as a region, not a control, it shows no ring. In the split arrangement, opening the panel moves focus into it and closing returns focus to the row.</p>
+      <h3>Labelling</h3>
+      <p>Each page has a unique <code>&lt;title&gt;</code> and one <code>h1</code>. The primary navigation is the only <code>nav</code> landmark and is labelled “Primary”.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Text on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Sidebar text</span><span class="ds-pair__ratio" data-contrast="--color-shell-fg-muted|--color-shell-bg" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>No targets of its own.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Every screen is one of the three arrangements; a new arrangement needs a mock first.</li>
+        <li>System pages (sign in, access denied, not found) say what happened and offer one way forward; see the <a href="../patterns/empty-states.html">empty and error states</a> pattern.</li>
+        <li>Not found keeps the full shell, because the person is signed in and can navigate away.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-template ds-template--bare"><span>Sign in to Keryx</span></div></div><figcaption>Use the bare shell where there is nothing to navigate to.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>&nbsp;</span><span>Sign in to Keryx</span></div></div><figcaption>A sidebar of links that all lead back to sign-in promises navigation that does not exist.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-template ds-template--split"><span class="is-shell">sidebar</span><span>header</span><span>table</span><span class="is-panel">panel</span></div></div><figcaption>Give the detail panel its own column from 1024 px.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>header</span><span>table under a covering panel</span></div></div><figcaption>A panel that covers the table on a desktop hides the list the person is working through.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Sidebar width</td><td><code>--layout-sidebar-width</code></td><td colspan="2"><span data-token="--layout-sidebar-width"></span></td></tr>
+          <tr><td>Page margin</td><td><code>--layout-margin</code></td><td colspan="2"><span data-token="--layout-margin"></span></td></tr>
+          <tr><td>Detail panel width</td><td><code>--layout-panel-width</code></td><td colspan="2"><span data-token="--layout-panel-width"></span></td></tr>
+          <tr><td>Form and centred body max</td><td><code>--layout-form-max</code></td><td colspan="2"><span data-token="--layout-form-max"></span></td></tr>
+          <tr><td>Page background</td><td><code>--color-bg-canvas</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-canvas" data-swatch></i><span data-token="--color-bg-canvas"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-canvas" data-swatch></i><span data-token="--color-bg-canvas"></span></span></td></tr>
+          <tr><td>Centred body top padding</td><td><code>--space-12</code></td><td colspan="2"><span data-token="--space-12"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.app</code>, <code>.page-body</code>. The Angular component lives in <code>frontend/projects/components/src/app/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="app"&gt;
+&lt;aside class="sidebar"&gt;…&lt;/aside&gt;
+&lt;main id="main" class="app__main"&gt;
+&lt;header class="page-header"&gt;…&lt;/header&gt;
+&lt;div class="page-body"&gt;…&lt;/div&gt;&lt;/main&gt;&lt;/div&gt;
+&lt;div class="app app--bare"&gt;
+&lt;main id="main" class="app__main"&gt;
+&lt;div class="page-body page-body--centered"&gt;…&lt;/div&gt;&lt;/main&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.app</code></td><td>Column below 1024 px; sidebar and main grid above.</td></tr>
+        <tr><td><code>.app--bare</code></td><td>No sidebar: a plain flex container at every width.</td></tr>
+        <tr><td><code>.app__main</code></td><td>The main column; <code>--split</code> lays content and panel side by side.</td></tr>
+        <tr><td><code>.app__content</code></td><td>The content column inside a split main.</td></tr>
+        <tr><td><code>.page-body</code></td><td>Page margins.</td></tr>
+        <tr><td><code>.page-body--form</code></td><td>Form width, room for the save bar.</td></tr>
+        <tr><td><code>.page-body--centered</code></td><td>Centred, capped at the form width, <code>--space-12</code> from the top.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/overview/default.html">pages/overview/default</a> (default shell)</li>
+        <li><a href="../../mocks/pages/articles/selected.html">pages/articles/selected</a> (split shell)</li>
+        <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> (form body)</li>
+        <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> (bare shell, centred body)</li>
+        <li><a href="../../mocks/pages/sign-in/session-expired.html">pages/sign-in/session-expired</a> (bare shell after a timeout)</li>
+        <li><a href="../../mocks/pages/forbidden/default.html">pages/forbidden/default</a> (bare shell, access denied)</li>
+        <li><a href="../../mocks/pages/not-found/default.html">pages/not-found/default</a> (full shell, centred body)</li>
+      </ul>
+      <p>Drift fixed during extraction: <code>.app--bare</code> and <code>.page-body--centered</code> were added for the sign-in, access-denied and not-found mocks: without the first, the main column of a shell with no sidebar landed in the 240 px grid track at 1024 px and up.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

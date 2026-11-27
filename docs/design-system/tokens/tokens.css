@@ -1,0 +1,563 @@
+/* ==========================================================================
+   Keryx design tokens — the single source of truth for colour, type, space,
+   shape, elevation, motion, layout and z-order.
+
+   Extracted from docs/mocks (which took them from the Magic Patterns project
+   "Christian Fitness News Aggregator": ink neutrals, the volt signal colour,
+   Geist and Geist Mono).
+
+   Three tiers:
+     1. Primitives  (--palette-*, --font-*)  raw values, never used directly
+                    by components.
+     2. Semantic    (--color-*, --text-*, --space-*, --size-*, --radius-*,
+                    --shadow-*, --duration-*, --ease-*, --z-*, --layout-*,
+                    --target-*, --control-height-*, --icon-size-*) aliases
+                    that components consume. Themes override this tier only.
+     3. Component   (--btn-*, --alert-*, --switch-*, ...) declared in
+                    assets/components.css, always aliasing a semantic token.
+
+   Themes: light is the default (:root). Dark applies with
+   [data-theme="dark"], or automatically when the OS prefers dark and the
+   page has not forced [data-theme="light"]. The Magic Patterns design is
+   light only; the dark theme is derived from the same ink scale.
+
+   After any change: keep the two dark blocks identical, then re-run
+   scripts/check_contrast.py and scripts/tokens_to_json.py.
+   ========================================================================== */
+
+/* Fonts are bundled and self-hosted (SIL Open Font License), never a CDN. */
+@font-face {
+  font-family: "Geist";
+  src: url("../assets/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../assets/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* [data-theme="light"] lets a light island sit inside a dark page (documentation, previews). */
+:root, [data-theme="light"] {
+  /* ---------- Primitives: colour --------------------------------------- */
+  --palette-white: #ffffff;
+  --palette-black: #000000;
+
+  /* Ink: cool neutrals, no warmth. 950 is the brand ink, 900 is ink 2. */
+  --palette-ink-25: #f8f9fa;
+  --palette-ink-50: #f4f5f7;   /* paper: the app background */
+  --palette-ink-100: #e3e5ea;  /* line */
+  --palette-ink-200: #cbcfd7;  /* line strong */
+  --palette-ink-250: #b9bdc6;  /* muted text on ink */
+  --palette-ink-300: #a0a6b0;
+  --palette-ink-350: #9399a3;  /* subtle text on ink */
+  --palette-ink-400: #808691;  /* control edges: 3.3:1 on paper, 3.6:1 on white; too faint for text */
+  --palette-ink-450: #747b88;  /* control edges on dark surfaces */
+  --palette-ink-500: #656c79;  /* metadata text that passes AA on paper */
+  --palette-ink-600: #555c69;  /* muted text */
+  --palette-ink-700: #3a404b;
+  --palette-ink-800: #272c35;  /* ink 3 */
+  --palette-ink-850: #1b2028;
+  --palette-ink-900: #181c23;  /* ink 2 */
+  --palette-ink-925: #14181e;
+  --palette-ink-940: #11151a;
+  --palette-ink-950: #0e1116;  /* ink */
+  --palette-ink-975: #0a0c10;
+  --palette-ink-990: #07090c;
+
+  /* Volt: the signal. Used on ink or as a fill, never as text on white. */
+  --palette-volt-50: #f7fde5;
+  --palette-volt-100: #f0fbcc;
+  --palette-volt-300: #d4f55e;
+  --palette-volt-400: #c6f135; /* volt */
+  --palette-volt-500: #b4dd24;
+  --palette-volt-800: #3f5a00; /* the only volt that may be text on light */
+  --palette-volt-900: #2a3a0c;
+  --palette-volt-950: #1c2709;
+
+  --palette-green-50: #e4f6ea;
+  --palette-green-300: #6ee7a0;
+  --palette-green-400: #4ade80;
+  --palette-green-700: #15803d; /* status: success */
+  --palette-green-800: #116a32;
+  --palette-green-950: #0f2a1a;
+
+  --palette-amber-50: #fdf0dc;
+  --palette-amber-300: #fbbf24;
+  --palette-amber-500: #b45309; /* status: warning */
+  --palette-amber-700: #984507;
+  --palette-amber-950: #33240a;
+
+  --palette-red-50: #fde8e8;
+  --palette-red-300: #fca5a5;
+  --palette-red-400: #f87171;
+  --palette-red-600: #c81e1e;   /* status: danger */
+  --palette-red-700: #a51818;
+  --palette-red-950: #3a1313;
+
+  --palette-blue-50: #e6edfd;
+  --palette-blue-300: #a5c0ff;
+  --palette-blue-400: #7ea2ff;
+  --palette-blue-700: #1d4ed8;  /* status: info */
+  --palette-blue-950: #131f45;
+
+  /* ---------- Primitives: typography ----------------------------------- */
+  --font-family-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px  captions, pills, metadata */
+  --font-size-sm: 0.875rem;   /* 14px  the admin's working size */
+  --font-size-md: 1rem;       /* 16px  section titles, large body */
+  --font-size-lg: 1.125rem;   /* 18px  dialog and panel titles */
+  --font-size-xl: 1.25rem;    /* 20px  card headlines */
+  --font-size-2xl: 1.5rem;    /* 24px  page titles, stats, the wordmark */
+  --font-size-3xl: 1.875rem;  /* 30px  hero stats */
+  --font-size-4xl: 2.25rem;   /* 36px  display */
+  --font-size-5xl: 3rem;      /* 48px  brand lockups only */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800; /* the wordmark */
+
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  --letter-spacing-wordmark: -0.045em;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.04em;
+
+  /* ---------- Semantic: colour (light) --------------------------------- */
+  --color-bg-canvas: var(--palette-ink-50);           /* page background */
+  --color-bg-surface: var(--palette-white);           /* cards, tables, inputs */
+  --color-bg-surface-raised: var(--palette-white);    /* dialogs, menus */
+  --color-bg-surface-sunken: var(--palette-ink-25);   /* table heads, chart wells */
+  --color-bg-subtle: var(--palette-ink-50);           /* hover rows, icon tiles, pills */
+  --color-bg-subtle-hover: var(--palette-ink-100);
+  --color-bg-inverse: var(--palette-ink-950);         /* toasts */
+  --color-bg-backdrop: rgb(14 17 22 / 0.4);           /* modal scrim */
+
+  --color-fg-default: var(--palette-ink-950);
+  --color-fg-muted: var(--palette-ink-600);
+  --color-fg-subtle: var(--palette-ink-500);          /* ids, timestamps (4.5:1 on canvas) */
+  --color-fg-disabled: var(--palette-ink-300);        /* exempt from contrast */
+  --color-fg-inverse: var(--palette-ink-50);
+  --color-fg-inverse-muted: var(--palette-ink-250);
+  --color-fg-link: var(--palette-ink-950);
+  --color-fg-link-hover: var(--palette-volt-800);
+
+  --color-border-default: var(--palette-ink-100);     /* dividers, card edges (decorative) */
+  --color-border-emphasis: var(--palette-ink-200);    /* button and chip outlines (decorative) */
+  --color-border-strong: var(--palette-ink-400);      /* form control edges (>= 3:1) */
+  --color-border-inverse: var(--palette-ink-800);     /* neutral chart marks */
+
+  --color-accent: var(--palette-ink-950);             /* primary actions, selected segments */
+  --color-accent-hover: var(--palette-ink-900);
+  --color-accent-active: var(--palette-ink-800);
+  --color-accent-subtle: var(--palette-volt-50);      /* selected row */
+  --color-accent-subtle-hover: var(--palette-volt-100);
+  --color-fg-on-accent: var(--palette-ink-50);
+  --color-fg-accent: var(--palette-volt-800);
+
+  --color-brand: var(--palette-volt-400);             /* the mark, active nav, progress */
+  --color-brand-subtle: var(--palette-volt-100);
+  --color-fg-on-brand: var(--palette-ink-950);
+  --color-fg-brand: var(--palette-volt-800);          /* brand-toned text on brand-subtle */
+  /* Lockup colours are fixed: no theme overrides them. */
+  --color-brand-ink: var(--palette-ink-950);          /* the tile on light, strokes and word on volt */
+  --color-brand-ink-raised: var(--palette-ink-900);   /* the tile on ink (ink 2) */
+  --color-brand-paper: var(--palette-white);          /* the word on ink */
+
+  --color-focus-ring: var(--palette-ink-950);
+  --color-focus-ring-offset: var(--color-bg-surface);
+
+  /* The shell (sidebar, code panel) is ink in both themes. */
+  --color-shell-bg: var(--palette-ink-950);
+  --color-shell-raised: var(--palette-ink-900);
+  --color-shell-border: var(--palette-ink-800);
+  --color-shell-fg: var(--palette-ink-50);
+  --color-shell-fg-muted: var(--palette-ink-250);
+  --color-shell-fg-subtle: var(--palette-ink-350);
+
+  --color-info-bg: var(--palette-blue-50);
+  --color-info-fg: var(--palette-blue-700);
+  --color-info-border: var(--palette-blue-300);
+  --color-info-icon: var(--palette-blue-700);
+  --color-info-solid: var(--palette-blue-700);
+
+  --color-success-bg: var(--palette-green-50);
+  --color-success-fg: var(--palette-green-800);
+  --color-success-border: var(--palette-green-300);
+  --color-success-icon: var(--palette-green-700);
+  --color-success-solid: var(--palette-green-700);
+
+  --color-warning-bg: var(--palette-amber-50);
+  --color-warning-fg: var(--palette-amber-700);
+  --color-warning-border: var(--palette-amber-300);
+  --color-warning-icon: var(--palette-amber-500);
+  --color-warning-solid: var(--palette-amber-500);
+
+  --color-danger-bg: var(--palette-red-50);
+  --color-danger-fg: var(--palette-red-700);
+  --color-danger-border: var(--palette-red-300);
+  --color-danger-icon: var(--palette-red-600);
+  --color-danger-solid: var(--palette-red-600);
+  --color-danger-solid-hover: var(--palette-red-700);
+  --color-fg-on-danger: var(--palette-white);
+
+  /* Status icons and actions shown on the inverse (toast) surface. */
+  --color-on-inverse-success: var(--palette-green-400);
+  --color-on-inverse-warning: var(--palette-amber-300);
+  --color-on-inverse-danger: var(--palette-red-400);
+  --color-on-inverse-info: var(--palette-blue-400);
+  --color-on-inverse-brand: var(--palette-volt-400);
+
+  /* ---------- Semantic: typography roles ------------------------------- */
+  --text-display: var(--font-weight-bold) var(--font-size-4xl) / var(--line-height-tight) var(--font-family-sans);
+  --text-h1: var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans);
+  --text-h2: var(--font-weight-semibold) var(--font-size-xl) / var(--line-height-snug) var(--font-family-sans);
+  --text-h3: var(--font-weight-semibold) var(--font-size-md) / var(--line-height-snug) var(--font-family-sans);
+  --text-h4: var(--font-weight-semibold) var(--font-size-sm) / var(--line-height-snug) var(--font-family-sans);
+  --text-title: var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans);
+  --text-body-lg: var(--font-weight-regular) var(--font-size-md) / var(--line-height-normal) var(--font-family-sans);
+  --text-body: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans);
+  --text-body-sm: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans);
+  --text-caption: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
+  --text-label: var(--font-weight-medium) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans);
+  --text-overline: var(--font-weight-medium) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
+  --text-stat: var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans);
+  --text-stat-lg: var(--font-weight-semibold) var(--font-size-3xl) / var(--line-height-tight) var(--font-family-sans);
+  --text-stat-sm: var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans);
+  --text-code: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-relaxed) var(--font-family-mono);
+  --text-code-md: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-mono);
+  --text-code-lg: var(--font-weight-medium) var(--font-size-md) / var(--line-height-normal) var(--font-family-mono);
+
+  /* ---------- Semantic: spacing (4px base) ----------------------------- */
+  --space-0: 0;
+  --space-0-5: 0.125rem; /* 2px  hairline gaps */
+  --space-1: 0.25rem;    /* 4px  icon to label */
+  --space-1-5: 0.375rem; /* 6px  inside pills, label to control */
+  --space-2: 0.5rem;     /* 8px  between inline items */
+  --space-2-5: 0.625rem; /* 10px table head, alert padding */
+  --space-3: 0.75rem;    /* 12px compact padding */
+  --space-4: 1rem;       /* 16px default padding, stack gap */
+  --space-5: 1.25rem;    /* 20px card padding (phone), page margin (phone) */
+  --space-6: 1.5rem;     /* 24px card padding, section gap */
+  --space-8: 2rem;       /* 32px page margin (tablet up) */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px empty-state padding */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* ---------- Semantic: sizing (fixed dimensions of small parts) ------- */
+  --size-dot: 0.375rem;        /* 6px   badge dot, meter track */
+  --size-dot-lg: 0.5rem;       /* 8px   health dot */
+  --size-count: 1.125rem;      /* 18px  navigation count badge */
+  --size-avatar: 1.75rem;      /* 28px  avatar, the mark in the sidebar */
+  --size-tile: 2rem;           /* 32px  source icon tile */
+  --size-tile-lg: 2.75rem;     /* 44px  status and empty-state icon discs */
+  --size-chart: 3.5rem;        /* 56px  run chart height */
+
+  /* ---------- Semantic: layout ----------------------------------------- */
+  --layout-breakpoint-sm: 40rem;   /* 640px: dialogs centre, toasts dock right */
+  --layout-breakpoint-md: 48rem;   /* 768px: settings and cards widen */
+  --layout-breakpoint-lg: 64rem;   /* 1024px: the sidebar appears */
+  --layout-breakpoint-xl: 80rem;   /* 1280px: side-by-side summaries */
+  --layout-breakpoint-2xl: 96rem;  /* 1536px: every table column beside the detail panel */
+  --layout-columns: 4;
+  --layout-gutter: var(--space-4);
+  --layout-margin: var(--space-5);  /* page edge to content */
+  --layout-container-max: 80rem;
+  --layout-form-max: 56rem;         /* settings column */
+  --layout-measure: 65ch;
+  --layout-measure-narrow: 44ch;    /* empty-state text */
+  --layout-sidebar-width: 15rem;    /* 240px */
+  --layout-panel-width: 25rem;      /* 400px detail panel */
+  --layout-rail-width: 21.25rem;    /* 340px run list, attention rail */
+  --layout-label-width: 13.75rem;   /* 220px settings section intro */
+  --layout-term-width: 6.875rem;    /* 110px description-list term column */
+  --layout-dialog-width: 32rem;     /* 512px */
+  --layout-dialog-width-sm: 26rem;  /* 416px confirmations */
+  --layout-dialog-max-height: 92dvh;
+  --layout-toast-width: 24rem;      /* 384px */
+  --layout-menu-min-width: 12rem;   /* 192px */
+  --layout-field-max: 24rem;        /* 384px medium input */
+  --layout-search-basis: 15rem;     /* 240px search field before it grows */
+
+  /* ---------- Semantic: shape ------------------------------------------ */
+  --radius-xs: 0.125rem;  /* 2px  chart bars */
+  --radius-sm: 0.25rem;   /* 4px  scope tags, skeleton lines */
+  --radius-md: 0.5rem;    /* 8px  buttons, inputs, alerts */
+  --radius-lg: 0.75rem;   /* 12px cards, tables, toasts, menus */
+  --radius-xl: 1rem;      /* 16px dialogs, sheets */
+  --radius-full: 9999px;  /* pills, avatars, dots */
+  --border-width-hairline: 1px;
+  --border-width-thick: 2px;
+
+  /* ---------- Semantic: elevation -------------------------------------- */
+  --shadow-color: 14 17 22;
+  --shadow-1: 0 1px 2px rgb(var(--shadow-color) / 0.06);                                              /* switch thumb */
+  --shadow-2: 0 2px 6px rgb(var(--shadow-color) / 0.10), 0 1px 2px rgb(var(--shadow-color) / 0.06);   /* reserved: raised cards */
+  --shadow-3: 0 8px 24px rgb(var(--shadow-color) / 0.14), 0 2px 6px rgb(var(--shadow-color) / 0.08);  /* menus, toasts */
+  --shadow-4: 0 20px 48px rgb(var(--shadow-color) / 0.22), 0 4px 12px rgb(var(--shadow-color) / 0.10);/* dialogs, sheets */
+  --shadow-focus: 0 0 0 var(--focus-ring-offset) var(--color-focus-ring-offset), 0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--color-focus-ring);
+
+  /* ---------- Semantic: motion ----------------------------------------- */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;        /* hover, colour changes, menus */
+  --duration-base: 220ms;        /* panels, toasts, backdrop */
+  --duration-slow: 320ms;        /* dialogs, sheets */
+  --duration-deliberate: 1400ms; /* skeleton shimmer, indeterminate progress, running pulse */
+  --duration-spin: 700ms;        /* one turn of a spinner */
+  --ease-standard: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* reserved: no mock uses it yet */
+
+  /* ---------- Semantic: z-order ---------------------------------------- */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 100;
+  --z-dropdown: 1000;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-toast: 1500;
+  --z-tooltip: 1600;
+
+  /* ---------- Semantic: interaction ------------------------------------ */
+  --target-min: 1.5rem;          /* 24px  WCAG 2.2 AA minimum */
+  --target-comfortable: 2.75rem; /* 44px  touch target */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --control-height-sm: 2rem;     /* 32px */
+  --control-height-md: 2.25rem;  /* 36px */
+  --control-height-lg: 2.75rem;  /* 44px */
+  --icon-size-sm: 0.875rem;      /* 14px */
+  --icon-size-md: 1rem;          /* 16px */
+  --icon-size-lg: 1.25rem;       /* 20px */
+  --icon-stroke: 1.75;           /* on the 24-unit grid */
+  --opacity-disabled: 0.5;
+
+  color-scheme: light;
+}
+
+/* Touch devices get 44px controls everywhere. */
+@media (pointer: coarse) {
+  :root, [data-theme="light"] {
+    --control-height-sm: var(--target-comfortable);
+    --control-height-md: var(--target-comfortable);
+  }
+}
+
+/* Responsive layout tokens: columns, gutters and margins grow with the viewport. */
+@media (min-width: 48rem) {
+  :root, [data-theme="light"] {
+    --layout-columns: 8;
+    --layout-gutter: var(--space-6);
+    --layout-margin: var(--space-8);
+  }
+}
+@media (min-width: 64rem) {
+  :root, [data-theme="light"] {
+    --layout-columns: 12;
+  }
+}
+
+/* ---------- Dark theme -----------------------------------------------------
+   Derived from roles, not inverted: surfaces lighten as they rise, volt becomes
+   the action colour with ink text on it, status backgrounds are deep tints.
+   The two blocks below are identical; build_tokens keeps them so. */
+[data-theme="dark"] {
+  --color-bg-canvas: var(--palette-ink-975);
+  --color-bg-surface: var(--palette-ink-925);
+  --color-bg-surface-raised: var(--palette-ink-850);
+  --color-bg-surface-sunken: var(--palette-ink-940);
+  --color-bg-subtle: var(--palette-ink-850);
+  --color-bg-subtle-hover: var(--palette-ink-800);
+  --color-bg-inverse: var(--palette-ink-50);
+  --color-bg-backdrop: rgb(0 0 0 / 0.65);
+
+  --color-fg-default: var(--palette-ink-50);
+  --color-fg-muted: var(--palette-ink-300);
+  --color-fg-subtle: var(--palette-ink-350);
+  --color-fg-disabled: var(--palette-ink-600);
+  --color-fg-inverse: var(--palette-ink-950);
+  --color-fg-inverse-muted: var(--palette-ink-600);
+  --color-fg-link: var(--palette-ink-50);
+  --color-fg-link-hover: var(--palette-volt-400);
+
+  --color-border-default: var(--palette-ink-800);
+  --color-border-emphasis: var(--palette-ink-700);
+  --color-border-strong: var(--palette-ink-450);
+  --color-border-inverse: var(--palette-ink-200);
+
+  --color-accent: var(--palette-volt-400);
+  --color-accent-hover: var(--palette-volt-300);
+  --color-accent-active: var(--palette-volt-500);
+  --color-accent-subtle: var(--palette-volt-950);
+  --color-accent-subtle-hover: var(--palette-volt-900);
+  --color-fg-on-accent: var(--palette-ink-950);
+  --color-fg-accent: var(--palette-volt-400);
+
+  --color-brand-subtle: var(--palette-volt-900);
+  --color-fg-brand: var(--palette-volt-300);
+
+  --color-focus-ring: var(--palette-volt-400);
+
+  --color-shell-bg: var(--palette-ink-990);
+  --color-shell-raised: var(--palette-ink-925);
+
+  --color-info-bg: var(--palette-blue-950);
+  --color-info-fg: var(--palette-blue-300);
+  --color-info-border: var(--palette-blue-700);
+  --color-info-icon: var(--palette-blue-400);
+  --color-info-solid: var(--palette-blue-400);
+
+  --color-success-bg: var(--palette-green-950);
+  --color-success-fg: var(--palette-green-300);
+  --color-success-border: var(--palette-green-700);
+  --color-success-icon: var(--palette-green-400);
+  --color-success-solid: var(--palette-green-400);
+
+  --color-warning-bg: var(--palette-amber-950);
+  --color-warning-fg: var(--palette-amber-300);
+  --color-warning-border: var(--palette-amber-700);
+  --color-warning-icon: var(--palette-amber-300);
+  --color-warning-solid: var(--palette-amber-300);
+
+  --color-danger-bg: var(--palette-red-950);
+  --color-danger-fg: var(--palette-red-300);
+  --color-danger-border: var(--palette-red-700);
+  --color-danger-icon: var(--palette-red-400);
+  --color-danger-solid: var(--palette-red-400);
+  --color-danger-solid-hover: var(--palette-red-300);
+  --color-fg-on-danger: var(--palette-red-950);
+
+  --color-on-inverse-success: var(--palette-green-700);
+  --color-on-inverse-warning: var(--palette-amber-500);
+  --color-on-inverse-danger: var(--palette-red-600);
+  --color-on-inverse-info: var(--palette-blue-700);
+  --color-on-inverse-brand: var(--palette-volt-800);
+
+  --shadow-color: 0 0 0;
+  --shadow-1: 0 1px 2px rgb(var(--shadow-color) / 0.4);
+  --shadow-2: 0 2px 6px rgb(var(--shadow-color) / 0.45), 0 1px 2px rgb(var(--shadow-color) / 0.3);
+  --shadow-3: 0 8px 24px rgb(var(--shadow-color) / 0.5), 0 2px 6px rgb(var(--shadow-color) / 0.35);
+  --shadow-4: 0 20px 48px rgb(var(--shadow-color) / 0.6), 0 4px 12px rgb(var(--shadow-color) / 0.4);
+
+  color-scheme: dark;
+}
+
+/* Follow the OS preference unless the page has explicitly chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: var(--palette-ink-975);
+    --color-bg-surface: var(--palette-ink-925);
+    --color-bg-surface-raised: var(--palette-ink-850);
+    --color-bg-surface-sunken: var(--palette-ink-940);
+    --color-bg-subtle: var(--palette-ink-850);
+    --color-bg-subtle-hover: var(--palette-ink-800);
+    --color-bg-inverse: var(--palette-ink-50);
+    --color-bg-backdrop: rgb(0 0 0 / 0.65);
+
+    --color-fg-default: var(--palette-ink-50);
+    --color-fg-muted: var(--palette-ink-300);
+    --color-fg-subtle: var(--palette-ink-350);
+    --color-fg-disabled: var(--palette-ink-600);
+    --color-fg-inverse: var(--palette-ink-950);
+    --color-fg-inverse-muted: var(--palette-ink-600);
+    --color-fg-link: var(--palette-ink-50);
+    --color-fg-link-hover: var(--palette-volt-400);
+
+    --color-border-default: var(--palette-ink-800);
+    --color-border-emphasis: var(--palette-ink-700);
+    --color-border-strong: var(--palette-ink-450);
+    --color-border-inverse: var(--palette-ink-200);
+
+    --color-accent: var(--palette-volt-400);
+    --color-accent-hover: var(--palette-volt-300);
+    --color-accent-active: var(--palette-volt-500);
+    --color-accent-subtle: var(--palette-volt-950);
+    --color-accent-subtle-hover: var(--palette-volt-900);
+    --color-fg-on-accent: var(--palette-ink-950);
+    --color-fg-accent: var(--palette-volt-400);
+
+    --color-brand-subtle: var(--palette-volt-900);
+    --color-fg-brand: var(--palette-volt-300);
+
+    --color-focus-ring: var(--palette-volt-400);
+
+    --color-shell-bg: var(--palette-ink-990);
+    --color-shell-raised: var(--palette-ink-925);
+
+    --color-info-bg: var(--palette-blue-950);
+    --color-info-fg: var(--palette-blue-300);
+    --color-info-border: var(--palette-blue-700);
+    --color-info-icon: var(--palette-blue-400);
+    --color-info-solid: var(--palette-blue-400);
+
+    --color-success-bg: var(--palette-green-950);
+    --color-success-fg: var(--palette-green-300);
+    --color-success-border: var(--palette-green-700);
+    --color-success-icon: var(--palette-green-400);
+    --color-success-solid: var(--palette-green-400);
+
+    --color-warning-bg: var(--palette-amber-950);
+    --color-warning-fg: var(--palette-amber-300);
+    --color-warning-border: var(--palette-amber-700);
+    --color-warning-icon: var(--palette-amber-300);
+    --color-warning-solid: var(--palette-amber-300);
+
+    --color-danger-bg: var(--palette-red-950);
+    --color-danger-fg: var(--palette-red-300);
+    --color-danger-border: var(--palette-red-700);
+    --color-danger-icon: var(--palette-red-400);
+    --color-danger-solid: var(--palette-red-400);
+    --color-danger-solid-hover: var(--palette-red-300);
+    --color-fg-on-danger: var(--palette-red-950);
+
+    --color-on-inverse-success: var(--palette-green-700);
+    --color-on-inverse-warning: var(--palette-amber-500);
+    --color-on-inverse-danger: var(--palette-red-600);
+    --color-on-inverse-info: var(--palette-blue-700);
+    --color-on-inverse-brand: var(--palette-volt-800);
+
+    --shadow-color: 0 0 0;
+    --shadow-1: 0 1px 2px rgb(var(--shadow-color) / 0.4);
+    --shadow-2: 0 2px 6px rgb(var(--shadow-color) / 0.45), 0 1px 2px rgb(var(--shadow-color) / 0.3);
+    --shadow-3: 0 8px 24px rgb(var(--shadow-color) / 0.5), 0 2px 6px rgb(var(--shadow-color) / 0.35);
+    --shadow-4: 0 20px 48px rgb(var(--shadow-color) / 0.6), 0 4px 12px rgb(var(--shadow-color) / 0.4);
+
+    color-scheme: dark;
+  }
+}
+
+/* ---------- User preferences ----------------------------------------------- */
+@media (prefers-contrast: more) {
+  :root, [data-theme="light"], [data-theme="dark"] {
+    --color-border-default: var(--color-border-strong);
+    --color-border-emphasis: var(--color-border-strong);
+    --color-fg-muted: var(--color-fg-default);
+    --color-fg-subtle: var(--color-fg-default);
+  }
+}
+
+/* Reduced motion zeroes the transition durations here, so components need no
+   media queries of their own; looping indicators are stopped in components.css. */
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-theme="light"], [data-theme="dark"] {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

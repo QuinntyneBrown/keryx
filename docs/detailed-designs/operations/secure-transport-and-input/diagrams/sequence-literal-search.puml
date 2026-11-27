@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — A search term with SQL metacharacters
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as vb
+  participant "ListArticlesQueryHandler" as h
+  participant "LiteralSearch" as lit
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Search for "5k'; DROP--%"
+page -> client : GET /admin/v1/articles?q=…
+client -> ctrl : Request
+ctrl -> vb : Send ListArticlesQuery
+vb -> vb : Validate term type and length
+vb -> h : Valid query
+h -> lit : Pattern(term)
+lit --> h : Escaped pattern with % and _ as literals
+h -> db : LIKE @p0 ESCAPE '\\' as a parameter (L2-083)
+db --> h : Rows matching the literal text
+h --> ctrl : Page of articles
+ctrl --> client : 200
+client --> page : Results
+page --> actor : Show literal-search results
+@enduml

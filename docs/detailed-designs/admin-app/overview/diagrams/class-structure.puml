@@ -1,0 +1,167 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Overview
+
+enum SectionState {
+  idle
+  loading
+  ready
+  error
+}
+package "frontend/projects/admin" {
+  class OverviewPage <<component>> {
+    #store: OverviewStore
+    +onRetry(section): void
+    +onOpenRun(runId: string): void
+  }
+  class OverviewStore <<injectable route>> {
+    +status: Signal<Section<OverviewStatusDto>>
+    +chart: Signal<Section<RunSummaryDto[]>>
+    +latest: Signal<Section<Page<ArticleRowDto>>>
+    +issues: Signal<Section<Page<IssueDto>>>
+    +showSkeleton: Signal<boolean>
+    +allFailed: Signal<boolean>
+    +isEmpty: Signal<boolean>
+    +load(): void
+    +retry(section): void
+    -followRun(runId: string): void
+  }
+  class ScheduleStore <<injectable root>> {
+    +nextCollection: Signal<string>
+    +countdown: Signal<string>
+  }
+  class CollectionWatcher <<injectable root>> {
+    +runEnded(run: RunDto): void
+  }
+  class "Section<T>" as Section {
+    +state: SectionState
+    +data: T | null
+    +errorCode: string | null
+    +reference: string | null
+  }
+}
+package "frontend/projects/components" {
+  class StatusCard <<component>> {
+    +eyebrow: input<string>
+    +headline: input<string>
+    +meta: input<string>
+    +tone: input<'success'|'warning'|'danger'|'info'>
+    +progress: input<number | null>
+  }
+  class RunChart <<component>> {
+    +bars: input<RunChartBar[]>
+    +openRun: output<string>
+  }
+  class IssueCard <<component>> {
+    +severity: input<'error'|'warning'>
+    +title: input<string>
+    +subject: input<string>
+    +meta: input<string>
+  }
+  class Stat <<component>>
+  class List <<component>>
+  class Empty <<component>>
+  class Skeleton <<component>>
+}
+package "frontend/projects/api" {
+  interface OverviewApi {
+    +getStatus(): Observable<OverviewStatusDto>
+  }
+  interface RunsApi {
+    +listRuns(query: RunsQuery): Observable<Page<RunSummaryDto>>
+    +getRun(id): Observable<RunDto>
+    +listOpenIssues(pageSize): Observable<Page<IssueDto>>
+  }
+  interface ArticlesApi {
+    +list(query: ArticleQuery): Observable<Page<ArticleRowDto>>
+  }
+  class OverviewStatusDto {
+    +last_run: OverviewRunDto | null
+    +current_run: OverviewRunDto | null
+    +has_sources: boolean
+    +has_runs: boolean
+  }
+  class OverviewRunDto {
+    +id: string
+    +started_at: string
+    +finished_at: string | null
+    +duration_ms: number | null
+    +outcome: string
+    +failure_code: string | null
+    +added: number
+    +sources_ok: number
+    +sources_checked: number | null
+    +sources_total: number
+  }
+  class RunSummaryDto {
+    +id: string
+    +started_at: string
+    +outcome: string
+    +added: number
+  }
+  class IssueDto {
+    +id: string
+    +run_id: string
+    +severity: string
+    +kind: string
+    +subject_name: string
+    +consecutive_runs: number
+    +since: string
+  }
+}
+package "backend/src" {
+  class AdminOverviewController {
+    +GetStatus(): Task<OverviewStatusDto>
+  }
+  class GetOverviewStatusQueryHandler {
+    +Handle(query): Task<OverviewStatusDto>
+  }
+  class Run {
+    +PublicId Id
+    +RunTrigger Trigger
+    +RunOutcome Outcome
+    +int NewArticles
+    +int SourcesOk
+    +int SourcesTotal
+  }
+  class RunIssue {
+    +Severity
+    +Kind
+    +Muted
+  }
+}
+
+OverviewPage ..> OverviewStore : reads
+OverviewPage ..> StatusCard
+OverviewPage ..> RunChart
+OverviewPage ..> IssueCard
+OverviewPage ..> Stat
+OverviewPage ..> List
+OverviewPage ..> Empty
+OverviewPage ..> Skeleton
+OverviewStore *-- "4" Section
+Section --> SectionState
+OverviewStore ..> OverviewApi : OVERVIEW_API
+OverviewStore ..> RunsApi : RUNS_API
+OverviewStore ..> ArticlesApi : ARTICLES_API
+OverviewApi ..> OverviewStatusDto
+OverviewStatusDto --> OverviewRunDto
+RunsApi ..> RunSummaryDto
+OverviewStore ..> ScheduleStore : next run
+OverviewStore ..> CollectionWatcher : run ended
+RunsApi ..> IssueDto
+AdminOverviewController ..> GetOverviewStatusQueryHandler : sends query
+GetOverviewStatusQueryHandler --> Run : reads
+GetOverviewStatusQueryHandler --> RunIssue : reads
+@enduml

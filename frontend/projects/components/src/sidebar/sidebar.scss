@@ -1,0 +1,103 @@
+// The sidebar (docs/design-system/components/sidebar.html). It is ink in both themes, so its
+// focus ring is volt: the ring token is set here for everything inside it.
+@use '../breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+.sidebar {
+  --color-focus-ring: var(--color-brand);
+
+  display: flex;
+  flex-direction: column;
+  background: var(--color-shell-bg);
+  color: var(--color-shell-fg);
+}
+
+.sidebar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+}
+
+.sidebar__tag {
+  border: var(--border-width-hairline) solid var(--color-shell-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-0-5) var(--space-1-5);
+  font: var(--text-overline);
+  color: var(--color-shell-fg-muted);
+}
+
+.sidebar__nav {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+// The top bar has no footer; it appears with the column.
+.sidebar__foot {
+  display: none;
+  margin-top: auto;
+  border-top: var(--border-width-hairline) solid var(--color-shell-border);
+  padding: var(--space-5);
+}
+
+.sidebar__caption {
+  font: var(--text-caption);
+  color: var(--color-shell-fg-subtle);
+}
+
+.sidebar__value {
+  margin-top: var(--space-1);
+  font: var(--text-label);
+}
+
+.sidebar__value span {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-shell-fg-muted);
+}
+
+.sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  margin-top: var(--space-5);
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  font: var(--text-body-sm);
+}
+
+@include bp.from(1024) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .sidebar__head {
+    padding-block: var(--space-6);
+  }
+
+  .sidebar__nav {
+    flex-direction: column;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .sidebar__foot {
+    display: block;
+  }
+}
+
+// Nothing of the frame is printed: only the content.
+@media print {
+  .sidebar {
+    display: none;
+  }
+}

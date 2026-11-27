@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Decide on an article
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(panel, "DetailPanel", "Components library", "Publish and Hide from API buttons with busy state")
+  Component(page, "ArticlesPage", "Routed component", "Forwards panel outputs to the store")
+  Component(store, "ArticlesStore", "Signal store on the route component", "One decision in flight; row, badge and counts")
+  Component(contracts, "ARTICLES_API, NOTIFIER", "API library", "Contracts and tokens")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminArticlesController", "ASP.NET Core controller", "POST publish, hide, revert")
+  Component(handlers, "PublishArticleCommandHandler, HideArticleCommandHandler, RevertArticleDecisionCommandHandler", "MediatR handlers", "Apply the decision and audit it")
+  Component(entity, "Article", "Domain entity", "Publish, Hide, RevertTo with decided_by")
+  ComponentDb(db, "Keryx database", "EF Core", "Articles and audit entries")
+}
+Container_Boundary(worker, "Keryx Worker") {
+  Component(stage, "StoreStage", "Pipeline stage", "Keeps a staff-decided status")
+}
+Rel(staff, panel, "Presses")
+Rel(panel, page, "publish / hide outputs")
+Rel(page, store, "decide(id, decision)")
+Rel(store, contracts, "Calls")
+Rel(contracts, ctrl, "POST /admin/v1/articles/{id}/…", "JSON/HTTPS")
+Rel(ctrl, handlers, "Sends one command")
+Rel(handlers, entity, "Loads and mutates")
+Rel(handlers, db, "Saves status and AuditEntry", "EF Core")
+Rel(stage, entity, "Leaves status unchanged when decided by staff")
+@enduml

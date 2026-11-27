@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Secure transport and input
+
+Container(spa, "Keryx Admin", "Angular", "Binds text, never HTML; safeHttpUrl for links")
+Container_Boundary(api, "Keryx API") {
+  Component(https, "HTTPS redirection and HSTS", "ASP.NET Core middleware", "Redirect; max-age 365 days")
+  Component(hdr, "SecurityHeadersMiddleware", "Middleware", "nosniff, Referrer-Policy, frame-ancestors")
+  Component(cors, "AdminCorsPolicy and ConsumerCorsPolicy", "CORS policies", "Admin origin only; /v1 GET without credentials")
+  Component(lim, "AdminRequestLimits", "Endpoint convention", "64 KB body limit, 413")
+  Component(nostore, "NoStoreFilter", "Result filter", "Cache-Control: no-store")
+  Component(ctrl, "Admin and consumer controllers", "ASP.NET Core controllers", "Bind request records; send one MediatR request")
+  Component(pd, "ProblemDetailsMapper", "Exception handler", "validation_failed, ..._not_found")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(vb, "ValidationBehavior", "MediatR pipeline behaviour", "Runs every validator first")
+  Component(val, "...Validator", "FluentValidation", "Type, length and range per request")
+  Component(h, "...Handler", "MediatR handler", "Parses path ids; uses LiteralSearch")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Parameterized access")
+
+Rel(spa, https, "Requests", "HTTPS")
+Rel(https, hdr, "Then")
+Rel(hdr, cors, "Then")
+Rel(cors, lim, "Then")
+Rel(lim, ctrl, "Then, after authentication")
+Rel(ctrl, vb, "Sends request")
+Rel(vb, val, "Runs")
+Rel(vb, h, "Calls when valid")
+Rel(h, db, "Queries", "EF Core parameters")
+Rel(ctrl, nostore, "Result passes through")
+Rel(pd, ctrl, "Maps exceptions from")
+@enduml

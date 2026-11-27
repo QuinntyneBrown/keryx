@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Read one event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "EventsController" as controller
+  participant "EtagFilter" as etag
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetEventQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/events/{id}
+auth -> auth : Authenticate Bearer key and apply events:read policy
+auth -> controller : Authenticated client
+controller -> handler : Send GetEventQuery
+handler -> served : Apply L2-016 served rule
+served --> handler : Filtered query
+handler -> ctx : Find by public id (evt_…)
+ctx -> db : One query joined to the linked article's status
+db --> ctx : Row or none
+ctx --> handler : EventDto or null
+alt null: linked article hidden or held, own status not published, malformed id or unknown
+  handler --> mapper : NotFoundException (event_not_found)
+  mapper --> product : 404 problem+json, code event_not_found
+else served
+  handler --> controller : EventDto
+  controller --> etag : 200 result
+  etag -> etag : Apply L2-032 ETag and Cache-Control
+  etag --> product : 200 JSON event
+end
+@enduml

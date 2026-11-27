@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Fetch respectfully and safely
+
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+Container_Boundary(worker, "Keryx Worker (the Keryx API hosts the same Infrastructure components)") {
+  Component(stage, "FetchStage", "Pipeline stage", "Fetches each source of a run")
+  Component(fetcher, "ISourceFetcher", "Application contract", "Fetches one source address")
+  Component(http, "HttpSourceFetcher", "Infrastructure client", "Applies every outbound rule and reads bounded content")
+  Component(robots, "RobotsTxtPolicy", "IRobotsPolicy", "Reads and caches robots.txt for 24 hours")
+  Component(limiter, "HostRateLimiter", "Infrastructure service", "One request per host, spaced, at most 8 hosts")
+  Component(resolver, "SafeAddressResolver", "ISafeAddressResolver", "Resolves a host and refuses non-public addresses")
+  Component(ua, "UserAgentHandler", "DelegatingHandler", "Sets the Keryx User-Agent on every request")
+  Component(reader, "BoundedContentReader", "Infrastructure helper", "Checks content type and stops at 5 MB expanded")
+  Component(parser, "RssFeedParser / HtmlPageParser", "IFeedParser", "Parses without DTDs, keeps 200 newest items")
+  Component(platform, "InstagramClient / EventbriteClient / NewsSearchClient", "Platform API clients", "Official APIs with configured credentials")
+  Component(sanitizer, "TextSanitizer", "Application helper", "Strips markup and control characters")
+}
+Rel(stage, fetcher, "Calls FetchAsync")
+Rel(fetcher, http, "Implemented by")
+Rel(fetcher, platform, "Implemented by, per platform kind")
+Rel(http, robots, "Checks path allowed")
+Rel(http, limiter, "Acquires host slot")
+Rel(http, resolver, "Resolves and checks address")
+Rel(http, ua, "Sends through")
+Rel(http, reader, "Reads response with")
+Rel(ua, sources, "Requests", "HTTPS")
+Rel(platform, sources, "Calls official API", "HTTPS")
+Rel(stage, parser, "Parses bounded content with")
+Rel(parser, sanitizer, "Sanitizes title and summary with")
+@enduml

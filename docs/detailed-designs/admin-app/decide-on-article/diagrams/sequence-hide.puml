@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Hide an article from the API
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "DetailPanel" as panel
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "HideArticleCommandHandler" as handler
+  participant "Article" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> panel : Press "Hide from API" on a published article
+panel -> store : hide output via ArticlesPage
+store -> store : Guard one decision in flight (L2-052)
+store -> client : hide({id})
+client -> controller : POST /admin/v1/articles/{id}/hide with anti-forgery token
+controller -> handler : Send HideArticleCommand
+handler -> db : Load article
+db --> handler : Article published
+handler -> entity : Hide(now)
+entity --> handler : status hidden, decided_by staff (L2-014)
+handler -> db : Save article and AuditEntry (L2-085)
+handler --> controller : ArticleDecisionDto
+controller --> client : 200
+client --> store : Decision
+store -> store : Badge "Hidden"; refresh counts
+store -> notifier : "Hidden from the API", "“<title>” is no longer served. It stays in Keryx." with Undo
+notifier --> actor : Notification
+note over controller, db : The consumer API omits the article from lists and answers 404 for its id on the next request
+@enduml

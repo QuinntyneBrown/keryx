@@ -1,0 +1,30 @@
+@startuml
+title UML sequence behaviour — Cross-origin requests
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Browser on another origin" as other
+participant "Browser on a consuming product's page" as prod
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminCorsPolicy" as admin
+  participant "ConsumerCorsPolicy" as consumer
+end box
+other -> admin : OPTIONS /admin/v1/settings, Origin not the admin origin
+admin --> other : No Access-Control-Allow-Origin header (L2-082)
+other -> other : Browser blocks the request
+prod -> consumer : OPTIONS /v1/articles, method GET
+consumer --> prod : Allow GET, no Allow-Credentials
+prod -> consumer : OPTIONS /v1/articles, method POST
+consumer --> prod : POST not allowed
+@enduml

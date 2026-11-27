@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Review articles
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "ArticlesPage", "Routed component", "Tabs, toolbar, table, pager, deferred detail panel")
+  Component(store, "ArticlesStore", "Signal store on the route component", "URL-synced query, one page of rows, counts, selected article")
+  Component(lib, "Tabs, Tab, Search, Select, Table, Pagination, Badge, Meter, DetailPanel, Alert, Empty, Skeleton", "Components library", "Presentation only")
+  Component(domain, "articleQuery, formatRelativeAge, formatRelevance, articleStatusLabel, safeHttpUrl", "Domain library", "Pure helpers with unit tests")
+  Component(contracts, "ARTICLES_API, NOTIFIER", "API library", "Contracts and tokens")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminArticlesController", "ASP.NET Core controller", "/admin/v1/articles endpoints")
+  Component(validator, "GetAdminArticlesQueryValidator", "FluentValidation", "page_size 1 to 100, else invalid_page")
+  Component(handlers, "GetAdminArticlesQueryHandler, GetArticleStatusCountsQueryHandler, GetAdminArticleQueryHandler", "MediatR handlers", "Paged list, totals by status, one article")
+  ComponentDb(db, "Keryx database", "EF Core", "Articles, provenance, sources")
+}
+Rel(staff, page, "Uses")
+Rel(page, store, "Reads signals, sends intents")
+Rel(page, lib, "Composes")
+Rel(store, domain, "Parses URL and formats with")
+Rel(store, contracts, "Calls")
+Rel(contracts, ctrl, "GET list, counts, one article", "JSON/HTTPS")
+Rel(ctrl, validator, "Validated through the MediatR pipeline")
+Rel(ctrl, handlers, "Sends one query")
+Rel(handlers, db, "Reads with server paging", "EF Core")
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Mute an issue: the mute request fails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+  participant "ScheduleStore" as shell
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminIssuesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "MuteIssueCommandHandler / UnmuteIssueCommandHandler" as handler
+  participant "RunIssue" as issue
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Mute"
+page -> store : muteIssue(issue)
+store -> client : muteIssue(id)
+client -> controller : POST /admin/v1/issues/{id}/mute
+alt issue unknown or malformed id
+  controller --> client : 404 ProblemDetails code issue_not_found
+else server or network failure
+  controller --> client : 5xx or no response
+end
+client --> store : ApiError
+store -> store : Leave the issue unchanged; clear pending (L2-060)
+store -> notifier : Danger toast with "Try again"
+notifier --> actor : Generic message; the code is not shown
+actor -> notifier : Activate "Try again"
+notifier -> store : muteIssue(issue)
+@enduml

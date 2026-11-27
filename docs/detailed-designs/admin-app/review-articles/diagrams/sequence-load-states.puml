@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Articles loading, empty and error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetAdminArticlesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open Articles
+page -> store : Load first page
+store -> store : Start 300 ms skeleton timer (L2-055)
+store -> client : list(page 1) and counts()
+client -> controller : GET /admin/v1/articles?page=1&page_size=10
+controller -> handler : Send GetAdminArticlesQuery
+handler -> db : Read one page
+opt no answer within 300 ms
+  store --> page : showSkeleton
+  page --> actor : Skeleton rows, aria-busy="true", no layout shift
+end
+alt request fails
+  controller --> client : ProblemDetails with trace id, or network error
+  client --> store : Error code and reference
+  store --> page : listStatus error
+  page --> actor : "Articles didn't load", "Reference req_…", "Try again", "Go to overview" (L2-073)
+  page -> page : Disable "Export CSV" (L2-054)
+  actor -> page : Press "Try again"
+  page -> store : retry(); button busy meanwhile
+else total = 0 with no filter
+  db --> handler : No rows
+  handler --> controller : total 0
+  controller --> client : 200 JSON
+  client --> store : Empty page
+  store --> page : listStatus empty
+  page --> actor : "No articles yet", "Run now", "Check sources"; no table, counts or pager
+else rows
+  controller --> client : 200 JSON
+  store --> page : listStatus ready
+  page --> actor : Table and pager
+end
+@enduml

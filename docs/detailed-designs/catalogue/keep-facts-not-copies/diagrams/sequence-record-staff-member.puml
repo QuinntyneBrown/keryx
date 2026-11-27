@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Record a staff member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+participant "Identity provider" as idp
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SignInPage" as page
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AuthController" as auth
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RecordStaffSignInCommandHandler" as handler
+  participant "StaffMember" as staffm
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Sign in
+page -> idp : Authorization code flow with PKCE
+idp --> auth : Callback with code
+auth -> idp : Exchange code for ID token
+idp --> auth : Claims (subject, name, role, e-mail, others)
+auth -> handler : Send RecordStaffSignInCommand(subject, name, role)
+handler -> staffm : Create or update with subject id, name, role only (L2-081)
+handler -> db : Save staff member
+db --> handler : Commit result
+handler --> auth : Staff member
+auth --> page : Session cookie; e-mail and other claims are not stored or logged
+@enduml

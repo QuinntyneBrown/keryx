@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Run collection now: the start request fails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "OverviewPage / RunsPage" as page
+  participant "ScheduleStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "StartRunCommandHandler" as handler
+  participant "RunLease" as lease
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Run now"
+page -> store : runNow()
+store -> client : startRun()
+client -> controller : POST /admin/v1/runs
+controller --> client : 5xx ProblemDetails or network failure
+client --> store : ApiError(code other than run_in_progress)
+store -> store : Clear starting
+store -> notifier : Danger toast: collection could not be started, action "Try again" (L2-047)
+store --> page : button enabled again
+page --> actor : "Run now" enabled; danger toast shown
+actor -> notifier : Activate "Try again"
+notifier -> store : runNow()
+@enduml

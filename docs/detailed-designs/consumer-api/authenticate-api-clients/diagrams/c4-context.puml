@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Authenticate API clients
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(product, keryx, "Reads news with a Bearer API key", "HTTPS/JSON")
+Rel(keryx, otel, "Exports telemetry without keys or credentials", "OTLP")
+@enduml

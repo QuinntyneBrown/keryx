@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Read the OpenAPI document
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "OpenAPI document v1" as doc
+  participant "ErrorCodesOperationTransformer" as trans
+  participant "Consumer controllers" as ctrls
+end box
+product -> doc : GET /openapi/v1.json (authentication TO SUPPLY)
+doc -> ctrls : Enumerate endpoints in the v1 group
+ctrls --> doc : Routes, parameters, response types
+loop each /v1 operation
+  doc -> trans : Transform operation
+  trans -> trans : Apply L2-025 parameter bounds (limit 1..100, q 2..60, range 366 days)
+  trans -> trans : Add ProblemDetails responses with each ProducesErrorCode code
+  trans --> doc : Enriched operation
+end
+doc --> product : 200 OpenAPI JSON describing every /v1 endpoint, parameter, body and error code
+@enduml

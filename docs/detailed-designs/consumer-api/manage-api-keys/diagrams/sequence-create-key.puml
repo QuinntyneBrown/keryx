@@ -1,0 +1,80 @@
+@startuml
+title UML sequence behaviour — Create a key
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "NewApiKeyDialog" as dialog
+  participant "apiKeyFormValidation" as validation
+  participant "ApiStore" as store
+  participant "HttpApiClientsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiClientsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "CreateApiClientCommandHandler" as handler
+  participant "ApiClient" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "ApiKeyGenerator" as gen
+  participant "ApiKeyHasher" as hasher
+  database "Keryx database" as db
+end box
+actor -> page : Press "New API key"
+page -> dialog : Open CDK Dialog (L2-068)
+actor -> dialog : Enter product name, choose scopes, press "Create key"
+dialog -> validation : validate(name, scopes)
+alt no name or no scope
+  validation --> dialog : Field and group errors
+  dialog --> actor : Show errors, nothing sent, focus on name (L2-068)
+else valid entries
+  validation --> dialog : Valid
+  dialog -> dialog : Busy "Creating…"; dismissal ignored while in flight
+  dialog -> client : create({product_name, scopes})
+  client -> controller : POST /admin/v1/api-clients with anti-forgery token
+  controller -> controller : StaffPolicy and anti-forgery check (L2-040)
+  controller -> handler : Send CreateApiClientCommand (validator first)
+  alt invalid name or scope
+    handler --> controller : 400 validation_failed with errors; no key created (L2-035)
+  else name used by an active client
+    handler -> db : Find active client with this product name
+    db --> handler : Found
+    handler --> controller : ClientNameTakenException
+    controller --> client : 409 client_name_taken
+    client --> dialog : Error code client_name_taken
+    dialog --> actor : Name field says a key with that name already exists
+  else name free
+    handler -> gen : Generate()
+    gen --> handler : kx_live_ (kx_test_ outside production) + random characters
+    handler -> hasher : Hash(key)
+    hasher --> handler : SHA-256 hash
+    handler -> entity : Create(name, scopes, first 12 characters, hash, now)
+    handler -> db : Save client and audit entry in one unit of work (L2-084)
+    db --> handler : Committed
+    handler --> controller : CreatedApiClientResult (client, full key)
+    controller --> client : 201 {client, key}
+    client --> dialog : CreatedApiClientDto
+    dialog -> page : Close with result
+    page -> store : addCreated(result): revealedKey set; client first with "New" badge
+    page --> actor : Callout "Key created for “<product>”. Copy it now — it won’t be shown again."
+  end
+  alt request fails (network or 5xx)
+    client --> dialog : Error with trace id
+    dialog --> actor : Danger alert "Keryx couldn’t create the key", entries kept, reference
+  end
+end
+@enduml

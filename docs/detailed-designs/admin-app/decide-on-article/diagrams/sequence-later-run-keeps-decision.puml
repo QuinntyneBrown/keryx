@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — A later run keeps a staff decision
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Sources" as source
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as scheduler
+  participant "StoreStage" as stage
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Article" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+scheduler -> stage : Run collection (RunCollectionCommand)
+source --> stage : Item art_18429 again, any score
+stage -> db : Find article by stable identity (L2-009)
+db --> stage : Article published, decided_by staff
+stage -> entity : Apply new score and classification
+alt decided_by is staff
+  entity --> stage : Status unchanged (L2-014)
+else decided by rule
+  entity --> stage : Status from thresholds (L2-013)
+end
+stage -> db : Save in one unit of work per source
+@enduml

@@ -1,0 +1,171 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Manage settings
+
+package "frontend/projects/api" {
+  interface SettingsApi {
+    +getSettings(): Observable<SettingsDto>
+    +saveSettings(settings: SettingsDto): Observable<SettingsDto>
+  }
+  class SettingsDto {
+    +interval_hours: 1 | 3 | 6 | 12 | 24
+    +timeout_seconds: number
+    +topics: string[]
+    +exclusions: string[]
+    +publish_threshold: number
+    +focus_areas: string[]
+    +include_ontario_wide: boolean
+    +include_national: boolean
+    +merge_duplicates: boolean
+    +retention_months: number
+    +alert_email: string
+    +alert_failure_streak: number
+    +alert_on_run_failure: boolean
+    +daily_digest: boolean
+    +version: string
+  }
+}
+
+package "frontend/projects/admin" {
+  class SettingsPage {
+    -store: SettingsStore
+    -dialog: Dialog
+    +openAdd(list: KeywordList): void
+    +removeChip(list: KeywordList, value: string): void
+    -onBeforeUnload(event: BeforeUnloadEvent): void
+  }
+  class SettingsStore {
+    +saved: Signal<SettingsDto | null>
+    +draft: WritableSignal<SettingsDto | null>
+    +dirty: Signal<boolean>
+    +errors: Signal<FieldError[]>
+    +status: Signal<PageStatus>
+    +saveState: Signal<SaveState>
+    +newValues: Signal<Set<string>>
+    +load(): void
+    +update(patch: Partial<SettingsDto>): void
+    +discard(): void
+    +save(): void
+  }
+  class AddKeywordDialog {
+    +data: AddKeywordData
+    +value: WritableSignal<string>
+    +error: Signal<string | null>
+    +submit(): void
+  }
+  class AddKeywordData {
+    +list: KeywordList
+    +existing: string[]
+  }
+  enum KeywordList {
+    topics
+    exclusions
+    focus_areas
+  }
+  enum SaveState {
+    idle
+    invalid
+    saving
+    saved
+    failed
+    conflict
+  }
+  class unsavedChangesGuard <<CanDeactivateFn>>
+}
+
+package "frontend/projects/domain" {
+  class SettingsRules <<functions>> {
+    +settingsValidation(draft): FieldError[]
+    +scheduleLine(intervalHours, now): string
+    +thresholdHelp(threshold): string
+    +isDuplicateKeyword(value, existing): boolean
+    +settingsEqual(a, b): boolean
+  }
+  class FieldError {
+    +field: string
+    +message: string
+  }
+}
+
+package "backend/src" {
+  class AdminSettingsController {
+    +Get(): Task<IActionResult>
+    +Put(command: UpdateSettingsCommand): Task<IActionResult>
+  }
+  class GetSettingsQueryHandler {
+    +Handle(query: GetSettingsQuery): Task<SettingsDto>
+  }
+  class UpdateSettingsCommand {
+    +IntervalHours: int
+    +TimeoutSeconds: int
+    +Topics: string[]
+    +Exclusions: string[]
+    +PublishThreshold: decimal
+    +FocusAreas: string[]
+    +RetentionMonths: int
+    +AlertEmail: string
+    +AlertFailureStreak: int
+    +Version: string
+  }
+  class UpdateSettingsCommandValidator
+  class UpdateSettingsCommandHandler {
+    +Handle(command: UpdateSettingsCommand): Task<SettingsDto>
+  }
+  class Settings {
+    +IntervalHours: int
+    +TimeoutSeconds: int
+    +PublishThreshold: decimal
+    +RetentionMonths: int
+    +Version: byte[]
+    +Apply(values): IReadOnlyList<string>
+  }
+  class Region {
+    +Slug: string
+    +Name: string
+    +TimeZone: string
+  }
+  class AuditEntry {
+    +SubjectId: string
+    +Action: string
+    +TargetId: string
+    +At: DateTimeOffset
+  }
+  interface IAppDbContext
+  class SettingsChangedException
+  class KeryxException {
+    +Code: string
+  }
+}
+
+SettingsPage *-- SettingsStore : provides
+SettingsPage ..> AddKeywordDialog : opens
+AddKeywordDialog --> AddKeywordData
+AddKeywordData --> KeywordList
+SettingsStore --> SaveState
+SettingsStore ..> SettingsApi : SETTINGS_API
+SettingsStore ..> SettingsRules : validates
+AddKeywordDialog ..> SettingsRules : duplicates
+unsavedChangesGuard ..> SettingsStore : reads dirty
+SettingsApi ..> SettingsDto
+SettingsRules ..> FieldError
+AdminSettingsController ..> UpdateSettingsCommand : sends
+AdminSettingsController ..> GetSettingsQueryHandler : via MediatR
+UpdateSettingsCommandValidator ..> UpdateSettingsCommand : validates
+UpdateSettingsCommandHandler ..> UpdateSettingsCommand : handles
+UpdateSettingsCommandHandler --> Settings : mutates
+UpdateSettingsCommandHandler ..> Region : adds for new focus areas
+UpdateSettingsCommandHandler ..> AuditEntry : records changed field names
+UpdateSettingsCommandHandler --> IAppDbContext
+GetSettingsQueryHandler --> IAppDbContext
+KeryxException <|-- SettingsChangedException
+UpdateSettingsCommandHandler ..> SettingsChangedException : throws 409 settings_changed
+@enduml

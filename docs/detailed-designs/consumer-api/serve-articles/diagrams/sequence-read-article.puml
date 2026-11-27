@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Read one article
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "ArticlesController" as controller
+  participant "EtagFilter" as etag
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetArticleQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/articles/{id}
+auth -> auth : Authenticate Bearer key and apply articles:read policy
+auth -> controller : Authenticated client
+controller -> handler : Send GetArticleQuery
+handler -> served : Apply L2-027 served rule (published, titled)
+served --> handler : Filtered query
+handler -> ctx : Find by public id with tags, linked event id and provenance
+ctx -> db : One query, projected columns
+db --> ctx : Row or none
+ctx --> handler : ArticleDetailDto or null
+alt null: hidden, needs review, untitled, malformed id or does not exist
+  handler --> mapper : NotFoundException (article_not_found)
+  mapper --> product : 404 problem+json, code article_not_found, identical in every case
+else found
+  handler --> controller : ArticleDetailDto (url is absolute http or https)
+  controller --> etag : 200 result
+  etag -> etag : Apply L2-032 ETag and Cache-Control
+  etag --> product : 200 JSON article with tags, collected_at, event id, sources
+end
+@enduml

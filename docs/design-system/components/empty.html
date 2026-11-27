@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty state and system page — Keryx design system</title>
+<meta name="description" content="What a screen shows when it has nothing to list, nothing matched, something failed, or the person cannot be here at all.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Empty state and system page</h1>
+      <p class="ds-lead">What a screen shows when it has nothing to list, nothing matched, something failed, or the person cannot be here at all.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Composite</span><span class="ds-pill">Block: <code>.empty</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>An empty state takes the place of the content that is missing and says three things: what is (not) here, why, and what to do next. The same block, in a centred card on its own, is the whole page for sign in, access denied and not found.</p>
+      <ul>
+        <li><b>First run</b>: nothing exists yet; the action creates the first thing.</li>
+        <li><b>No results</b> (compact): filters matched nothing; the action clears them.</li>
+        <li><b>Error</b> (<code>.empty--error</code>): this area failed to load; Try again, plus a reference id.</li>
+        <li><b>Success</b> (<code>.empty--success</code>): nothing to do is good news.</li>
+        <li><b>System page</b>: the card alone in a centred page body, its title the page's <code>h1</code>; it may open with the <a href="brand.html">lockup</a> instead of an icon and hold an <a href="alert.html">alert</a>.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="empty"><div class="ds-w"><div class="empty empty--card"><span class="empty__icon" data-part="1"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span><h3 class="empty__title" data-part="2">Nothing has been collected yet</h3><p class="empty__text" data-part="3">Keryx checks every source on a schedule and lists what it finds here. Add the first source to get started.</p><div class="empty__actions" data-part="4"><button class="btn btn--primary" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a source</button><button class="btn" type="button">Review the schedule</button></div></div></div><span class="ds-callout" style="left: 49%; top: 16.7%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 32.4%; top: 36.6%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 19.5%; top: 47.1%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 26.8%; top: 69.1%;" aria-hidden="true">4</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Icon disc</b><small><code>--size-tile-lg</code> (44 px), subtle; danger or success tint by modifier.</small></div></li>
+          <li><div><b>Title</b><small><code>--text-h3</code>; a plain statement.</small></div></li>
+          <li><div><b>Text</b><small>One or two sentences, muted, at most <code>--layout-measure-narrow</code> (44ch) wide.</small></div></li>
+          <li><div><b>Actions</b><small>One primary and at most one default button, centred.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="empty empty--card"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span><h3 class="empty__title">Nothing has been collected yet</h3><p class="empty__text">Keryx checks every source on a schedule — every 6 hours, Toronto time — and lists what it finds here. Add the first source to get started.</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a source</button><button class="btn" type="button">Review the schedule</button></div></div></div></div>
+        <div class="ds-example__caption"><span>First run</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-w"&gt;
+&lt;div class="empty empty--card"&gt;
+&lt;span class="empty__icon"&gt;
+&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+&lt;h3 class="empty__title"&gt;Nothing has been collected yet&lt;/h3&gt;
+&lt;p class="empty__text"&gt;Keryx checks every source on a schedule — every 6 hours, Toronto time — and lists what it finds here. Add the first source to get started.&lt;/p&gt;
+&lt;div class="empty__actions"&gt;
+&lt;button class="btn btn--primary" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Add a source&lt;/button&gt;
+&lt;button class="btn" type="button"&gt;Review the schedule&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>No results and success (compact)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="stack ds-w"><div class="empty empty--card empty--compact"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><h3 class="empty__title">No articles match “pickleball”</h3><p class="empty__text">Try a different word, or clear the search to see all 18,432 articles.</p><div class="empty__actions"><button class="btn" type="button">Clear search</button></div></div><div class="empty empty--card empty--compact empty--success"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span><h3 class="empty__title">Nothing needs attention</h3><p class="empty__text">All 64 sources answered on the last run.</p></div></div></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack ds-w"&gt;
+&lt;div class="empty empty--card empty--compact"&gt;
+&lt;span class="empty__icon"&gt;
+&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+&lt;h3 class="empty__title"&gt;No articles match “pickleball”&lt;/h3&gt;
+&lt;p class="empty__text"&gt;Try a different word, or clear the search to see all 18,432 articles.&lt;/p&gt;
+&lt;div class="empty__actions"&gt;
+&lt;button class="btn" type="button"&gt;Clear search&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="empty empty--card empty--compact empty--success"&gt;
+&lt;span class="empty__icon"&gt;
+&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+&lt;h3 class="empty__title"&gt;Nothing needs attention&lt;/h3&gt;
+&lt;p class="empty__text"&gt;All 64 sources answered on the last run.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Error</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="empty empty--card empty--error"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span><h3 class="empty__title">The overview didn’t load</h3><p class="empty__text">Keryx couldn’t reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx.</p><p class="empty__ref">Reference req_8f2c41d0</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Try again</button><button class="btn" type="button">Go to runs</button></div></div></div></div>
+        <div class="ds-example__caption"><span>With a reference id</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-w"&gt;
+&lt;div class="empty empty--card empty--error"&gt;
+&lt;span class="empty__icon"&gt;
+&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+&lt;h3 class="empty__title"&gt;The overview didn’t load&lt;/h3&gt;
+&lt;p class="empty__text"&gt;Keryx couldn’t reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx.&lt;/p&gt;
+&lt;p class="empty__ref"&gt;Reference req_8f2c41d0&lt;/p&gt;
+&lt;div class="empty__actions"&gt;
+&lt;button class="btn btn--primary" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Try again&lt;/button&gt;
+&lt;button class="btn" type="button"&gt;Go to runs&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>System page</h3>
+      <p>On sign in, access denied and not found the card is the page. It sits in <code>.page-body--centered</code> (capped at 896 px, 48 px from the top); sign in and access denied use the bare <a href="app.html">app shell</a>, not found keeps the sidebar.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="empty empty--card"><span class="brand" role="img" aria-label="Keryx"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></span><h3 class="empty__title">Sign in to Keryx</h3><p class="empty__text">The admin is for Keryx staff. You sign in with your organisation account; Keryx never sees or stores your password.</p><div class="alert alert--neutral"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="alert__body"><p class="alert__title">Your session ended</p>You were signed out after 60 minutes without activity. Sign in again to go back to Articles.</div></div><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>Sign in again</button></div></div></div></div>
+        <div class="ds-example__caption"><span>Session expired: lockup, title, text, a start-aligned alert, one action</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-w"&gt;
+&lt;div class="empty empty--card"&gt;
+&lt;span class="brand" role="img" aria-label="Keryx"&gt;
+&lt;svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"&gt;…&lt;/svg&gt;
+&lt;span class="brand__word" aria-hidden="true"&gt;keryx&lt;/span&gt;&lt;/span&gt;
+&lt;h3 class="empty__title"&gt;Sign in to Keryx&lt;/h3&gt;
+&lt;p class="empty__text"&gt;The admin is for Keryx staff. You sign in with your organisation account; Keryx never sees or stores your password.&lt;/p&gt;
+&lt;div class="alert alert--neutral"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="alert__body"&gt;
+&lt;p class="alert__title"&gt;Your session ended&lt;/p&gt;You were signed out after 60 minutes without activity. Sign in again to go back to Articles.&lt;/div&gt;&lt;/div&gt;
+&lt;div class="empty__actions"&gt;
+&lt;button class="btn btn--primary" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Sign in again&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Two paddings.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><div class="cluster"><span class="badge">Default · --space-12 block padding</span><span class="badge">Compact · --space-8</span></div></div>
+        <div class="ds-example__caption"><span><code>.empty--compact</code> is for a table body, a rail or a list.</span></div>
+      </div>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The empty state is itself a state of its screen. Which one to use:</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Situation</th><th scope="col">Variant</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Nothing exists yet</th><td>First run, in a card</td><td>Create the first thing</td></tr>
+          <tr><th scope="row">Filters or search matched nothing</th><td>Compact; filters stay above it</td><td>Clear search / Show all</td></tr>
+          <tr><th scope="row">This area failed to load</th><td>Error, with a reference</td><td>Try again; a way elsewhere</td></tr>
+          <tr><th scope="row">Nothing to do</th><td>Success, compact</td><td>None</td></tr>
+          <tr><th scope="row">Not signed in</th><td>System page, bare shell</td><td>Sign in</td></tr>
+          <tr><th scope="row">Signed in but not allowed</th><td>System page, bare shell</td><td>Sign out / go back</td></tr>
+          <tr><th scope="row">No such page</th><td>System page, full shell</td><td>Go to overview</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="empty empty--card empty--compact"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><h3 class="empty__title">No articles match “pickleball”</h3><p class="empty__text">Try a different word, or clear the search to see all 18,432 articles.</p><div class="empty__actions"><button class="btn" type="button">Clear search</button></div></div></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="empty empty--card empty--compact"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><h3 class="empty__title">No articles match “pickleball”</h3><p class="empty__text">Try a different word, or clear the search to see all 18,432 articles.</p><div class="empty__actions"><button class="btn" type="button">Clear search</button></div></div></div></div></div></div>
+      <ul>
+        <li>While signing in, the action is a busy button and the text says where the person is being sent.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Centred at every width; side padding is 20 px, so text wraps comfortably at 360 px.</li>
+        <li>Buttons wrap and stay centred.</li>
+        <li>The system-page card is as wide as its column up to 896 px.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The disc uses the subtle fill, or the danger or success background with its icon colour. With <code>.empty--card</code> it has the card's surface and edge.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A heading at the right level (<code>h2</code> under a page header; the page's <code>h1</code> on a system page), a paragraph and buttons. An error that replaces content is announced through a <code>role="alert"</code> on the container; a no-results state through the table's polite status.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Runs the action.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>When an error state replaces content after an action, focus moves to its heading. On a system page focus starts at the top; the primary action is the first tab stop after the skip link.</p>
+      <h3>Labelling</h3>
+      <p>The icon is decorative; the title says it all. The reference id is selectable text.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Text</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Reference</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Icon on disc</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="3"></span></div><div class="ds-pair"><span>Error icon on disc</span><span class="ds-pair__ratio" data-contrast="--color-danger-icon|--color-danger-bg" data-min="3"></span></div><div class="ds-pair"><span>Success icon on disc</span><span class="ds-pair__ratio" data-contrast="--color-success-icon|--color-success-bg" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>Buttons are 36 px, 44 px on touch.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title: what is true, plainly. “Nothing has been collected yet”, “No articles match “pickleball””, “The overview didn’t load”.</li>
+        <li>Text: why, then what to do. An error also says what still works: “Collection keeps running on schedule; only this screen is affected.”</li>
+        <li>The primary action is the way forward; the second, if any, is a way elsewhere.</li>
+        <li>A reference id for every server failure: “Reference req_8f2c41d0”.</li>
+        <li>System pages never reveal whether a page exists to someone who may not see it.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-w"><div class="empty empty--card empty--compact"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><h3 class="empty__title">No articles match “pickleball”</h3><p class="empty__text">Try a different word, or clear the search to see all 18,432 articles.</p><div class="empty__actions"><button class="btn" type="button">Clear search</button></div></div></div></div><figcaption>Repeat the query and offer to clear it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-w"><div class="empty empty--card empty--compact"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><h3 class="empty__title">No results</h3><p class="empty__text"></p></div></div></div><figcaption>“No results” with no way out leaves the person to work out which filter to undo.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-w"><div class="empty empty--card empty--compact empty--error"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span><h3 class="empty__title">The overview didn’t load</h3><p class="empty__text">Collection keeps running; only this screen is affected.</p><p class="empty__ref">Reference req_8f2c41d0</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Try again</button></div></div></div></div><figcaption>Say what still works and give a reference.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-w"><div class="empty empty--card empty--compact empty--error"><span class="empty__icon"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span><h3 class="empty__title">Something went wrong</h3><p class="empty__text">Please try again later.</p></div></div></div><figcaption>No cause, no scope, no reference, no action.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="ds-w">Sign in: bare shell, one centred card.</p></div><figcaption>A system page is one card and one action.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="ds-w">Sign in: the full sidebar beside a login card.</p></div><figcaption>Navigation that only leads back to sign-in is noise.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Disc</td><td><code>--size-tile-lg</code> <code>--color-bg-subtle</code> <code>--color-fg-muted</code></td><td colspan="2"><span data-token="--size-tile-lg"></span> · <span data-token="--color-bg-subtle"></span> · <span data-token="--color-fg-muted"></span></td></tr>
+          <tr><td>Error / success disc</td><td><code>--color-danger-bg</code> <code>--color-danger-icon</code> <code>--color-success-bg</code> <code>--color-success-icon</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-icon" data-swatch></i><span data-token="--color-danger-icon"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-success-bg" data-swatch></i><span data-token="--color-success-bg"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-success-icon" data-swatch></i><span data-token="--color-success-icon"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-icon" data-swatch></i><span data-token="--color-danger-icon"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-success-bg" data-swatch></i><span data-token="--color-success-bg"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-success-icon" data-swatch></i><span data-token="--color-success-icon"></span></span></td></tr>
+          <tr><td>Title</td><td><code>--text-h3</code></td><td colspan="2"><span data-token="--text-h3"></span></td></tr>
+          <tr><td>Text</td><td><code>--color-fg-muted</code> <code>--layout-measure-narrow</code></td><td colspan="2"><span data-token="--color-fg-muted"></span> · <span data-token="--layout-measure-narrow"></span></td></tr>
+          <tr><td>Reference</td><td><code>--text-code</code> <code>--color-fg-subtle</code></td><td colspan="2"><span data-token="--text-code"></span> · <span data-token="--color-fg-subtle"></span></td></tr>
+          <tr><td>Padding default / compact</td><td><code>--space-12</code> <code>--space-8</code></td><td colspan="2"><span data-token="--space-12"></span> · <span data-token="--space-8"></span></td></tr>
+          <tr><td>Card</td><td><code>--color-bg-surface</code> <code>--color-border-default</code> <code>--radius-lg</code></td><td colspan="2"><span data-token="--color-bg-surface"></span> · <span data-token="--color-border-default"></span> · <span data-token="--radius-lg"></span></td></tr>
+          <tr><td>System page width / top</td><td><code>--layout-form-max</code> <code>--space-12</code></td><td colspan="2"><span data-token="--layout-form-max"></span> · <span data-token="--space-12"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.empty</code>. The Angular component lives in <code>frontend/projects/components/src/empty/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="app app--bare"&gt;
+&lt;main id="main" class="app__main"&gt;
+&lt;div class="page-body page-body--centered"&gt;
+&lt;div class="empty empty--card"&gt;
+&lt;span class="brand"&gt;…&lt;/span&gt;
+&lt;h1 class="empty__title"&gt;Sign in to Keryx&lt;/h1&gt;
+&lt;p class="empty__text"&gt;The admin is for Keryx staff.&lt;/p&gt;
+&lt;div class="empty__actions"&gt;
+&lt;button class="btn btn--primary" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Sign in&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/main&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.empty</code></td><td>Centred column.</td></tr>
+        <tr><td><code>.empty--card</code></td><td>Card surface and edge.</td></tr>
+        <tr><td><code>.empty--compact</code></td><td>Less padding.</td></tr>
+        <tr><td><code>.empty--error</code> / <code>--success</code></td><td>Tinted disc.</td></tr>
+        <tr><td><code>.empty__icon</code> / <code>__title</code> / <code>__text</code> / <code>__ref</code> / <code>__actions</code></td><td>Its parts.</td></tr>
+        <tr><td><code>.page-body--centered</code> + <code>.app--bare</code></td><td>The system-page frame.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/overview/empty.html">pages/overview/empty</a> (first run)</li>
+        <li><a href="../../mocks/pages/overview/error.html">pages/overview/error</a> (error with a reference)</li>
+        <li><a href="../../mocks/pages/articles/no-results.html">pages/articles/no-results</a> (compact no results)</li>
+        <li><a href="../../mocks/pages/articles/empty.html">pages/articles/empty</a> (no articles yet)</li>
+        <li><a href="../../mocks/pages/overview/healthy.html">pages/overview/healthy</a> (nothing needs attention)</li>
+        <li><a href="../../mocks/pages/sources/empty.html">pages/sources/empty</a> (no sources)</li>
+        <li><a href="../../mocks/pages/runs/empty.html">pages/runs/empty</a> (no runs)</li>
+        <li><a href="../../mocks/pages/api/empty.html">pages/api/empty</a> (no keys)</li>
+        <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> (system page: sign in)</li>
+        <li><a href="../../mocks/pages/sign-in/busy.html">pages/sign-in/busy</a> (signing in)</li>
+        <li><a href="../../mocks/pages/sign-in/error.html">pages/sign-in/error</a> (sign-in failed, danger alert)</li>
+        <li><a href="../../mocks/pages/sign-in/signed-out.html">pages/sign-in/signed-out</a> (signed out, success alert)</li>
+        <li><a href="../../mocks/pages/sign-in/session-expired.html">pages/sign-in/session-expired</a> (session ended, neutral alert)</li>
+        <li><a href="../../mocks/pages/forbidden/default.html">pages/forbidden/default</a> (access denied)</li>
+        <li><a href="../../mocks/pages/not-found/default.html">pages/not-found/default</a> (not found, full shell)</li>
+      </ul>
+      <p>Drift fixed during extraction: the icon disc and text width were raw values (2.75rem, 44ch) and are now <code>--size-tile-lg</code> and <code>--layout-measure-narrow</code>. On the system pages the title is an <code>h1</code> with the same class; the block does not depend on the heading level.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

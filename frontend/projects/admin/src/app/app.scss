@@ -1,0 +1,4 @@
+// The root draws nothing: every screen arrives through the router outlet.
+:host {
+  display: contents;
+}

@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — Open the API screen
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "ApiStore" as store
+  participant "HttpApiUsageApi" as usageApi
+  participant "HttpApiClientsApi" as clientsApi
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiUsageController" as usageCtrl
+  participant "AdminApiClientsController" as clientsCtrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetApiUsageQueryHandler" as usageQ
+  participant "GetApiClientsQueryHandler" as clientsQ
+  participant "ApiUsageSummary" as summary
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open /api (loadComponent)
+page -> store : load()
+store --> page : After 300 ms without data: skeletons, aria-busy (L2-073)
+par usage
+  store -> usageApi : get()
+  usageApi -> usageCtrl : GET /admin/v1/api-usage
+  usageCtrl -> usageQ : Send GetApiUsageQuery (StaffPolicy passed)
+  usageQ -> db : Sum usage hours of the last 24 hours, all clients
+  db --> usageQ : Requests, errors, histogram counts
+  usageQ -> summary : ErrorRate, P95LatencyMs
+  summary --> usageQ : Numbers
+  usageQ --> usageCtrl : ApiUsageDto
+  usageCtrl --> usageApi : 200 base_url, requests_24h, p95_latency_ms, error_rate
+  usageApi --> store : Usage
+else clients
+  store -> clientsApi : list(page 1)
+  clientsApi -> clientsCtrl : GET /admin/v1/api-clients?page=1&page_size=50
+  clientsCtrl -> clientsQ : Send GetApiClientsQuery (validator: page_size 1-50)
+  clientsQ -> db : One page of clients with their last-24-hour sums
+  db --> clientsQ : Rows
+  clientsQ --> clientsCtrl : items, total, page, page_size
+  clientsCtrl --> clientsApi : 200
+  clientsApi --> store : Page of clients
+end
+alt both succeed and clients exist
+  page --> actor : Tiles, Consumers & keys table, Endpoints (L2-067)
+else both succeed and no client exists
+  page --> actor : "No products are connected yet", "Create the first key"; Endpoints still shown
+else usage fails, clients succeed
+  page --> actor : Tiles show an inline error with "Try again"; table usable
+else both fail
+  page --> actor : "API keys and usage didn't load", Reference req_..., "Try again", "Go to overview"
+end
+@enduml

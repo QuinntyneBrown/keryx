@@ -1,0 +1,84 @@
+@startuml
+title UML sequence behaviour — Save settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsStore" as store
+  participant "domain: settingsValidation" as rules
+  participant "HttpSettingsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "UpdateSettingsCommandValidator" as val
+  participant "UpdateSettingsCommandHandler" as updh
+  participant "Settings" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Press "Save changes"
+page -> store : save()
+store -> rules : settingsValidation(draft)
+alt draft invalid (timeout 0, e-mail "ops@keryx")
+  rules --> store : 2 field errors
+  store --> page : saveState = invalid, errors
+  page --> actor : Summary "Fix 2 fields to save your changes", focus on summary, aria-invalid, nothing sent (L2-071 criterion 3)
+else draft valid
+  rules --> store : no errors
+  store --> page : saveState = saving
+  page --> actor : Button busy "Saving…", controls disabled, aria-busy (L2-071 criterion 4)
+  store -> client : saveSettings(draft with loaded version)
+  client -> controller : PUT /admin/v1/settings (one request)
+  controller -> val : Validate ranges of L2-070 criterion 5
+  alt a value out of range
+    val --> controller : Failures
+    controller --> client : 400 validation_failed with an entry per field
+    client --> store : ApiError(validation_failed, fields)
+    store --> page : saveState = invalid, field errors; draft kept
+  else ranges valid
+    controller -> updh : Send UpdateSettingsCommand
+    updh -> db : Read settings and version
+    db --> updh : Settings
+    alt version differs
+      updh --> controller : SettingsChangedException
+      controller --> client : 409 settings_changed
+      client --> store : ApiError(settings_changed)
+      store --> page : saveState = conflict; draft kept
+      page --> actor : Told to reload, entries still on screen (L2-071 criterion 7)
+    else version matches
+      updh -> entity : Apply values
+      entity --> updh : Changed field names
+      updh -> db : Add Region per new focus area (L2-018); add AuditEntry of field names (L2-085)
+      updh -> db : Save in one unit of work
+      db --> updh : Committed, new version
+      updh --> controller : SettingsDto
+      controller --> client : 200 SettingsDto
+      client --> store : SettingsDto
+      store -> store : saved = draft = response; start 8 s confirmation timer
+      store --> page : saveState = saved
+      page --> actor : "Saved at 9:46 AM. Keryx now collects every 3 hours — the next run is at 12:00 PM."
+    end
+  else request fails
+    controller --> client : 5xx or network failure
+    client --> store : ApiError(code, trace id)
+    store --> page : saveState = failed; draft and bar kept
+    page --> actor : Alert that settings were not saved, with a reference (L2-071 criterion 5)
+  end
+end
+@enduml

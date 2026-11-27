@@ -1,0 +1,40 @@
+<aside class="sidebar">
+  <div class="sidebar__head">
+    <ng-content select="[slot=brand]" />
+    <span class="sidebar__tag">{{ tag() }}</span>
+  </div>
+  @if (navigation()) {
+    <nav class="sidebar__nav" aria-label="Primary"><ng-content /></nav>
+  }
+  @if (hasFooter()) {
+    <div class="sidebar__foot">
+      @if (hasCollection()) {
+        <p class="sidebar__caption">Next collection</p>
+        <p class="sidebar__value num">
+          @if (collecting()) {
+            Collecting now…
+          } @else {
+            {{ nextCollection() }}
+            @if (countdown(); as countdown) {
+              <span>· {{ countdown }}</span>
+            }
+          }
+        </p>
+        @if (schedule(); as schedule) {
+          <p class="sidebar__caption">{{ schedule }}</p>
+        }
+      }
+      @if (userName(); as userName) {
+        <div class="sidebar__user">
+          <ng-content select="[slot=avatar]" />
+          <div>
+            <p class="sidebar__user-name truncate">{{ userName }}</p>
+            @if (userRole(); as userRole) {
+              <p class="sidebar__caption truncate">{{ userRole }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</aside>

@@ -1,0 +1,131 @@
+// The reset: the base section of docs/design-system/assets/components.css. Every value is a
+// token read by its role (tokens/tokens.css); no component's look lives here.
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  background: var(--color-bg-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+pre {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+h1 {
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+}
+
+h2 {
+  font: var(--text-h2);
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+}
+
+h3 {
+  font: var(--text-h3);
+}
+
+h4 {
+  font: var(--text-h4);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-emphasis);
+  text-underline-offset: 0.25em;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-family-mono);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--color-accent-subtle-hover);
+  color: var(--color-fg-default);
+}
+
+// Focus is always visible from the keyboard (L2-091). A component on a ground of its own sets
+// --color-focus-ring for what it holds; none draws its own ring.
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+// Reduced motion (L2-093): tokens.css zeroes the duration tokens; this stops what does not read
+// one, such as a looping indicator or smooth scrolling.
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

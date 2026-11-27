@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dialog — Keryx design system</title>
+<meta name="description" content="A modal surface for one short task or one decision: add a source, create a key, confirm a removal.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Containers and overlays</p>
+      <h1>Dialog</h1>
+      <p class="ds-lead">A modal surface for one short task or one decision: add a source, create a key, confirm a removal.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">APG modal dialog (CDK Dialog)</span><span class="ds-pill">Block: <code>.dialog</code>, <code>.backdrop</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every edit in Keryx opens a dialog; there are no inline forms and no hand-rolled modals. A dialog asks for one thing, blocks the page behind it, and closes on Cancel, Close, Escape or success. Reading an article's details is not a task, so that uses the <a href="detail-panel.html">detail panel</a>.</p>
+      <ul>
+        <li><b>Form</b> (512 px): fields, Cancel as a ghost button, one primary action.</li>
+        <li><b>Confirmation</b> (416 px, <code>.dialog__panel--sm</code>): what will happen, Cancel as a default button with initial focus, and a danger-solid confirm.</li>
+        <li>Below 640 px every dialog is a bottom sheet.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="dialog"><div class="ds-frame" style="--frame-height: 24rem"><div class="backdrop" data-part="1"></div><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="an-title" aria-describedby="an-desc"><div class="dialog__panel" data-part="2"><div class="dialog__head" data-part="3"><div><h3 class="dialog__title" id="an-title">Add a topic</h3><p class="dialog__description" id="an-desc">Keryx scores items higher when they mention it.</p></div><button class="icon-btn" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="dialog__body" data-part="4"><div class="field"><label class="field__label" for="an-topic">Topic</label><input class="input" type="text" id="an-topic" value="" aria-describedby="an-topic-help"><p class="field__help" id="an-topic-help">One or two words, like “pickleball” or “youth ministry”.</p></div></div><div class="dialog__foot" data-part="5"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button">Add topic</button></div></div></div></div><span class="ds-callout" style="left: 2.7%; top: -0.5%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 90.4%; top: 84.5%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 9%; top: 15.5%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 9%; top: 32.4%;" aria-hidden="true">4</span><span class="ds-callout" style="left: 9%; top: 65.4%;" aria-hidden="true">5</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Backdrop</b><small><code>--color-bg-backdrop</code> over the whole page, which is <code>inert</code>.</small></div></li>
+          <li><div><b>Panel</b><small><code>--color-bg-surface-raised</code>, <code>--radius-xl</code>, <code>--shadow-4</code>, at most 92 % of the viewport height.</small></div></li>
+          <li><div><b>Head</b><small>Title (<code>--text-title</code>), one-line description, Close.</small></div></li>
+          <li><div><b>Body</b><small>Fields or text, <code>--space-4</code> apart; the only part that scrolls.</small></div></li>
+          <li><div><b>Foot</b><small>Right-aligned actions above a hairline; the primary action last.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--flush"><div class="ds-frame" style="--frame-height: 24rem"><div class="backdrop"></div><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v1-title" aria-describedby="v1-desc"><div class="dialog__panel"><div class="dialog__head"><div><h3 class="dialog__title" id="v1-title">Add a topic</h3><p class="dialog__description" id="v1-desc">Keryx scores items higher when they mention it.</p></div><button class="icon-btn" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="dialog__body"><div class="field"><label class="field__label" for="v1-topic">Topic</label><input class="input" type="text" id="v1-topic" value="" aria-describedby="v1-topic-help"><p class="field__help" id="v1-topic-help">One or two words, like “pickleball” or “youth ministry”.</p></div></div><div class="dialog__foot"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button">Add topic</button></div></div></div></div></div>
+        <div class="ds-example__caption"><span>Form dialog</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-frame"&gt;
+&lt;div class="backdrop"&gt;&lt;/div&gt;
+&lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v1-title" aria-describedby="v1-desc"&gt;
+&lt;div class="dialog__panel"&gt;
+&lt;div class="dialog__head"&gt;
+&lt;div&gt;
+&lt;h3 class="dialog__title" id="v1-title"&gt;Add a topic&lt;/h3&gt;
+&lt;p class="dialog__description" id="v1-desc"&gt;Keryx scores items higher when they mention it.&lt;/p&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Close"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
+&lt;div class="dialog__body"&gt;
+&lt;div class="field"&gt;
+&lt;label class="field__label" for="v1-topic"&gt;Topic&lt;/label&gt;
+&lt;input class="input" type="text" id="v1-topic" value="" aria-describedby="v1-topic-help"&gt;
+&lt;p class="field__help" id="v1-topic-help"&gt;One or two words, like “pickleball” or “youth ministry”.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="dialog__foot"&gt;
+&lt;button class="btn btn--ghost" type="button"&gt;Cancel&lt;/button&gt;
+&lt;button class="btn btn--primary" type="button"&gt;Add topic&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Confirmation</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--flush"><div class="ds-frame" style="--frame-height: 24rem"><div class="backdrop"></div><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v2-title" aria-describedby="v2-desc"><div class="dialog__panel dialog__panel--sm"><div class="dialog__head"><div><h3 class="dialog__title" id="v2-title">Remove Redeemed Run Club Toronto?</h3><p class="dialog__description" id="v2-desc">Keryx stops checking <span class="mono">redeemedrun.ca/feed</span>.</p></div><button class="icon-btn" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="dialog__body"><p>The 31 articles already collected from this source stay in the database and in the API, each with its link back to the source. You can add the source again later.</p></div><div class="dialog__foot"><button class="btn" type="button">Cancel</button><button class="btn btn--danger-solid" type="button">Remove source</button></div></div></div></div></div>
+        <div class="ds-example__caption"><span>Destructive confirmation: small panel, Cancel focused first</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-frame"&gt;
+&lt;div class="backdrop"&gt;&lt;/div&gt;
+&lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="v2-title" aria-describedby="v2-desc"&gt;
+&lt;div class="dialog__panel dialog__panel--sm"&gt;
+&lt;div class="dialog__head"&gt;
+&lt;div&gt;
+&lt;h3 class="dialog__title" id="v2-title"&gt;Remove Redeemed Run Club Toronto?&lt;/h3&gt;
+&lt;p class="dialog__description" id="v2-desc"&gt;Keryx stops checking &lt;span class="mono"&gt;redeemedrun.ca/feed&lt;/span&gt;.&lt;/p&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Close"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
+&lt;div class="dialog__body"&gt;
+&lt;p&gt;The 31 articles already collected from this source stay in the database and in the API, each with its link back to the source. You can add the source again later.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="dialog__foot"&gt;
+&lt;button class="btn" type="button"&gt;Cancel&lt;/button&gt;
+&lt;button class="btn btn--danger-solid" type="button"&gt;Remove source&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Two widths.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><div class="cluster"><span class="badge">Default · 512 px · --layout-dialog-width</span><span class="badge">Small · 416 px · --layout-dialog-width-sm</span></div></div>
+        <div class="ds-example__caption"><span>Both are full width as a bottom sheet below 640 px.</span></div>
+      </div>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>A dialog moves through these states; each has a mock.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">What changes</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td>Empty or pre-filled fields; first field focused (Cancel in a confirmation).</td></tr>
+          <tr><th scope="row">Invalid</th><td>Field errors under the controls; focus on the first invalid field; entries kept.</td></tr>
+          <tr><th scope="row">Busy</th><td>Fields and Cancel disabled, the primary button busy (“Adding…”), Close and Escape ignored.</td></tr>
+          <tr><th scope="row">Tested</th><td>Add a source only: a success alert with what the test fetch found.</td></tr>
+          <tr><th scope="row">Failed</th><td>A danger alert at the top of the body with a reference; everything re-enabled; nothing lost.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--flush"><div class="ds-frame" style="--frame-height: 24rem"><div class="backdrop"></div><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="th-title-light" aria-describedby="th-desc-light"><div class="dialog__panel dialog__panel--sm"><div class="dialog__head"><div><h3 class="dialog__title" id="th-title-light">Remove Redeemed Run Club Toronto?</h3><p class="dialog__description" id="th-desc-light">Keryx stops checking redeemedrun.ca/feed.</p></div><button class="icon-btn" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="dialog__body"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="alert__body"><p class="alert__title">Keryx couldn’t remove the source</p>Nothing changed. Try again in a moment. <span class="mono">Reference req_0d4f8e63</span></div></div></div><div class="dialog__foot"><button class="btn" type="button">Cancel</button><button class="btn btn--danger-solid" type="button">Remove source</button></div></div></div></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--flush"><div class="ds-frame" style="--frame-height: 24rem"><div class="backdrop"></div><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="th-title-dark" aria-describedby="th-desc-dark"><div class="dialog__panel dialog__panel--sm"><div class="dialog__head"><div><h3 class="dialog__title" id="th-title-dark">Remove Redeemed Run Club Toronto?</h3><p class="dialog__description" id="th-desc-dark">Keryx stops checking redeemedrun.ca/feed.</p></div><button class="icon-btn" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="dialog__body"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="alert__body"><p class="alert__title">Keryx couldn’t remove the source</p>Nothing changed. Try again in a moment. <span class="mono">Reference req_0d4f8e63</span></div></div></div><div class="dialog__foot"><button class="btn" type="button">Cancel</button><button class="btn btn--danger-solid" type="button">Remove source</button></div></div></div></div></div></div></div>
+      <ul>
+        <li>On success the dialog closes and a <a href="toast.html">toast</a> confirms; the dialog never shows its own success screen.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 640 px: a bottom sheet, full width, top corners rounded, sliding up; the foot stays visible while the body scrolls.</li>
+        <li>From 640 px: centred, 512 or 416 px wide, scaling in, with <code>--space-6</code> around it.</li>
+        <li>The panel is never taller than 92 % of the dynamic viewport, so the on-screen keyboard does not hide the actions.</li>
+        <li>Footer buttons wrap, right-aligned, primary last.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The panel uses <code>--color-bg-surface-raised</code>: white in light, ink-850 in dark, which is two steps above the canvas so it reads as the top layer even though dark shadows are faint. The backdrop is 40 % ink in light and 65 % black in dark.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The <a href="https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/">WAI-ARIA modal dialog pattern</a> through the CDK Dialog: <code>role="dialog"</code>, <code>aria-modal="true"</code>, <code>aria-labelledby</code> the title, <code>aria-describedby</code> the description.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Cycles through the dialog's controls only; focus is trapped.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Closes the dialog, unless it is busy.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>In a field, submits the form.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>On open, focus moves to the first field, or to Cancel in a destructive confirmation. On close it returns to the control that opened the dialog; if that control is gone (a removed row), to the table. Close the dialog by its ref before navigating.</p>
+      <h3>Labelling</h3>
+      <p>The title names the task or asks the question (“Remove Redeemed Run Club Toronto?”). Close is labelled “Close”.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Description</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Field edge</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface-raised" data-min="3"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>The backdrop fades in over <code>--duration-base</code>; the panel scales in from 0.96 (slides up 8 px as a sheet) over <code>--duration-slow</code>. Both are instant under reduced motion.</p>
+      <h3>Touch</h3>
+      <p>Buttons and Close are 44 px on touch. The sheet has no drag handle; it closes with Cancel or Close.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>The title is the task (“Add a source”, “New API key”) or, for a confirmation, a question naming the thing.</li>
+        <li>The description says what happens next in one line: “Keryx will check it on every scheduled run.”</li>
+        <li>A confirmation body says what is kept and what is lost, and whether it can be undone.</li>
+        <li>The confirm button repeats the verb and object of the title: “Remove source”, “Revoke key”.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="cluster cluster--end ds-w"><button class="btn" type="button">Cancel</button><button class="btn btn--danger-solid" type="button">Remove source</button></div></div><figcaption>Name the action on the confirm button.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster cluster--end ds-w"><button class="btn" type="button">No</button><button class="btn btn--danger-solid" type="button">Yes</button></div></div><figcaption>“Yes” and “No” force the person to re-read the question.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="ds-w">Add a topic → opens a dialog with one field.</p></div><figcaption>Open a dialog for any edit.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster ds-w"><input class="input input--short" type="text" aria-label="New topic"><button class="btn btn--sm" type="button">Add</button></div></div><figcaption>An inline form inside the chip list is ruled out by the repository: editing opens a CDK Dialog or a screen.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Panel</td><td><code>--color-bg-surface-raised</code> <code>--radius-xl</code> <code>--shadow-4</code></td><td colspan="2"><span data-token="--color-bg-surface-raised"></span> · <span data-token="--radius-xl"></span> · <span data-token="--shadow-4"></span></td></tr>
+          <tr><td>Backdrop</td><td><code>--color-bg-backdrop</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td></tr>
+          <tr><td>Width / small / max height</td><td><code>--layout-dialog-width</code> <code>--layout-dialog-width-sm</code> <code>--layout-dialog-max-height</code></td><td colspan="2"><span data-token="--layout-dialog-width"></span> · <span data-token="--layout-dialog-width-sm"></span> · <span data-token="--layout-dialog-max-height"></span></td></tr>
+          <tr><td>Title</td><td><code>--text-title</code></td><td colspan="2"><span data-token="--text-title"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-5</code> <code>--space-6</code> <code>--space-4</code></td><td colspan="2"><span data-token="--space-5"></span> · <span data-token="--space-6"></span> · <span data-token="--space-4"></span></td></tr>
+          <tr><td>Foot divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Layers</td><td><code>--z-overlay</code> <code>--z-modal</code></td><td colspan="2"><span data-token="--z-overlay"></span> · <span data-token="--z-modal"></span></td></tr>
+          <tr><td>Entrance</td><td><code>--duration-base</code> <code>--duration-slow</code> <code>--ease-enter</code></td><td colspan="2"><span data-token="--duration-base"></span> · <span data-token="--duration-slow"></span> · <span data-token="--ease-enter"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.dialog</code>, <code>.backdrop</code>. The Angular component lives in <code>frontend/projects/components/src/dialog/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="backdrop"&gt;&lt;/div&gt;
+&lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description"&gt;
+&lt;form class="dialog__panel"&gt;
+&lt;div class="dialog__head"&gt;
+&lt;div&gt;
+&lt;h2 class="dialog__title" id="dialog-title"&gt;Add a topic&lt;/h2&gt;
+&lt;p class="dialog__description" id="dialog-description"&gt;Keryx scores items higher when they mention it.&lt;/p&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Close"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
+&lt;div class="dialog__body"&gt;…&lt;/div&gt;
+&lt;div class="dialog__foot"&gt;
+&lt;button class="btn btn--ghost" type="button"&gt;Cancel&lt;/button&gt;
+&lt;button class="btn btn--primary" type="submit"&gt;Add topic&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.backdrop</code></td><td>The scrim.</td></tr>
+        <tr><td><code>.dialog</code></td><td>Positions the panel: bottom below 640 px, centre above.</td></tr>
+        <tr><td><code>.dialog__panel</code></td><td>The surface; <code>--sm</code> for confirmations. A <code>&lt;form&gt;</code> when it has fields.</td></tr>
+        <tr><td><code>.dialog__head</code> / <code>__title</code> / <code>__description</code></td><td>Heading area.</td></tr>
+        <tr><td><code>.dialog__body</code></td><td>Scrolling content.</td></tr>
+        <tr><td><code>.dialog__foot</code></td><td>Actions.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/dialogs/add-source/default.html">dialogs/add-source/default</a> (form dialog)</li>
+        <li><a href="../../mocks/dialogs/add-source/invalid.html">dialogs/add-source/invalid</a> (field errors)</li>
+        <li><a href="../../mocks/dialogs/add-source/busy.html">dialogs/add-source/busy</a> (busy)</li>
+        <li><a href="../../mocks/dialogs/add-source/tested.html">dialogs/add-source/tested</a> (test fetch result)</li>
+        <li><a href="../../mocks/dialogs/remove-source/default.html">dialogs/remove-source/default</a> (destructive confirmation)</li>
+        <li><a href="../../mocks/dialogs/remove-source/failed.html">dialogs/remove-source/failed</a> (failed with a reference)</li>
+        <li><a href="../../mocks/dialogs/new-api-key/default.html">dialogs/new-api-key/default</a> (checks in a dialog)</li>
+        <li><a href="../../mocks/dialogs/revoke-api-key/default.html">dialogs/revoke-api-key/default</a> (second confirmation)</li>
+        <li><a href="../../mocks/dialogs/edit-source/default.html">dialogs/edit-source/default</a> (pre-filled form)</li>
+        <li><a href="../../mocks/dialogs/add-keyword/default.html">dialogs/add-keyword/default</a> (single field)</li>
+      </ul>
+      <p>Drift fixed during extraction: title font, widths and max height were raw values (18 px semibold composed in place, 32rem, 26rem, 92dvh); they are now <code>--text-title</code> and layout tokens. The mocks render the dialog in the page; the product must open it through the CDK Dialog so the page behind is inert.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

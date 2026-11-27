@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Responsive, accessible, themed UI
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(config, "app.config.ts", "Composition root", "Zoneless, KeryxTitleStrategy, focusHeadingOnNavigation")
+  Component(router, "Angular Router", "loadComponent routes", "Creates and destroys routed screens")
+  Component(screen, "Routed screen", "Standalone OnPush component", "Provides its store, ViewportState, StatusAnnouncer")
+  Component(store, "Screen store", "Signals on the screen's providers", "One page of rows, latest progress only")
+  Component(viewport, "ViewportState", "CDK BreakpointObserver wrapper", "wide signal at 1024 px")
+  Component(announcer, "StatusAnnouncer", "CDK LiveAnnouncer wrapper", "Once per change")
+  Component(lib, "Components library", "One component per design-system block", "Inputs and outputs only, BEM, tokens by role")
+  Component(foundations, "Global foundations", "tokens.css, _breakpoints.scss, @font-face, reset", "Themes, motion, forced colours, print, switch points")
+  Component(domain, "viewportClass, nextFocusAfterRemoval", "domain helpers", "Pure, unit-tested")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(admin, "Admin controllers", "ASP.NET Core", "/admin/v1")
+}
+
+Rel(staff, screen, "Uses")
+Rel(config, router, "Registers title strategy and focus listener on")
+Rel(router, screen, "Creates and destroys")
+Rel(screen, store, "Provides")
+Rel(screen, viewport, "Provides")
+Rel(screen, announcer, "Provides")
+Rel(screen, lib, "Composes")
+Rel(screen, domain, "Uses")
+Rel(lib, foundations, "Reads tokens from")
+Rel(store, admin, "Requests, aborted on destroy", "JSON/HTTPS")
+@enduml

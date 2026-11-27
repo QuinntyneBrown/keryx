@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Score and publish: a settings change applies to the next run only
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "HttpSettingsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as controller
+end box
+box "Backend — Keryx Worker application" #D1FADF
+  participant "RunCollectionCommandHandler" as run
+  participant "ClassifyStage" as stage
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "UpdateSettingsCommandHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Set "Publish automatically above" to 0.65 and save
+page -> client : PUT settings
+client -> controller : PUT /admin/v1/settings
+controller -> handler : Send UpdateSettingsCommand
+handler -> db : Save publish threshold 0.65
+handler --> controller : saved
+controller --> client : 200
+note over db : Stored articles keep their score, status and threshold (L2-012, L2-013)
+run -> db : Next run: read Settings once
+run -> run : Build SettingsSnapshot (T = 0.65)
+run -> stage : Classify new items with T = 0.65
+stage -> db : Items collected afterwards carry threshold 0.65
+@enduml

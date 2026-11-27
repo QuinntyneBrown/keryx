@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — A refused request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Caller" as caller
+participant "Identity provider" as idp
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler / OIDC handler / authorization result handler" as auth
+  participant "AccessRefusalMetrics" as metrics
+end box
+participant "OTLP collector" as otel
+alt invalid or missing API key on /v1
+  caller -> auth : Request with Authorization header
+  auth -> metrics : Record(401, invalid_api_key, route template)
+  auth --> caller : 401 invalid_api_key
+else signed-in person without the staff claim
+  caller -> auth : Request to /admin/v1
+  auth -> metrics : Record(403, not_staff, route template)
+  auth --> caller : 403 not_staff
+else failed sign-in callback
+  idp --> auth : Callback with error or mismatched state
+  auth -> metrics : Record(401, signin_failed, callback route template)
+  auth --> caller : Sign in error state
+end
+metrics -> metrics : Log refusal without credential, key, prefix, cookie or token (L2-085)
+metrics -> otel : Export keryx.auth.refused
+@enduml

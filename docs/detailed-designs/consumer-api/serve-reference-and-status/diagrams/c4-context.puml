@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Serve reference data and status
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(product, keryx, "Reads categories, regions and collection freshness from", "JSON/HTTPS, GET /v1/categories, /v1/regions, /v1/status")
+Rel(keryx, otel, "Exports request traces and metrics to", "OTLP")
+@enduml

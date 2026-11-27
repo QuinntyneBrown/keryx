@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Responsive, accessible, themed UI
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+}
+
+Rel(staff, spa, "Uses at XS to XL, light or dark", "HTTPS")
+Rel(spa, api, "Admin requests, aborted when their screen is left", "JSON/HTTPS")
+@enduml

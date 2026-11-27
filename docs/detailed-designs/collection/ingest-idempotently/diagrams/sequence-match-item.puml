@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Ingest idempotently: match one parsed item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "DeduplicateStage" as stage
+  participant "StoreStage / PublishStage" as store
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Deduplicator" as dedup
+  participant "RecordIdentity / CanonicalUrl" as identity
+  participant "HeadlineSimilarity" as sim
+  participant "Provenance" as prov
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+stage -> dedup : MatchAsync(parsed item, settings snapshot)
+alt item has no URL or no identifiable source
+  dedup --> stage : MatchResult rejected (L2-011 not stored)
+  stage -> stage : rejected + 1
+else item has a URL
+  dedup -> identity : CanonicalUrl.TryCreate(url): drop utm_*, fbclid, gclid and fragment (L2-009)
+  dedup -> identity : RecordIdentity.For(source, guid or platform id, canonical URL)
+  dedup -> db : Find article by identity
+  alt identity found
+    dedup -> dedup : Compare content fingerprint
+    dedup --> stage : same_identity, ContentChanged true or false
+    stage -> stage : updated + 1 or unchanged + 1
+  else identity not found
+    dedup --> stage : new_record
+    stage -> stage : added + 1
+  end
+end
+stage -> store : Stream match result
+store -> db : Staged record batch
+store -> prov : On publish: add provenance or Touch(run start) keeping first_seen_at (L2-011)
+store -> db : Apply in one transaction; new ids prefixed art_ (L2-009)
+@enduml

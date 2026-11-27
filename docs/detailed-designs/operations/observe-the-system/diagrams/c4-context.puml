@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Observe the system
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(staff, keryx, "Sees error references in")
+Rel(product, keryx, "Calls", "JSON/HTTPS")
+Rel(keryx, sources, "Fetches from", "HTTPS")
+Rel(keryx, otel, "Exports redacted traces, metrics and logs", "OTLP")
+@enduml

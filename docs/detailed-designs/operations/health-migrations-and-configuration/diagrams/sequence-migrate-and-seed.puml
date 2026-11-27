@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Migrate and seed
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator or release pipeline" as op
+box "Backend — Keryx CLI application" #D1FADF
+  participant "KeryxCli" as cli
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SeedDataCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "EfDatabaseMigrator" as mig
+  database "Keryx database" as db
+end box
+op -> cli : dotnet run --project src/Keryx.Cli -- migrate
+cli -> cli : Validate the settings (a missing one: exit 2)
+cli -> mig : MigrateAsync
+mig -> db : Pending migrations
+alt pending migrations
+  mig -> db : Database.MigrateAsync
+  db --> mig : Applied
+else none pending
+  db --> mig : Nothing to apply
+end
+mig --> cli : Number applied
+cli --> op : "Migrations applied: n"; exit 0 (L2-095)
+op -> cli : … -- seed
+cli -> h : Send SeedDataCommand
+h -> db : Add each region whose slug is missing
+h -> db : Add each category whose slug is missing
+h -> db : Add the Settings row only when absent
+h -> db : Add each news query source whose seed key is missing
+db --> h : Each exists exactly once; existing rows untouched
+h --> cli : SeedDataResult (rows added of each kind)
+cli --> op : "Seed data added: …"; exit 0
+@enduml

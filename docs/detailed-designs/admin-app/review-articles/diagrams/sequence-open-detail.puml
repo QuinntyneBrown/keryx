@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Open an article's detail panel
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "DetailPanel" as panel
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetAdminArticleQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Activate a row by click, tap or Enter
+page -> store : open(art_18429); remember the opener row
+store -> store : Write ?article=art_18429 to the URL (L2-051)
+store -> client : get(art_18429)
+client -> controller : GET /admin/v1/articles/art_18429
+controller -> handler : Send GetAdminArticleQuery
+handler -> db : Read article, source, provenance, tags
+alt article exists
+  db --> handler : Article
+  handler --> controller : ArticleDetailDto with status_reason and threshold (L2-013)
+  controller --> client : 200 JSON
+  client --> store : Detail
+  store --> page : selected
+  page -> panel : @defer load DetailPanel (L2-088)
+  panel --> actor : id, badge, title dir="auto", summary, Organisation … Tags
+  opt url is http or https
+    panel --> actor : "Open original (opens in a new tab)", rel="noopener noreferrer" (L2-053)
+  end
+  opt status needs_review
+    panel --> actor : "Held because its relevance score is below the 0.60 publish threshold."
+  end
+  panel --> actor : Actions by status: Publish and Hide from API, or one of them (L2-051)
+else article not found
+  db --> handler : None
+  handler --> controller : ArticleNotFoundException
+  controller --> client : 404 code article_not_found
+  client --> store : Error code
+  store -> store : Remove ?article from the URL; no panel
+  store -> notifier : Article could not be found (L2-051)
+end
+actor -> panel : Press Close or Escape
+panel -> page : closed output
+page -> store : close()
+page -> page : Return focus to the row that opened it
+@enduml

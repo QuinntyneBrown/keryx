@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choice cards (radio group) — Keryx design system</title>
+<meta name="description" content="A radio group drawn as a row of small cards, each with an icon: the type of a source.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Choice cards (radio group)</h1>
+      <p class="ds-lead">A radio group drawn as a row of small cards, each with an icon: the type of a source.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;input type="radio"&gt;</code></span><span class="ds-pill">Block: <code>.choice-card</code>, <code>.choice-grid</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use choice cards for one choice from two to four options that deserve an icon and decide what the rest of the form means. For more options use a <a href="select.html">select</a>; for a setting on a page, a <a href="segmented.html">segmented control</a>.</p>
+      <ul>
+        <li>Exactly one card is selected; a default is always pre-selected.</li>
+        <li>The native radio is stretched invisibly over the card, so the browser provides the group's keyboard behaviour.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="choice-card"><div class="choice-grid"><label class="choice-card"><input type="radio" name="an" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card" data-part="3"><input type="radio" name="an" value="Website" checked data-part="1"><span data-part="2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>Website</label></div><span class="ds-callout" style="left: 28.2%; top: -2.6%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 33.4%; top: 26.9%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 45.9%; top: 105.1%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Radio input</b><small>Covers the card with <code>opacity: 0</code>; it is what receives focus and the click.</small></div></li>
+          <li><div><b>Icon and label</b><small>14 px icon and the option name, centred.</small></div></li>
+          <li><div><b>Card</b><small><code>--control-height-md</code>, hairline edge, <code>--radius-md</code>; the selected card takes an accent edge, a subtle fill and medium weight.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><fieldset><legend>Type</legend><div class="choice-grid"><label class="choice-card"><input type="radio" name="type" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card"><input type="radio" name="type" value="Website" checked ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label><label class="choice-card"><input type="radio" name="type" value="Instagram" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>Instagram</label><label class="choice-card"><input type="radio" name="type" value="Eventbrite" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Eventbrite</label></div></fieldset></div>
+        <div class="ds-example__caption"><span>Two columns below 640 px, four from 640 px</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset&gt;
+&lt;legend&gt;Type&lt;/legend&gt;
+&lt;div class="choice-grid"&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="RSS" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;RSS&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Website" checked &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Website&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Instagram" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Instagram&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Eventbrite" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Eventbrite&lt;/label&gt;&lt;/div&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size: cards are &lt;code&gt;--control-height-md&lt;/code&gt; tall and share the row equally."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size: cards are &lt;code&gt;--control-height-md&lt;/code&gt; tall and share the row equally.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Selection is the native <code>:checked</code>; the card reads it with <code>:has()</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col"></th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Selected</th><th scope="col">Disabled</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Card</th><td><label class="choice-card"><input type="radio" name="m1" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label></td><td><label class="choice-card" data-state="hover"><input type="radio" name="m2" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label></td><td><label class="choice-card" data-state="focus"><input type="radio" name="m3" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label></td><td><label class="choice-card"><input type="radio" name="m4" value="RSS" checked><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label></td><td><label class="choice-card"><input type="radio" name="m5" value="RSS" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><fieldset><legend>Type</legend><div class="choice-grid"><label class="choice-card"><input type="radio" name="th-light" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card"><input type="radio" name="th-light" value="Website" checked ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label><label class="choice-card"><input type="radio" name="th-light" value="Instagram" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>Instagram</label><label class="choice-card"><input type="radio" name="th-light" value="Eventbrite" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Eventbrite</label></div></fieldset></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><fieldset><legend>Type</legend><div class="choice-grid"><label class="choice-card"><input type="radio" name="th-dark" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card"><input type="radio" name="th-dark" value="Website" checked ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label><label class="choice-card"><input type="radio" name="th-dark" value="Instagram" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>Instagram</label><label class="choice-card"><input type="radio" name="th-dark" value="Eventbrite" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Eventbrite</label></div></fieldset></div></div></div>
+      <ul>
+        <li><b>Disabled</b>: every card is disabled while the dialog is busy, and the selected one stays visibly selected.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Two columns below 640 px, four columns from 640 px (<code>.choice-grid</code>).</li>
+        <li>Cards are 44 px tall on touch devices.</li>
+        <li>Labels are one word; a label that would wrap needs a select instead.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The selected edge is <code>--color-accent</code> (ink in light, volt in dark) on a <code>--color-bg-subtle</code> fill. Selection is shown by edge, fill and weight together, never by colour alone.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native radio inputs sharing a <code>name</code>, in a <code>&lt;fieldset&gt;</code> with a <code>&lt;legend&gt;</code>. See the <a href="https://www.w3.org/WAI/ARIA/apg/patterns/radio/">WAI-ARIA radio group pattern</a>.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves into the group, to the selected card, and out again.</td></tr>
+        <tr><td><kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd></td><td>Selects the next card.</td></tr>
+        <tr><td><kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd></td><td>Selects the previous card.</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Selects the focused card if none is selected.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>The ring is drawn around the card when its hidden input has <code>:focus-visible</code>.</p>
+      <h3>Labelling</h3>
+      <p>Each card's text is its radio's label; the legend (“Type”) names the group. The icon is decorative.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Selected edge</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface-raised" data-min="3"></span></div><div class="ds-pair"><span>Selected label</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Unselected label</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>36 px tall with a fine pointer and 44 px (<code>--target-comfortable</code>) on touch devices, because <code>--control-height-md</code> grows under <code>(pointer: coarse)</code>. The whole card is the target.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>One word per card, the name people use for the thing: RSS, Website, Instagram, Eventbrite.</li>
+        <li>Order by how often each is used.</li>
+        <li>The legend is a noun: “Type”.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><fieldset><legend>Type</legend><div class="choice-grid"><label class="choice-card"><input type="radio" name="d1" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card"><input type="radio" name="d1" value="Website" checked ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label><label class="choice-card"><input type="radio" name="d1" value="Instagram" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>Instagram</label><label class="choice-card"><input type="radio" name="d1" value="Eventbrite" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Eventbrite</label></div></fieldset></div><figcaption>Pre-select the most common option.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><fieldset><legend>Type</legend><div class="choice-grid"><label class="choice-card"><input type="radio" name="d2" value="RSS" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RSS</label><label class="choice-card"><input type="radio" name="d2" value="Website" ><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label></div></fieldset></div><figcaption>A radio group with nothing selected cannot be returned to that state and adds a validation error for no reason.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><label class="choice-card"><input type="radio" name="d3" value="Website" checked><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</label></div><figcaption>Let the real radio carry the state.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster"><button class="btn" type="button" aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Website</button></div></div><figcaption>Toggle buttons do not behave as one tab stop with arrow keys and are not announced as “1 of 4”.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Edge / selected edge</td><td><code>--color-border-emphasis</code> <code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-emphasis" data-swatch></i><span data-token="--color-border-emphasis"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-emphasis" data-swatch></i><span data-token="--color-border-emphasis"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Selected fill</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Label / selected label</td><td><code>--color-fg-muted</code> <code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Height</td><td><code>--control-height-md</code></td><td colspan="2"><span data-token="--control-height-md"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Gap between cards</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+          <tr><td>Disabled</td><td><code>--opacity-disabled</code></td><td colspan="2"><span data-token="--opacity-disabled"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.choice-card</code>, <code>.choice-grid</code>. The Angular component lives in <code>frontend/projects/components/src/choice-card/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;fieldset&gt;
+&lt;legend&gt;Type&lt;/legend&gt;
+&lt;div class="choice-grid"&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="RSS" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;RSS&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Website" checked &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Website&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Instagram" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Instagram&lt;/label&gt;
+&lt;label class="choice-card"&gt;
+&lt;input type="radio" name="type" value="Eventbrite" &gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Eventbrite&lt;/label&gt;&lt;/div&gt;&lt;/fieldset&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.choice-grid</code></td><td>Two, then four columns.</td></tr>
+        <tr><td><code>.choice-card</code></td><td>A <code>&lt;label&gt;</code> wrapping a radio, an icon and text.</td></tr>
+        <tr><td><code>input:checked</code></td><td>Selected card.</td></tr>
+        <tr><td><code>input:disabled</code></td><td>Disabled card.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/dialogs/add-source/default.html">dialogs/add-source/default</a> (source type)</li>
+        <li><a href="../../mocks/dialogs/add-source/busy.html">dialogs/add-source/busy</a> (all disabled)</li>
+        <li><a href="../../mocks/dialogs/edit-source/default.html">dialogs/edit-source/default</a> (type of an existing source)</li>
+      </ul>
+      <p>Drift fixed during extraction: disabled cards were 0.6 opaque; they now use <code>--opacity-disabled</code> (0.5) like every other disabled control. A hover state was added. Open question 8 in the mocks README stands: News query sources exist but have no card.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

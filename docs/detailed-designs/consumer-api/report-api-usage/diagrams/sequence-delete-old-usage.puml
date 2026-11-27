@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Delete old usage
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "RetentionWorker" as worker
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ApplyRetentionCommandHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+worker -> worker : Scheduled time reached (TimeProvider)
+worker -> handler : Send ApplyRetentionCommand
+handler -> db : Delete ApiUsageHour where HourStart is older than now - 30 days (L2-037)
+db --> handler : Rows deleted
+handler -> db : Record the retention run with its counts
+db --> handler : Committed
+handler --> worker : Run outcome
+@enduml

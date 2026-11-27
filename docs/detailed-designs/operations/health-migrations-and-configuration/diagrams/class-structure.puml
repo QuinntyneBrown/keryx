@@ -1,0 +1,130 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Health, migrations and configuration
+
+interface IHealthCheck {
+  +CheckHealthAsync(context, ct): Task<HealthCheckResult>
+}
+class DatabaseReadinessCheck {
+  -ISchemaVersion schema
+  +CheckHealthAsync(context, ct): Task<HealthCheckResult>
+}
+interface ISchemaVersion {
+  +GetAsync(ct): Task<SchemaState>
+}
+class EfSchemaVersion {
+  -KeryxDbContext db
+  +GetAsync(ct): Task<SchemaState>
+}
+class SchemaState <<record>> {
+  +bool Reachable
+  +string? Applied
+  +string? Expected
+  +SchemaStatus Status
+  +bool Ready
+}
+enum SchemaStatus {
+  Ready
+  Behind
+  Ahead
+  Unreachable
+}
+class SchemaStatusLog <<static>> {
+  +Report(logger, status)
+}
+interface IDatabaseMigrator {
+  +MigrateAsync(ct): Task<int>
+}
+class EfDatabaseMigrator {
+  -KeryxDbContext db
+  +MigrateAsync(ct): Task<int>
+}
+class SchemaStatusLogger {
+  #ExecuteAsync(ct): Task
+}
+class WorkerReadinessGate {
+  -TimeProvider time
+  +{static} RecheckInterval = 30 s
+  +Task Ready
+  #ExecuteAsync(ct): Task
+}
+class HostRunner <<static>> {
+  +{static} MissingSettingExitCode = 2
+  +RunAsync(build, error, ct): Task<int>
+  +GuardAsync(run, error): Task<int>
+}
+class KeryxCli <<static>> {
+  +{static} UsageExitCode = 1
+  +RunAsync(args, output, error): Task<int>
+}
+class SeedDataCommand <<record>>
+class SeedDataResult <<record>> {
+  +int Regions
+  +int Categories
+  +int Settings
+  +int Sources
+}
+class SeedDataCommandHandler {
+  -IAppDbContext db
+  -TimeProvider time
+  +Handle(c: SeedDataCommand, ct): Task<SeedDataResult>
+}
+class SeedData <<static>> {
+  +Regions(): Region[]
+  +Categories(): Category[]
+  +DefaultSettings(): Settings
+  +NewsQuerySources(now): Source[]
+}
+class DatabaseOptions {
+  +string ConnectionString «required»
+  +{static} MissingConnectionString
+}
+class IdentityProviderOptions {
+  +string Authority «required»
+  +string ClientId «required»
+  +string StaffClaim
+}
+class AdminOptions {
+  +string Origin «required»
+}
+class FetchOptions {
+  +string ContactUrl «required»
+}
+class SessionOptions {
+  +int IdleMinutes = 60
+  +int LifetimeHours = 12
+}
+class RateLimitOptions {
+  +int RequestsPerMinute = 600
+  +int AnonymousPerMinute = 60
+}
+
+DatabaseReadinessCheck ..|> IHealthCheck
+DatabaseReadinessCheck ..> ISchemaVersion : reads
+EfSchemaVersion ..|> ISchemaVersion
+ISchemaVersion ..> SchemaState : returns
+SchemaState ..> SchemaStatus
+EfDatabaseMigrator ..|> IDatabaseMigrator
+KeryxCli ..> IDatabaseMigrator : migrate calls
+KeryxCli ..> SeedDataCommand : seed sends
+KeryxCli ..> HostRunner : guarded by
+SchemaStatusLogger ..> ISchemaVersion : asks once at startup
+SchemaStatusLogger ..> SchemaStatusLog : reports through
+WorkerReadinessGate ..> ISchemaVersion : asks every 30 s until ready
+WorkerReadinessGate ..> SchemaStatusLog : reports through
+SeedDataCommandHandler ..> SeedDataCommand : handles
+SeedDataCommandHandler ..> SeedDataResult : returns
+SeedDataCommandHandler ..> SeedData : adds what is missing of
+HostRunner ..> DatabaseOptions : stops on a missing setting of
+@enduml

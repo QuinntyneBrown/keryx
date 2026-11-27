@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Copy and discard the revealed key
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "ApiStore" as store
+  participant "Clipboard (CDK)" as clipboard
+  participant "Notifier" as notifier
+end box
+actor -> page : Press "Copy" in the callout
+page -> store : Read revealedKey
+store --> page : Full key (memory only)
+page -> clipboard : copy(key)
+alt clipboard accepts
+  clipboard --> page : true
+  page -> notifier : Success "Key copied" (L2-068)
+else browser blocks the clipboard
+  clipboard --> page : false
+  page -> notifier : Danger "Keryx couldn’t copy the key", "Your browser blocked the clipboard. Select the key and copy it by hand."
+  page --> actor : Key stays selectable in copy-field
+end
+notifier --> actor : Notification in the toast region
+== Staff leave the screen, reload, or the component is destroyed ==
+page -> store : DestroyRef.onDestroy
+store -> store : discardKey(): revealedKey = null
+store --> page : Callout removed from the DOM
+note over page, store
+  The key is never written to the URL, localStorage, sessionStorage,
+  a log or telemetry, and cannot be shown again (L2-068, L2-035).
+end note
+@enduml

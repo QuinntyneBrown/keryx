@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Authorize an admin request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Screen or dialog" as screen
+  participant "sessionInterceptor" as interceptor
+  participant "staffGuard" as guard
+  participant "ForbiddenPage" as forbidden
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Cookie scheme" as cookie
+  participant "StaffPolicy and anti-forgery" as policy
+  participant "Admin controller" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Feature handler" as handler
+end box
+screen -> interceptor : POST /admin/v1/... (state change)
+interceptor -> interceptor : withCredentials; add X-XSRF-TOKEN from SessionStore
+interceptor -> cookie : Request with session cookie
+alt no session cookie
+  cookie --> interceptor : 401 ProblemDetails (fallback policy, L2-040)
+else session present
+  cookie -> policy : Authenticated principal
+  alt principal lacks the staff role claim
+    policy --> interceptor : 403 not_staff (L2-040)
+    interceptor --> guard : not_staff
+    guard --> forbidden : Navigate to /forbidden
+    forbidden --> actor : "This account can’t open Keryx admin", "Sign in with a different account"; no navigation
+  else anti-forgery header missing or invalid
+    policy --> interceptor : 400 antiforgery_failed (L2-040)
+    interceptor --> screen : Error code; generic copy shown
+  else staff with valid token
+    policy -> ctrl : Admit
+    ctrl -> handler : Send one MediatR request
+    handler --> ctrl : Result
+    ctrl --> interceptor : 2xx with Cache-Control: no-store
+    interceptor --> screen : Result
+  end
+end
+note over cookie, ctrl
+  An API key on /admin/v1 meets only the cookie scheme and gets 401.
+  Anonymous: sign-in, callback, sign-out, health and /openapi/v1.json only.
+end note
+@enduml

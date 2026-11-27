@@ -1,0 +1,129 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Run the collection pipeline
+
+package "Keryx.Application" {
+  class RunCollectionCommand
+  class RunCollectionCommandHandler {
+    -IAppDbContext db
+    -ICollectionPipeline pipeline
+    -TimeProvider timeProvider
+    +Handle(command: RunCollectionCommand): Task<RunCollectionResult>
+  }
+  interface ICollectionPipeline {
+    +ExecuteAsync(plan: RunPlan, progress: IRunProgress, ct: CancellationToken): Task<PipelineResult>
+  }
+  class RunPlan {
+    +PublicId RunId
+    +DateTimeOffset RunStartedAt
+    +IReadOnlyList<SourceRef> Sources
+    +SettingsSnapshot Settings
+    +bool IsRetry
+  }
+  class SettingsSnapshot {
+    +TimeSpan SourceTimeout
+    +decimal PublishThreshold
+    +bool MergeDuplicates
+  }
+  interface ISourceFetcher {
+    +FetchAsync(source: SourceRef, ct: CancellationToken): Task<FetchResult>
+  }
+  class FetchRetryPolicy {
+    +int MaxAttempts = 3
+    +DelayBefore(attempt: int): TimeSpan
+  }
+}
+package "Keryx.Worker" {
+  class CollectionPipeline
+  abstract class PipelineStage {
+    +StageName Name
+    +RunAsync(input: ChannelReader, output: ChannelWriter, ct: CancellationToken): Task<StageResult>
+  }
+  class FetchStage
+  class ParseStage
+  class ClassifyStage
+  class DeduplicateStage
+  class StoreStage {
+    +int BatchSize
+  }
+  class PublishStage
+}
+package "Keryx.Domain" {
+  class Run {
+    +PublicId Id
+    +RunOutcome Outcome
+    +int SourcesChecked
+    +int SourcesTotal
+    +StartStage(name: StageName, nowUtc): void
+    +CompleteStage(result: StageResult): void
+    +FailStage(name: StageName, genericReason: string): void
+    +Finish(nowUtc): void
+  }
+  class StageResult {
+    +StageName Name
+    +StageStatus Status
+    +long DurationMs
+    +IReadOnlyDictionary<string,int> Summary
+  }
+  enum StageName {
+    fetch
+    parse
+    classify
+    deduplicate
+    store
+    publish
+  }
+  enum StageStatus {
+    not_run
+    running
+    done
+    done_with_warnings
+    failed
+  }
+  enum RunOutcome {
+    running
+    succeeded
+    completed_with_issues
+    failed
+  }
+  class StagedRecord {
+    +PublicId RunId
+    +RecordKind Kind
+    +string IdentityKey
+    +ChangeKind Change
+  }
+}
+
+RunCollectionCommandHandler ..> RunCollectionCommand : handles
+RunCollectionCommandHandler --> ICollectionPipeline : calls
+RunCollectionCommandHandler --> Run : records
+RunCollectionCommandHandler ..> RunPlan : builds
+RunPlan *-- SettingsSnapshot
+CollectionPipeline ..|> ICollectionPipeline
+CollectionPipeline "1" *-- "6" PipelineStage
+PipelineStage <|-- FetchStage
+PipelineStage <|-- ParseStage
+PipelineStage <|-- ClassifyStage
+PipelineStage <|-- DeduplicateStage
+PipelineStage <|-- StoreStage
+PipelineStage <|-- PublishStage
+FetchStage ..> ISourceFetcher : uses
+FetchStage ..> FetchRetryPolicy : uses
+StoreStage ..> StagedRecord : writes
+PublishStage ..> StagedRecord : applies and deletes
+Run "1" *-- "6" StageResult
+Run --> RunOutcome
+StageResult --> StageName
+StageResult --> StageStatus
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Viewport, input and preferences
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Browser media queries" as media
+  participant "tokens.css and component styles" as css
+  participant "BreakpointObserver" as bo
+  participant "ViewportState" as viewport
+  participant "Routed screen" as screen
+end box
+actor -> media : Open the app on a phone held upright (360 px, coarse pointer, dark, reduced motion)
+media -> css : prefers-color-scheme: dark
+css --> actor : Dark tokens on every surface (L2-093 criterion 1)
+media -> css : prefers-reduced-motion: reduce
+css --> actor : Duration tokens zero; shimmer, dialog, toast and pulse still (L2-093 criterion 2)
+media -> css : pointer: coarse
+css --> actor : Controls at least 44 x 44 px (L2-090 criterion 5)
+media -> css : width below 640 px
+css --> actor : Top bar, stacked header, bottom-sheet dialogs, full-width toasts, stacked table rows (L2-090 table)
+media -> bo : width below 1024 px
+bo -> viewport : matches = false
+viewport --> screen : wide = false
+screen --> actor : Chosen item's detail in place of the list, with a way back
+actor -> media : Rotate or resize to 1280 px
+media -> css : width from 1024 px
+css --> actor : Sidebar; two-column areas side by side
+media -> bo : width from 1024 px
+bo -> viewport : matches = true
+viewport --> screen : wide = true
+opt forced colours active
+  media -> css : forced-colors: active
+  css --> actor : System colours keep controls, focus and status visible (L2-093 criterion 3)
+end
+opt printing
+  media -> css : print
+  css --> actor : Navigation, notifications and skip link omitted (L2-093 criterion 4)
+end
+@enduml

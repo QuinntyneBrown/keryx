@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form field — Keryx design system</title>
+<meta name="description" content="The wrapper every control sits in: a label above, the control, then help or an error underneath.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Form field</h1>
+      <p class="ds-lead">The wrapper every control sits in: a label above, the control, then help or an error underneath.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;label for&gt;</code></span><span class="ds-pill">Block: <code>.field</code>, <code>.field-grid</code>, <code>fieldset</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every input, select, range and chip list in Keryx is inside a field, so labels, help and errors are always in the same place. A group of switches, checkboxes or choice cards uses a <code>&lt;fieldset&gt;</code> with a <code>&lt;legend&gt;</code> styled the same as a label.</p>
+      <ul>
+        <li>The label is always visible and always above the control. A placeholder is never the label.</li>
+        <li>Help explains the consequence of the value; the error replaces nothing, it is added under the control and linked with <code>aria-describedby</code>.</li>
+        <li>Required is the default and is not marked; an optional field says “(optional)” in its label.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="field"><div class="field"><label class="field__label" for="an-name" data-part="1">Product name</label><input class="input" id="an-name" type="text" value="" aria-describedby="an-name-help" data-part="2"><p class="field__help" id="an-name-help" data-part="3">The website, app or newsletter that will call Keryx with this key.</p></div><span class="ds-callout" style="left: 2.7%; top: -2.3%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 2.7%; top: 28.7%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 2.7%; top: 77%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Label</b><small><code>--text-label</code>; a <code>&lt;label for&gt;</code>, or a <code>&lt;legend&gt;</code> for a group.</small></div></li>
+          <li><div><b>Control</b><small>Any input, select, range, chip list or affix group; <code>--space-1-5</code> below the label.</small></div></li>
+          <li><div><b>Help or error</b><small><code>--text-caption</code>. Help is muted; the error is <code>--color-danger-fg</code> with a warning icon.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="v1">Product name</label><input class="input" type="text" id="v1" aria-describedby="v1-help"><p class="field__help" id="v1-help">The website, app or newsletter that will call Keryx with this key.</p></div><div class="field"><label class="field__label" for="v2">Notes <span class="optional">(optional)</span></label><input class="input" type="text" id="v2"></div><fieldset><legend>Also include</legend><label class="switch"><input type="checkbox" role="switch" checked>Ontario-wide organisations</label><label class="switch"><input type="checkbox" role="switch">National Canadian news</label></fieldset></div>
+        <div class="ds-example__caption"><span>With help, optional, and a group in a fieldset</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;
+&lt;label class="field__label" for="v1"&gt;Product name&lt;/label&gt;
+&lt;input class="input" type="text" id="v1" aria-describedby="v1-help"&gt;
+&lt;p class="field__help" id="v1-help"&gt;The website, app or newsletter that will call Keryx with this key.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="field"&gt;
+&lt;label class="field__label" for="v2"&gt;Notes &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;
+&lt;input class="input" type="text" id="v2"&gt;&lt;/div&gt;
+&lt;fieldset&gt;
+&lt;legend&gt;Also include&lt;/legend&gt;
+&lt;label class="switch"&gt;
+&lt;input type="checkbox" role="switch" checked&gt;Ontario-wide organisations&lt;/label&gt;
+&lt;label class="switch"&gt;
+&lt;input type="checkbox" role="switch"&gt;National Canadian news&lt;/label&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+      <h3>Two columns</h3>
+      <p><code>.field-grid</code> puts two short, related fields side by side from 640 px: Organisation and Region in the source dialogs.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="field-grid"><div class="field"><label class="field__label" for="v3">Organisation</label><input class="input" type="text" id="v3" value="LifePoint Fitness Ministry"></div><div class="field"><label class="field__label" for="v4">Region</label><select class="select" id="v4"><option>Scarborough</option><option>Toronto</option></select></div></div></div>
+        <div class="ds-example__caption"><span>Stacks to one column below 640 px</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field-grid"&gt;
+&lt;div class="field"&gt;
+&lt;label class="field__label" for="v3"&gt;Organisation&lt;/label&gt;
+&lt;input class="input" type="text" id="v3" value="LifePoint Fitness Ministry"&gt;&lt;/div&gt;
+&lt;div class="field"&gt;
+&lt;label class="field__label" for="v4"&gt;Region&lt;/label&gt;
+&lt;select class="select" id="v4"&gt;
+&lt;option&gt;Scarborough&lt;/option&gt;
+&lt;option&gt;Toronto&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size. The field takes the width of its container; the control inside can be narrowed with &lt;code&gt;.input--short&lt;/code&gt; or &lt;code&gt;.input--medium&lt;/code&gt;."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size. The field takes the width of its container; the control inside can be narrowed with &lt;code&gt;.input--short&lt;/code&gt; or &lt;code&gt;.input--medium&lt;/code&gt;.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The field itself has two states; the control inside carries the rest (see <a href="input.html">text field</a>).</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col"></th><th scope="col">Default</th><th scope="col">With help</th><th scope="col">Invalid</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Field</th><td><div class="field"><label class="field__label" for="s1">Timeout per source</label><input class="input input--short" type="text" id="s1" value="30"></div></td><td><div class="field"><label class="field__label" for="s2">Product name</label><input class="input" type="text" id="s2" aria-describedby="s2-help"><p class="field__help" id="s2-help">Shown in the consumers table.</p></div></td><td><div class="field"><label class="field__label" for="s3">Timeout per source</label><input class="input input--short" type="text" id="s3" value="0" aria-invalid="true" aria-describedby="s3-error"><p class="field__error" id="s3-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter a timeout between 5 and 120 seconds.</p></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="field"><label class="field__label" for="t1-light">E-mail</label><input class="input input--medium" id="t1-light" type="email" value="ops@keryx" aria-invalid="true" aria-describedby="t1-error-light"><p class="field__error" id="t1-error-light"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter an e-mail address like name@example.com.</p></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="field"><label class="field__label" for="t1-dark">E-mail</label><input class="input input--medium" id="t1-dark" type="email" value="ops@keryx" aria-invalid="true" aria-describedby="t1-error-dark"><p class="field__error" id="t1-error-dark"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter an e-mail address like name@example.com.</p></div></div></div></div>
+      <ul>
+        <li><b>Invalid</b>: the error text is added below, the control gets <code>aria-invalid="true"</code>, and the value the person typed is kept.</li>
+        <li><b>Busy</b>: while a form submits, its controls are <code>disabled</code>; labels and help stay readable.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>One column below 640 px; <code>.field-grid</code> becomes two columns from 640 px.</li>
+        <li>On the Settings page the field column sits beside the section intro from 768 px and under it below.</li>
+        <li>Labels wrap; they are never truncated. Help and error text wrap under the control at its full width.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>It reads semantic tokens only, so both themes and <code>prefers-contrast: more</code> restyle it with no rule of its own. The error text and the invalid edge both come from the danger status tokens.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p><code>&lt;label for&gt;</code> tied to the control's <code>id</code>; groups use <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code>. Help and error are joined to the control with <code>aria-describedby</code> (both ids when both exist).</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td>Click on the label</td><td>Moves focus to the control (or toggles a checkbox or switch).</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>The field has no focus of its own. On a failed submit, focus goes to the error summary; each summary line links to its control.</p>
+      <h3>Labelling</h3>
+      <p>Every control has a visible label. A chip list, which is not a form control, is labelled by a <code>&lt;p class="field__label"&gt;</code> and the same text in <code>aria-label</code> on the list.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Label on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Help on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Error on page</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Error in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Optional marker</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates. The error appears without animation so it cannot be missed by a reader who has motion reduced.</p>
+      <h3>Touch</h3>
+      <p>The label is part of the target for checkboxes, switches and choice cards. Text inputs are 36 px tall, 44 px on touch.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Labels are nouns in sentence case with no colon: “Timeout per source”, “Product name”, “E-mail”.</li>
+        <li>Help says what the value does: “Scores from 0.45 to 0.60 wait in Needs review. Below 0.45 are hidden.”</li>
+        <li>An error names the fix and gives an example: “Enter a full URL starting with https://, like https://lifepointfit.ca/events.”</li>
+        <li>Never blame (“Invalid input”) and never clear what the person typed.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="d1">URL</label><input class="input input--mono" id="d1" type="url" value="lifepointfit" aria-invalid="true" aria-describedby="d1-error"><p class="field__error" id="d1-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter a full URL starting with https://, like https://lifepointfit.ca/events.</p></div></div><figcaption>Keep the value and say how to fix it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="d2">URL</label><input class="input input--mono" id="d2" type="url" value="" aria-invalid="true" aria-describedby="d2-error"><p class="field__error" id="d2-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Invalid URL.</p></div></div><figcaption>Clearing the entry and saying only “Invalid” makes the person start again without knowing why.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="d3">Organisation</label><input class="input" type="text" id="d3"></div></div><figcaption>A visible label above the control.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><input class="input" type="text" placeholder="Organisation" aria-label="Organisation"></div></div><figcaption>A placeholder as the label disappears on the first keystroke and is too faint to be a label.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Label / legend</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>Help</td><td><code>--text-caption</code> <code>--color-fg-muted</code></td><td colspan="2"><span data-token="--text-caption"></span> · <span data-token="--color-fg-muted"></span></td></tr>
+          <tr><td>Error</td><td><code>--color-danger-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td></tr>
+          <tr><td>Optional marker</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr>
+          <tr><td>Gap label–control–help</td><td><code>--space-1-5</code></td><td colspan="2"><span data-token="--space-1-5"></span></td></tr>
+          <tr><td>Gap between fields</td><td><code>--space-4</code> <code>--space-5</code></td><td colspan="2"><span data-token="--space-4"></span> · <span data-token="--space-5"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.field</code>, <code>.field-grid</code>, <code>fieldset</code>. The Angular component lives in <code>frontend/projects/components/src/field/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="field"&gt;
+&lt;label class="field__label" for="timeout"&gt;Timeout per source&lt;/label&gt;
+&lt;div class="input-affix"&gt;
+&lt;input class="input input--short" id="timeout" type="text" inputmode="numeric" value="0" aria-invalid="true" aria-describedby="timeout-error"&gt;
+&lt;span class="input-affix__suffix"&gt;seconds&lt;/span&gt;&lt;/div&gt;
+&lt;p class="field__error" id="timeout-error"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Enter a timeout between 5 and 120 seconds.&lt;/p&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.field</code></td><td>Column: label, control, help, error.</td></tr>
+        <tr><td><code>.field__label</code></td><td>The label; <code>.optional</code> inside it for “(optional)”.</td></tr>
+        <tr><td><code>.field__help</code> / <code>.field__error</code></td><td>Text under the control; give each an id for <code>aria-describedby</code>.</td></tr>
+        <tr><td><code>.field-grid</code></td><td>Two columns from 640 px.</td></tr>
+        <tr><td><code>fieldset</code> + <code>legend</code></td><td>A labelled group of switches, checks or choice cards.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> (every field type on one page)</li>
+        <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (two field errors and the summary)</li>
+        <li><a href="../../mocks/dialogs/add-source/invalid.html">dialogs/add-source/invalid</a> (errors in a dialog, field grid)</li>
+        <li><a href="../../mocks/dialogs/new-api-key/default.html">dialogs/new-api-key/default</a> (help text, fieldset of checks)</li>
+      </ul>
+      <p>Drift fixed during extraction: the mocks spaced a few help lines with inline <code>style="margin-top"</code>; the <code>.flow-sm</code>, <code>.flow-md</code> and <code>.flow-lg</code> utilities replace them.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

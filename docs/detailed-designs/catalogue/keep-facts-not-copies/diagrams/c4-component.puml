@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Keep facts, not copies
+
+Container_Boundary(infra, "Keryx Infrastructure") {
+  Component(fetch, "HttpSourceFetcher", "ISourceFetcher", "Bounded in-memory read; flags X-Robots-Tag noindex")
+  Component(robots, "RobotsTxtPolicy", "IRobotsPolicy", "Disallowed paths are never fetched")
+  Component(html, "HtmlPageParser", "IFeedParser", "Flags robots meta noindex; maps facts only")
+  Component(rss, "RssFeedParser", "IFeedParser", "Maps facts only; ignores image URLs")
+}
+Container_Boundary(worker, "Keryx Worker") {
+  Component(parse, "ParseStage", "Pipeline stage", "Drops noindexed items")
+  Component(store, "StoreStage", "Pipeline stage", "Saves L2-015 and L2-016 fields")
+}
+Container_Boundary(domain, "Keryx Application and Domain") {
+  Component(scrub, "ContactDetailScrubber", "Domain service", "Removes e-mail addresses and phone numbers")
+  Component(staffm, "StaffMember", "Domain entity", "Name, role, subject id")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Records and staff members")
+
+Rel(parse, robots, "Checks path with")
+Rel(parse, fetch, "Fetches with")
+Rel(parse, html, "Parses pages with")
+Rel(parse, rss, "Parses feeds with")
+Rel(parse, store, "Passes facts-only items to")
+Rel(store, scrub, "Cleans title and summary with")
+Rel(store, db, "Saves records", "IAppDbContext")
+Rel(staffm, db, "Persisted in", "IAppDbContext")
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Open Settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsStore" as store
+  participant "HttpSettingsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetSettingsQueryHandler" as geth
+  participant "UpdateSettingsCommandHandler" as updh
+  participant "Settings" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Navigate to /settings
+page -> store : load()
+store -> client : getSettings()
+client -> controller : GET /admin/v1/settings
+opt no response within 300 ms
+  store --> page : status = loading
+  page --> actor : Section skeletons, aria-busy="true" (L2-071 criterion 8)
+end
+controller -> controller : Authenticate and apply StaffPolicy
+alt settings read
+  controller -> geth : Send GetSettingsQuery
+  geth -> db : Read the settings row and version
+  db --> geth : Settings
+  geth --> controller : SettingsDto
+  controller --> client : 200 SettingsDto, Cache-Control: no-store
+  client --> store : SettingsDto
+  store -> store : saved = draft = response
+  store --> page : status = ready
+  page --> actor : Schedule, Relevance, Geography, Storage, Alerts, then Account (L2-070 criterion 1)
+else request fails
+  controller --> client : ProblemDetails or network failure
+  client --> store : ApiError(code, trace id)
+  store --> page : status = error
+  page --> actor : "Settings didn't load", Reference req_…, "Try again", "Go to overview" (L2-073)
+end
+@enduml

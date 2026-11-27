@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Retry failed sources: one of two recovers
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RetryFailedSourcesCommandHandler" as handler
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+box "Backend — Keryx Worker application" #D1FADF
+  participant "RunCollectionCommandHandler" as worker
+end box
+actor -> page : Press "Retry failed sources" on run_2418
+page -> store : retryFailedSources()
+store -> store : Set retrying; button busy; ignore further presses
+store -> client : retryFailedSources(run_2418)
+client -> controller : POST /admin/v1/runs/run_2418/retry
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send RetryFailedSourcesCommand
+handler -> db : Load run and RunLease
+db --> handler : outcome completed_with_issues, 2 failed sources, lease free
+handler -> run : RequestRetry(2 failed sources) (L2-008 no new run)
+handler -> db : Save run and claimed lease
+handler --> controller : StartRunResultDto(run_2418)
+controller --> client : 202 { id: run_2418 }
+store -> notifier : Info "Retrying 2 failed sources" naming both, "Results are added to this run." (L2-059)
+worker -> db : Pick up the pending retry
+worker -> worker : Run the six stages over the 2 failed sources only
+worker -> run : MergeRetry: sources_ok 63, sources_failed 1, counts added
+worker -> run : Close the recovered source's issue (L2-008)
+worker -> db : Save run (outcome completed_with_issues); release lease
+loop no more often than every 3 s while the retry runs
+  store -> client : getRun(run_2418)
+  client --> store : RunDto
+end
+store -> store : summarizeRetry(before, after)
+store --> page : Tiles update
+store -> notifier : Warning "1 of 2 sources recovered", who responded and who still fails, action "Edit source"
+page --> actor : Updated run detail and warning toast
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Read and parse untrusted content
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "ParseStage" as stage
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TextSanitizer" as sanitizer
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetcher
+  participant "BoundedContentReader" as reader
+  participant "RssFeedParser" as parser
+end box
+
+fetcher -> reader : ReadAsync(response, kind)
+reader -> reader : Check Content-Type against the kind's feed, HTML or JSON types (L2-023)
+alt unexpected content type
+  reader --> fetcher : Failure invalid_content, body not parsed
+else expected type
+  reader -> reader : Read decompressed stream, count expanded bytes
+  alt over 5 MB expanded
+    reader --> fetcher : Stop at 5 MB, failure invalid_content (L2-023)
+  else within 5 MB
+    reader --> fetcher : Bounded content
+  end
+end
+fetcher --> stage : SourceFetchResult
+stage -> parser : Parse(content, kind)
+parser -> parser : XmlReader with DtdProcessing.Prohibit and no XmlResolver (L2-023)
+parser -> parser : Keep the 200 newest items, ignore the rest
+loop each item
+  alt link scheme is not http or https
+    parser -> parser : Reject item, count under rejected
+  else http or https link
+    parser -> sanitizer : ToText(title), ToText(summary)
+    sanitizer --> parser : Text with no tag and no control character
+  end
+end
+parser --> stage : ParsedFeed(items, rejected)
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Sign out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage (Account section)" as account
+  participant "SessionStore" as store
+  participant "HttpSessionApi" as sapi
+  participant "SignInPage" as page
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AuthController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SignOutCommandHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> account : Press "Sign out" under "Signed in as Daniel Adeyemi, Owner"
+account -> store : signOut()
+store -> sapi : signOut()
+sapi -> ctrl : POST /admin/v1/auth/sign-out with X-XSRF-TOKEN
+ctrl -> ctrl : Anti-forgery check (L2-040)
+ctrl -> handler : Send SignOutCommand(session id)
+handler -> db : Delete StaffSession
+db --> handler : Deleted
+handler --> ctrl : Done
+ctrl --> sapi : 204, Set-Cookie clears the session cookie (L2-041)
+sapi --> store : Signed out
+store -> store : clear(): me and token dropped
+store --> account : Done
+account -> page : Navigate to /sign-in?state=signed-out
+page --> actor : Signed-out state
+actor -> page : Press Back
+page --> actor : Guarded route reloads; /admin/v1 responses were Cache-Control: no-store, so no admin data shows
+@enduml

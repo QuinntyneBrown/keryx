@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Schedule collection
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+
+Rel(staff, spa, "Reads the next collection time", "HTTPS")
+Rel(spa, api, "Reads next_run_at", "JSON/HTTPS")
+Rel(product, api, "Reads next_run_at from /v1/status", "JSON/HTTPS")
+Rel(api, db, "Reads settings and the run lease", "EF Core")
+Rel(worker, db, "Reads the interval, claims the run lease, records runs and skipped starts", "EF Core")
+Rel(worker, sources, "Collects from when a run starts", "HTTPS")
+@enduml

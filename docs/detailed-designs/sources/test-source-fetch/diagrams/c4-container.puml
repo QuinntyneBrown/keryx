@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Test a source fetch
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Chooses Test fetch now or enters a URL", "HTTPS")
+Rel(spa, api, "POST /admin/v1/sources/test and /admin/v1/sources/{id}/test", "JSON/HTTPS")
+Rel(api, db, "Reads the source and settings, writes nothing", "EF Core")
+Rel(api, sources, "Fetches once under L2-021 to L2-024", "HTTPS")
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run the collection pipeline
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(scheduler, "CollectionScheduler", "BackgroundService", "Execution loop sends RunCollectionCommand")
+  Component(pipeline, "CollectionPipeline", "ICollectionPipeline", "Links six stages with bounded channels")
+  Component(fetch, "FetchStage", "Stage", "Per-source fetch, time-out, retry, isolation")
+  Component(parse, "ParseStage", "Stage", "Feeds and pages to parsed items")
+  Component(classify, "ClassifyStage", "Stage", "Scores and sets publication status")
+  Component(dedupe, "DeduplicateStage", "Stage", "Matches identity and merges duplicates")
+  Component(store, "StoreStage", "Stage", "Writes staged records in batches")
+  Component(publish, "PublishStage", "Stage", "Applies staged records in one transaction")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(handler, "RunCollectionCommandHandler", "MediatR handler", "Loads the pending run, snapshots settings, runs the pipeline, records the outcome")
+  Component(run, "Run / StageResult", "Domain entities", "Stage status, duration, counts, outcome")
+  Component(contracts, "ISourceFetcher, IFeedParser, IRelevanceScorer, IDeduplicator", "Application contracts", "Every fetch and rule behind a contract")
+}
+Container_Boundary(infra, "Keryx Infrastructure") {
+  Component(fetcher, "HttpSourceFetcher", "ISourceFetcher", "HTTP client with per-host limits (L2-022)")
+  Component(parsers, "RssFeedParser / HtmlPageParser", "IFeedParser", "Bounded parsing of untrusted content")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Runs, staged records, articles, events, organizations")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+
+Rel(scheduler, handler, "Sends RunCollectionCommand")
+Rel(handler, pipeline, "ExecuteAsync(RunPlan)")
+Rel(handler, run, "Records stage results and outcome")
+Rel(pipeline, fetch, "Starts")
+Rel(fetch, parse, "Streams fetched documents", "Channel")
+Rel(parse, classify, "Streams parsed items", "Channel")
+Rel(classify, dedupe, "Streams scored items", "Channel")
+Rel(dedupe, store, "Streams matched items", "Channel")
+Rel(store, publish, "Signals completion")
+Rel(fetch, contracts, "Uses ISourceFetcher")
+Rel(parse, contracts, "Uses IFeedParser")
+Rel(fetcher, sources, "GET with time-out", "HTTPS")
+Rel(store, db, "Batch per transaction", "EF Core")
+Rel(publish, db, "One transaction", "EF Core")
+Rel(handler, db, "Saves run progress", "EF Core")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Redirects, back-off and time-outs
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "FetchStage" as stage
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetcher
+  participant "SafeAddressResolver" as resolver
+  participant "HostRateLimiter" as limiter
+end box
+participant "TimeProvider" as clock
+participant "Source host" as host
+
+stage -> fetcher : FetchAsync(request, timeout 5 to 120 s, default 30 s)
+loop attempt 1 to 3 (L2-008)
+  fetcher -> clock : Arm CancellationTokenSource for the per-source timeout (L2-022)
+  fetcher -> host : GET, automatic redirects disabled
+  alt no answer before the timeout
+    clock --> fetcher : Cancelled
+    fetcher -> fetcher : Count the attempt, reason timeout
+  else 429 or 503 with Retry-After
+    host --> fetcher : 429 / 503
+    fetcher -> limiter : Hold host for max(Retry-After capped at 60 s, exponential delay) (L2-022)
+  else 3xx redirect
+    host --> fetcher : Location
+    alt hop count over 5 or https to http (L2-024)
+      fetcher --> stage : Failure, redirect not followed
+    else target host resolves to a non-public address
+      fetcher -> resolver : Resolve and check Location host
+      resolver --> fetcher : Unsafe
+      fetcher --> stage : Failure unsafe_address, redirect not followed
+    else safe redirect
+      fetcher -> resolver : Resolve and check Location host
+      resolver --> fetcher : Checked address
+      fetcher -> host : GET Location, connect only to checked address
+    end
+  else 2xx or 304
+    host --> fetcher : Response
+    fetcher --> stage : Result with attempts counted
+  end
+end
+fetcher --> stage : Failure with the last attempt's reason after 3 attempts
+@enduml

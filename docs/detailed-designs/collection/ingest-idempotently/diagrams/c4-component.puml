@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Ingest idempotently
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(dedupe, "DeduplicateStage", "Stage", "Matches each parsed item; counts duplicates and rejected")
+  Component(store, "StoreStage", "Stage", "Writes staged records in batches")
+  Component(publish, "PublishStage", "Stage", "Applies staged records and provenance")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(deduplicator, "Deduplicator", "IDeduplicator", "Identity, canonical URL and headline matching")
+  Component(canonical, "CanonicalUrl", "Value object", "Normalized URL without tracking parameters or fragment")
+  Component(identity, "RecordIdentity", "Value object", "Source and source key, or canonical URL")
+  Component(similarity, "HeadlineSimilarity", "Domain service", "Normalized similarity, merge at 0.90 or more")
+  Component(names, "OrganizationName / EventMatch", "Domain services", "Organization and event matching")
+  Component(provenance, "Provenance", "Domain entity", "Source, URL, first and last seen")
+  Component(publicId, "PublicId", "Value object", "Prefixed, never reused ids")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Articles, events, organizations, provenance, unique identity indexes")
+
+Rel(dedupe, deduplicator, "Match(item, settings)")
+Rel(deduplicator, identity, "Builds")
+Rel(identity, canonical, "Uses")
+Rel(deduplicator, similarity, "Compares headlines")
+Rel(deduplicator, names, "Matches events and organizations")
+Rel(deduplicator, db, "Reads live records by identity, URL, organization and 14-day window", "EF Core")
+Rel(dedupe, store, "Streams match results", "Channel")
+Rel(store, db, "Batches of staged records", "EF Core")
+Rel(publish, provenance, "Adds or touches")
+Rel(publish, publicId, "Issues ids for new records")
+Rel(publish, db, "One transaction", "EF Core")
+@enduml

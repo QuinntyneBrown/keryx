@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Schedule collection: a tick of the schedule
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "FakeTimeProvider / TimeProvider" as clock
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as scheduler
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TickCollectionScheduleCommandHandler" as handler
+  participant "CollectionSchedule" as schedule
+  participant "RunLease" as lease
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+clock -> scheduler : Timer fires at NextWakeAt
+scheduler -> handler : Send TickCollectionScheduleCommand
+handler -> clock : GetUtcNow() (L2-005 reads TimeProvider)
+clock --> handler : now
+handler -> db : Load Settings interval and RunLease(collection)
+db --> handler : interval, lease
+handler -> schedule : LatestSlotAtOrBefore(now, interval) aligned to midnight America/Toronto
+schedule --> handler : due slot (UTC)
+alt slot not yet handled and no run active
+  handler -> lease : TryClaim(new run id)
+  handler -> run : StartScheduled(run id, now) with trigger schedule
+  handler -> lease : MarkSlotHandled(slot)
+  handler -> db : Save run and lease in one unit of work
+  db --> handler : committed
+else slot not yet handled and a run is in progress
+  handler -> run : RecordSkippedStart(slot) adds run_skipped issue (L2-005)
+  handler -> lease : MarkSlotHandled(slot)
+  handler -> db : Save issue and lease in one unit of work
+  db --> handler : committed
+else slot already handled
+  handler -> handler : No action
+end
+handler -> schedule : NextSlotAfter(now, interval)
+schedule --> handler : next slot (UTC)
+handler --> scheduler : ScheduleTickResult(NextWakeAt = min(next slot, now + re-check bound))
+scheduler -> clock : Delay until NextWakeAt on TimeProvider
+@enduml

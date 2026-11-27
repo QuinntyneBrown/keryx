@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Page states, dialogs and notifications
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(screen, "Screen pages and stores", "Routed components", "Overview, Articles, Runs, Sources, API, Settings")
+  Component(interceptor, "apiErrorInterceptor", "HttpInterceptorFn", "HttpErrorResponse to ApiError(code, trace id)")
+  Component(pls, "PageLoadState", "Signal helper", "300 ms skeleton delay, page status, reference")
+  Component(pageerror, "PageError", "Presentation composite", "empty--error with Try again and Go to overview")
+  Component(dlgcfg, "dialogConfig and DialogCloseController", "CDK Dialog helpers", "aria-modal, focus, close only when idle")
+  Component(navclose, "closeDialogsBeforeNavigation", "Router listener", "Closes dialogs by ref on NavigationStart")
+  Component(store, "NotificationStore", "NOTIFIER implementation, app-wide", "At most three, timers, Undo")
+  Component(region, "toast-region and toast", "Components library", "role status or alert per toast")
+  Component(watcher, "CollectionWatcher", "Shell schedule state", "One outcome notification per run")
+  Component(domain, "errorCopy, notificationLifetime, collectionOutcomeMessage", "domain helpers", "Copy by code, lifetime by kind")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(mapper, "ProblemDetailsMapper", "Middleware", "ProblemDetails with code and trace id")
+  Component(runs, "AdminRunsController", "ASP.NET Core controller", "GET /admin/v1/runs/{id}, POST /admin/v1/runs")
+}
+
+Rel(staff, screen, "Uses")
+Rel(screen, pls, "Tracks main request with")
+Rel(screen, pageerror, "Shows on error")
+Rel(screen, dlgcfg, "Opens dialogs with")
+Rel(screen, store, "Reports outcomes through NOTIFIER")
+Rel(interceptor, mapper, "Reads ProblemDetails from", "JSON/HTTPS")
+Rel(pls, interceptor, "Receives ApiError from")
+Rel(pageerror, domain, "Copy from errorCopy")
+Rel(store, domain, "Lifetime from")
+Rel(store, region, "Rendered by the shell in")
+Rel(watcher, runs, "Reads run progress from", "JSON/HTTPS")
+Rel(watcher, store, "Notifies through")
+Rel(navclose, dlgcfg, "Closes refs opened with")
+@enduml

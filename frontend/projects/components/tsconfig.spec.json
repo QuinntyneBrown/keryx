@@ -1,0 +1,8 @@
+/* Unit tests of the components library: Vitest through the CLI's unit-test builder, rendering each component with TestBed in happy-dom (ADR 0002). */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  },
+  "include": ["**/*.ts"]
+}

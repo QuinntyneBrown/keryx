@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Overview
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "OverviewPage", "Routed component", "Composes the four sections and their states")
+  Component(store, "OverviewStore", "Signal store on the route component", "Four independent section states")
+  Component(lib, "StatusCard, Stat, RunChart, List, IssueCard, SectionHead, Empty, Skeleton", "Components library", "Presentation only")
+  Component(domain, "formatRelativeAge, formatDuration, formatTorontoTime, formatCountdown", "Domain library", "Pure helpers")
+  Component(contracts, "OVERVIEW_API, RUNS_API, ARTICLES_API", "API library", "Contracts and tokens")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ovCtrl, "AdminOverviewController", "Controller", "GET /admin/v1/overview/status")
+  Component(runsCtrl, "AdminRunsController", "Controller", "GET /admin/v1/runs")
+  Component(artCtrl, "AdminArticlesController", "Controller", "GET /admin/v1/articles")
+  Component(issCtrl, "AdminIssuesController", "Controller", "GET /admin/v1/issues")
+  Component(handlers, "GetOverviewStatusQueryHandler, GetRunsQueryHandler, GetAdminArticlesQueryHandler, GetOpenIssuesQueryHandler", "MediatR handlers", "Read models")
+  ComponentDb(db, "Keryx database", "EF Core", "Runs, articles, issues, sources, settings")
+}
+Rel(staff, page, "Uses")
+Rel(page, store, "Reads signals, sends intents")
+Rel(page, lib, "Composes")
+Rel(store, domain, "Formats with")
+Rel(store, contracts, "Calls")
+Rel(contracts, ovCtrl, "status", "JSON/HTTPS")
+Rel(contracts, runsCtrl, "last 14 runs, run progress", "JSON/HTTPS")
+Rel(contracts, artCtrl, "7 newest articles", "JSON/HTTPS")
+Rel(contracts, issCtrl, "open issues", "JSON/HTTPS")
+Rel(ovCtrl, handlers, "Sends one query")
+Rel(runsCtrl, handlers, "Sends one query")
+Rel(artCtrl, handlers, "Sends one query")
+Rel(issCtrl, handlers, "Sends one query")
+Rel(handlers, db, "Reads", "EF Core")
+@enduml

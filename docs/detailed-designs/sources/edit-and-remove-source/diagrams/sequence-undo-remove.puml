@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Undo a removal
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Notifier" as notifier
+  participant "SourcesStore" as store
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RestoreSourceCommandHandler" as handler
+  participant "Source" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> notifier : Activate "Undo" within the notification's lifetime (L2-075)
+notifier -> store : restoreSource(id)
+store -> client : restoreSource(id)
+client -> controller : POST /admin/v1/sources/{id}/restore
+controller -> handler : Send RestoreSourceCommand
+handler -> db : Load removed source
+alt an active source with the same kind and address now exists
+  handler --> controller : SourceExistsException
+  controller --> client : 409 source_exists
+  client --> store : Error code
+  store -> notifier : Danger notification, copy <TO SUPPLY>
+else restorable
+  handler -> entity : Restore()
+  handler -> db : Clear RemovedAt, save AuditEntry
+  handler --> controller : SourceDto
+  controller --> client : 200
+  client --> store : Restored source
+  store -> store : Reload the page of rows and the header counts
+  notifier -> notifier : Remove the notification, show none
+end
+@enduml

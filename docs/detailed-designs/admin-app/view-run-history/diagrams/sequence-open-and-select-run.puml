@@ -1,0 +1,75 @@
+@startuml
+title UML sequence behaviour — Open Runs and choose a run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Angular Router" as router
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListRunsQueryHandler" as listh
+  participant "GetRunQueryHandler" as geth
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> router : Navigate to /runs?run=run_2414
+router -> page : loadComponent and create (provides RunsStore)
+page -> store : open(runId = run_2414, problems = false)
+store -> client : listRuns(worker = collection, page_size = 14)
+client -> controller : GET /admin/v1/runs?worker=collection&page_size=14
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> listh : Send ListRunsQuery
+listh -> listh : Validate page_size at most 50 (L2-056)
+listh -> db : Read newest runs first
+db --> listh : 14 runs
+listh --> controller : Page of RunSummaryDto
+controller --> client : 200 page envelope
+client --> store : RunSummaryDto[]
+alt URL names a run
+  store -> store : Select run_2414 (L2-056 criterion 4)
+else no run in the URL
+  store -> store : Select the newest run
+end
+store -> client : getRun(selected id)
+client -> controller : GET /admin/v1/runs/{id}
+controller -> geth : Send GetRunQuery
+geth -> db : Read run, stage results and issues
+db --> geth : Run aggregate
+geth --> controller : RunDto with numbers only (L2-019)
+controller --> client : 200 RunDto
+client --> store : RunDto
+store --> page : runs, selected, statuses as signals
+page --> actor : List with outcome icon and word; detail with tiles, Pipeline and Issues (L2-057)
+actor -> page : Activate another run item
+page -> router : navigate(?run=run_2418, replaceUrl)
+page -> store : select(run_2418)
+store -> client : getRun(run_2418)
+client -> controller : GET /admin/v1/runs/run_2418
+controller -> geth : Send GetRunQuery
+geth -> db : Read run_2418
+db --> geth : Run aggregate
+geth --> controller : RunDto
+controller --> client : 200 RunDto
+client --> store : RunDto
+store --> page : selected changes
+page --> actor : Item marked aria-current; detail renders text only (L2-057 criterion 6)
+@enduml

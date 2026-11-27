@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Page loading, error and retry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Screen page" as page
+  participant "PageLoadState" as pls
+  participant "apiErrorInterceptor" as icpt
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controller" as controller
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Query handler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open a screen
+page -> pls : track(main request)
+pls -> icpt : Send main request
+icpt -> controller : GET /admin/v1/...
+opt no response within 300 ms
+  pls -> pls : status = loading
+  pls --> page : loading
+  page --> actor : Skeletons shaped like the content; main aria-busy="true"; still when reduced motion (L2-073 criterion 1)
+end
+controller -> handler : Send query
+alt handler fails
+  handler --> controller : KeryxException(code) or unhandled error
+  controller -> mapper : Map
+  mapper --> controller : ProblemDetails(code, trace id, generic title)
+  controller --> icpt : 4xx or 5xx ProblemDetails
+  icpt -> icpt : Keep status, code, trace id; drop title and detail (L2-073 criterion 5)
+  icpt --> pls : ApiError
+  pls --> page : error, reference req_…
+  page --> actor : "<Page> didn't load", reference, "Try again", "Go to overview"; shell usable (L2-073 criterion 2)
+  actor -> page : Press "Try again"
+  page -> pls : retry(); busyRetry = true
+  pls -> icpt : Repeat main request
+  icpt -> controller : GET /admin/v1/...
+  controller -> handler : Send query
+  handler -> db : Read
+  db --> handler : Data
+  handler --> controller : DTO
+  controller --> icpt : 200
+  icpt --> pls : Data
+  pls --> page : ready (L2-073 criterion 3)
+  page --> actor : Page renders normally
+else offline
+  icpt --> pls : ApiError(offline = true)
+  pls --> page : error, same state (L2-073 criterion 6)
+  page --> actor : Same error state; "Try again" works once the connection returns
+else data returned
+  handler -> db : Read
+  db --> handler : Data
+  handler --> controller : DTO
+  controller --> icpt : 200
+  icpt --> pls : Data
+  pls -> pls : ready, empty or no-results
+  pls --> page : status
+  page --> actor : Content, empty state with first action, or no-results naming the filter (L2-073 criterion 4)
+end
+@enduml

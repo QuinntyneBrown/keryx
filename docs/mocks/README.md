@@ -23,14 +23,17 @@ state are links to the mock of that state, so the product can be clicked through
 docs/mocks/
   index.html            gallery (generated)
   manifest.json         the list of screens and states
-  assets/tokens.css     design tokens: the only place colours, sizes and durations live
-  assets/ui.css         the component kit, one BEM block per component
-  assets/fonts/         Geist and Geist Mono, bundled (SIL Open Font License)
+  assets/tokens.css     imports ../design-system/tokens/tokens.css, the one token file
+  assets/ui.css         imports ../design-system/assets/components.css, the one component kit
   assets/mock.css|js    the mock bar and notes; not product UI
   pages/<id>/<state>.html
   dialogs/<id>/<state>.html
   notifications/<id>/<state>.html
 ```
+
+The tokens, the component kit and the fonts (Geist and Geist Mono, SIL Open Font License) live
+in the [design system](../design-system/README.md), which was extracted from these mocks. A mock
+and its design-system page render the same CSS; extend the kit there, never here.
 
 ## Cast and catalog
 
@@ -127,34 +130,37 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 
 ### Pages
 
-| Screen | default | loading | empty | error | healthy | running | failed | partial | selected | selected-published | selected-hidden | review | no-results | edge | success | problems | filtered | menu | key-created | endpoint | dirty | invalid | submitting | Requirements |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Overview (`overview`) | [✅](pages/overview/default.html) | [✅](pages/overview/loading.html) | [✅](pages/overview/empty.html) | [✅](pages/overview/error.html) | [✅](pages/overview/healthy.html) | [✅](pages/overview/running.html) | [✅](pages/overview/failed.html) | [✅](pages/overview/partial.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Articles (`articles`) | [✅](pages/articles/default.html) | [✅](pages/articles/loading.html) | [✅](pages/articles/empty.html) | [✅](pages/articles/error.html) |  |  |  |  | [✅](pages/articles/selected.html) | [✅](pages/articles/selected-published.html) | [✅](pages/articles/selected-hidden.html) | [✅](pages/articles/review.html) | [✅](pages/articles/no-results.html) | [✅](pages/articles/edge.html) |  |  |  |  |  |  |  |  |  |  |
-| Runs (`runs`) | [✅](pages/runs/default.html) | [✅](pages/runs/loading.html) | [✅](pages/runs/empty.html) | [✅](pages/runs/error.html) |  | [✅](pages/runs/running.html) | [✅](pages/runs/failed.html) |  |  |  |  |  | [✅](pages/runs/no-results.html) |  | [✅](pages/runs/success.html) | [✅](pages/runs/problems.html) |  |  |  |  |  |  |  |  |
-| Sources (`sources`) | [✅](pages/sources/default.html) | [✅](pages/sources/loading.html) | [✅](pages/sources/empty.html) | [✅](pages/sources/error.html) |  |  |  |  |  |  |  |  | [✅](pages/sources/no-results.html) |  |  |  | [✅](pages/sources/filtered.html) | [✅](pages/sources/menu.html) |  |  |  |  |  |  |
-| API (`api`) | [✅](pages/api/default.html) | [✅](pages/api/loading.html) | [✅](pages/api/empty.html) | [✅](pages/api/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/api/key-created.html) | [✅](pages/api/endpoint.html) |  |  |  |  |
-| Settings (`settings`) | [✅](pages/settings/default.html) | [✅](pages/settings/loading.html) | ➖ | [✅](pages/settings/error.html) |  |  |  |  |  |  |  |  |  |  | [✅](pages/settings/success.html) |  |  |  |  |  | [✅](pages/settings/dirty.html) | [✅](pages/settings/invalid.html) | [✅](pages/settings/submitting.html) |  |
+| Screen | default | loading | empty | error | healthy | running | failed | partial | selected | selected-published | selected-hidden | review | no-results | edge | success | problems | filtered | menu | key-created | endpoint | dirty | invalid | submitting | busy | signed-out | session-expired | Requirements |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Overview (`overview`) | [✅](pages/overview/default.html) | [✅](pages/overview/loading.html) | [✅](pages/overview/empty.html) | [✅](pages/overview/error.html) | [✅](pages/overview/healthy.html) | [✅](pages/overview/running.html) | [✅](pages/overview/failed.html) | [✅](pages/overview/partial.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | `L2-042`, `L2-043`, `L2-044`, `L2-045`, `L2-046`, `L2-047`, `L2-073` |
+| Articles (`articles`) | [✅](pages/articles/default.html) | [✅](pages/articles/loading.html) | [✅](pages/articles/empty.html) | [✅](pages/articles/error.html) |  |  |  |  | [✅](pages/articles/selected.html) | [✅](pages/articles/selected-published.html) | [✅](pages/articles/selected-hidden.html) | [✅](pages/articles/review.html) | [✅](pages/articles/no-results.html) | [✅](pages/articles/edge.html) |  |  |  |  |  |  |  |  |  |  |  |  | `L2-048`, `L2-049`, `L2-050`, `L2-051`, `L2-052`, `L2-053`, `L2-054`, `L2-055` |
+| Runs (`runs`) | [✅](pages/runs/default.html) | [✅](pages/runs/loading.html) | [✅](pages/runs/empty.html) | [✅](pages/runs/error.html) |  | [✅](pages/runs/running.html) | [✅](pages/runs/failed.html) |  |  |  |  |  | [✅](pages/runs/no-results.html) |  | [✅](pages/runs/success.html) | [✅](pages/runs/problems.html) |  |  |  |  |  |  |  |  |  |  | `L2-047`, `L2-056`, `L2-057`, `L2-058`, `L2-059`, `L2-060`, `L2-061` |
+| Sources (`sources`) | [✅](pages/sources/default.html) | [✅](pages/sources/loading.html) | [✅](pages/sources/empty.html) | [✅](pages/sources/error.html) |  |  |  |  |  |  |  |  | [✅](pages/sources/no-results.html) |  |  |  | [✅](pages/sources/filtered.html) | [✅](pages/sources/menu.html) |  |  |  |  |  |  |  |  | `L2-062`, `L2-063`, `L2-066` |
+| API (`api`) | [✅](pages/api/default.html) | [✅](pages/api/loading.html) | [✅](pages/api/empty.html) | [✅](pages/api/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/api/key-created.html) | [✅](pages/api/endpoint.html) |  |  |  |  |  |  | `L2-067` |
+| Settings (`settings`) | [✅](pages/settings/default.html) | [✅](pages/settings/loading.html) | ➖ | [✅](pages/settings/error.html) |  |  |  |  |  |  |  |  |  |  | [✅](pages/settings/success.html) |  |  |  |  |  | [✅](pages/settings/dirty.html) | [✅](pages/settings/invalid.html) | [✅](pages/settings/submitting.html) |  |  |  | `L2-041`, `L2-070`, `L2-071`, `L2-072` |
+| Sign in (`sign-in`) | [✅](pages/sign-in/default.html) | ➖ | ➖ | [✅](pages/sign-in/error.html) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | [✅](pages/sign-in/busy.html) | [✅](pages/sign-in/signed-out.html) | [✅](pages/sign-in/session-expired.html) | `L2-039`, `L2-041` |
+| Access denied (`forbidden`) | [✅](pages/forbidden/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | `L2-040` |
+| Not found (`not-found`) | [✅](pages/not-found/default.html) | ➖ | ➖ | ➖ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | `L2-040` |
 
 ### Dialogs
 
 | Screen | default | busy | invalid | tested | failed | Requirements |
 |---|---|---|---|---|---|---|
-| Add a source (`add-source`) | [✅](dialogs/add-source/default.html) | [✅](dialogs/add-source/busy.html) | [✅](dialogs/add-source/invalid.html) | [✅](dialogs/add-source/tested.html) | [✅](dialogs/add-source/failed.html) |  |
-| Edit source (`edit-source`) | [✅](dialogs/edit-source/default.html) | [✅](dialogs/edit-source/busy.html) | [✅](dialogs/edit-source/invalid.html) |  | [✅](dialogs/edit-source/failed.html) |  |
-| Remove source (`remove-source`) | [✅](dialogs/remove-source/default.html) | [✅](dialogs/remove-source/busy.html) | ➖ |  | [✅](dialogs/remove-source/failed.html) |  |
-| New API key (`new-api-key`) | [✅](dialogs/new-api-key/default.html) | [✅](dialogs/new-api-key/busy.html) | [✅](dialogs/new-api-key/invalid.html) |  | [✅](dialogs/new-api-key/failed.html) |  |
-| Revoke API key (`revoke-api-key`) | [✅](dialogs/revoke-api-key/default.html) | [✅](dialogs/revoke-api-key/busy.html) | ➖ |  | [✅](dialogs/revoke-api-key/failed.html) |  |
-| Add a topic (`add-keyword`) | [✅](dialogs/add-keyword/default.html) | ➖ | [✅](dialogs/add-keyword/invalid.html) |  |  |  |
+| Add a source (`add-source`) | [✅](dialogs/add-source/default.html) | [✅](dialogs/add-source/busy.html) | [✅](dialogs/add-source/invalid.html) | [✅](dialogs/add-source/tested.html) | [✅](dialogs/add-source/failed.html) | `L2-064` |
+| Edit source (`edit-source`) | [✅](dialogs/edit-source/default.html) | [✅](dialogs/edit-source/busy.html) | [✅](dialogs/edit-source/invalid.html) |  | [✅](dialogs/edit-source/failed.html) | `L2-065` |
+| Remove source (`remove-source`) | [✅](dialogs/remove-source/default.html) | [✅](dialogs/remove-source/busy.html) | ➖ |  | [✅](dialogs/remove-source/failed.html) | `L2-065` |
+| New API key (`new-api-key`) | [✅](dialogs/new-api-key/default.html) | [✅](dialogs/new-api-key/busy.html) | [✅](dialogs/new-api-key/invalid.html) |  | [✅](dialogs/new-api-key/failed.html) | `L2-068` |
+| Revoke API key (`revoke-api-key`) | [✅](dialogs/revoke-api-key/default.html) | [✅](dialogs/revoke-api-key/busy.html) | ➖ |  | [✅](dialogs/revoke-api-key/failed.html) | `L2-069` |
+| Add a topic (`add-keyword`) | [✅](dialogs/add-keyword/default.html) | ➖ | [✅](dialogs/add-keyword/invalid.html) |  |  | `L2-072` |
 
 ### Notifications
 
 | Screen | info | success | warning | danger | stacked | with-action | Requirements |
 |---|---|---|---|---|---|---|---|
-| Collection toast (`collection-toast`) | [✅](notifications/collection-toast/info.html) | [✅](notifications/collection-toast/success.html) | [✅](notifications/collection-toast/warning.html) | [✅](notifications/collection-toast/danger.html) | [✅](notifications/collection-toast/stacked.html) |  |  |
-| Article toast (`article-toast`) | [✅](notifications/article-toast/info.html) | [✅](notifications/article-toast/success.html) | ➖ | [✅](notifications/article-toast/danger.html) |  | [✅](notifications/article-toast/with-action.html) |  |
-| Source toast (`source-toast`) | ➖ | [✅](notifications/source-toast/success.html) | [✅](notifications/source-toast/warning.html) | [✅](notifications/source-toast/danger.html) |  | [✅](notifications/source-toast/with-action.html) |  |
-| Run toast (`run-toast`) | [✅](notifications/run-toast/info.html) | [✅](notifications/run-toast/success.html) | [✅](notifications/run-toast/warning.html) | [✅](notifications/run-toast/danger.html) |  |  |  |
-| API toast (`api-toast`) | ➖ | [✅](notifications/api-toast/success.html) | [✅](notifications/api-toast/warning.html) | [✅](notifications/api-toast/danger.html) |  |  |  |
+| Collection toast (`collection-toast`) | [✅](notifications/collection-toast/info.html) | [✅](notifications/collection-toast/success.html) | [✅](notifications/collection-toast/warning.html) | [✅](notifications/collection-toast/danger.html) | [✅](notifications/collection-toast/stacked.html) |  | `L2-075`, `L2-076` |
+| Article toast (`article-toast`) | [✅](notifications/article-toast/info.html) | [✅](notifications/article-toast/success.html) | ➖ | [✅](notifications/article-toast/danger.html) |  | [✅](notifications/article-toast/with-action.html) | `L2-052`, `L2-054`, `L2-075` |
+| Source toast (`source-toast`) | ➖ | [✅](notifications/source-toast/success.html) | [✅](notifications/source-toast/warning.html) | [✅](notifications/source-toast/danger.html) |  | [✅](notifications/source-toast/with-action.html) | `L2-064`, `L2-065`, `L2-075` |
+| Run toast (`run-toast`) | [✅](notifications/run-toast/info.html) | [✅](notifications/run-toast/success.html) | [✅](notifications/run-toast/warning.html) | [✅](notifications/run-toast/danger.html) |  |  | `L2-059`, `L2-060`, `L2-075` |
+| API toast (`api-toast`) | ➖ | [✅](notifications/api-toast/success.html) | [✅](notifications/api-toast/warning.html) | [✅](notifications/api-toast/danger.html) |  |  | `L2-068`, `L2-069`, `L2-075` |
 
 <!-- coverage:end -->

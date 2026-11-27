@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Map an error to ProblemDetails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ProblemDetailsMapper" as mapper
+  participant "EventsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as valid
+  participant "ListEventsQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+end box
+participant "OpenTelemetry" as otel
+product -> mapper : GET /v1/events?to=…&from=…
+mapper -> controller : Next middleware (exception handler wraps the pipeline)
+controller -> valid : Send ListEventsQuery
+alt a validator rule fails
+  valid --> mapper : KeryxException (code from the failing rule, e.g. invalid_filter)
+  mapper -> otel : Read current trace id
+  otel --> mapper : trace_id
+  mapper --> product : Apply L2-031 400 application/problem+json {type, title, status, code, trace_id}
+else unhandled exception in the handler
+  valid -> handler : Valid request
+  handler -> ctx : Query
+  ctx --> handler : Exception (for example a lost connection)
+  handler --> mapper : Unhandled exception
+  mapper -> otel : Record exception on the span, structured log without message text in the body
+  mapper --> product : Apply L2-031 500, code internal_error, generic title, trace_id; no message, stack, SQL, path or host
+end
+@enduml

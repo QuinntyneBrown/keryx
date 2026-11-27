@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Unknown path or method under /v1
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "Routing" as routing
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "V1FallbackEndpoint" as fallback
+  participant "ProblemDetailsMapper" as mapper
+end box
+product -> routing : GET /v1/widgets or DELETE /v1/articles
+routing -> auth : Matched endpoint (fallback or 405 candidate)
+auth -> auth : Authenticate Bearer key (order relative to 404 is TO SUPPLY)
+alt path matches no /v1 route
+  auth -> fallback : /v1/{**path}
+  fallback --> mapper : 404
+  mapper --> product : Apply L2-031 404 problem+json, code not_found
+else path exists, method not allowed
+  routing --> mapper : 405 status, Allow header
+  mapper --> product : Apply L2-031 405 problem+json, code TO SUPPLY
+end
+@enduml

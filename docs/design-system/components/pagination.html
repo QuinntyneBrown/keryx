@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagination and table footer — Keryx design system</title>
+<meta name="description" content="Previous and Next under a table, beside the range of rows being shown.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Pagination and table footer</h1>
+      <p class="ds-lead">Previous and Next under a table, beside the range of rows being shown.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;nav aria-label="Pagination"&gt;</code></span><span class="ds-pill">Block: <code>.pagination</code>, <code>.table-footer</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every list the API serves is paged, so every table ends with a footer: which rows are shown, of how many, and two buttons. There are no page numbers; with 18,432 articles, nobody wants page 1,204, they want search.</p>
+      <ul>
+        <li>Previous is disabled on the first page and Next on the last.</li>
+        <li>The range sentence is the live region that announces a page change.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="pagination"><div class="table-footer"><p data-part="1">Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination" data-part="2"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div><span class="ds-callout" style="left: 2.7%; top: 38.6%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 70%; top: 22.7%;" aria-hidden="true">2</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Range</b><small>“Showing 1–10 of 18,432 articles” in <code>--text-caption</code>, subtle.</small></div></li>
+          <li><div><b>Buttons</b><small>Two small default buttons with chevrons, <code>--space-2</code> apart.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div>
+        <div class="ds-example__caption"><span>First page</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="table-footer"&gt;
+&lt;p&gt;Showing 1–10 of 18,432 articles&lt;/p&gt;
+&lt;nav class="pagination" aria-label="Pagination"&gt;
+&lt;button class="btn btn--sm" type="button" disabled&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Previous&lt;/button&gt;
+&lt;button class="btn btn--sm" type="button"&gt;Next&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/nav&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size, built from small buttons."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size, built from small buttons.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p></p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Position</th><th scope="col">Footer</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">First page</th><td><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></td></tr>
+          <tr><th scope="row">Middle</th><td><div class="table-footer"><p>Showing 11–20 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></td></tr>
+          <tr><th scope="row">Last page</th><td><div class="table-footer"><p>Showing 18,431–18,432 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button" disabled>Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></td></tr>
+          <tr><th scope="row">Loading next</th><td><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button" aria-busy="true" disabled>Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div></div></div>
+      <ul>
+        <li>With one page or less, the buttons are omitted and the sentence reads “Showing all 12 sources”.</li>
+        <li>The page size is fixed per table (10 articles, 12 sources); there is no page-size control.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The sentence and the buttons share a row and wrap, sentence first, when narrow.</li>
+        <li>Buttons keep their labels at every width.</li>
+        <li>Small buttons are 44 px tall on touch devices.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>It reads semantic tokens only, so both themes and <code>prefers-contrast: more</code> restyle it with no rule of its own.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A <code>&lt;nav aria-label="Pagination"&gt;</code> with two <code>&lt;button&gt;</code> elements. The range sentence has <code>role="status"</code>.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Loads the previous or next page.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>After a page change, focus stays on the button that was pressed (or moves to the other one if it became disabled), and the table scrolls to its top.</p>
+      <h3>Labelling</h3>
+      <p>“Previous” and “Next” are enough inside a nav labelled “Pagination”. The range is announced politely after each change.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Range on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Button label</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>32 px with a fine pointer and 44 px on touch devices: <code>--control-height-sm</code> grows to <code>--target-comfortable</code> under <code>(pointer: coarse)</code>.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>“Showing 1–10 of 18,432 articles”: an en dash in the range, thousands separators, the noun at the end.</li>
+        <li>“Previous” and “Next”, not “Prev”, “Back” or arrows alone.</li>
+        <li>When a filter is active the total is the filtered total.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div><figcaption>Page on the server, a page at a time.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="table-footer"><p>Showing all 18,432 articles</p></div></div><figcaption>The design listed 10 of 18,432 rows with no way to reach the rest; loading them all would break the bounded-list rule and the browser.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div><figcaption>Say where the person is in the list.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="table-footer"><nav class="pagination" aria-label="Pagination 2"><button class="btn btn--sm" type="button" disabled>Previous</button><button class="btn btn--sm" type="button">Next</button></nav></div></div><figcaption>Buttons with no range leave no way to know how much is left.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Range text</td><td><code>--text-caption</code> <code>--color-fg-subtle</code></td><td colspan="2"><span data-token="--text-caption"></span> · <span data-token="--color-fg-subtle"></span></td></tr>
+          <tr><td>Space above</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Button gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+          <tr><td>Buttons</td><td><code>--control-height-sm</code></td><td colspan="2"><span data-token="--control-height-sm"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.pagination</code>, <code>.table-footer</code>. The Angular component lives in <code>frontend/projects/components/src/pagination/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="table-footer"&gt;
+&lt;p&gt;Showing 1–10 of 18,432 articles&lt;/p&gt;
+&lt;nav class="pagination" aria-label="Pagination"&gt;
+&lt;button class="btn btn--sm" type="button" disabled&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Previous&lt;/button&gt;
+&lt;button class="btn btn--sm" type="button"&gt;Next&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/nav&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.table-footer</code></td><td>Row under a table.</td></tr>
+        <tr><td><code>.pagination</code></td><td>The button pair; a <code>&lt;nav&gt;</code>.</td></tr>
+        <tr><td><code>.btn.btn--sm</code></td><td>Previous and Next.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/articles/default.html">pages/articles/default</a> (first page of articles)</li>
+        <li><a href="../../mocks/pages/sources/default.html">pages/sources/default</a> (12 of 64 sources)</li>
+        <li><a href="../../mocks/pages/articles/review.html">pages/articles/review</a> (a filtered total)</li>
+      </ul>
+      <p>Drift fixed during extraction: the pagination wrapper is a <code>&lt;div&gt;</code> in the mocks; it is documented as a <code>&lt;nav aria-label="Pagination"&gt;</code>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

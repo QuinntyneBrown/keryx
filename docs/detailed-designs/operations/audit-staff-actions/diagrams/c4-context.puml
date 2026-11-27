@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Audit staff actions
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(staff, keryx, "Changes sources, articles, keys, issues, runs and settings in")
+Rel(keryx, idp, "Signs staff in; reads subject id", "OIDC")
+Rel(keryx, otel, "Exports refused-request metrics and logs", "OTLP")
+@enduml

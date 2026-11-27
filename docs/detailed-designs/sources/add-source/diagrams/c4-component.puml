@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Add a source
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "SourcesPage", "Routed page", "Opens the dialog from Add source")
+  Component(dialog, "AddSourceDialog", "CDK Dialog", "Collects, validates, tests and submits")
+  Component(ui, "Dialog, ChoiceCard, Field, Input, Select, Alert, Btn", "Presentation components", "Markup of dialogs/add-source")
+  Component(rules, "sourceFormValidation", "Domain helper", "Field rules and messages")
+  Component(store, "SourcesStore", "Screen store", "Inserts the new row")
+  Component(client, "HttpSourcesApi", "SourcesApi via SOURCES_API", "Typed admin source requests")
+  Component(notifier, "Notifier", "NOTIFIER token", "Success or warning toast")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "POST /admin/v1/sources")
+  Component(validator, "CreateSourceCommandValidator", "FluentValidation", "Kind, address, organization, region")
+  Component(handler, "CreateSourceCommandHandler", "MediatR handler", "Normalizes, checks uniqueness, stores, audits")
+  Component(entity, "Source", "Domain entity", "Kind, address, organization, region, health, times")
+  ComponentDb(db, "Keryx database", "EF Core", "Sources, regions, audit")
+}
+Rel(page, dialog, "Opens with SOURCES_API bound")
+Rel(dialog, ui, "Composes")
+Rel(dialog, rules, "Validates with")
+Rel(dialog, client, "testAddress, createSource")
+Rel(dialog, notifier, "Reports outcome")
+Rel(dialog, store, "Hands created source")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, validator, "Pipeline validates")
+Rel(ctrl, handler, "Sends CreateSourceCommand")
+Rel(handler, entity, "Creates")
+Rel(handler, db, "Saves source and AuditEntry", "EF Core")
+@enduml

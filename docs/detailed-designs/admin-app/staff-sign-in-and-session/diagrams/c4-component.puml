@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Staff sign-in and session
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(guard, "staffGuard", "Functional canMatch guard", "Admits staff; redirects to sign-in or forbidden")
+  Component(interceptor, "sessionInterceptor", "Functional HTTP interceptor", "Cookie, anti-forgery header, session_expired")
+  Component(sstore, "SessionStore", "Root signal store", "me, anti-forgery token")
+  Component(pages, "SignInPage, ForbiddenPage, NotFoundPage", "Routed standalone components", "Sign-in states, Access denied, Not found")
+  Component(account, "Account section", "settings-section on SettingsPage", "Signed in as, Sign out")
+  Component(sapi, "HttpSessionApi", "SESSION_API implementation", "me, antiforgery, sign-in URL, sign-out")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(schemes, "Cookie and OIDC schemes", "ASP.NET Core authentication", "PKCE, state, nonce; HttpOnly Secure Lax cookie")
+  Component(policies, "Fallback policy, StaffPolicy, anti-forgery", "ASP.NET Core authorization", "401, 403 not_staff, 400 antiforgery_failed")
+  Component(ctrl, "AuthController", "ASP.NET Core controller", "sign-in, sign-out, me, antiforgery")
+  Component(handlers, "Session handlers", "MediatR handlers", "PrepareSignIn, RecordStaffSignIn, ValidateStaffSession, SignOut, GetCurrentStaff")
+  Component(session, "StaffSession", "Domain entity", "IsExpired(now, idle, absolute)")
+  Component(ticket, "StaffSessionTicketStore", "ITicketStore", "Server-side sessions")
+  ComponentDb(db, "Keryx database", "EF Core relational store", "StaffSession, StaffMember")
+}
+Rel(staff, pages, "Opens")
+Rel(guard, sstore, "Loads me")
+Rel(sstore, sapi, "Calls")
+Rel(interceptor, sstore, "Reads token; clears on expiry")
+Rel(account, sapi, "signOut()")
+Rel(sapi, ctrl, "Calls", "JSON/HTTPS")
+Rel(pages, schemes, "Browser goes to sign-in", "HTTPS redirect")
+Rel(schemes, idp, "Challenge and code exchange", "OIDC")
+Rel(schemes, handlers, "Sends RecordStaffSignIn, ValidateStaffSession")
+Rel(schemes, ticket, "Stores and retrieves tickets")
+Rel(policies, ctrl, "Admits")
+Rel(ctrl, handlers, "Sends one request per action")
+Rel(handlers, session, "Applies expiry rule")
+Rel(handlers, db, "Reads and writes", "EF Core")
+Rel(ticket, db, "Persists sessions", "EF Core")
+@enduml

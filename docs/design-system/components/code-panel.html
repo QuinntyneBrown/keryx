@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code panel — Keryx design system</title>
+<meta name="description" content="An ink panel with an example request and the response it returns.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Code panel</h1>
+      <p class="ds-lead">An ink panel with an example request and the response it returns.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;pre&gt;</code></span><span class="ds-pill">Block: <code>.code-panel</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The code panel shows consumers what to send and what comes back. It is ink in both themes, like the sidebar, so code always reads the same.</p>
+      <ul>
+        <li>A head with a title and the response status in volt.</li>
+        <li>One or two blocks; the second (the response) is muted.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="code-panel"><div class="ds-w"><div class="code-panel"><div class="code-panel__head" data-part="1"><span>Example request</span><span class="code-panel__status" data-part="2">200 OK</span></div><pre class="code-panel__block" tabindex="0" aria-label="Example request" data-part="3">curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"</pre><pre class="code-panel__block" tabindex="0" aria-label="Example response">{
+  &quot;last_run_at&quot;: &quot;2025-03-11T06:00:00-04:00&quot;,
+  &quot;status&quot;: &quot;completed_with_issues&quot;,
+  &quot;articles_total&quot;: 18432
+}</pre></div></div><span class="ds-callout" style="left: 96.6%; top: 18.7%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 92.6%; top: 3.5%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 2.7%; top: 17%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Head</b><small>Mono caption on a hairline; muted.</small></div></li>
+          <li><div><b>Status</b><small>The HTTP status in <code>--color-brand</code> (volt on ink).</small></div></li>
+          <li><div><b>Block</b><small><code>--text-code</code>; scrolls sideways; focusable so it can be scrolled by keyboard.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><div class="ds-w"><div class="code-panel"><div class="code-panel__head"><span>Example request</span><span class="code-panel__status">200 OK</span></div><pre class="code-panel__block" tabindex="0" aria-label="Example request">curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"</pre><pre class="code-panel__block" tabindex="0" aria-label="Example response">{
+  &quot;last_run_at&quot;: &quot;2025-03-11T06:00:00-04:00&quot;,
+  &quot;status&quot;: &quot;completed_with_issues&quot;,
+  &quot;articles_total&quot;: 18432
+}</pre></div></div></div>
+        <div class="ds-example__caption"><span>Request and response for /v1/status</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-w"&gt;
+&lt;div class="code-panel"&gt;
+&lt;div class="code-panel__head"&gt;
+&lt;span&gt;Example request&lt;/span&gt;
+&lt;span class="code-panel__status"&gt;200 OK&lt;/span&gt;&lt;/div&gt;
+&lt;pre class="code-panel__block" tabindex="0" aria-label="Example request"&gt;curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"&lt;/pre&gt;
+&lt;pre class="code-panel__block" tabindex="0" aria-label="Example response"&gt;{
+  &amp;quot;last_run_at&amp;quot;: &amp;quot;2025-03-11T06:00:00-04:00&amp;quot;,
+  &amp;quot;status&amp;quot;: &amp;quot;completed_with_issues&amp;quot;,
+  &amp;quot;articles_total&amp;quot;: 18432
+}&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size; as wide as its column."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size; as wide as its column.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p></p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col"></th><th scope="col">Default</th><th scope="col">Block focused</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Code panel</th><td><div class="code-panel"><pre class="code-panel__block" tabindex="0" aria-label="Example a">GET /v1/status</pre></div></td><td><div class="code-panel" data-focus-demo><pre class="code-panel__block" tabindex="0" aria-label="Example b" data-state="focus">GET /v1/status</pre></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="ds-w"><div class="code-panel"><div class="code-panel__head"><span>Example request</span><span class="code-panel__status">200 OK</span></div><pre class="code-panel__block" tabindex="0" aria-label="Example request">curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"</pre><pre class="code-panel__block" tabindex="0" aria-label="Example response">{
+  &quot;last_run_at&quot;: &quot;2025-03-11T06:00:00-04:00&quot;,
+  &quot;status&quot;: &quot;completed_with_issues&quot;,
+  &quot;articles_total&quot;: 18432
+}</pre></div></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><div class="ds-w"><div class="code-panel"><div class="code-panel__head"><span>Example request</span><span class="code-panel__status">200 OK</span></div><pre class="code-panel__block" tabindex="0" aria-label="Example request">curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"</pre><pre class="code-panel__block" tabindex="0" aria-label="Example response">{
+  &quot;last_run_at&quot;: &quot;2025-03-11T06:00:00-04:00&quot;,
+  &quot;status&quot;: &quot;completed_with_issues&quot;,
+  &quot;articles_total&quot;: 18432
+}</pre></div></div></div></div></div>
+      <ul>
+        <li>Keys shown in examples are always truncated (“kx_live_…”); a full key is shown once, in the <a href="callout.html">callout</a> after creation.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Long lines scroll inside the block; the panel never widens the page.</li>
+        <li>Under the endpoint list below 1280 px, beside it above.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Shell tokens only. In dark the panel is one step darker than the canvas. Volt is used for the status text because the background is ink.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p><code>&lt;pre&gt;</code> blocks with <code>tabindex="0"</code> and an <code>aria-label</code>, so a keyboard user can focus and scroll them (scrollable regions must be keyboard accessible).</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td><kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd></td><td>Scrolls a focused block sideways.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>A volt ring inside the panel, as in the sidebar: the panel sets <code>--color-focus-ring</code> to <code>--color-brand</code>, because an ink ring would vanish on ink.</p>
+      <h3>Labelling</h3>
+      <p>Each block is labelled: “Example request”, “Example response”.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Code</span><span class="ds-pair__ratio" data-contrast="--color-shell-fg|--color-shell-bg" data-min="4.5"></span></div><div class="ds-pair"><span>Response and head</span><span class="ds-pair__ratio" data-contrast="--color-shell-fg-muted|--color-shell-bg" data-min="4.5"></span></div><div class="ds-pair"><span>Status</span><span class="ds-pair__ratio" data-contrast="--color-brand|--color-shell-bg" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>Blocks scroll by touch.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Real, runnable examples with a truncated key.</li>
+        <li>Timestamps are ISO 8601 with the Toronto offset; numbers are numbers.</li>
+        <li>No comments inside the code; explain beside it.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="code-panel ds-w"><pre class="code-panel__block" tabindex="0" aria-label="Do">-H "Authorization: Bearer kx_live_…"</pre></div></div><figcaption>Truncate keys in examples.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="code-panel ds-w"><pre class="code-panel__block" tabindex="0" aria-label="Dont">-H "Authorization: Bearer kx_live_R8vN2qLm0aXe5TbW9yKc3HdF"</pre></div></div><figcaption>A full key in an example ends up in screenshots and logs.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="code-panel ds-w"><div class="code-panel__head"><span>Example request</span><span class="code-panel__status">200 OK</span></div></div></div><figcaption>Volt text on ink.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="ds-w ds-example__canvas--paper ds-pad"><span class="ds-volt-text">200 OK</span></p></div><figcaption>The same volt on white is unreadable.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Background / divider</td><td><code>--color-shell-bg</code> <code>--color-shell-border</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-shell-bg" data-swatch></i><span data-token="--color-shell-bg"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-shell-border" data-swatch></i><span data-token="--color-shell-border"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-shell-bg" data-swatch></i><span data-token="--color-shell-bg"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-shell-border" data-swatch></i><span data-token="--color-shell-border"></span></span></td></tr>
+          <tr><td>Text / muted</td><td><code>--color-shell-fg</code> <code>--color-shell-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-shell-fg" data-swatch></i><span data-token="--color-shell-fg"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-shell-fg-muted" data-swatch></i><span data-token="--color-shell-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-shell-fg" data-swatch></i><span data-token="--color-shell-fg"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-shell-fg-muted" data-swatch></i><span data-token="--color-shell-fg-muted"></span></span></td></tr>
+          <tr><td>Status</td><td><code>--color-brand</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-brand" data-swatch></i><span data-token="--color-brand"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-brand" data-swatch></i><span data-token="--color-brand"></span></span></td></tr>
+          <tr><td>Font</td><td><code>--text-code</code></td><td colspan="2"><span data-token="--text-code"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-lg</code></td><td colspan="2"><span data-token="--radius-lg"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-2-5</code> <code>--space-3</code> <code>--space-4</code></td><td colspan="2"><span data-token="--space-2-5"></span> · <span data-token="--space-3"></span> · <span data-token="--space-4"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.code-panel</code>. The Angular component lives in <code>frontend/projects/components/src/code-panel/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="code-panel"&gt;
+&lt;div class="code-panel__head"&gt;
+&lt;span&gt;Example request&lt;/span&gt;
+&lt;span class="code-panel__status"&gt;200 OK&lt;/span&gt;&lt;/div&gt;
+&lt;pre class="code-panel__block" tabindex="0" aria-label="Example request"&gt;curl https://api.keryx.ca/v1/status \
+  -H "Authorization: Bearer kx_live_…"&lt;/pre&gt;
+&lt;pre class="code-panel__block" tabindex="0" aria-label="Example response"&gt;{
+  &amp;quot;last_run_at&amp;quot;: &amp;quot;2025-03-11T06:00:00-04:00&amp;quot;,
+  &amp;quot;status&amp;quot;: &amp;quot;completed_with_issues&amp;quot;,
+  &amp;quot;articles_total&amp;quot;: 18432
+}&lt;/pre&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.code-panel</code></td><td>The panel.</td></tr>
+        <tr><td><code>.code-panel__head</code> / <code>__status</code></td><td>Title row and status.</td></tr>
+        <tr><td><code>.code-panel__block</code></td><td>A <code>&lt;pre&gt;</code>; the second one is muted.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (example for /v1/articles)</li>
+        <li><a href="../../mocks/pages/api/endpoint.html">pages/api/endpoint</a> (example for /v1/status)</li>
+      </ul>
+      <p>Drift fixed during extraction: the panel had no focus-ring override, so a focused block showed an ink ring on ink in the light theme; it now uses volt. The block also resets <code>pre</code> margins, border and background so it survives a host page's element styles. Open question 4 in the mocks README stands: the examples use 2025 timestamps.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

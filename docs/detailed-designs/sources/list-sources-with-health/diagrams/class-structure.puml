@@ -1,0 +1,116 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — List sources with health
+
+package "Keryx.Domain" {
+  enum SourceHealth {
+    Healthy
+    NeedsLook
+    Failing
+  }
+  enum FetchFailureReason {
+    NotFound
+    Timeout
+    BlockedByRobots
+    Refused
+    InvalidContent
+    UnsafeAddress
+  }
+  class Source {
+    +PublicId Id
+    +SourceKind Kind
+    +CanonicalUrl Address
+    +string OrganizationName
+    +string RegionSlug
+    +SourceHealth Health
+    +FetchFailureReason? FailureReason
+    +int ConsecutiveFailures
+    +int HeldCount
+    +DateTimeOffset? LastFetchedAt
+    +DateTimeOffset? LastSucceededAt
+    +RecordFetchSucceeded(at: DateTimeOffset): void
+    +RecordFetchFailed(at: DateTimeOffset, reason: FetchFailureReason): void
+    +RecordHeld(count: int): void
+  }
+}
+
+package "Keryx.Application" {
+  class GetSourcesQuery {
+    +SourceKind? Kind
+    +int Page
+    +int PageSize
+  }
+  class GetSourcesQueryValidator {
+    +PageSize 1 to 100
+  }
+  class GetSourcesQueryHandler {
+    +Handle(q: GetSourcesQuery): Task<SourcePageDto>
+  }
+  class SourcePageDto {
+    +IReadOnlyList<SourceListItemDto> Items
+    +int Total
+    +int Page
+    +int PageSize
+    +int AllCount
+    +int FailingCount
+    +int NeedsLookCount
+  }
+  class SourceListItemDto {
+    +string Id
+    +string Kind
+    +string Address
+    +string OrganizationName
+    +string Region
+    +string Health
+    +string? FailureReason
+    +int ConsecutiveFailures
+    +int HeldCount
+    +int Articles30d
+    +DateTimeOffset? LastFetchedAt
+  }
+}
+
+package "frontend libraries and admin app" {
+  class SourcesStore {
+    +kind: signal<SourceKind | null>
+    +page: signal<number>
+    +state: signal<loading | ready | empty | noResults | error>
+    +rows: signal<SourceListItemDto[]>
+    +load(): void
+    +choose(kind): void
+  }
+  class "sourceHealthLabel" as healthLabel <<function>> {
+    +(health, reason, consecutiveFailures, heldCount): string
+  }
+  class "formatSourceAddress" as addressFormat <<function>> {
+    +(kind, address): string
+  }
+  class Health <<component>> {
+    +health: input<string>
+    +label: input<string>
+  }
+}
+
+GetSourcesQueryValidator ..> GetSourcesQuery : validates
+GetSourcesQueryHandler ..> GetSourcesQuery : handles
+GetSourcesQueryHandler ..> SourcePageDto : returns
+SourcePageDto "1" *-- "0..100" SourceListItemDto
+GetSourcesQueryHandler ..> Source : reads active
+Source --> SourceHealth : derives
+Source --> FetchFailureReason : last failure
+SourcesStore ..> SourcePageDto : holds one page
+SourcesStore ..> healthLabel : formats with
+SourcesStore ..> addressFormat : formats with
+Health ..> healthLabel : shows label from
+@enduml

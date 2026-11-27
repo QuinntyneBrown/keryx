@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — List articles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "ArticlesController" as controller
+  participant "EtagFilter" as etag
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListArticlesQueryValidator" as validator
+  participant "ListArticlesQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DataProtectionCursorCodec" as codec
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/articles?limit=10&region=toronto&cursor=…
+auth -> auth : Authenticate Bearer key and apply articles:read policy
+auth -> controller : Authenticated client
+controller -> validator : Send ListArticlesQuery (unknown parameters ignored, L2-025)
+validator -> validator : Apply L2-026 limit bound 1..100, default 20
+validator -> ctx : Region slug exists (category from fixed list)
+ctx --> validator : Known or unknown
+validator -> codec : Decode cursor
+codec --> validator : CursorPosition or not issued by Keryx
+alt limit out of range or not a number
+  validator --> mapper : InvalidLimitException
+  mapper --> product : 400 problem+json, code invalid_limit
+else unknown slug or malformed since
+  validator --> mapper : InvalidFilterException
+  mapper --> product : 400 problem+json, code invalid_filter
+else cursor not issued by Keryx or issued for other filters
+  validator --> mapper : InvalidCursorException
+  mapper --> product : 400 problem+json, code invalid_cursor
+else valid
+  validator -> handler : Valid ListArticlesQuery
+  handler -> served : Apply L2-026 served rule (published, titled)
+  served --> handler : Filtered query
+  handler -> ctx : Filter region, category, org, since; seek after (published_at, id) desc; take limit + 1
+  ctx -> db : One keyset query projecting list columns only
+  db --> ctx : Up to limit + 1 rows
+  ctx --> handler : ArticleSummaryDto rows
+  opt limit + 1 rows returned
+    handler -> codec : Encode last row's (published_at, id) and filter fingerprint
+    codec --> handler : Opaque next_cursor
+  end
+  handler --> controller : PageDto (data, next_cursor or null)
+  controller --> etag : 200 result
+  etag -> etag : Apply L2-032 ETag and Cache-Control private, max-age=60
+  etag --> product : 200 JSON page
+end
+@enduml

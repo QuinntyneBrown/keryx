@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Admin shell
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(routes, "app.routes.ts", "Angular router", "Lazy route per screen with loadComponent")
+  Component(shell, "AppShell", "Routed layout component", "Composes skip link, sidebar and router outlet")
+  Component(session, "SessionStore", "Signal store, app-wide", "Signed-in person (Staff sign-in and session design)")
+  Component(store, "ScheduleStore", "Signal store, app-wide", "Next collection, failing count, minute tick")
+  Component(lib, "SkipLink, Sidebar, Brand, NavLink, Avatar", "Components library", "Presentation only, BEM blocks of the mocks")
+  Component(domain, "formatCountdown, formatTorontoTime", "Domain library", "Pure formatting helpers")
+  Component(contracts, "SESSION_API, OVERVIEW_API", "API library", "Contracts and injection tokens")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(authCtrl, "AuthController", "ASP.NET Core controller", "GET /admin/v1/me")
+  Component(ovCtrl, "AdminOverviewController", "ASP.NET Core controller", "GET /admin/v1/overview/schedule")
+  Component(handler, "GetShellScheduleQueryHandler", "MediatR handler", "Next run, interval, zone, failing sources")
+  ComponentDb(db, "Keryx database", "EF Core", "Settings, runs, sources")
+}
+Rel(staff, shell, "Uses")
+Rel(routes, shell, "Loads lazily")
+Rel(shell, lib, "Composes")
+Rel(shell, store, "Reads signals")
+Rel(store, domain, "Formats with")
+Rel(store, contracts, "Calls")
+Rel(shell, session, "Reads person")
+Rel(session, contracts, "Calls")
+Rel(contracts, authCtrl, "GET me", "JSON/HTTPS")
+Rel(contracts, ovCtrl, "GET schedule", "JSON/HTTPS")
+Rel(ovCtrl, handler, "Sends GetShellScheduleQuery")
+Rel(handler, db, "Reads", "EF Core")
+@enduml

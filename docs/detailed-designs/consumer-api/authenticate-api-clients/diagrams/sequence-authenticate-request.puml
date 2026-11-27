@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Authenticate a request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ClientRateLimiter" as limiter
+  participant "ApiKeyAuthenticationHandler" as authn
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AuthenticateApiClientQueryHandler" as handler
+  participant "ApiKeyFormat" as format
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "ApiKeyHasher" as hasher
+  database "Keryx database" as db
+end box
+product -> limiter : GET /v1/... Authorization: Bearer kx_live_...
+limiter -> limiter : Address window not full (L2-038)
+limiter -> authn : Authenticate with ApiKey scheme
+authn -> authn : Read Authorization header only; ignore query string (L2-033)
+alt header present with Bearer scheme
+  authn -> handler : Send AuthenticateApiClientQuery(presented key)
+  handler -> format : IsWellFormed(key)
+  format --> handler : true
+  handler -> db : Load active clients where KeyPrefix = first 12 characters
+  db --> handler : Candidate clients
+  loop each candidate
+    handler -> hasher : Matches(key, stored SHA-256 hash)
+    hasher --> handler : FixedTimeEquals result (L2-033, L2-084)
+  end
+  handler --> authn : ApiClientPrincipalDto (client id, scopes)
+  authn --> limiter : Principal with scope claims
+  limiter -> limiter : Take from client window
+  limiter --> product : Continue to scope policy and controller
+else no header, other scheme, malformed, unknown or revoked key
+  authn -> mapper : Challenge as InvalidApiKeyException
+  mapper --> limiter : 401 invalid_api_key, WWW-Authenticate: Bearer
+  limiter -> limiter : Charge the address window
+  limiter --> product : 401 ProblemDetails, identical in every case
+end
+note over product, authn
+  A staff cookie on /v1 meets no handler of the ApiKey scheme: 401.
+  An API key on /admin/v1 meets only the staff cookie scheme: 401.
+end note
+@enduml

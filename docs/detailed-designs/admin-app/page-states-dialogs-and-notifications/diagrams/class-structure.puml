@@ -1,0 +1,154 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Page states, dialogs and notifications
+
+package "frontend/projects/api" {
+  class ApiError {
+    +status: number
+    +code: string | null
+    +traceId: string | null
+    +offline: boolean
+  }
+  interface Notifier {
+    +notify(input: NotificationInput): NotificationHandle
+    +dismiss(id: string): void
+  }
+  class NotificationInput {
+    +kind: NotificationKind
+    +title: string
+    +body: string
+    +action: NotificationAction | null
+  }
+  class NotificationAction {
+    +label: string
+    +isUndo: boolean
+    +run(): Promise<void>
+  }
+  enum NotificationKind {
+    info
+    success
+    warning
+    danger
+  }
+}
+
+package "frontend/projects/admin" {
+  class apiErrorInterceptor <<HttpInterceptorFn>>
+  class PageLoadState {
+    +status: Signal<PageStatus>
+    +reference: Signal<string | null>
+    +busyRetry: Signal<boolean>
+    +track<T>(request: Observable<T>, isEmpty: (T) => boolean): void
+    +retry(): void
+  }
+  class PageError <<presentation>> {
+    +pageName: InputSignal<string>
+    +reference: InputSignal<string | null>
+    +busy: InputSignal<boolean>
+    +retryRequested: OutputEmitterRef<void>
+    +overviewRequested: OutputEmitterRef<void>
+  }
+  class DialogCloseController {
+    -ref: DialogRef
+    -busy: Signal<boolean>
+    +requestClose(): void
+  }
+  class dialogConfig <<function>> {
+    +dialogConfig(options): DialogConfig
+  }
+  class closeDialogsBeforeNavigation <<function>>
+  class NotificationStore {
+    +visible: Signal<Notification[]>
+    +notify(input): NotificationHandle
+    +dismiss(id: string): void
+    +pause(id: string): void
+    +resume(id: string): void
+    +activate(id: string): void
+  }
+  class Notification {
+    +id: string
+    +kind: NotificationKind
+    +title: string
+    +body: string
+    +remainingMs: number | null
+    -timer: TimerHandle | null
+  }
+  class CollectionWatcher {
+    +watch(runId: string): void
+    +follow(runId: string): void
+    +unfollow(runId: string): void
+    +observe(run: RunDto): void
+    -lastNotifiedRunId: string | null
+  }
+}
+
+package "frontend/projects/components" {
+  class ToastRegion <<component>> {
+    +notifications: InputSignal<Notification[]>
+    +dismissed: OutputEmitterRef<string>
+    +actionActivated: OutputEmitterRef<string>
+    +paused: OutputEmitterRef<string>
+    +resumed: OutputEmitterRef<string>
+  }
+  class Toast <<component>> {
+    +kind: InputSignal<NotificationKind>
+    +title: InputSignal<string>
+    +text: InputSignal<string>
+    +actionLabel: InputSignal<string | null>
+  }
+  class Dialog <<component>> {
+    +busy: InputSignal<boolean>
+    +closeRequested: OutputEmitterRef<void>
+  }
+  class Skeleton <<component>>
+  class Empty <<component>>
+}
+
+package "frontend/projects/domain" {
+  enum PageStatus {
+    loading
+    ready
+    empty
+    no_results
+    error
+  }
+  class StateRules <<functions>> {
+    +errorCopy(code, page): ErrorCopy
+    +notificationLifetime(kind): number | null
+    +collectionOutcomeMessage(run): NotificationInput
+  }
+}
+
+package "backend/src" {
+  class ProblemDetailsMapper {
+    +Map(exception: Exception, context: HttpContext): ProblemDetails
+  }
+  class KeryxException {
+    +Code: string
+  }
+}
+
+apiErrorInterceptor ..> ApiError : produces
+PageLoadState --> PageStatus
+PageLoadState ..> ApiError : reads
+PageError ..> Empty : composes
+DialogCloseController ..> Dialog : listens to closeRequested
+NotificationStore ..|> Notifier
+NotificationStore "1" *-- "0..3" Notification
+NotificationStore ..> StateRules : lifetime
+ToastRegion "1" *-- "0..3" Toast
+CollectionWatcher ..> Notifier : NOTIFIER
+CollectionWatcher ..> StateRules : outcome message
+NotificationInput --> NotificationKind
+NotificationInput --> NotificationAction
+ProblemDetailsMapper ..> KeryxException : maps code
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage settings
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+
+Rel(staff, keryx, "Reads and saves settings using", "HTTPS")
+Rel(staff, idp, "Signs in through", "OpenID Connect")
+Rel(keryx, mail, "Later sends alerts to the saved address via", "SMTP")
+@enduml

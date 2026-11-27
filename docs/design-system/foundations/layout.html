@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layout — Keryx design system</title>
+<meta name="description" content="Six breakpoints, a 4/8/12 grid, the named widths of the shell, and the five page templates.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation</p>
+      <h1>Layout</h1>
+      <p class="ds-lead">Six breakpoints, a 4/8/12 grid, the named widths of the shell, and the five page templates.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Light and dark</span><span class="ds-pill">Source: tokens/tokens.css</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#breakpoints">Breakpoints</a></li><li><a href="#grid">Grid</a></li><li><a href="#widths">Named widths</a></li><li><a href="#templates">Templates</a></li><li><a href="#usage">Usage</a></li><li><a href="#tokens">Tokens</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The admin is a fixed ink sidebar and one fluid main column. Content is laid out with a few named widths (rail, panel, form) more than with a column grid, because every screen is a list, a table or a form. Layout values are tokens so they are the same decision everywhere.</p>
+    </section>
+    <section class="ds-section" id="breakpoints"><h2><a href="#breakpoints">Breakpoints</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Width</th><th scope="col">What changes</th></tr></thead>
+        <tbody>
+          <tr><td>(base)</td><td>0–639 px</td><td>One column. Sidebar is a top bar. Dialogs are bottom sheets. Toasts span the bottom.</td></tr>
+          <tr><td><code>--layout-breakpoint-sm</code></td><td>640 px</td><td>Dialogs centre; toasts dock bottom right; page header becomes a row; field grids and choice grids widen.</td></tr>
+          <tr><td><code>--layout-breakpoint-md</code></td><td>768 px</td><td>Page margin 32 px; card padding 24 px; settings sections become two columns; summary card becomes a row.</td></tr>
+          <tr><td><code>--layout-breakpoint-lg</code></td><td>1024 px</td><td>The sidebar appears; tables show all columns; rails sit beside content; the detail panel becomes a column.</td></tr>
+          <tr><td><code>--layout-breakpoint-xl</code></td><td>1280 px</td><td>Status card puts stats beside the summary; API list and code panel sit side by side.</td></tr>
+          <tr><td><code>--layout-breakpoint-2xl</code></td><td>1536 px</td><td>Tables keep every column even with the detail panel open.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Media queries use <code>min-width</code> in rem (40, 48, 64, 80, 96rem). Custom properties cannot be used inside <code>@media</code>, so the values are repeated there by convention; the tokens document them and feed <code>tokens.json</code>.</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--layout-breakpoint-sm</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-breakpoint-sm"></span></span></td><td>640px: dialogs centre, toasts dock right</td></tr>
+          <tr><td><code>--layout-breakpoint-md</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-breakpoint-md"></span></span></td><td>768px: settings and cards widen</td></tr>
+          <tr><td><code>--layout-breakpoint-lg</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-breakpoint-lg"></span></span></td><td>1024px: the sidebar appears</td></tr>
+          <tr><td><code>--layout-breakpoint-xl</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-breakpoint-xl"></span></span></td><td>1280px: side-by-side summaries</td></tr>
+          <tr><td><code>--layout-breakpoint-2xl</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-breakpoint-2xl"></span></span></td><td>1536px: every table column beside the detail panel</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="grid"><h2><a href="#grid">Columns, gutters, margins</a></h2>
+      <p>Resize the window: the demo follows the tokens (4 columns, 8 from 768 px, 12 from 1024 px).</p>
+      <div class="ds-grid-demo" role="img" aria-label="Live grid: 4 columns on phones, 8 from 768 pixels, 12 from 1024 pixels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Breakpoint</th><th scope="col">Columns</th><th scope="col">Gutter</th><th scope="col">Margin</th></tr></thead>
+        <tbody>
+          <tr><td>Base</td><td>4</td><td>16 px</td><td>20 px</td></tr>
+          <tr><td>768 px</td><td>8</td><td>24 px</td><td>32 px</td></tr>
+          <tr><td>1024 px and up</td><td>12</td><td>24 px</td><td>32 px</td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--layout-columns</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-columns"></span></span></td><td></td></tr>
+          <tr><td><code>--layout-gutter</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-gutter"></span></span></td><td><code>var(--space-4)</code></td></tr>
+          <tr><td><code>--layout-margin</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-margin"></span></span></td><td>page edge to content</td></tr>
+          <tr><td><code>--layout-container-max</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-container-max"></span></span></td><td></td></tr>
+          <tr><td><code>--layout-measure</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-measure"></span></span></td><td></td></tr>
+          <tr><td><code>--layout-measure-narrow</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-measure-narrow"></span></span></td><td>empty-state text</td></tr>
+        </tbody>
+      </table></div>
+      <p>The margin is narrower than the common 48 px desktop default because the sidebar already takes 240 px; the mocks keep 32 px at every width from 768 px.</p>
+    </section>
+    <section class="ds-section" id="widths"><h2><a href="#widths">Named widths</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--layout-form-max</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-form-max"></span></span></td><td>settings column</td></tr>
+          <tr><td><code>--layout-sidebar-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-sidebar-width"></span></span></td><td>240px</td></tr>
+          <tr><td><code>--layout-panel-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-panel-width"></span></span></td><td>400px detail panel</td></tr>
+          <tr><td><code>--layout-rail-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-rail-width"></span></span></td><td>340px run list, attention rail</td></tr>
+          <tr><td><code>--layout-label-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-label-width"></span></span></td><td>220px settings section intro</td></tr>
+          <tr><td><code>--layout-term-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-term-width"></span></span></td><td>110px description-list term column</td></tr>
+          <tr><td><code>--layout-dialog-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-dialog-width"></span></span></td><td>512px</td></tr>
+          <tr><td><code>--layout-dialog-width-sm</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-dialog-width-sm"></span></span></td><td>416px confirmations</td></tr>
+          <tr><td><code>--layout-dialog-max-height</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-dialog-max-height"></span></span></td><td></td></tr>
+          <tr><td><code>--layout-toast-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-toast-width"></span></span></td><td>384px</td></tr>
+          <tr><td><code>--layout-menu-min-width</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-menu-min-width"></span></span></td><td>192px</td></tr>
+          <tr><td><code>--layout-field-max</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-field-max"></span></span></td><td>384px medium input</td></tr>
+          <tr><td><code>--layout-search-basis</code></td><td><span class="ds-swatch-cell"><span data-token="--layout-search-basis"></span></span></td><td>240px search field before it grows</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="templates"><h2><a href="#templates">Page templates</a></h2>
+      <div class="ds-templates"><figure><div class="ds-template ds-template--shell"><span class="is-shell">sidebar 240</span><span>page header</span><span>table or list</span></div><figcaption>List page: Sources, Articles</figcaption></figure><figure><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>page header</span><span>status card · content + 340 rail</span></div><figcaption>Dashboard: Overview; rail first on Runs</figcaption></figure><figure><div class="ds-template ds-template--split"><span class="is-shell">sidebar</span><span>page header</span><span>table</span><span class="is-panel">panel 400</span></div><figcaption>Detail: Articles with an article open</figcaption></figure><figure><div class="ds-template ds-template--shell"><span class="is-shell">sidebar</span><span>page header</span><span>form ≤ 896 · save bar</span></div><figcaption>Settings</figcaption></figure><figure><div class="ds-template ds-template--bare"><span>card ≤ 896</span></div><figcaption>System page: sign in, access denied (bare); not found keeps the sidebar</figcaption></figure></div>
+      <p>See <a href="../components/app.html">app shell</a> for the classes and <a href="../patterns/navigation.html">navigation and page structure</a> for when to use which.</p>
+    </section>
+    <section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+      <ul>
+        <li>Grids use <code>minmax(0, 1fr)</code> tracks so long text cannot widen a column.</li>
+        <li>Full-height layouts use <code>100dvh</code>.</li>
+        <li>Fixed bottom elements (toasts, the save bar) add <code>env(safe-area-inset-bottom)</code> on phones.</li>
+        <li>The page never scrolls horizontally; only a table wrapper, the tab list, the top-bar navigation and code blocks may.</li>
+        <li>A new screen picks an existing template; a new template needs a mock and an entry here.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <p>Listed above: <a href="#breakpoints">breakpoints</a>, <a href="#grid">grid</a> and <a href="#widths">named widths</a>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

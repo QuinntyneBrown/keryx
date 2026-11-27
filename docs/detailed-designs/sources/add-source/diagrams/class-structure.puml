@@ -1,0 +1,128 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Add a source
+
+package "Keryx.Domain" {
+  enum SourceKind {
+    Rss
+    Website
+    Instagram
+    Eventbrite
+    NewsQuery
+  }
+  enum SourceHealth {
+    Healthy
+    NeedsLook
+    Failing
+  }
+  class CanonicalUrl {
+    +string Value
+    +{static} Parse(raw: string): CanonicalUrl
+  }
+  class Region {
+    +string Slug
+    +string Name
+    +string TimeZone
+  }
+  class Source {
+    +PublicId Id
+    +SourceKind Kind
+    +CanonicalUrl Address
+    +string OrganizationName
+    +string RegionSlug
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset? LastFetchedAt
+    +DateTimeOffset? LastSucceededAt
+    +int ConsecutiveFailures
+    +DateTimeOffset? RemovedAt
+    +{static} Create(kind, address, organization, region, now): Source
+  }
+  class AuditEntry {
+    +string SubjectId
+    +string Action
+    +string TargetId
+    +DateTimeOffset At
+  }
+}
+
+package "Keryx.Application" {
+  class CreateSourceCommand {
+    +string Kind
+    +string Address
+    +string OrganizationName
+    +string Region
+  }
+  class CreateSourceCommandValidator {
+    +address http or https, no user info, port 80 or 443
+    +organization 1 to 120 characters
+    +region known
+  }
+  class CreateSourceCommandHandler {
+    -IAppDbContext db
+    -TimeProvider time
+    +Handle(cmd: CreateSourceCommand): Task<SourceDto>
+  }
+  class SourceDto {
+    +string Id
+    +string Kind
+    +string Address
+    +string OrganizationName
+    +string Region
+    +string Health
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset? LastFetchedAt
+    +DateTimeOffset? LastSucceededAt
+  }
+  class SourceExistsException {
+    +Code = "source_exists"
+  }
+  class KindNotCreatableException {
+    +Code = "kind_not_creatable"
+  }
+  interface IAppDbContext
+}
+
+package "Keryx.Api" {
+  class AdminSourcesController {
+    +Create(body: CreateSourceCommand): Task<CreatedResult>
+  }
+}
+
+package "admin app (frontend)" {
+  class AddSourceDialog {
+    +kind: signal<SourceKind>
+    +url, organization, region: signal<string>
+    +test: signal<SourceTestResultDto | null>
+    +busy: signal<boolean>
+    +failure: signal<string | null>
+    +onUrlBlur(): void
+    +submit(): void
+  }
+}
+
+AdminSourcesController ..> CreateSourceCommand : sends
+CreateSourceCommandValidator ..> CreateSourceCommand : validates
+CreateSourceCommandHandler ..> CreateSourceCommand : handles
+CreateSourceCommandHandler --> IAppDbContext
+CreateSourceCommandHandler ..> Source : creates
+CreateSourceCommandHandler ..> AuditEntry : records
+CreateSourceCommandHandler ..> SourceExistsException : throws
+CreateSourceCommandHandler ..> KindNotCreatableException : throws
+CreateSourceCommandHandler ..> SourceDto : returns
+Source --> SourceKind
+Source --> SourceHealth : derives
+Source *-- CanonicalUrl
+Source --> Region : located in
+AddSourceDialog ..> SourceDto : receives
+@enduml

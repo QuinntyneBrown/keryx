@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Ingest idempotently: read a record's provenance
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage detail-panel" as page
+  participant "HttpArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetArticleQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open an article
+page -> client : getArticle(id)
+client -> controller : GET /admin/v1/articles/{id}
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send GetArticleQuery
+handler -> db : Load article and its provenance entries
+db --> handler : article, provenance (source snapshot kept after source removal)
+handler --> controller : ArticleDto with provenance[] (L2-011)
+controller --> client : 200: provenance with source_id, source_name, url, first_seen_at, last_seen_at
+client --> page : article
+page --> actor : Sources and links shown as text; links open only as http(s)
+@enduml

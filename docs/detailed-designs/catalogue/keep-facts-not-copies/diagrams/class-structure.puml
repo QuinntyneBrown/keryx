@@ -1,0 +1,75 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Keep facts, not copies
+
+interface ISourceFetcher {
+  +FetchAsync(source: Source, ct): Task<FetchResult>
+}
+interface IFeedParser {
+  +Parse(result: FetchResult): ParsedPage
+}
+interface IRobotsPolicy {
+  +IsAllowedAsync(url: Uri, ct): Task<bool>
+}
+class FetchResult {
+  +int StatusCode
+  +string ContentType
+  +ReadOnlyMemory<byte> Content
+  +bool NoIndex
+}
+class ParsedPage {
+  +bool NoIndex
+  +IReadOnlyList<ParsedItem> Items
+}
+class ParsedItem {
+  +string? Title
+  +string? Summary
+  +Uri Link
+  +string? OrganizationName
+  +string? Place
+  +DateTimeOffset? PublishedAt
+  +string? StartsAt
+  +IReadOnlyList<string> SourceTags
+}
+class HttpSourceFetcher
+class HtmlPageParser
+class RssFeedParser
+class RobotsTxtPolicy
+class ContactDetailScrubber {
+  +Scrub(text: string?): string?
+}
+class StaffMember {
+  +string SubjectId
+  +string Name
+  +string Role
+}
+class Settings {
+  +string? AlertEmail
+}
+class Organization {
+  +string Name
+  +Uri? WebsiteUrl
+}
+
+HttpSourceFetcher ..|> ISourceFetcher
+HtmlPageParser ..|> IFeedParser
+RssFeedParser ..|> IFeedParser
+RobotsTxtPolicy ..|> IRobotsPolicy
+ISourceFetcher ..> FetchResult : returns
+IFeedParser ..> FetchResult : reads
+IFeedParser ..> ParsedPage : returns
+ParsedPage "1" *-- "0..200" ParsedItem
+ContactDetailScrubber ..> ParsedItem : cleans title and summary
+note right of ParsedItem : No body, HTML, image\nor person field
+@enduml

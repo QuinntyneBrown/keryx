@@ -1,0 +1,30 @@
+@if (href(); as href) {
+  <a
+    [attr.class]="classes()"
+    [href]="href"
+    [attr.aria-label]="label()"
+    (click)="follow($event, href)"
+  >
+    <ng-container [ngTemplateOutlet]="mark" />
+    <span class="brand__word">keryx</span>
+  </a>
+} @else {
+  <span [attr.class]="classes()" role="img" [attr.aria-label]="label()">
+    <ng-container [ngTemplateOutlet]="mark" />
+    <span class="brand__word" aria-hidden="true">keryx</span>
+  </span>
+}
+
+<ng-template #mark>
+  <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
+    @if (tone() !== 'on-volt') {
+      <rect class="brand__tile" width="40" height="40" rx="10" />
+    }
+    <g class="brand__strokes">
+      <path d="M15 9V31" />
+      <path d="M9 16H15" />
+      <path d="M15 16L28.5 9" />
+      <path d="M20 20L29 31" />
+    </g>
+  </svg>
+</ng-template>

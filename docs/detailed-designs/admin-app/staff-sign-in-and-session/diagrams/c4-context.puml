@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Staff sign-in and session
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(staff, keryx, "Signs in, works and signs out in", "HTTPS")
+Rel(staff, idp, "Authenticates with", "HTTPS")
+Rel(keryx, idp, "Exchanges code with PKCE verifier", "OIDC/HTTPS")
+Rel(keryx, otel, "Counts refused requests and failed callbacks, without credentials", "OTLP")
+@enduml

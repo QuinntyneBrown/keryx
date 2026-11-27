@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Attach a source to an organization
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "AddSourceDialog" as dialog
+  participant "SourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AddSourceCommandHandler" as handler
+  participant "OrganizationResolver" as orgs
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> dialog : Add a source for an organization
+dialog -> client : Build typed request
+client -> controller : POST /admin/v1/sources
+controller -> handler : Send AddSourceCommand
+handler -> orgs : ResolveOrCreate(name, source region)
+orgs -> db : Find by L2-010 normalized name
+db --> orgs : Match or none
+alt name not yet known
+  orgs -> db : Create organization with name and source region (org_ id)
+else name already known
+  orgs --> orgs : Reuse existing organization
+end
+orgs --> handler : Organization
+handler -> db : Save source attached to organization
+db --> handler : Commit result
+handler --> controller : Source result
+controller --> client : 201 or ProblemDetails
+client --> dialog : Feature result
+dialog --> actor : Show the new source
+@enduml

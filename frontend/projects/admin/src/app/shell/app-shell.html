@@ -1,0 +1,9 @@
+<kx-skip-link />
+<kx-app>
+  <kx-sidebar slot="sidebar" [navigation]="false">
+    <kx-brand slot="brand" href="/" label="Keryx, go to overview" (navigate)="navigate($event)" />
+  </kx-sidebar>
+  <kx-page-body centered>
+    <kx-empty card [level]="1" title="Keryx Admin" text="The admin screens are not built yet." />
+  </kx-page-body>
+</kx-app>

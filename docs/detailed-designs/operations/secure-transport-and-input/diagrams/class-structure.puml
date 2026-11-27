@@ -1,0 +1,69 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Secure transport and input
+
+class "ValidationBehavior<TRequest, TResponse>" as VB {
+  -IEnumerable<IValidator<TRequest>> validators
+  +Handle(request: TRequest, next, ct): Task<TResponse>
+}
+interface "IValidator<T>" as IV {
+  +ValidateAsync(instance: T, ct): Task<ValidationResult>
+}
+class SaveSettingsCommandValidator
+class ListArticlesQueryValidator
+abstract class KeryxException {
+  +string Code
+}
+class ValidationFailedException {
+  +IReadOnlyDictionary<string, string[]> Errors
+}
+class NotFoundException
+class ProblemDetailsMapper {
+  +Map(e: Exception, http: HttpContext): ProblemDetails
+}
+class LiteralSearch {
+  +{static} char Escape = '\\'
+  +{static} Pattern(term: string): string
+}
+class PublicId {
+  +string Prefix
+  +string Value
+  +{static} TryParse(raw: string, prefix: string, out id: PublicId): bool
+}
+class SecurityHeadersMiddleware {
+  +InvokeAsync(ctx: HttpContext): Task
+}
+class NoStoreFilter {
+  +OnResultExecuting(ctx): void
+}
+class AdminRequestLimits {
+  +{static} long MaxBodyBytes = 65536
+  +Apply(builder: RouteGroupBuilder): void
+}
+class CorsPolicies {
+  +{static} string Admin = "AdminCorsPolicy"
+  +{static} string Consumer = "ConsumerCorsPolicy"
+  +Configure(options: CorsOptions, adminOrigin: string): void
+}
+
+VB ..> IV : runs
+SaveSettingsCommandValidator ..|> IV
+ListArticlesQueryValidator ..|> IV
+VB ..> ValidationFailedException : throws
+KeryxException <|-- ValidationFailedException
+KeryxException <|-- NotFoundException
+ProblemDetailsMapper ..> KeryxException : maps code
+ListArticlesQueryValidator ..> LiteralSearch : term later escaped by handler
+NotFoundException ..> PublicId : raised when TryParse fails
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Store facts from a feed item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Source feed" as src
+box "Backend — Keryx Worker application" #D1FADF
+  participant "ParseStage" as parse
+  participant "StoreStage" as store
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ContactDetailScrubber" as scrub
+  participant "ArticleFactory" as factory
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetch
+  participant "RssFeedParser" as rss
+  database "Keryx database" as db
+end box
+parse -> fetch : FetchAsync(source)
+fetch -> src : GET feed
+src --> fetch : Feed with items, image URLs and a contact line
+fetch --> parse : FetchResult held in memory only, at most 5 MB
+parse -> rss : Parse(result)
+rss -> rss : Map title, summary, link, times (L2-080)
+rss -> rss : Ignore enclosure and image URLs; nothing downloaded
+rss --> parse : ParsedItem list
+parse -> store : Facts-only items
+store -> scrub : Scrub(title), Scrub(summary)
+scrub --> store : E-mail addresses and phone numbers removed (L2-081)
+store -> factory : Create(item, classification, source)
+factory --> store : Article with url and summary of at most 500 characters
+store -> db : Save facts and link, no body, image or HTML
+db --> store : Commit result
+note over parse, fetch : Logs carry source id and status only (L2-094)
+@enduml

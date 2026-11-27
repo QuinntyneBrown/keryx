@@ -1,0 +1,86 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Mute an issue
+
+package "frontend/projects/api" {
+  interface RunsApi {
+    +muteIssue(id: string): Observable<IssueDto>
+    +unmuteIssue(id: string): Observable<IssueDto>
+  }
+  class IssueDto {
+    +id: string
+    +severity: 'error' | 'warning'
+    +kind: string
+    +detail: string
+    +consecutive_runs: number
+    +muted: boolean
+  }
+}
+package "frontend/projects/domain" {
+  class issueTitle <<function>> {
+    +issueTitle(issue: IssueDto): string
+  }
+}
+package "frontend/projects/admin" {
+  class RunsStore {
+    +issues: Signal<IssueDto[]>
+    +pendingIssueIds: Signal<Set<string>>
+    +muteIssue(issue: IssueDto): void
+    +unmuteIssue(issue: IssueDto): void
+  }
+  class ScheduleStore {
+    +openIssueCount: Signal<number>
+    +refresh(): void
+  }
+}
+package "Keryx.Api" {
+  class AdminIssuesController {
+    +Mute(id: string): Task<IActionResult>
+    +Unmute(id: string): Task<IActionResult>
+  }
+}
+package "Keryx.Application" {
+  class MuteIssueCommand {
+    +string IssueId
+  }
+  class UnmuteIssueCommand {
+    +string IssueId
+  }
+  class MuteIssueCommandHandler
+  class UnmuteIssueCommandHandler
+  class IssueNotFoundException {
+    +string Code = "issue_not_found"
+  }
+}
+package "Keryx.Domain" {
+  class RunIssue {
+    +IssueState State
+    +DateTimeOffset? MutedAt
+    +Mute(nowUtc): void
+    +Unmute(): void
+  }
+}
+
+RunsStore --> RunsApi : calls
+RunsStore ..> issueTitle : uses for toast text
+RunsStore ..> ScheduleStore : refresh()
+AdminIssuesController ..> MuteIssueCommand : sends
+AdminIssuesController ..> UnmuteIssueCommand : sends
+MuteIssueCommandHandler ..> MuteIssueCommand : handles
+UnmuteIssueCommandHandler ..> UnmuteIssueCommand : handles
+MuteIssueCommandHandler --> RunIssue : Mute
+UnmuteIssueCommandHandler --> RunIssue : Unmute
+MuteIssueCommandHandler ..> IssueNotFoundException : throws
+UnmuteIssueCommandHandler ..> IssueNotFoundException : throws
+@enduml

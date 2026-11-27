@@ -1,0 +1,21 @@
+<div [attr.class]="classes()" [attr.role]="announce() ? 'alert' : null">
+  <span class="empty__icon"><ng-content select="[slot=icon]" /></span>
+  @switch (level()) {
+    @case (1) {
+      <h1 class="empty__title">{{ title() }}</h1>
+    }
+    @case (3) {
+      <h3 class="empty__title">{{ title() }}</h3>
+    }
+    @default {
+      <h2 class="empty__title">{{ title() }}</h2>
+    }
+  }
+  @if (text(); as text) {
+    <p class="empty__text">{{ text }}</p>
+  }
+  @if (reference(); as reference) {
+    <p class="empty__ref">Reference {{ reference }}</p>
+  }
+  <div class="empty__actions"><ng-content select="[slot=actions]" /></div>
+</div>

@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Keryx.Api/Keryx.Api.csproj" />
+    <Project Path="src/Keryx.Application/Keryx.Application.csproj" />
+    <Project Path="src/Keryx.Cli/Keryx.Cli.csproj" />
+    <Project Path="src/Keryx.Domain/Keryx.Domain.csproj" />
+    <Project Path="src/Keryx.Infrastructure/Keryx.Infrastructure.csproj" />
+    <Project Path="src/Keryx.Worker/Keryx.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Keryx.Api.Tests/Keryx.Api.Tests.csproj" />
+    <Project Path="tests/Keryx.Application.Tests/Keryx.Application.Tests.csproj" />
+  </Folder>
+</Solution>

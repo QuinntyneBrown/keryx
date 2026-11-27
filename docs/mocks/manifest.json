@@ -35,7 +35,16 @@
         "error",
         "partial"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-042",
+        "L2-043",
+        "L2-044",
+        "L2-045",
+        "L2-046",
+        "L2-047",
+        "L2-073"
+      ]
     },
     {
       "id": "articles",
@@ -54,7 +63,17 @@
         "error",
         "edge"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-048",
+        "L2-049",
+        "L2-050",
+        "L2-051",
+        "L2-052",
+        "L2-053",
+        "L2-054",
+        "L2-055"
+      ]
     },
     {
       "id": "runs",
@@ -72,7 +91,16 @@
         "empty",
         "error"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-047",
+        "L2-056",
+        "L2-057",
+        "L2-058",
+        "L2-059",
+        "L2-060",
+        "L2-061"
+      ]
     },
     {
       "id": "sources",
@@ -88,7 +116,12 @@
         "empty",
         "error"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-062",
+        "L2-063",
+        "L2-066"
+      ]
     },
     {
       "id": "api",
@@ -103,7 +136,10 @@
         "empty",
         "error"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-067"
+      ]
     },
     {
       "id": "settings",
@@ -121,6 +157,12 @@
         "success",
         "loading",
         "error"
+      ],
+      "requirements": [
+        "L2-041",
+        "L2-070",
+        "L2-071",
+        "L2-072"
       ]
     },
     {
@@ -135,7 +177,10 @@
         "busy",
         "failed"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-064"
+      ]
     },
     {
       "id": "edit-source",
@@ -148,7 +193,10 @@
         "busy",
         "failed"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-065"
+      ]
     },
     {
       "id": "remove-source",
@@ -162,6 +210,9 @@
         "default",
         "busy",
         "failed"
+      ],
+      "requirements": [
+        "L2-065"
       ]
     },
     {
@@ -175,7 +226,10 @@
         "busy",
         "failed"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-068"
+      ]
     },
     {
       "id": "revoke-api-key",
@@ -189,6 +243,9 @@
         "default",
         "busy",
         "failed"
+      ],
+      "requirements": [
+        "L2-069"
       ]
     },
     {
@@ -202,6 +259,9 @@
       "states": [
         "default",
         "invalid"
+      ],
+      "requirements": [
+        "L2-072"
       ]
     },
     {
@@ -216,7 +276,11 @@
         "danger",
         "stacked"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-075",
+        "L2-076"
+      ]
     },
     {
       "id": "article-toast",
@@ -231,6 +295,11 @@
         "success",
         "with-action",
         "danger"
+      ],
+      "requirements": [
+        "L2-052",
+        "L2-054",
+        "L2-075"
       ]
     },
     {
@@ -246,6 +315,11 @@
         "with-action",
         "warning",
         "danger"
+      ],
+      "requirements": [
+        "L2-064",
+        "L2-065",
+        "L2-075"
       ]
     },
     {
@@ -259,7 +333,12 @@
         "warning",
         "danger"
       ],
-      "not_applicable": {}
+      "not_applicable": {},
+      "requirements": [
+        "L2-059",
+        "L2-060",
+        "L2-075"
+      ]
     },
     {
       "id": "api-toast",
@@ -273,7 +352,67 @@
         "success",
         "warning",
         "danger"
+      ],
+      "requirements": [
+        "L2-068",
+        "L2-069",
+        "L2-075"
       ]
+    },
+    {
+      "id": "sign-in",
+      "kind": "page",
+      "title": "Sign in",
+      "route": "/sign-in",
+      "requirements": [
+        "L2-039",
+        "L2-041"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "error",
+        "signed-out",
+        "session-expired"
+      ],
+      "not_applicable": {
+        "loading": "Nothing is loaded before the person acts.",
+        "empty": "The screen lists nothing."
+      }
+    },
+    {
+      "id": "forbidden",
+      "kind": "page",
+      "title": "Access denied",
+      "route": "/forbidden",
+      "requirements": [
+        "L2-040"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Nothing is loaded before the person acts.",
+        "empty": "The screen lists nothing.",
+        "error": "The screen is itself the refusal; it makes no request that can fail."
+      }
+    },
+    {
+      "id": "not-found",
+      "kind": "page",
+      "title": "Not found",
+      "route": "/**",
+      "requirements": [
+        "L2-040"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Nothing is loaded before the person acts.",
+        "empty": "The screen lists nothing.",
+        "error": "The screen makes no request that can fail."
+      }
     }
   ]
 }

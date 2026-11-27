@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Undo a decision
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Notifier" as notifier
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RevertArticleDecisionCommandValidator" as validator
+  participant "RevertArticleDecisionCommandHandler" as handler
+  participant "Article" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> notifier : Activate "Undo" within the notification's 8 seconds
+notifier -> store : Undo action callback
+notifier -> notifier : Remove the notification; replaced by none (L2-075)
+store -> client : revert(art_18429, needs_review)
+client -> controller : POST /admin/v1/articles/art_18429/revert {"previous_status": "needs_review"}
+controller -> validator : Send RevertArticleDecisionCommand
+validator -> handler : previous_status is a known status
+handler -> db : Load article
+db --> handler : Article published, previous needs_review
+handler -> entity : RevertTo(needs_review, now)
+entity --> handler : status needs_review, decided_by back to its previous value (L2-014)
+handler -> db : Save article and AuditEntry (L2-085)
+handler --> controller : ArticleDecisionDto
+controller --> client : 200
+client --> store : Decision
+store -> store : Badge "Needs review"; counts back to 6 and 17,911 (L2-052)
+alt revert fails
+  client --> store : Error code
+  store -> notifier : Danger notification, copy <TO SUPPLY>
+end
+note over notifier : When the lifetime ends without Undo, the decision stands
+@enduml

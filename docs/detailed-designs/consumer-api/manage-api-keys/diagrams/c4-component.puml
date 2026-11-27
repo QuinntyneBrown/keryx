@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage API keys
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "ApiPage", "Routed standalone component", "Hosts New API key and Revoke actions")
+  Component(store, "ApiStore", "Screen store on ApiPage providers", "Clients page, revealed key, new client id")
+  Component(newdlg, "NewApiKeyDialog", "CDK Dialog", "Product name, scopes, Create key")
+  Component(revdlg, "RevokeApiKeyDialog", "CDK Dialog", "Confirms revocation; focus on Cancel")
+  Component(validation, "apiKeyFormValidation", "Domain library helper", "1-80 character name, at least one scope")
+  Component(client, "HttpApiClientsApi", "API_CLIENTS_API implementation", "Typed HTTP calls and error codes")
+  Component(notifier, "Notifier", "NOTIFIER token", "Key copied, couldn't copy, Key revoked")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminApiClientsController", "ASP.NET Core controller", "StaffPolicy, anti-forgery, /admin/v1/api-clients")
+  Component(create, "CreateApiClientCommandHandler", "MediatR handler + validator", "Refuses taken names; returns key once")
+  Component(revoke, "RevokeApiClientCommandHandler", "MediatR handler", "Sets revoked_at once")
+  Component(gen, "ApiKeyGenerator", "Infrastructure", "kx_live_ or kx_test_ plus random characters")
+  Component(hasher, "ApiKeyHasher", "Infrastructure", "SHA-256 of the key")
+  Component(entity, "ApiClient", "Domain entity", "Prefix, hash, scopes, revoked_at")
+  ComponentDb(db, "Keryx database", "EF Core relational store", "API clients and audit entries")
+}
+Rel(staff, page, "Presses New API key, Revoke, Copy")
+Rel(page, newdlg, "Opens")
+Rel(page, revdlg, "Opens")
+Rel(newdlg, validation, "Validates entries")
+Rel(newdlg, client, "create(request)")
+Rel(revdlg, client, "revoke(id)")
+Rel(page, store, "Reads and updates")
+Rel(page, notifier, "Reports outcomes")
+Rel(client, ctrl, "POST", "JSON/HTTPS")
+Rel(ctrl, create, "Sends CreateApiClientCommand")
+Rel(ctrl, revoke, "Sends RevokeApiClientCommand")
+Rel(create, gen, "Generates key")
+Rel(create, hasher, "Hashes key")
+Rel(create, entity, "Creates")
+Rel(revoke, entity, "Revoke(now)")
+Rel(create, db, "Saves", "EF Core")
+Rel(revoke, db, "Saves", "EF Core")
+@enduml

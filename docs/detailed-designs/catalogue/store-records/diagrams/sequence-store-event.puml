@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Store an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "StoreStage" as store
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RegionResolver" as regions
+  participant "EventFactory" as factory
+  participant "EventTime" as time
+  participant "Event" as event
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+store -> regions : Resolve(place, source)
+regions --> store : Region with IANA zone
+store -> factory : Create(item, region, linked article)
+alt source publishes a zoned time
+  factory -> time : FromZoned(start, zone)
+else local time with no zone
+  factory -> time : FromLocal(start, region zone) (America/Toronto for GTA, L2-016)
+end
+time --> factory : starts_at in UTC and time_zone
+opt end time before start time
+  factory -> factory : Drop end time, ends_at null
+end
+alt linked to an article
+  factory -> event : Status follows the article (served only when published)
+else no linked article
+  factory -> event : Status from own score by the L2-013 thresholds
+end
+factory --> store : Event with title, place_name, region, organization, url
+store -> db : Save event with provenance
+db --> store : Commit result
+@enduml

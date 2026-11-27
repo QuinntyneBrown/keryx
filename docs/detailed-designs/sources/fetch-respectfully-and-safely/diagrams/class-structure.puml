@@ -1,0 +1,152 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Fetch respectfully and safely
+
+enum SourceKind {
+  Rss
+  Website
+  Instagram
+  Eventbrite
+  NewsQuery
+}
+
+enum FetchFailureReason {
+  NotFound
+  Timeout
+  BlockedByRobots
+  Refused
+  InvalidContent
+  UnsafeAddress
+}
+
+class SourceFetchRequest {
+  +SourceKind Kind
+  +string Address
+  +string? ETag
+  +DateTimeOffset? LastModified
+  +TimeSpan Timeout
+}
+
+class SourceFetchResult {
+  +bool Succeeded
+  +bool NotModified
+  +FetchFailureReason? Reason
+  +string? ContentType
+  +ReadOnlyMemory<byte> Content
+  +string? ETag
+  +DateTimeOffset? LastModified
+  +int Attempts
+}
+
+interface ISourceFetcher {
+  +FetchAsync(request: SourceFetchRequest, ct: CancellationToken): Task<SourceFetchResult>
+}
+
+interface IRobotsPolicy {
+  +CheckAsync(url: Uri, ct: CancellationToken): Task<RobotsVerdict>
+}
+
+class RobotsVerdict {
+  +bool Allowed
+  +bool Unavailable
+  +TimeSpan? CrawlDelay
+}
+
+interface ISafeAddressResolver {
+  +ResolveAsync(host: string, ct: CancellationToken): Task<SafeAddress>
+}
+
+class SafeAddress {
+  +bool IsSafe
+  +IPAddress? Checked
+}
+
+class HttpSourceFetcher {
+  -HttpClient client
+  -TimeProvider time
+  +FetchAsync(request: SourceFetchRequest, ct: CancellationToken): Task<SourceFetchResult>
+  -FollowRedirect(response: HttpResponseMessage, hops: int): Uri?
+  -RetryDelay(response: HttpResponseMessage, attempt: int): TimeSpan
+}
+
+class RobotsTxtPolicy {
+  -TimeProvider time
+  -cache: origin -> (rules, fetchedAt)
+  +CheckAsync(url: Uri, ct: CancellationToken): Task<RobotsVerdict>
+}
+
+class HostRateLimiter {
+  +MaxHosts: int = 8
+  +MinSpacing: TimeSpan = 1 s
+  +CrawlDelayCap: TimeSpan = 30 s
+  +AcquireAsync(host: string, crawlDelay: TimeSpan?, ct: CancellationToken): Task<IAsyncDisposable>
+}
+
+class SafeAddressResolver {
+  +ResolveAsync(host: string, ct: CancellationToken): Task<SafeAddress>
+  -IsPublic(address: IPAddress): bool
+}
+
+class UserAgentHandler {
+  -FetchOptions options
+  #SendAsync(request: HttpRequestMessage, ct: CancellationToken): Task<HttpResponseMessage>
+}
+
+class FetchOptions {
+  +string UserAgentContactUrl
+  +string Version
+}
+
+class BoundedContentReader {
+  +MaxBytes: long = 5 MB
+  +ReadAsync(response: HttpResponseMessage, kind: SourceKind, ct: CancellationToken): Task<SourceFetchResult>
+}
+
+interface IFeedParser {
+  +Parse(content: SourceFetchResult, kind: SourceKind): ParsedFeed
+}
+
+class RssFeedParser {
+  +MaxItems: int = 200
+  +Parse(content: SourceFetchResult, kind: SourceKind): ParsedFeed
+}
+
+class ParsedFeed {
+  +IReadOnlyList<ParsedItem> Items
+  +int Rejected
+}
+
+class TextSanitizer {
+  +ToText(untrusted: string): string
+}
+
+ISourceFetcher <|.. HttpSourceFetcher
+IRobotsPolicy <|.. RobotsTxtPolicy
+ISafeAddressResolver <|.. SafeAddressResolver
+IFeedParser <|.. RssFeedParser
+HttpSourceFetcher ..> SourceFetchRequest : reads
+HttpSourceFetcher ..> SourceFetchResult : returns
+HttpSourceFetcher --> IRobotsPolicy : checks
+HttpSourceFetcher --> HostRateLimiter : spaces
+HttpSourceFetcher --> ISafeAddressResolver : resolves
+HttpSourceFetcher --> BoundedContentReader : reads with
+HttpSourceFetcher --> UserAgentHandler : sends through
+UserAgentHandler --> FetchOptions : reads
+IRobotsPolicy ..> RobotsVerdict : returns
+ISafeAddressResolver ..> SafeAddress : returns
+SourceFetchRequest --> SourceKind
+SourceFetchResult --> FetchFailureReason
+RssFeedParser ..> ParsedFeed : produces
+RssFeedParser ..> TextSanitizer : uses
+@enduml

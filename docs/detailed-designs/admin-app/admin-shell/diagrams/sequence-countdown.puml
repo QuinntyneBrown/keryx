@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Count down to the next collection
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "AppShell" as page
+  participant "ScheduleStore" as store
+  participant "formatCountdown" as domain
+  participant "OverviewApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminOverviewController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetShellScheduleQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+loop every minute, timer released on destroy
+  store -> store : Advance now signal
+  store -> domain : formatCountdown(now, next_run_at)
+  domain --> store : "in 2h 13m" (L2-042, no request)
+  store --> page : countdown signal changes
+  page --> actor : Sidebar reads "12:00 PM · in 2h 13m"
+end
+opt now passes next_run_at
+  store -> client : getSchedule()
+  client -> controller : GET /admin/v1/overview/schedule
+  controller -> handler : Send GetShellScheduleQuery
+  handler -> db : Read settings, runs and source health
+  db --> handler : Current state
+  handler --> controller : ShellScheduleDto
+  controller --> client : New next_run_at and failing_sources
+  client --> store : Typed result
+  store --> page : Next collection and badge update
+end
+@enduml

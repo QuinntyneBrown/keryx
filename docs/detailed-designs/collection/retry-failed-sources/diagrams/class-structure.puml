@@ -1,0 +1,83 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Retry failed sources
+
+package "frontend/projects/domain" {
+  class summarizeRetry <<function>> {
+    +summarizeRetry(before: FailedSource[], after: FailedSource[]): RetryNotice
+  }
+  class RetryNotice {
+    +variant: 'warning' | 'danger' | 'success'
+    +title: string
+    +text: string
+    +action: 'edit_source' | 'edit_sources' | null
+  }
+}
+package "frontend/projects/admin" {
+  class RunsStore {
+    +selectedRun: Signal<RunDto>
+    +retrying: Signal<boolean>
+    +canRetry: Signal<boolean>
+    +retryFailedSources(): void
+  }
+}
+package "frontend/projects/api" {
+  interface RunsApi {
+    +retryFailedSources(id: string): Observable<StartRunResult>
+    +getRun(id: string): Observable<RunDto>
+  }
+}
+package "Keryx.Application" {
+  class RetryFailedSourcesCommand {
+    +string RunId
+  }
+  class RetryFailedSourcesCommandHandler {
+    +Handle(command: RetryFailedSourcesCommand): Task<StartRunResultDto>
+  }
+  class RunInProgressException
+  class RunNotFoundException
+}
+package "Keryx.Domain" {
+  class Run {
+    +PublicId Id
+    +RunOutcome Outcome
+    +int SourcesOk
+    +int SourcesFailed
+    +RetryRequest? PendingRetry
+    +RequestRetry(failedSources: SourceId[], nowUtc): void
+    +MergeRetry(result: PipelineResult, nowUtc): void
+  }
+  class RetryRequest {
+    +IReadOnlyList<SourceId> SourceIds
+    +DateTimeOffset RequestedAt
+  }
+  class RunLease {
+    +TryClaim(runId: PublicId): bool
+  }
+  class RunIssue {
+    +Close(nowUtc): void
+  }
+}
+
+RunsStore --> RunsApi : calls
+RunsStore ..> summarizeRetry : uses
+summarizeRetry ..> RetryNotice : returns
+RetryFailedSourcesCommandHandler ..> RetryFailedSourcesCommand : handles
+RetryFailedSourcesCommandHandler --> RunLease : claims
+RetryFailedSourcesCommandHandler --> Run : RequestRetry or StartManual
+RetryFailedSourcesCommandHandler ..> RunInProgressException : throws
+RetryFailedSourcesCommandHandler ..> RunNotFoundException : throws
+Run *-- RetryRequest
+Run ..> RunIssue : closes recovered source issues
+@enduml

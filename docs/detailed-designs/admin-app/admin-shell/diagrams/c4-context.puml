@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Admin shell
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+
+Rel(staff, keryx, "Navigates the admin screens of", "HTTPS")
+Rel(keryx, idp, "Signs staff in through", "OpenID Connect")
+@enduml

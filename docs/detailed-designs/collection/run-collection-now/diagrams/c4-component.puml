@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run collection now
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(pages, "OverviewPage / RunsPage", "Angular routed components", "Host the page-header Run now button and the running state")
+  Component(btn, "Btn", "components library", "btn block: primary, aria-busy and disabled while busy")
+  Component(toast, "Toast", "components library", "toast block: info and danger variants")
+  Component(store, "ScheduleStore", "App-wide store (SCHEDULE_STORE)", "Active run, starting flag, runNow()")
+  Component(notifier, "Notifier", "Service (NOTIFIER)", "Queues toasts in the toast region")
+  Component(runsApi, "HttpRunsApi", "RunsApi (RUNS_API)", "startRun(), getRun(id)")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "POST /admin/v1/runs under StaffPolicy")
+  Component(handler, "StartRunCommandHandler", "MediatR handler", "Claims the lease and creates a manual run")
+  Component(mapper, "ProblemDetailsMapper", "Middleware", "Maps RunInProgressException to 409 run_in_progress")
+}
+Container_Boundary(worker, "Keryx Worker") {
+  Component(scheduler, "CollectionScheduler", "BackgroundService", "Execution loop sends RunCollectionCommand")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Run lease and runs")
+
+Rel(pages, store, "Calls runNow(); reads activeRun and starting")
+Rel(pages, btn, "Renders")
+Rel(store, runsApi, "startRun()")
+Rel(store, notifier, "Collection started / could not be started")
+Rel(notifier, toast, "Renders")
+Rel(runsApi, ctrl, "POST /admin/v1/runs", "JSON/HTTPS")
+Rel(ctrl, handler, "Sends StartRunCommand")
+Rel(handler, db, "Claims RunLease; inserts Run", "EF Core")
+Rel(mapper, ctrl, "Wraps errors from")
+Rel(scheduler, db, "Picks up the pending run", "EF Core")
+@enduml

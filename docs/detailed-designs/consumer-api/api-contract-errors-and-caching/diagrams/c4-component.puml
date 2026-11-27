@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — API contract, errors and caching
+
+System_Ext(product, "Consuming product", "Reads the consumer API")
+Container_Boundary(api, "Keryx API") {
+  Component(exc, "ProblemDetailsMapper", "IExceptionHandler and status-code pages", "ProblemDetails with code and trace_id for every /v1 error")
+  Component(comp, "Response compression", "ASP.NET Core middleware", "Brotli or gzip for JSON bodies")
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "Bearer key (key-management features)")
+  Component(fallback, "V1FallbackEndpoint", "Minimal API endpoint", "/v1/{**path} returns not_found")
+  Component(ctrls, "Consumer controllers", "ASP.NET Core controllers", "Articles, Events, Organizations, V1Sources, Categories, Regions, Status")
+  Component(etag, "EtagFilter", "IAsyncResultFilter", "ETag, Cache-Control and 304")
+  Component(openapi, "OpenAPI document v1", "Microsoft.AspNetCore.OpenApi", "/openapi/v1.json with bounds and error codes")
+  Component(trans, "ErrorCodesOperationTransformer", "IOpenApiOperationTransformer", "Adds ProducesErrorCode responses and parameter bounds")
+  Component(valid, "ValidationBehavior", "MediatR pipeline behaviour", "Runs validators; throws KeryxException with the rule's code")
+  Component(handlers, "Consumer query handlers", "MediatR handlers", "Keyset, projected, no-tracking queries")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext, IAppDbContext", "Index definitions in model configuration")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Indexed records")
+
+Rel(product, comp, "HTTPS request")
+Rel(comp, exc, "Wraps")
+Rel(exc, auth, "Wraps")
+Rel(auth, ctrls, "Authenticated client")
+Rel(auth, fallback, "Unmatched /v1 path")
+Rel(etag, ctrls, "Filters successful GET results of")
+Rel(ctrls, valid, "Send one request through")
+Rel(valid, handlers, "Valid request")
+Rel(handlers, ctx, "Queries")
+Rel(ctx, db, "SQL", "EF Core")
+Rel(openapi, ctrls, "Describes")
+Rel(trans, openapi, "Enriches")
+@enduml

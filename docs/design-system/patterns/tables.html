@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data tables and lists — Keryx design system</title>
+<meta name="description" content="How Keryx shows many records: when a table, when a list, how they filter, page, select and shrink.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern</p>
+      <h1>Data tables and lists</h1>
+      <p class="ds-lead">How Keryx shows many records: when a table, when a list, how they filter, page, select and shrink.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Composes components</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Keryx's data is long and paged: 18,432 articles, 64 sources, a run every six hours. Three <a href="../components/table.html">tables</a> and several <a href="../components/list.html">lists</a> show it. They never load a whole collection into the browser: the API pages every list, and so does the admin.</p>      <ul>
+        <li>Filters sit above, the table in the middle, the range and paging below.</li>
+        <li>Rows are for scanning; the detail lives in a panel or another screen.</li>
+        <li>Newest or most urgent first, and the caption says which.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Content</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td>Records with the same fields, compared across rows</td><td><a href="../components/table.html">Table</a></td></tr>
+          <tr><td>A short series read top to bottom</td><td><a href="../components/list.html">List</a></td></tr>
+          <tr><td>A history where one item is open beside it</td><td>Interactive list in a rail (Runs)</td></tr>
+          <tr><td>Ordered steps of one process</td><td><a href="../components/timeline.html">Timeline</a></td></tr>
+          <tr><td>Facts about one record</td><td><a href="../components/dl.html">Description list</a></td></tr>
+          <tr><td>A few headline numbers</td><td><a href="../components/stat.html">Stats</a></td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">To narrow a list by</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td>Status, with counts</td><td><a href="../components/tabs.html">Tabs</a></td></tr>
+          <tr><td>One category of several</td><td><a href="../components/filter-chip.html">Filter chips</a></td></tr>
+          <tr><td>Two or three modes</td><td><a href="../components/segmented.html">Segmented control</a></td></tr>
+          <tr><td>One value from a long list</td><td><a href="../components/select.html">Select</a></td></tr>
+          <tr><td>Text</td><td><a href="../components/search.html">Search</a></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="tabs" role="tablist" aria-label="Pattern tabs"><button class="tab" role="tab" type="button" aria-selected="true">All<span class="badge badge--count">18,432</span></button><button class="tab" role="tab" type="button" aria-selected="false" tabindex="-1">Needs review<span class="badge badge--count badge--warning">6</span></button><button class="tab" role="tab" type="button" aria-selected="false" tabindex="-1">Published<span class="badge badge--count">17,911</span></button><button class="tab" role="tab" type="button" aria-selected="false" tabindex="-1">Hidden<span class="badge badge--count">515</span></button></div><div class="toolbar flow-lg"><div class="search"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><label class="visually-hidden" for="pt-q">Search articles</label><input class="input" id="pt-q" type="search" placeholder="Search titles, organisations, places"></div><label class="visually-hidden" for="pt-r">Region</label><select class="select select--auto" id="pt-r"><option>All regions</option><option>Toronto</option><option>Mississauga</option><option>Brampton</option></select></div><div class="flow-lg"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Pattern example</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Shepherd’s 5K returns to Lakefront Promenade this May</a><span class="table__sub">Shepherd’s 5K · 2h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Mississauga · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Mississauga</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 94%"></span></span><span class="meter__value">0.94</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Supplement brand sponsors church basketball league</a><span class="table__sub">Google News · 9h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot">Hidden</span><span class="text-caption">GTA · Events</span></span></td><td class="table__muted from-lg">Events</td><td class="table__muted table__nowrap from-lg">GTA</td><td class="from-lg"><span class="meter"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 31%"></span></span><span class="meter__value">0.31</span></span></td><td class="from-lg"><span class="badge badge--dot">Hidden</span></td></tr></tbody></table></div></div><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Pattern pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div></div>
+        <div class="ds-example__caption"><span>Tabs, toolbar, table, footer: the Articles screen</span></div>
+      </div>
+      <ul>
+        <li><b>Primary column</b>: the record's name as a link, with a secondary line.</li>
+        <li><b>Sorting</b>: fixed per table (articles newest first, sources failing first). There are no sortable headers yet; if added, use <code>aria-sort</code> and a button in the header.</li>
+        <li><b>Selection</b>: single. A row opens the detail panel and is marked <code>aria-current</code>. There is no multi-select or bulk bar.</li>
+        <li><b>Row actions</b>: one small ghost button, or a ••• <a href="../components/menu.html">menu</a> for more, in a fixed-width last column.</li>
+        <li><b>Paging</b>: Previous and Next with “Showing 1–10 of 18,432 articles” (<a href="../components/pagination.html">pagination</a>); no infinite scroll, so the footer and focus stay predictable and memory stays bounded.</li>
+        <li><b>Density</b>: one. About 56 px per row; ten or twelve rows per page.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">State</th><th scope="col">Shown</th></tr></thead>
+        <tbody>
+          <tr><td>Loading</td><td>Skeleton rows in the real columns; tabs and toolbar stay, disabled.</td></tr>
+          <tr><td>Empty</td><td>A first-run empty state replaces the table.</td></tr>
+          <tr><td>No results</td><td>A compact empty state in the table's place; filters stay and keep their values.</td></tr>
+          <tr><td>Error</td><td>An error state with a reference and Try again.</td></tr>
+          <tr><td>Row hover / selected</td><td>Subtle fill / accent-subtle fill.</td></tr>
+          <tr><td>Row removed</td><td>The row leaves and a toast offers Undo or confirms.</td></tr>
+          <tr><td>Paging</td><td>The Next button is busy; current rows stay until the new page arrives.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 1024 px a table shows its primary column and actions; status and context stack under the title. This is the “cards without cards” strategy: the markup stays a table.</li>
+        <li>With the detail panel open, optional columns give way first (1024–1535 px).</li>
+        <li>A table that still does not fit scrolls inside its wrapper; the page does not.</li>
+        <li>Tabs scroll sideways; filter chips wrap; the toolbar's selects wrap under the search field.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>Tables are real <code>&lt;table&gt;</code>s with a caption that includes the order, and <code>scope</code> on headers.</li>
+        <li>Each row has at most two tab stops: its title link and its action.</li>
+        <li>The result range under the table is a polite live region, so filtering and paging are announced.</li>
+        <li>Status in a cell is text plus colour; scores are numbers plus a bar.</li>
+        <li>Aggregated titles are text with <code>dir="auto"</code>; source links open only <code>http(s)</code>.</li>
+        <li>Hidden columns are hidden with <code>display: none</code> and their content is repeated in the stacked cell, so nothing is lost to anyone.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Headers: one or two words, units included.</li>
+        <li>Em dash for an empty cell.</li>
+        <li>The footer names what is counted and reflects active filters.</li>
+        <li>Relative times up to a day, then dates.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-w"><div class="table-footer"><p>Showing 1–10 of 18,432 articles</p><nav class="pagination" aria-label="Do pagination"><button class="btn btn--sm" type="button" disabled><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Previous</button><button class="btn btn--sm" type="button">Next<svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></nav></div></div></div><figcaption>Page on the server and say where the person is.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="ds-w">Scroll to load more… (18,432 rows)</p></div><figcaption>Infinite scroll over eighteen thousand rows grows memory without bound and loses the footer.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-w"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Do table</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr></tbody></table></div></div></div><figcaption>Keep the table a table on phones; stack inside the first cell.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="card ds-w"><p class="list__title">Toronto youth pastors…</p><p class="text-caption">Relevance 0.58 · Needs review</p></div></div><figcaption>Re-rendering rows as separate cards doubles the markup and drops the header relationships.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Mocks this pattern was drawn from:</p>
+      <ul>
+        <li><a href="../../mocks/pages/articles/default.html">pages/articles/default</a> (tabs, toolbar, table, footer)</li>
+        <li><a href="../../mocks/pages/articles/review.html">pages/articles/review</a> (a filtered tab)</li>
+        <li><a href="../../mocks/pages/articles/no-results.html">pages/articles/no-results</a> (no results)</li>
+        <li><a href="../../mocks/pages/articles/loading.html">pages/articles/loading</a> (loading)</li>
+        <li><a href="../../mocks/pages/articles/selected.html">pages/articles/selected</a> (selection and the panel)</li>
+        <li><a href="../../mocks/pages/sources/default.html">pages/sources/default</a> (filter chips and row menus)</li>
+        <li><a href="../../mocks/pages/sources/filtered.html">pages/sources/filtered</a> (a chip active)</li>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (row buttons, a revoked row)</li>
+        <li><a href="../../mocks/pages/runs/default.html">pages/runs/default</a> (list in a rail, timeline)</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

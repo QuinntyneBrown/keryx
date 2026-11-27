@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record runs and issues
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Reads runs and open issues; mutes and unmutes issues", "HTTPS")
+Rel(keryx, mail, "Sends alerts for open, unmuted issues through", "SMTP")
+Rel(keryx, otel, "Exports traces whose ids are the runs' correlation ids", "OTLP")
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Edit and remove a source
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Uses the Edit source and Remove dialogs", "HTTPS")
+Rel(spa, api, "GET, PUT, DELETE /admin/v1/sources/{id} and POST .../restore", "JSON/HTTPS")
+Rel(api, sources, "Test-fetches the saved address", "HTTPS")
+Rel(api, db, "Updates or marks the source removed, writes audit", "EF Core")
+Rel(worker, db, "Fetches only active sources from the next run", "EF Core")
+@enduml

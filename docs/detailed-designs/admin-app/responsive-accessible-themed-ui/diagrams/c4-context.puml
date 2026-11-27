@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Responsive, accessible, themed UI
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+
+Rel(staff, keryx, "Uses from phone to wide desktop, by touch, mouse, keyboard and assistive technology", "HTTPS")
+Rel(staff, idp, "Signs in through", "OpenID Connect")
+@enduml

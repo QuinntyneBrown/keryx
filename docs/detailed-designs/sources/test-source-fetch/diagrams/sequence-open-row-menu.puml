@@ -1,0 +1,30 @@
+@startuml
+title UML sequence behaviour — Open and navigate the source row menu
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "Menu" as menu
+  participant "CDK Overlay" as overlay
+  participant "sourceSiteLink" as link
+end box
+
+actor -> page : Activate "Actions for <name>"
+page -> link : sourceSiteLink(kind, address)
+link --> page : host and URL when http or https, else null
+page -> menu : Open with Edit source, Test fetch now, Open <host> when a link exists, Remove source
+menu -> overlay : Position inside the viewport, close any other menu (L2-063)
+menu -> menu : Focus first item
+loop keys
+  actor -> menu : Arrow Down, Arrow Up, Home or End
+  menu -> menu : Move focus, wrapping at the ends
+end
+alt Escape or focus leaves
+  menu -> overlay : Close
+  menu -> page : Return focus to the menu button
+else "Open <host>"
+  menu --> actor : New tab with rel="noopener noreferrer"
+else "Test fetch now", "Edit source" or "Remove source"
+  menu --> page : chosen(item)
+end
+@enduml

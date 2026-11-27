@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Fetch respectfully and safely
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Requests test fetches", "JSON/HTTPS")
+Rel(api, sources, "Test-fetches one source", "HTTPS via HttpSourceFetcher")
+Rel(worker, sources, "Fetches every source in a run", "HTTPS via HttpSourceFetcher")
+Rel(api, db, "Reads timeout setting", "EF Core")
+Rel(worker, db, "Reads settings, stores validators and failures", "EF Core")
+Rel(api, otel, "Exports fetch spans", "OTLP")
+Rel(worker, otel, "Exports fetch spans and latency", "OTLP")
+@enduml

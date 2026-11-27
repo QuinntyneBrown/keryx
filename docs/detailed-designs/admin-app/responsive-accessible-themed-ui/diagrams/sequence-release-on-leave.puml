@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Leave a screen and release resources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Angular Router" as router
+  participant "Routed screen" as screen
+  participant "DestroyRef" as destroy
+  participant "Screen store" as store
+  participant "ViewportState" as viewport
+  participant "HttpClient" as http
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controller" as controller
+end box
+actor -> router : Open Runs
+router -> screen : Create with providers (store, ViewportState)
+screen -> store : Load one page of rows
+store -> http : GET /admin/v1/runs
+http -> controller : Request
+store -> store : Start progress poll timer
+viewport -> viewport : Subscribe to BreakpointObserver
+actor -> router : Navigate to Sources before the response
+router -> screen : Destroy routed component
+screen -> destroy : onDestroy callbacks (L2-089 criterion 2)
+destroy -> store : takeUntilDestroyed ends subscriptions
+store -> http : Unsubscribe
+http -> controller : Abort in-flight request
+destroy -> store : Clear timers, animation frames; abort listeners' AbortSignal
+destroy -> viewport : Release BreakpointObserver subscription
+destroy -> store : Disconnect observers; revoke object URLs
+router --> actor : Sources renders; Runs state is released (L2-089 criterion 4)
+note over store : After 20 visits the heap after garbage collection\nis within 10% of its size after the second visit (L2-089 criterion 1)
+@enduml

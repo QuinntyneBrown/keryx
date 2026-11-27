@@ -1,0 +1,92 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Run collection now
+
+package "frontend/projects/api" {
+  interface RunsApi {
+    +startRun(): Observable<StartRunResult>
+    +getRun(id: string): Observable<RunDto>
+  }
+  class StartRunResult {
+    +id: string
+  }
+  interface ScheduleState {
+    +activeRun: Signal<RunDto | null>
+    +starting: Signal<boolean>
+    +runNow(): void
+  }
+  class ApiError {
+    +code: string
+    +runId?: string
+  }
+}
+package "frontend/projects/admin" {
+  class ScheduleStore {
+    -runsApi: RunsApi
+    -notifier: Notifier
+    +runNow(): void
+    -watch(runId: string): void
+  }
+  class HttpRunsApi
+}
+package "Keryx.Api" {
+  class AdminRunsController {
+    +Start(): Task<IActionResult>
+  }
+}
+package "Keryx.Application" {
+  class StartRunCommand
+  class StartRunCommandHandler {
+    -IAppDbContext db
+    -TimeProvider timeProvider
+    +Handle(command: StartRunCommand): Task<StartRunResultDto>
+  }
+  class StartRunResultDto {
+    +string id
+  }
+  class RunInProgressException {
+    +string Code = "run_in_progress"
+    +PublicId RunningRunId
+  }
+  class KeryxException
+}
+package "Keryx.Domain" {
+  class RunLease {
+    +string Worker
+    +PublicId? ActiveRunId
+    +byte[] Version
+    +TryClaim(runId: PublicId): bool
+  }
+  class Run {
+    +PublicId Id
+    +RunTrigger Trigger
+    +RunOutcome Outcome
+    +bool ExecutionStarted
+    +{static} StartManual(id: PublicId, nowUtc: DateTimeOffset): Run
+  }
+}
+
+ScheduleStore ..|> ScheduleState
+HttpRunsApi ..|> RunsApi
+ScheduleStore --> RunsApi : calls
+RunsApi ..> StartRunResult : returns
+RunsApi ..> ApiError : fails with
+AdminRunsController ..> StartRunCommand : sends
+StartRunCommandHandler ..> StartRunCommand : handles
+StartRunCommandHandler --> RunLease : claims
+StartRunCommandHandler --> Run : creates
+StartRunCommandHandler ..> StartRunResultDto : returns
+StartRunCommandHandler ..> RunInProgressException : throws
+KeryxException <|-- RunInProgressException
+@enduml

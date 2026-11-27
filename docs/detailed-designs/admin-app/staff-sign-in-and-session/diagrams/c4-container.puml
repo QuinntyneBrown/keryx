@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Staff sign-in and session
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls /admin/v1 with session cookie and anti-forgery header", "JSON/HTTPS")
+Rel(staff, api, "Browser redirects for sign-in and callback", "HTTPS")
+Rel(api, idp, "Authorization code flow with PKCE", "OIDC/HTTPS")
+Rel(api, db, "Stores staff sessions and staff members", "EF Core")
+@enduml

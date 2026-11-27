@@ -1,0 +1,76 @@
+@startuml
+title UML sequence behaviour — Load Overview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "OverviewPage" as page
+  participant "OverviewStore" as store
+  participant "OverviewApi, RunsApi, ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controllers" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Query handlers" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open Overview (lazy chunk)
+page -> store : load()
+store -> store : Start 300 ms skeleton timer (L2-046)
+par four independent requests
+  store -> client : getStatus()
+  client -> controller : GET /admin/v1/overview/status
+else
+  store -> client : listRuns(page 1, size 14)
+  client -> controller : GET /admin/v1/runs?worker=collection&page=1&page_size=14
+else
+  store -> client : list(page 1, size 7)
+  client -> controller : GET /admin/v1/articles?page=1&page_size=7
+else
+  store -> client : listOpenIssues(size 5)
+  client -> controller : GET /admin/v1/issues?state=open&page_size=5
+end
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send one query per request
+handler -> db : Read runs, articles, open unmuted issues, settings
+db --> handler : Rows
+handler -> handler : Order issues errors before warnings (L2-045)
+handler --> controller : DTOs with numbers, never words
+controller --> client : JSON or ProblemDetails
+client --> store : Section results as they arrive
+opt no answer within 300 ms
+  store --> page : showSkeleton; main region aria-busy="true"
+end
+alt has_sources = false and has_runs = false
+  page --> actor : "Nothing has been collected yet", "Add a source", "Review the schedule"
+else every request failed
+  page --> actor : "The overview didn't load", Reference req_…, "Try again" (L2-073)
+else latest articles failed only
+  page --> actor : "Latest articles didn't load" with "Try again"; rest usable (L2-045)
+else all succeeded
+  page -> page : Status card "Last run", stats 47, 62 /64; next run from ScheduleStore (L2-043)
+  page -> page : @defer RunChart, bars oldest first, labels "Today 6:00 AM: 47 new" (L2-044)
+  page -> page : Latest 7 with "View all 18,432"; Needs attention "3 open" (L2-045)
+  page --> actor : Overview without layout shift
+end
+opt "Try again" on a failed section
+  actor -> page : Press "Try again"
+  page -> store : retry(section)
+  store -> client : Repeat only that request
+end
+@enduml

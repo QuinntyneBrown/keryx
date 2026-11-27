@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — API contract, errors and caching
+
+package "Keryx.Api" {
+  class ProblemDetailsMapper {
+    +TryHandleAsync(context: HttpContext, exception: Exception): ValueTask<bool>
+    +Customize(context: ProblemDetailsContext): void
+  }
+  class EtagFilter {
+    +OnResultExecutionAsync(context: ResultExecutingContext, next): Task
+    -ComputeEtag(body: byte[]): string
+    -Matches(ifNoneMatch: StringValues, etag: string): bool
+  }
+  class ErrorCodesOperationTransformer {
+    +TransformAsync(operation: OpenApiOperation, context, ct): Task
+  }
+  class ProducesErrorCodeAttribute {
+    +int Status
+    +string Code
+  }
+  class V1FallbackEndpoint {
+    +Map(app: IEndpointRouteBuilder): void
+  }
+  class ConsumerErrorCodes <<static>> {
+    +InternalError = "internal_error"
+    +NotFound = "not_found"
+    +InvalidLimit = "invalid_limit"
+    +InvalidFilter = "invalid_filter"
+    +InvalidCursor = "invalid_cursor"
+    +MethodNotAllowed = TO SUPPLY
+  }
+}
+
+package "Keryx.Application" {
+  abstract class KeryxException {
+    +string Code
+    +int Status
+    +string Title
+  }
+  class RequestValidationException {
+    +IReadOnlyDictionary<string, string[]> Errors
+  }
+  class InvalidLimitException
+  class InvalidFilterException
+  class InvalidCursorException
+  class NotFoundException
+  class "ValidationBehavior<TRequest, TResponse>" as ValidationBehavior {
+    +Handle(request, next, ct): Task<TResponse>
+  }
+  class PageLimit <<static>> {
+    +Default = 20
+    +Max = 100
+  }
+  class ProblemBody <<contract>> {
+    +string type
+    +string title
+    +int status
+    +string code
+    +string trace_id
+  }
+}
+
+ProblemDetailsMapper ..> KeryxException : maps Code and Status
+ProblemDetailsMapper ..> ProblemBody : writes application/problem+json
+ProblemDetailsMapper ..> ConsumerErrorCodes
+V1FallbackEndpoint ..> ConsumerErrorCodes : not_found
+ErrorCodesOperationTransformer ..> ProducesErrorCodeAttribute : reads
+ErrorCodesOperationTransformer ..> PageLimit : documents bounds
+ValidationBehavior ..> KeryxException : throws rule's code
+KeryxException <|-- RequestValidationException
+KeryxException <|-- InvalidLimitException
+KeryxException <|-- InvalidFilterException
+KeryxException <|-- InvalidCursorException
+KeryxException <|-- NotFoundException
+@enduml

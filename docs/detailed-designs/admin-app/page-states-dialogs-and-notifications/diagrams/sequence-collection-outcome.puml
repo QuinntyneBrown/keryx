@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Collection outcome notifications
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Any screen" as page
+  participant "ScheduleStore" as schedule
+  participant "CollectionWatcher" as watcher
+  participant "NotificationStore" as store
+  participant "Angular Router" as router
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetRunQueryHandler" as geth
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+alt staff start a run
+  actor -> page : Press "Run now"
+  page -> controller : POST /admin/v1/runs
+  controller --> page : 202 with run id
+  page -> watcher : watch(run id)
+  watcher -> store : notify(info "Collection started") (L2-076 criterion 1)
+else a scheduled run starts while the app is open
+  schedule -> schedule : Next collection time passes; refresh from server (L2-042)
+  schedule -> watcher : watch(running run id)
+end
+loop while outcome is running, at most every 3 s, unless RunsStore follows the run
+  watcher -> controller : GET /admin/v1/runs/{id}
+  controller -> geth : Send GetRunQuery
+  geth -> db : Read run
+  db --> geth : Run
+  geth --> controller : RunDto
+  controller --> watcher : 200 RunDto; hold only the latest
+end
+watcher -> watcher : Skip if this run id was already notified (L2-076 criterion 5)
+alt every source collected
+  watcher -> store : notify(success "Collection finished", "47 new articles from 64 sources.")
+else some sources failing
+  watcher -> store : notify(warning "Collection finished with 2 failing sources", up to two names, "View run")
+  actor -> store : Activate "View run"
+  store -> router : Close dialogs by ref, then navigate /runs?run=<id>
+else run failed
+  watcher -> store : notify(danger "Collection failed", "Retry now")
+  actor -> store : Activate "Retry now"
+  store -> controller : POST /admin/v1/runs
+  controller --> store : 202 (or 409 run_in_progress)
+end
+store --> actor : Toast on whatever screen is open (L2-076)
+@enduml

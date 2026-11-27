@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — The mail service fails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionPipeline" as pipe
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RaiseRunAlertsHandler" as raise
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SmtpMailSender" as smtp
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+== Run N ==
+pipe -> raise : Publish RunFinishedNotification(run N)
+raise -> smtp : SendAsync(alert)
+smtp -> mail : SMTP over TLS
+mail --> smtp : Failure or timeout
+smtp --> raise : Send failed
+raise -> db : Add warning issue to run N; outcome unchanged (L2-077)
+raise -> db : Save AlertRecord pending, attempts 1
+== Run N+1 ==
+pipe -> raise : Publish RunFinishedNotification(run N+1)
+raise -> db : Read pending alert records
+db --> raise : Record with attempts 1
+raise -> smtp : SendAsync(alert) once more
+alt sent
+  smtp --> raise : Accepted
+  raise -> db : Mark AlertRecord sent
+else fails again
+  smtp --> raise : Send failed
+  raise -> db : Add warning issue to run N+1; attempts 2, no further retry
+end
+@enduml

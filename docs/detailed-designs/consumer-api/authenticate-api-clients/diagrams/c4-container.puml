@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Authenticate API clients
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(product, api, "Calls /v1 with Authorization: Bearer", "HTTPS/JSON")
+Rel(api, db, "Reads active API clients by key prefix", "EF Core")
+Rel(api, otel, "Exports traces, metrics and logs", "OTLP")
+@enduml

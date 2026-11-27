@@ -1,0 +1,102 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Responsive, accessible, themed UI
+
+package "frontend/projects/admin" {
+  class AppConfig <<composition root>> {
+    +provideZonelessChangeDetection()
+    +provideRouter(routes)
+    +TitleStrategy: KeryxTitleStrategy
+    +focusHeadingOnNavigation()
+  }
+  class KeryxTitleStrategy {
+    +updateTitle(snapshot: RouterStateSnapshot): void
+  }
+  class focusHeadingOnNavigation <<function>> {
+    -onNavigationEnd(): void
+  }
+  abstract class RoutedScreen <<standalone, OnPush>> {
+    #destroyRef: DestroyRef
+  }
+  class ScreenStore {
+    +rows: Signal<Row[]>
+    +progress: Signal<Progress | null>
+    -abort: AbortController
+  }
+  class ViewportState {
+    +wide: Signal<boolean>
+    -observer: BreakpointObserver
+  }
+  class StatusAnnouncer {
+    -lastMessage: string | null
+    +announce(message: string): void
+  }
+}
+
+package "frontend/projects/domain" {
+  enum ViewportClass {
+    XS
+    SM
+    MD
+    LG
+    XL
+  }
+  class ResponsiveRules <<functions>> {
+    +viewportClass(widthPx: number): ViewportClass
+    +nextFocusAfterRemoval(index: number, count: number): FocusTarget
+  }
+}
+
+package "frontend/projects/components" {
+  class LibraryComponent <<component>> {
+    +inputs: InputSignal
+    +outputs: OutputEmitterRef
+    -styleUrl: name.scss
+  }
+}
+
+package "global foundations" {
+  class Tokens <<tokens.css>> {
+    +--layout-breakpoint-sm: 40rem
+    +--layout-breakpoint-md: 48rem
+    +--layout-breakpoint-lg: 64rem
+    +--layout-breakpoint-xl: 80rem
+    +--focus-ring-width: 2px
+    +--color-focus-ring
+  }
+  class Breakpoints <<_breakpoints.scss>> {
+    +from(px)
+    +until(px)
+  }
+}
+
+package "@angular/cdk" {
+  class BreakpointObserver
+  class LiveAnnouncer
+  class FocusKeyManager
+}
+
+AppConfig ..> KeryxTitleStrategy : binds
+AppConfig ..> focusHeadingOnNavigation : registers
+RoutedScreen *-- ScreenStore : providers
+RoutedScreen *-- ViewportState : providers
+RoutedScreen *-- StatusAnnouncer : providers
+RoutedScreen ..> LibraryComponent : composes
+RoutedScreen ..> ResponsiveRules : uses
+ViewportState --> BreakpointObserver
+StatusAnnouncer --> LiveAnnouncer
+LibraryComponent ..> FocusKeyManager : tabs and menu
+LibraryComponent ..> Tokens : reads by role
+LibraryComponent ..> Breakpoints : media queries
+Breakpoints ..> Tokens : mirrors switch points
+ResponsiveRules --> ViewportClass
+@enduml

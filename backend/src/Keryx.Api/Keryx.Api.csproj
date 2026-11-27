@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- Controllers and the HTTP pipeline. A controller checks nothing and sends one request. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Keryx.Infrastructure\Keryx.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+  </ItemGroup>
+</Project>

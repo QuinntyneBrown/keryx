@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Audit a settings save
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AuditBehavior" as beh
+  participant "SaveSettingsCommandHandler" as h
+  participant "SettingsDiff" as diff
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Change alert e-mail and failure streak; Save changes
+page -> client : PUT /admin/v1/settings
+client -> ctrl : Request
+ctrl -> beh : Send SaveSettingsCommand
+beh -> h : Call handler
+h -> db : Load saved settings
+db --> h : Settings
+h -> diff : ChangedFields(saved, submitted)
+diff --> h : ["alert_email", "failure_streak"]
+h --> beh : Saved (pending in unit of work)
+beh -> db : Save settings and AuditEntry(settings_saved, settings, field names only) (L2-085)
+db --> beh : Commit result
+beh --> ctrl : Result
+ctrl --> client : 200
+client --> page : Saved
+page --> actor : Confirm save
+@enduml

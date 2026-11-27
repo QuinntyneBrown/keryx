@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Rate-limit a client
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ClientRateLimiter" as limiter
+  participant "ApiKeyAuthenticationHandler" as authn
+  participant "/v1 controller" as controller
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RateWindow" as window
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "InMemoryRateWindowStore" as store
+end box
+product -> limiter : Request
+limiter -> store : PeekAddress(address, now from TimeProvider)
+store -> window : TryTake check without charge
+window --> store : RateDecision
+store --> limiter : Address decision
+alt address has used 60 requests without a valid key this minute
+  limiter -> mapper : RateLimitedException(retry after)
+  mapper --> product : 429 rate_limited, Retry-After seconds; no key lookup (L2-038)
+else address window open
+  limiter -> authn : Authenticate
+  authn --> limiter : Principal or failure
+  alt authenticated as a client
+    limiter -> store : TakeForClient(client id, 600 per minute, now)
+    store -> window : TryTake(now); new window when the last has passed
+    window --> store : RateDecision
+    store --> limiter : Client decision
+    alt client window full (601st request in the minute)
+      limiter -> mapper : RateLimitedException(retry after)
+      mapper --> product : 429 rate_limited, Retry-After seconds
+    else within limit
+      limiter -> controller : Continue
+      controller --> limiter : 2xx response
+      limiter --> product : 2xx with RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset
+    end
+  else no valid key
+    limiter -> store : TakeForAddress(address, 60 per minute, now)
+    store --> limiter : Charged
+    limiter --> product : 401 invalid_api_key
+  end
+end
+note over limiter, store
+  Each client id has its own window; one client's limit never
+  affects another (L2-038). The address is never stored or logged.
+end note
+@enduml

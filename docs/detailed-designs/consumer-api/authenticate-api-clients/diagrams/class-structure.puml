@@ -1,0 +1,138 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Authenticate API clients
+
+package "Keryx.Domain" {
+  class ApiClient {
+    +PublicId Id
+    +string ProductName
+    +string KeyPrefix
+    +byte[] KeyHash
+    +IReadOnlySet<ApiScope> Scopes
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset? RevokedAt
+    +bool IsActive
+  }
+  enum ApiScope {
+    ArticlesRead : "articles:read"
+    EventsRead : "events:read"
+    SourcesRead : "sources:read"
+  }
+  class ApiKeyFormat <<static>> {
+    +LivePrefix : "kx_live_"
+    +TestPrefix : "kx_test_"
+    +PrefixLength : 12
+    +IsWellFormed(key: string): bool
+    +PrefixOf(key: string): string
+  }
+  class RateWindow {
+    +DateTimeOffset Start
+    +int Count
+    +int Limit
+    +TryTake(now: DateTimeOffset): RateDecision
+  }
+  class RateDecision {
+    +bool Allowed
+    +int Limit
+    +int Remaining
+    +int ResetSeconds
+    +int RetryAfterSeconds
+  }
+}
+
+package "Keryx.Application" {
+  class AuthenticateApiClientQuery {
+    +string PresentedKey
+  }
+  class AuthenticateApiClientQueryHandler {
+    +Handle(query: AuthenticateApiClientQuery): Task<ApiClientPrincipalDto?>
+  }
+  class ApiClientPrincipalDto {
+    +PublicId ClientId
+    +IReadOnlySet<ApiScope> Scopes
+  }
+  interface IApiKeyHasher {
+    +Hash(key: string): byte[]
+    +Matches(key: string, storedHash: byte[]): bool
+  }
+  interface IRateWindowStore {
+    +TakeForClient(clientId: PublicId, limit: int, now: DateTimeOffset): RateDecision
+    +TakeForAddress(address: string, limit: int, now: DateTimeOffset): RateDecision
+    +PeekAddress(address: string, now: DateTimeOffset): RateDecision
+  }
+  interface IAppDbContext {
+    +DbSet<ApiClient> ApiClients
+  }
+  abstract class KeryxException {
+    +string Code
+    +int Status
+  }
+  class InvalidApiKeyException
+  class InsufficientScopeException {
+    +ApiScope RequiredScope
+  }
+  class RateLimitedException {
+    +int RetryAfterSeconds
+  }
+}
+
+package "Keryx.Infrastructure" {
+  class ApiKeyHasher
+  class InMemoryRateWindowStore
+}
+
+package "Keryx.Api" {
+  class ApiKeyAuthenticationHandler {
+    +HandleAuthenticateAsync(): Task<AuthenticateResult>
+    +HandleChallengeAsync(properties): Task
+  }
+  class ClientRateLimiter {
+    +InvokeAsync(context: HttpContext): Task
+  }
+  class RateLimitOptions {
+    +int ClientPermitsPerMinute = 600
+    +int UnauthenticatedPermitsPerMinute = 60
+  }
+  class ScopeRequirement {
+    +ApiScope Scope
+  }
+  class ScopeAuthorizationHandler {
+    +HandleRequirementAsync(context, requirement: ScopeRequirement): Task
+  }
+  class ApiAuthorizationResultHandler
+}
+
+AuthenticateApiClientQueryHandler ..> AuthenticateApiClientQuery : handles
+AuthenticateApiClientQueryHandler ..> ApiClientPrincipalDto : returns
+AuthenticateApiClientQueryHandler --> IAppDbContext : reads
+AuthenticateApiClientQueryHandler --> IApiKeyHasher : matches
+AuthenticateApiClientQueryHandler ..> ApiKeyFormat : checks shape
+IAppDbContext --> "*" ApiClient
+ApiClient --> "1..3" ApiScope
+ApiClientPrincipalDto --> ApiScope
+ApiKeyHasher ..|> IApiKeyHasher
+InMemoryRateWindowStore ..|> IRateWindowStore
+InMemoryRateWindowStore *-- "*" RateWindow
+RateWindow ..> RateDecision : returns
+ApiKeyAuthenticationHandler ..> AuthenticateApiClientQuery : sends
+ApiKeyAuthenticationHandler ..> InvalidApiKeyException : challenge
+ClientRateLimiter --> IRateWindowStore
+ClientRateLimiter --> RateLimitOptions
+ClientRateLimiter ..> RateLimitedException : refuses
+ScopeAuthorizationHandler ..> ScopeRequirement : evaluates
+ApiAuthorizationResultHandler ..> InsufficientScopeException : forbids
+KeryxException <|-- InvalidApiKeyException
+KeryxException <|-- InsufficientScopeException
+KeryxException <|-- RateLimitedException
+@enduml

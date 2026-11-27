@@ -1,0 +1,34 @@
+@startuml
+title UML sequence behaviour — Derive source health from a run's fetch
+'SKIN
+box "Backend — Keryx Worker application" #D1FADF
+  participant "FetchStage" as fetch
+  participant "ClassifyStage" as classify
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ISourceFetcher" as fetcher
+  participant "Source" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "TimeProvider" as clock
+
+fetch -> fetcher : FetchAsync(source) under L2-021 to L2-024
+fetcher --> fetch : SourceFetchResult
+fetch -> clock : GetUtcNow()
+alt fetch failed
+  fetch -> entity : RecordFetchFailed(now, reason)
+  entity -> entity : Health failing, FailureReason set, ConsecutiveFailures + 1 (L2-004)
+else fetch succeeded or 304
+  fetch -> entity : RecordFetchSucceeded(now)
+  entity -> entity : LastFetchedAt and LastSucceededAt = now, ConsecutiveFailures 0
+  classify -> entity : RecordHeld(items held for review from this source)
+  alt held count at least 1
+    entity -> entity : Health needs_look with HeldCount
+  else none held
+    entity -> entity : Health healthy
+  end
+end
+fetch -> db : Save with the run's stage results
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — List categories
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "CategoriesController" as controller
+  participant "EtagFilter" as etag
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListCategoriesQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/categories
+auth -> auth : Authenticate Bearer key (L2-034: any valid key, no scope)
+auth -> controller : Authenticated client
+controller -> handler : Send ListCategoriesQuery
+handler -> served : Apply L2-030 count of served articles only
+served --> handler : Filtered article query
+handler -> ctx : Categories left-joined to grouped served-article counts
+ctx -> db : One query
+db --> ctx : Six categories with counts
+ctx --> handler : CategoryDto rows (slug, name, article_count)
+handler --> controller : ListDto
+controller --> etag : 200 result
+etag -> etag : Apply L2-032 ETag and Cache-Control
+etag --> product : 200 JSON list
+@enduml

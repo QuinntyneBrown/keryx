@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Browse and page through articles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetAdminArticlesQueryValidator" as validator
+  participant "GetAdminArticlesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open /articles (lazy chunk)
+page -> store : setQuery(from URL params)
+store -> client : list(page 1) and counts()
+client -> controller : GET /admin/v1/articles?page=1&page_size=10
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> validator : Send GetAdminArticlesQuery
+alt page_size above 100 or below 1
+  validator --> controller : Validation failure
+  controller --> client : 400 code invalid_page (L2-048)
+else valid
+  validator -> handler : Valid query
+  handler -> db : Count and read one page, newest first
+  db --> handler : 10 rows, total 18,432
+  handler --> controller : items, total, page, page_size as numbers
+  controller --> client : 200 JSON
+end
+client --> store : Page result and counts
+store -> store : Replace rows; hold only the current page (L2-089)
+store --> page : Rows, "Showing 1–10 of 18,432 articles"
+page --> actor : Table "Articles, newest first"; Previous disabled, Next enabled
+page --> actor : Tabs "All 18,432", "Needs review 6", "Published 17,911", "Hidden 515" (L2-049)
+actor -> page : Activate "Next"
+page -> store : setQuery(page 2)
+store -> store : Write ?page=2 to the URL
+store -> client : list(page 2)
+client -> controller : GET /admin/v1/articles?page=2&page_size=10
+controller --> client : Rows 11–20
+client --> store : Page result
+store --> page : "Showing 11–20 of 18,432 articles"
+page -> page : Move focus to the table caption (L2-048)
+alt page change fails
+  client --> store : ProblemDetails or network error
+  store --> page : Keep rows already shown
+  page --> actor : Danger notification with "Try again" (L2-055)
+end
+@enduml

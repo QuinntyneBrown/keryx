@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Health, migrations and configuration
+
+System_Boundary(keryx, "Keryx") {
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1; /health/live, /health/ready")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  Container(cli, "Keryx CLI", ".NET console", "Migrations and seed data")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(cli, db, "migrate: applies schema; seed: upserts seed data", "EF Core")
+Rel(api, db, "Checks reachability and schema version; never migrates", "EF Core")
+Rel(worker, db, "Waits until ready, then runs workers", "EF Core")
+@enduml

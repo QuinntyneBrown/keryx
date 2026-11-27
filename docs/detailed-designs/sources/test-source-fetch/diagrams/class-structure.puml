@@ -1,0 +1,103 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Test a source fetch
+
+package "Keryx.Api" {
+  class AdminSourcesController {
+    +Test(body: TestSourceFetchRequest): Task<SourceTestResultDto>
+    +TestExisting(id: string): Task<SourceTestResultDto>
+  }
+}
+
+package "Keryx.Application" {
+  class TestSourceFetchCommand {
+    +SourceKind Kind
+    +string Address
+  }
+  class TestExistingSourceFetchCommand {
+    +PublicId SourceId
+  }
+  class TestSourceFetchCommandValidator {
+    +Kind known, Address per L2-001 and L2-024
+  }
+  class TestSourceFetchCommandHandler {
+    +Handle(cmd: TestSourceFetchCommand): Task<SourceTestResultDto>
+  }
+  class TestExistingSourceFetchCommandHandler {
+    +Handle(cmd: TestExistingSourceFetchCommand): Task<SourceTestResultDto>
+  }
+  class SourceTester {
+    +TestAsync(kind: SourceKind, address: string, ct: CancellationToken): Task<SourceTestResultDto>
+  }
+  class SourceTestResultDto {
+    +bool Reachable
+    +string? Reason
+    +int ItemsFound
+    +int ItemsRelevant
+  }
+  class SourceNotFoundException {
+    +Code = "source_not_found"
+  }
+  interface ISourceFetcher
+  interface IFeedParser
+  interface IRelevanceScorer
+  interface IAppDbContext
+}
+
+package "Keryx.Domain" {
+  class Source {
+    +PublicId Id
+    +SourceKind Kind
+    +CanonicalUrl Address
+    +SourceHealth Health
+  }
+  enum FetchFailureReason {
+    NotFound
+    Timeout
+    BlockedByRobots
+    Refused
+    InvalidContent
+    UnsafeAddress
+  }
+}
+
+package "admin and libraries (frontend)" {
+  class SourcesStore {
+    +testSource(id: string): Promise<void>
+  }
+  interface SourcesApi {
+    +testAddress(kind, address): Observable<SourceTestResultDto>
+    +testSource(id): Observable<SourceTestResultDto>
+  }
+  class Menu {
+    +items: input<MenuItem[]>
+    +chosen: output<MenuItem>
+  }
+}
+
+AdminSourcesController ..> TestSourceFetchCommand : sends
+AdminSourcesController ..> TestExistingSourceFetchCommand : sends
+TestSourceFetchCommandValidator ..> TestSourceFetchCommand : validates
+TestSourceFetchCommandHandler --> SourceTester
+TestExistingSourceFetchCommandHandler --> IAppDbContext : reads Source
+TestExistingSourceFetchCommandHandler --> SourceTester
+TestExistingSourceFetchCommandHandler ..> SourceNotFoundException : throws
+SourceTester --> ISourceFetcher
+SourceTester --> IFeedParser
+SourceTester --> IRelevanceScorer
+SourceTester ..> SourceTestResultDto : returns
+SourceTestResultDto ..> FetchFailureReason : reason
+IAppDbContext ..> Source
+SourcesStore --> SourcesApi
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Invalid input and malformed ids
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as ctrl
+  participant "ProblemDetailsMapper" as pd
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as vb
+  participant "SaveSettingsCommandValidator" as val
+  participant "SaveSettingsCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Save changes
+page -> client : PUT /admin/v1/settings
+client -> ctrl : Body with unknown "id" and an out-of-range timeout
+ctrl -> ctrl : Bind request record; unknown properties ignored (L2-083)
+ctrl -> vb : Send SaveSettingsCommand
+vb -> val : ValidateAsync
+val --> vb : Timeout out of range
+vb --> ctrl : ValidationFailedException
+ctrl -> pd : Map
+pd --> client : 400 validation_failed with field entries
+note over h, db : Handler not called; nothing changes
+client --> page : Field errors
+page --> actor : Show errors on fields
+== Malformed id in a path ==
+client -> ctrl : GET /admin/v1/articles/not-an-id
+ctrl -> h : Send query with raw id
+h -> h : PublicId.TryParse fails
+h --> ctrl : NotFoundException(article_not_found)
+ctrl -> pd : Map
+pd --> client : 404 article_not_found, never 500
+@enduml
