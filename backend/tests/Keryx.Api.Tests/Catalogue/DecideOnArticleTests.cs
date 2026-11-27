@@ -7,7 +7,7 @@ using static Keryx.Api.Tests.Consumer.ConsumerApi;
 namespace Keryx.Api.Tests.Catalogue;
 
 // Acceptance Test
-// Traces to: L2-014 AC1, AC5, AC6
+// Traces to: L2-014 AC1, AC2, AC5, AC6
 // Description: Staff publish or hide any article whatever its score; the consumer API follows on the
 // next request, the same decision again changes nothing, and an unknown id is article_not_found.
 public sealed class DecideOnArticleTests
@@ -91,8 +91,46 @@ public sealed class DecideOnArticleTests
         Assert.Equal(JsonValueKind.Null, body.GetProperty("previous_status").ValueKind);
     }
 
+    [Fact]
+    public async Task Given_a_published_article_When_staff_hide_it_Then_it_is_absent_from_lists_and_its_id_is_404()
+    {
+        using var factory = await CollectedAsync();
+        using var staff = await StaffClient.OpenAsync(factory);
+        using var product = Client(factory, await KeyAsync(factory, "articles:read"));
+        var id = await ArticleIdAsync(factory, Published.Link);
+        var listed = await product.GetFromJsonAsync<JsonElement>(new Uri("/v1/articles", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal([id], listed.GetProperty("data").EnumerateArray().Select(item => item.GetProperty("id").GetString()));
+
+        using var response = await DecideAsync(staff, id, "hide");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal((id, "hidden", "staff", "published"), Decision(await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)));
+        var after = await product.GetFromJsonAsync<JsonElement>(new Uri("/v1/articles", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Empty(after.GetProperty("data").EnumerateArray());
+        using var read = await product.GetAsync(new Uri($"/v1/articles/{id}", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.NotFound, read.StatusCode);
+    }
+
+    [Fact]
+    public async Task Given_a_held_article_When_staff_hide_it_twice_Then_200_and_the_second_changes_nothing()
+    {
+        using var factory = await CollectedAsync();
+        using var staff = await StaffClient.OpenAsync(factory);
+        var id = await ArticleIdAsync(factory, Held.Link);
+        using (var first = await DecideAsync(staff, id, "hide"))
+        {
+            Assert.Equal((id, "hidden", "staff", "needs_review"), Decision(await first.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)));
+        }
+
+        using var again = await DecideAsync(staff, id, "hide");
+
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+        Assert.Equal((id, "hidden", "staff", "needs_review"), Decision(await again.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)));
+    }
+
     [Theory]
     [InlineData("publish")]
+    [InlineData("hide")]
     public async Task Given_an_unknown_id_When_a_decision_is_sent_Then_404_article_not_found(string decision)
     {
         using var factory = await CollectedAsync();

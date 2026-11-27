@@ -128,6 +128,12 @@ public sealed class Article
     /// </summary>
     public bool Publish(DateTimeOffset now) => Decide(PublicationStatus.Published, now);
 
+    /// <summary>
+    /// Staff hide it from the consumer API whatever its score (L2-014 AC2). Returns false, changing
+    /// nothing, when it is already hidden.
+    /// </summary>
+    public bool Hide(DateTimeOffset now) => Decide(PublicationStatus.Hidden, now);
+
     private bool Decide(PublicationStatus status, DateTimeOffset now)
     {
         if (Status == status)

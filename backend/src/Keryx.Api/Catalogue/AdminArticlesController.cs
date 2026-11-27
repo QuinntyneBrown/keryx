@@ -33,4 +33,8 @@ public sealed class AdminArticlesController(ISender sender) : ControllerBase
     /// <summary>Publishes the article whatever its score; the same decision again changes nothing.</summary>
     [HttpPost("{id}/publish")]
     public Task<ArticleDecisionDto> Publish(string id, CancellationToken cancellationToken) => sender.Send(new PublishArticle(id), cancellationToken);
+
+    /// <summary>Hides the article from the consumer API whatever its score; it stays in Keryx.</summary>
+    [HttpPost("{id}/hide")]
+    public Task<ArticleDecisionDto> Hide(string id, CancellationToken cancellationToken) => sender.Send(new HideArticle(id), cancellationToken);
 }
