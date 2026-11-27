@@ -22,6 +22,11 @@ export default [
         loadComponent: () => import('../pages/sources/sources'),
       },
       {
+        path: 'api',
+        title: 'API · Keryx',
+        loadComponent: () => import('../pages/api/api'),
+      },
+      {
         path: 'settings',
         title: 'Settings · Keryx',
         loadComponent: () => import('../pages/settings/settings'),

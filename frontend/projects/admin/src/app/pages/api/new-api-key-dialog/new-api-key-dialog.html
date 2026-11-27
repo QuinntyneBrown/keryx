@@ -1,0 +1,58 @@
+<kx-dialog
+  title="New API key"
+  description="One key per product, so each can be measured and revoked on its own."
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  [closeDisabled]="busy()"
+  (dismiss)="close()"
+  (submitted)="submit(nameInput)"
+>
+  @if (failure(); as failure) {
+    <kx-alert tone="danger" announcement="alert" title="Keryx couldn’t create the key"
+      >No key was created. Try again in a moment.
+      @if (failure.reference; as reference) {
+        <span class="mono">Reference {{ reference }}</span>
+      }
+    </kx-alert>
+  }
+  <kx-field
+    label="Product name"
+    for="key-name"
+    help="The website, app or newsletter that will call Keryx with this key."
+    helpId="key-name-help"
+    [error]="errors().productName"
+    errorId="key-name-error"
+  >
+    <kx-input
+      #nameInput
+      controlId="key-name"
+      [invalid]="!!errors().productName"
+      [describedBy]="nameDescribedBy()"
+      [disabled]="busy()"
+      [(value)]="productName"
+    />
+  </kx-field>
+  <kx-check-list legend="Scopes" [error]="errors().scopes" errorId="scope-error">
+    @for (scope of scopeOptions; track scope.value) {
+      <kx-check
+        name="scope"
+        mono
+        [value]="scope.value"
+        [label]="scope.value"
+        [description]="scope.description"
+        [checked]="scopes().includes(scope.value)"
+        [invalid]="!!errors().scopes"
+        [disabled]="busy()"
+        (toggled)="toggle(scope.value, $event)"
+      />
+    }
+  </kx-check-list>
+  <kx-alert tone="neutral"
+    >The key is shown once, right after you create it. Keryx stores only its first
+    characters.</kx-alert
+  >
+  <kx-btn slot="actions" variant="ghost" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="primary" submit [busy]="busy()">{{
+    busy() ? 'Creating…' : 'Create key'
+  }}</kx-btn>
+</kx-dialog>

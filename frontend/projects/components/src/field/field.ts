@@ -20,6 +20,8 @@ export class Field {
   /** The id of the control the label names. */
   readonly for = input<string>();
   readonly help = input<string>();
+  /** The help's id, so the control can be described by it. */
+  readonly helpId = input<string>();
   /** What is wrong with the entry, in a sentence that says how to fix it. */
   readonly error = input<string | null>();
   /** The id of the error, which the control's `aria-describedby` names. */

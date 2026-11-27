@@ -11,6 +11,6 @@
     </p>
   }
   @if (help(); as help) {
-    <p class="field__help">{{ help }}</p>
+    <p class="field__help" [attr.id]="helpId() ?? null">{{ help }}</p>
   }
 </div>

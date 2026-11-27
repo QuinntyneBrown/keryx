@@ -1,0 +1,2 @@
+<!-- prettier-ignore -->
+<label class="check"><input type="checkbox" [name]="name()" [value]="value()" [checked]="checked()" [disabled]="disabled()" [attr.aria-invalid]="invalid() || null" (change)="change($event)" /><span class="check__text"><span [attr.class]="mono() ? 'mono' : null">{{ label() }}</span>@if (description(); as description) {<small>{{ description }}</small>}</span></label>

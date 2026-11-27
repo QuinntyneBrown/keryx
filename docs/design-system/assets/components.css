@@ -516,7 +516,7 @@ a.table__title::after { content: ""; position: absolute; inset: 0; }
 .code-panel__block { margin: 0; padding: var(--space-3) var(--space-4); border: 0; border-radius: 0; background: transparent; font: var(--text-code); overflow-x: auto; }
 .code-panel__block + .code-panel__block { border-top: var(--border-width-hairline) solid var(--color-shell-border); color: var(--color-shell-fg-muted); }
 .copy-field { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); }
-.copy-field__value { min-width: 0; flex: 1; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--color-bg-surface); font: var(--text-code-md); }
+.copy-field__value { min-width: 0; flex: 1; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--color-bg-surface); font: var(--text-code-md); user-select: all; }
 
 /* ---------- Alerts and callouts ------------------------------------------ */
 .alert { --alert-bg: var(--color-info-bg); --alert-fg: var(--color-info-fg); --alert-icon: var(--color-info-icon); display: flex; align-items: flex-start; gap: var(--space-2-5); padding: var(--space-2-5) var(--space-3); border-radius: var(--radius-md); background: var(--alert-bg); color: var(--alert-fg); }

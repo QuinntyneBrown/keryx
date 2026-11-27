@@ -1,0 +1,119 @@
+@let state = store.state();
+<kx-page-header
+  title="API"
+  description="Products read Keryx news through this API. Manage who has access and see how it’s used."
+>
+  <kx-btn
+    slot="actions"
+    variant="primary"
+    [disabled]="state.status === 'error'"
+    (activated)="newKey()"
+    ><kx-icon slot="icon" name="plus" size="sm" />New API key</kx-btn
+  >
+</kx-page-header>
+<kx-page-body>
+  @switch (state.status) {
+    @case ('error') {
+      <kx-empty
+        card
+        tone="error"
+        announce
+        title="API keys and usage didn’t load"
+        text="Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx."
+        [reference]="state.reference ?? undefined"
+      >
+        <kx-btn slot="actions" variant="primary" (activated)="retry()">Try again</kx-btn>
+        <kx-btn slot="actions" href="/" (navigate)="navigate($event)">Go to overview</kx-btn>
+      </kx-empty>
+    }
+    @case ('ready') {
+      <div class="api">
+        @if (store.revealedKey(); as revealed) {
+          <kx-callout
+            [title]="
+              'Key created for “' +
+              revealed.productName +
+              '”. Copy it now — it won’t be shown again.'
+            "
+          >
+            <kx-copy-field [value]="revealed.key" (copyRequested)="copy(revealed.key)" />
+          </kx-callout>
+        }
+        <section aria-labelledby="consumers-title">
+          <h2 class="text-h3 api__heading" id="consumers-title">Consumers &amp; keys</h2>
+          @if (state.page.items.length === 0) {
+            <kx-empty
+              card
+              compact
+              title="No products are connected yet"
+              text="Each product that reads Keryx gets its own key, so you can see its usage and revoke it without touching the others."
+            >
+              <kx-icon slot="icon" name="key" size="lg" />
+              <kx-btn slot="actions" variant="primary" (activated)="newKey()"
+                >Create the first key</kx-btn
+              >
+            </kx-empty>
+          } @else {
+            <kx-table
+              caption="Consumers and keys, newest first"
+              [columns]="columns"
+              [rows]="rows()"
+              [rowKey]="rowKey"
+              [rowModifier]="rowModifier"
+              [cells]="{
+                product: productCell,
+                key: keyCell,
+                scopes: scopesCell,
+                actions: actionsCell,
+              }"
+            >
+              <ng-template #productCell let-row>
+                <span class="api__product">
+                  <span
+                    [attr.class]="
+                      row.revoked
+                        ? 'api__name api__name--revoked table__title truncate'
+                        : 'api__name table__title truncate'
+                    "
+                    dir="auto"
+                    >{{ row.client.product_name }}</span
+                  >
+                  @if (row.isNew) {
+                    <kx-badge tone="brand">New</kx-badge>
+                  }
+                  @if (row.revoked) {
+                    <kx-badge>Revoked</kx-badge>
+                  }
+                </span>
+                <span class="api__sub table__sub until-lg"
+                  ><span class="mono">{{ row.prefix }}</span></span
+                >
+              </ng-template>
+              <ng-template #keyCell let-row>
+                <span class="api__key mono"><kx-icon name="key" size="sm" />{{ row.prefix }}</span>
+              </ng-template>
+              <ng-template #scopesCell let-row>
+                <span class="api__scopes">
+                  @for (scope of row.client.scopes; track scope) {
+                    <kx-tag>{{ scope }}</kx-tag>
+                  }
+                </span>
+              </ng-template>
+              <ng-template #actionsCell let-row>
+                @if (!row.revoked) {
+                  <kx-btn
+                    variant="ghost"
+                    small
+                    [label]="'Revoke the key for ' + row.client.product_name"
+                    (activated)="revoke(row.client)"
+                    >Revoke</kx-btn
+                  >
+                }
+              </ng-template>
+            </kx-table>
+          }
+        </section>
+      </div>
+    }
+  }
+</kx-page-body>

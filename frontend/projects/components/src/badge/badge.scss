@@ -1,0 +1,47 @@
+// The badge (docs/design-system/components/badge.html).
+:host {
+  display: inline-flex;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-0-5) var(--space-2);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  font: var(--text-overline);
+  white-space: nowrap;
+}
+
+.badge--success {
+  border-color: transparent;
+  background: var(--color-success-bg);
+  color: var(--color-success-fg);
+}
+
+.badge--warning {
+  border-color: transparent;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-fg);
+}
+
+.badge--danger {
+  border-color: transparent;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}
+
+.badge--info {
+  border-color: transparent;
+  background: var(--color-info-bg);
+  color: var(--color-info-fg);
+}
+
+.badge--brand {
+  border-color: transparent;
+  background: var(--color-brand-subtle);
+  color: var(--color-fg-brand);
+}

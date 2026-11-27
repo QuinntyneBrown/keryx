@@ -1,0 +1,9 @@
+<fieldset [attr.aria-describedby]="error() ? errorId() : null">
+  <legend>{{ legend() }}</legend>
+  <div class="check-list"><ng-content /></div>
+  @if (error(); as error) {
+    <p class="check-list__error" [attr.id]="errorId()">
+      <kx-icon name="warning" size="sm" />{{ error }}
+    </p>
+  }
+</fieldset>

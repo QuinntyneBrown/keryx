@@ -16,6 +16,8 @@ export interface TableColumn {
   wide?: boolean;
   /** The fixed-width last column of row actions. */
   actions?: boolean;
+  /** The actions column fits a word, such as "Revoke", rather than an icon. */
+  actionsWide?: boolean;
   /** The heading is read by assistive technology only. */
   hiddenLabel?: boolean;
 }
@@ -39,6 +41,8 @@ export class Table {
   readonly rows = input.required<readonly unknown[]>();
   /** A row's stable identity, so a changed page reuses the rows it can. */
   readonly rowKey = input.required<(row: unknown) => string>();
+  /** A row's state shown as a modifier (`table__row--revoked`); its words say it too. */
+  readonly rowModifier = input<(row: unknown) => string | null>(() => null);
 
   /**
    * The template that fills each column's cells, by column key; each gets its row as `let-row`.
@@ -46,6 +50,11 @@ export class Table {
    * initial bundle (ADR 0008).
    */
   readonly cells = input.required<Readonly<Record<string, TemplateRef<{ $implicit: unknown }>>>>();
+
+  protected rowClass(row: unknown): string | null {
+    const modifier = this.rowModifier()(row);
+    return modifier ? `table__row--${modifier}` : null;
+  }
 
   protected template(key: string): TemplateRef<{ $implicit: unknown }> | null {
     return this.cells()[key] ?? null;
@@ -66,6 +75,7 @@ export class Table {
       column.numeric ? 'num' : '',
       column.wide ? 'from-lg' : '',
       !cell && column.actions ? 'table__col-actions' : '',
+      !cell && column.actionsWide ? 'table__col-actions table__col-actions--wide' : '',
     ].filter(Boolean);
     return classes.length ? classes.join(' ') : null;
   }

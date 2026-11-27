@@ -12,7 +12,7 @@
     </thead>
     <tbody>
       @for (row of rows(); track rowKey()(row)) {
-        <tr>
+        <tr [attr.class]="rowClass(row)">
           @for (column of columns(); track column.key) {
             <!-- prettier-ignore -->
             <td [attr.class]="cellClass(column)"><ng-container *ngTemplateOutlet="template(column.key); context: { $implicit: row }" /></td>

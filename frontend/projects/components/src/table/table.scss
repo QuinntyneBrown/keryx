@@ -78,6 +78,10 @@
   color: var(--color-fg-muted);
 }
 
+.table__row--revoked {
+  color: var(--color-fg-subtle);
+}
+
 @media (max-width: 63.99rem) {
   .table {
     table-layout: fixed;
@@ -85,5 +89,9 @@
 
   .table th.table__col-actions {
     width: calc(var(--space-12) + var(--space-2));
+  }
+
+  .table th.table__col-actions--wide {
+    width: calc(var(--space-20) + var(--space-2));
   }
 }

@@ -1,0 +1,70 @@
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { API_CLIENTS_API, ApiProblem, type ApiClientPage, type CreatedApiClientDto } from '@kx/api';
+
+export type ApiClientsState =
+  | { status: 'loading' }
+  | { status: 'ready'; page: ApiClientPage }
+  | { status: 'error'; reference: string | null };
+
+/** A key just created, shown once (L2-068 AC3). */
+export interface RevealedKey {
+  productName: string;
+  key: string;
+}
+
+/**
+ * The API screen's clients and the key just created. Provided on the screen, so it ends with the
+ * visit: then the key is dropped from memory and so from the DOM (L2-068 AC5). The key is never
+ * written to the URL, storage, a log or telemetry.
+ */
+@Injectable()
+export class ApiStore {
+  private readonly api = inject(API_CLIENTS_API);
+  private controller: AbortController | null = null;
+  private readonly current = signal<ApiClientsState>({ status: 'loading' });
+  private readonly revealed = signal<RevealedKey | null>(null);
+  private readonly newest = signal<string | null>(null);
+
+  readonly state = this.current.asReadonly();
+  readonly revealedKey = this.revealed.asReadonly();
+  /** The id of the client created on this visit, badged "New". */
+  readonly newClientId = this.newest.asReadonly();
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.controller?.abort();
+      this.revealed.set(null);
+    });
+  }
+
+  async load(): Promise<void> {
+    this.controller?.abort();
+    const controller = new AbortController();
+    this.controller = controller;
+    this.current.set({ status: 'loading' });
+    try {
+      const page = await this.api.list(1, controller.signal);
+      if (!controller.signal.aborted) this.current.set({ status: 'ready', page });
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      this.current.set({
+        status: 'error',
+        reference: error instanceof ApiProblem ? (error.reference ?? null) : null,
+      });
+    }
+  }
+
+  /** A key was created: its client is first in the table, and the key is revealed once. */
+  created({ client, key }: CreatedApiClientDto): void {
+    const state = this.current();
+    if (state.status === 'ready') {
+      const { page } = state;
+      this.current.set({
+        status: 'ready',
+        page: { ...page, items: [client, ...page.items], total: page.total + 1 },
+      });
+    }
+    this.newest.set(client.id);
+    this.revealed.set({ productName: client.product_name, key });
+  }
+}

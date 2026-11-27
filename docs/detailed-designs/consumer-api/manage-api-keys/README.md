@@ -148,8 +148,14 @@ or its hash; after the create response, only `key_prefix` is returned by any end
   `danger`, `warning`.
 - On a failed create the dialog stays open with entries kept and the danger alert "Keryx
   couldn’t create the key", "No key was created. Try again in a moment." and "Reference req_…"
-  from the response's trace id. On `client_name_taken` the name field states that a key with that
-  name already exists; the exact copy and its mock state are `<TO SUPPLY>`.
+  from the response's trace id. On `client_name_taken` the name field reads "A key with that name already
+  exists. Revoke it first, or name this product differently.", marked invalid as in the
+  `invalid` state, and focus moves to it.
+- The copy field's value selects whole on one click (`user-select: all`), so the key can be
+  copied by hand when the clipboard is refused.
+- Until journey 21 (report-api-usage) adds the usage summary, the usage columns and the
+  endpoints, the API screen shows the header, the callout, the empty and error states, and the
+  table's Product, Key, Scopes and Revoke columns.
 - On a failed revoke the dialog shows "Keryx couldn’t revoke the key", "Nothing changed. Try
   again in a moment." and the reference, and the key stays active.
 

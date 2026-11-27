@@ -14,7 +14,9 @@ export type IconName =
   | 'instagram'
   | 'calendar'
   | 'search'
-  | 'close';
+  | 'close'
+  | 'key'
+  | 'copy';
 
 @Component({ selector: 'kx-icon', templateUrl: './icon.html', styleUrl: './icon.scss' })
 export class Icon {

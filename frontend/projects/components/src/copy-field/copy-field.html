@@ -1,0 +1,7 @@
+<div class="copy-field">
+  <!-- prettier-ignore -->
+  <code class="copy-field__value truncate">{{ value() }}</code>
+  <kx-btn (activated)="copyRequested.emit()"
+    ><kx-icon slot="icon" name="copy" size="sm" />Copy</kx-btn
+  >
+</div>

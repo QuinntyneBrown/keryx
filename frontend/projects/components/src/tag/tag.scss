@@ -1,0 +1,14 @@
+// The tag (docs/design-system/components/tag.html).
+:host {
+  display: inline-block;
+}
+
+.tag {
+  display: inline-block;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}

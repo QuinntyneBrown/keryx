@@ -1,0 +1,49 @@
+// The API screen lays out library components; the product cell is a composite of them.
+.api {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.api__heading {
+  margin-bottom: var(--space-3);
+}
+
+.api__product {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.api__name {
+  display: block;
+  min-width: 0;
+  font: var(--text-label);
+  line-height: var(--line-height-snug);
+}
+
+.api__name--revoked {
+  text-decoration: line-through;
+}
+
+.api__sub {
+  display: block;
+  margin-top: var(--space-0-5);
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+.api__key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+}
+
+.api__scopes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
