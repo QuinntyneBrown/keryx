@@ -85,3 +85,6 @@ and running the worker's host on its own, made every schedule test deterministic
   Check endpoint selection before authorization so an unknown route keeps its documented 404.
   Explicit anonymous metadata on test-only error and telemetry probes keeps their existing
   behavior observable with the production fallback enabled.
+- Checking only a successful controller action misses refusals and missing routes. Register
+  the admin cache header before the error and authentication middleware, then assert the header
+  on each response through the API.

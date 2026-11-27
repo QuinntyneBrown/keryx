@@ -61,6 +61,19 @@ public static class ApiHost
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
         var app = builder.Build();
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments("/admin/v1"))
+            {
+                context.Response.OnStarting(() =>
+                {
+                    context.Response.Headers.CacheControl = "no-store";
+                    return Task.CompletedTask;
+                });
+            }
+
+            await next(context).ConfigureAwait(false);
+        });
         app.UseExceptionHandler();
         app.UseStatusCodePages();
         app.UseRouting();
