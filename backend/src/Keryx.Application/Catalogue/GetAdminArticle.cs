@@ -1,5 +1,6 @@
 using Keryx.Application.Abstractions;
 using Keryx.Application.Errors;
+using Keryx.Domain.Catalogue;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,9 @@ public sealed record AdminArticleDto(
     string Region,
     decimal Relevance,
     string Status,
+    string? StatusReason,
+    decimal Threshold,
+    string DecidedBy,
     DateTimeOffset? PublishedAt,
     DateTimeOffset CollectedAt,
     string Summary,
@@ -45,6 +49,7 @@ internal sealed class GetAdminArticleHandler(IAppDbContext db) : IRequestHandler
         var first = article.SourceId is { } id && sources.TryGetValue(id, out var source) ? new ArticleSourceDto(source.PublicId, source.OrganizationName) : null;
         return new AdminArticleDto(
             article.PublicId, article.Title, article.Organization?.Name, article.Category, article.RegionSlug, article.Score, StatusWord(article.Status),
+            article.StatusReason, article.Threshold, article.DecidedBy == DecisionMaker.Staff ? "staff" : "system",
             article.PublishedAt, article.CollectedAt, article.Summary, article.Url, first, article.Tags,
             [.. article.Provenance.OrderBy(entry => entry.FirstSeenAt).Select(entry => new ProvenanceDto(
                 entry.SourceId is { } sourceId && sources.TryGetValue(sourceId, out var named) ? named.PublicId : null,

@@ -36,6 +36,9 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(article => article.Score).HasPrecision(3, 2);
         builder.Property(article => article.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
         builder.Property(article => article.Fingerprint).HasMaxLength(64);
+        builder.Property(article => article.StatusReason).HasMaxLength(32);
+        builder.Property(article => article.Threshold).HasPrecision(3, 2);
+        builder.Property(article => article.DecidedBy).HasConversion(by => by == DecisionMaker.Staff ? "staff" : "system", word => word == "staff" ? DecisionMaker.Staff : DecisionMaker.System).HasMaxLength(8);
         builder.HasIndex(article => new { article.Status, article.CollectedAt });
         builder.OwnsMany(article => article.Provenance, entry =>
         {
@@ -103,6 +106,7 @@ internal sealed class StagedArticleConfiguration : IEntityTypeConfiguration<Stag
         builder.Property(staged => staged.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
         builder.Property(staged => staged.Tags).HasConversion(Tags.Converter, Tags.Comparer).HasMaxLength(1300);
         builder.Property(staged => staged.Score).HasPrecision(3, 2);
+        builder.Property(staged => staged.Threshold).HasPrecision(3, 2);
         builder.Property(staged => staged.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
         builder.Property(staged => staged.EventTimeZone).HasMaxLength(64);
         builder.Property(staged => staged.EventPlace).HasMaxLength(200);

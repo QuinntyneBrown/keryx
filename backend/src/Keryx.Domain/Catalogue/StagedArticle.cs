@@ -59,6 +59,8 @@ public sealed class StagedArticle
 
     public decimal Score { get; private set; }
 
+    public decimal Threshold { get; private set; }
+
     /// <summary>When the item's event starts, in UTC; null when the item is no event (it needs a start and a place).</summary>
     public DateTimeOffset? EventStartsAtUtc { get; private set; }
 
@@ -73,7 +75,7 @@ public sealed class StagedArticle
 
     public PublicationStatus Status { get; private set; }
 
-    public ArticleFacts Facts => new(Url, Title, Summary, Category, RegionSlug, Tags, PublishedAt, Score, Status) { EventSignature = EventSignature };
+    public ArticleFacts Facts => new(Url, Title, Summary, Category, RegionSlug, Tags, PublishedAt, Score, Status) { EventSignature = EventSignature, Threshold = Threshold };
 
     /// <summary>The item's event, when it is one.</summary>
     public EventFacts? EventFacts => EventStartsAtUtc is { } start && EventTimeZone is { } zone && EventPlace is { } place
@@ -112,6 +114,7 @@ public sealed class StagedArticle
             Score = facts.Score,
             Status = facts.Status,
             EventSignature = facts.EventSignature,
+            Threshold = facts.Threshold,
         };
     }
 }

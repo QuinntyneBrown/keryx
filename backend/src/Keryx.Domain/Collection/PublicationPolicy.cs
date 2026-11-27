@@ -17,6 +17,14 @@ public static class PublicationPolicy
 {
     public const decimal ReviewFloor = 0.45m;
 
+    /// <summary>Why a status was given: null for published, the threshold for held, the floor for hidden.</summary>
+    public static string? Reason(PublicationStatus status) => status switch
+    {
+        PublicationStatus.NeedsReview => "below_publish_threshold",
+        PublicationStatus.Hidden => "below_review_floor",
+        _ => null,
+    };
+
     public static PublicationStatus Classify(decimal score, decimal threshold) =>
         score >= threshold ? PublicationStatus.Published
         : score >= ReviewFloor ? PublicationStatus.NeedsReview

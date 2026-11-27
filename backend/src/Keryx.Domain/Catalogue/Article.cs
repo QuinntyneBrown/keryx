@@ -53,6 +53,15 @@ public sealed class Article
 
     public PublicationStatus Status { get; private set; }
 
+    /// <summary>Why it has its status (<c>below_publish_threshold</c> for a held article); null when published.</summary>
+    public string? StatusReason { get; private set; }
+
+    /// <summary>The publish threshold in force when its status was set.</summary>
+    public decimal Threshold { get; private set; }
+
+    /// <summary>Who set its status: the run, from its score, or staff, whose decision a run never overwrites.</summary>
+    public DecisionMaker DecidedBy { get; private set; }
+
     /// <summary>A digest of the stored facts: an item collected again with the same digest is unchanged.</summary>
     public string Fingerprint { get; private set; } = string.Empty;
 
@@ -74,7 +83,10 @@ public sealed class Article
         return article;
     }
 
-    /// <summary>The source published new facts for it: they replace the old ones.</summary>
+    /// <summary>
+    /// The source published new facts for it: they replace the old ones, with the score they
+    /// earn. The status follows the score under the threshold of this run unless staff decided it.
+    /// </summary>
     public void Apply(ArticleFacts facts)
     {
         ArgumentNullException.ThrowIfNull(facts);
@@ -85,8 +97,13 @@ public sealed class Article
         Tags = facts.Tags;
         PublishedAt = facts.PublishedAt;
         Score = facts.Score;
-        Status = facts.Status;
         Fingerprint = facts.Fingerprint;
+        if (DecidedBy == DecisionMaker.System)
+        {
+            Status = facts.Status;
+            StatusReason = PublicationPolicy.Reason(facts.Status);
+            Threshold = facts.Threshold;
+        }
     }
 
     /// <summary>The source was seen publishing it again: its entry's last-seen time moves, or a new source gets an entry.</summary>
@@ -102,6 +119,13 @@ public sealed class Article
             entry.SeenAgain(seenAt);
         }
     }
+}
+
+/// <summary>Who set an article's status.</summary>
+public enum DecisionMaker
+{
+    System,
+    Staff,
 }
 
 /// <summary>
@@ -149,6 +173,9 @@ public sealed record ArticleFacts(
     decimal Score,
     PublicationStatus Status)
 {
+    /// <summary>The publish threshold of the run that collected it.</summary>
+    public decimal Threshold { get; init; }
+
     /// <summary>The item's event as the source published it (start, end and place), or empty when it is no event.</summary>
     public string EventSignature { get; init; } = string.Empty;
 

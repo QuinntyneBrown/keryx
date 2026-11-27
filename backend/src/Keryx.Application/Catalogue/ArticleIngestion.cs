@@ -32,7 +32,7 @@ public sealed class ArticleIngestion(IAppDbContext db)
     public static readonly TimeSpan MergeWindow = TimeSpan.FromDays(14);
 
     public async Task StageAsync(
-        Run run, Source source, IReadOnlyList<(FeedItem Item, decimal Score, PublicationStatus Status)> items, bool merge, IngestionCounts counts,
+        Run run, Source source, IReadOnlyList<(FeedItem Item, decimal Score, PublicationStatus Status)> items, bool merge, decimal threshold, IngestionCounts counts,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(run);
@@ -70,6 +70,7 @@ public sealed class ArticleIngestion(IAppDbContext db)
 
             var facts = FactsOf(item, url, source, score, status) with
             {
+                Threshold = threshold,
                 EventSignature = itemEvent is { } known ? $"{known.Start.StartsAtUtc:O}|{known.End?.StartsAtUtc:O}|{known.Place}" : string.Empty,
             };
             var (action, target) = await MatchAsync(run, source, facts, merge, counts, cancellationToken).ConfigureAwait(false);

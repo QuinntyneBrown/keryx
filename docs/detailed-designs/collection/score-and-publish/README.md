@@ -50,8 +50,8 @@ The score and the status are pure, deterministic rules with case-table tests in 
 - **`PublicationPolicy`** — domain service. `Classify(score, T)` returns `published` at or above
   *T*, `needs_review` from 0.45 up to but not including *T*, and `hidden` below 0.45. When *T*
   is below 0.45, it returns `published` at or above *T* and `hidden` below it, and holds
-  nothing. A held decision carries `status_reason` `below_publish_threshold`; the reason for a
-  hidden decision is `<TO SUPPLY>`. The decision records the *T* in force.
+  nothing. A held decision carries `status_reason` `below_publish_threshold`, a hidden one
+  `below_review_floor`, and a published one `null`. The decision records the *T* in force.
 - **`SettingsSnapshot`** — taken by `RunCollectionCommandHandler` at run start. A threshold or
   topic saved during a run applies from the next run; scores and statuses already stored are
   never recomputed.
@@ -60,8 +60,9 @@ The score and the status are pure, deterministic rules with case-table tests in 
   the items parsed. It is `done_with_warnings` when any item is held, and raises an `items_held`
   warning issue per source.
 - **`PublishStage`** — writes `score`, `status`, `status_reason` and `threshold` for a new
-  article, and for an existing article whose `decided_by` is `system`. An article whose
-  `decided_by` is `staff` keeps its status whatever its new score.
+  article, and for an existing article whose `decided_by` is `system` when its source changed it.
+  An article whose `decided_by` is `staff` takes its new facts and score and keeps its status,
+  reason and threshold. An article collected again unchanged is not rescored.
 - **`Article`** — domain entity with `Score`, `Status`, `StatusReason`, `Threshold` and
   `DecidedBy`. The admin article endpoints serve `relevance_score` as a number with at most two
   decimals, `status`, `status_reason` and `threshold`; the consumer API serves only

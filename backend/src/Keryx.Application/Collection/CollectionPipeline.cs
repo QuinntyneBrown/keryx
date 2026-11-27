@@ -116,7 +116,7 @@ public sealed class CollectionPipeline(
 
                 classifyTicks += time.GetTimestamp() - classifyStarted;
                 var storeStarted = time.GetTimestamp();
-                await ingestion.StageAsync(run, source, classified, settings.MergeDuplicates, counts, cancellationToken).ConfigureAwait(false);
+                await ingestion.StageAsync(run, source, classified, settings.MergeDuplicates, settings.PublishThreshold, counts, cancellationToken).ConfigureAwait(false);
                 storeTicks += time.GetTimestamp() - storeStarted;
                 source.RecordFetchSucceeded(at, sourceHeld);
                 await issues.SucceededAsync(run, previousRunId, source, sourceHeld, settings.PublishThreshold, at, cancellationToken).ConfigureAwait(false);

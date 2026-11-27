@@ -38,6 +38,11 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CollectedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DecidedBy")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<string>("Fingerprint")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -71,6 +76,10 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -80,6 +89,10 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(1300)
                         .HasColumnType("character varying(1300)");
+
+                    b.Property<decimal>("Threshold")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(300)
@@ -314,6 +327,10 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.Property<string>("TargetUrl")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
+
+                    b.Property<decimal>("Threshold")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(300)

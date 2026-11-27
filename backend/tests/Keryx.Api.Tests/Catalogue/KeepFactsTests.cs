@@ -84,7 +84,8 @@ public sealed class KeepFactsTests
         Assert.DoesNotContain(".jpg", article.GetRawText(), StringComparison.Ordinal);
         // Exactly these fields: no body, image or HTML field exists to fill.
         Assert.Equal(
-            ["category", "collected_at", "id", "organization", "provenance", "published_at", "region", "relevance", "source", "status", "summary", "tags", "title", "url"],
+            ["category", "collected_at", "decided_by", "id", "organization", "provenance", "published_at", "region", "relevance", "source", "status",
+                "status_reason", "summary", "tags", "threshold", "title", "url"],
             article.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal));
     }
 
