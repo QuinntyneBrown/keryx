@@ -23,5 +23,7 @@ public interface IAppDbContext
 
     DbSet<Source> Sources { get; }
 
+    DbSet<Keryx.Domain.Collection.Run> Runs { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

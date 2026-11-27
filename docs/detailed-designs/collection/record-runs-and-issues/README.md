@@ -67,8 +67,10 @@ checks anything itself.
   credentials (user information in URLs, key and token values), internal host names and IP
   addresses before storage.
 - **`AdminRunsController`** — `GET /admin/v1/runs/{id}` sends `GetRunQuery`. It returns
-  `worker`, `trigger`, `started_at`, `finished_at`, `duration_ms`, `outcome`, every count as a
-  number, `sources_checked`, `sources_total`, the stage results and the run's issues. A running
+  `id`, `worker`, `trigger`, `started_at`, `finished_at`, `duration_ms`, `outcome`,
+  `failure_reason`, `correlation_id`, every count as a number, `sources_checked`,
+  `sources_total`, the stages (`stage`, `status`, `duration_ms`, `counts` as an object of named
+  numbers, `reason`) and the run's issues. A stage not run has `duration_ms` 0 and no counts. A running
   run has `outcome` `running` and `finished_at` `null`. An unknown or malformed id answers `404`
   with `code` `run_not_found`; the code follows the `…_not_found` pattern of L2-083 and is not
   named in L2-019.

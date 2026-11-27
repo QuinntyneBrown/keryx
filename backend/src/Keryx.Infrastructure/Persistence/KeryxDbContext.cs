@@ -24,6 +24,8 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Source> Sources => Set<Source>();
 
+    public DbSet<Keryx.Domain.Collection.Run> Runs => Set<Keryx.Domain.Collection.Run>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

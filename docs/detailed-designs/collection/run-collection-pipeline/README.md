@@ -73,8 +73,8 @@ The pipeline runs in the Keryx Worker. Every fetch and rule sits behind a contra
   generic reason (never a host, address, connection string or exception text), leaves every later
   stage `not_run`, and sets the outcome `failed`; the handler then discards the run's staged
   records. Outcome rules: `succeeded` when every stage is `done`; `completed_with_issues` when
-  any source failed; `failed` when a stage failed. The outcome of a run whose only warning is
-  held items is `<TO SUPPLY>`.
+  any source failed; `failed` when a stage failed. A run whose only warning is held items has
+  `succeeded`: holding items for review is the `classify` stage's warning, not a fault of the run.
 - **Performance** — with 64 sources each answering within 2 seconds a run finishes within 5
   minutes. With 500 sources a run finishes within 30 minutes (half the shortest interval) or the
   next slot records a `run_skipped` issue. Short store and publish transactions keep API response

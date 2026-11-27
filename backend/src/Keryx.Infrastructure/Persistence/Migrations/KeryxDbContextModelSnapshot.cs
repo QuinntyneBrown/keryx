@@ -22,6 +22,70 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Keryx.Domain.Collection.Run", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CorrelationId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long?>("DurationMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("ExecutionStarted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTimeOffset?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<int>("SourcesChecked")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SourcesTotal")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Worker")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("Worker", "StartedAt");
+
+                    b.ToTable("Runs", (string)null);
+                });
+
             modelBuilder.Entity("Keryx.Domain.Reference.Category", b =>
                 {
                     b.Property<string>("Slug")
@@ -245,6 +309,88 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StaffSessions");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Collection.Run", b =>
+                {
+                    b.OwnsOne("Keryx.Domain.Collection.RunCounts", "Counts", b1 =>
+                        {
+                            b1.Property<long>("RunId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<int>("Added")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Duplicates")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Held")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("OffTopic")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Rejected")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("SourcesFailed")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("SourcesOk")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Unchanged")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Updated")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("RunId");
+
+                            b1.ToTable("Runs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RunId");
+                        });
+
+                    b.OwnsMany("Keryx.Domain.Collection.StageResult", "Stages", b1 =>
+                        {
+                            b1.Property<long>("RunId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Stage")
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.Property<string>("Counts")
+                                .IsRequired()
+                                .HasMaxLength(1024)
+                                .HasColumnType("character varying(1024)");
+
+                            b1.Property<long>("DurationMs")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Reason")
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)");
+
+                            b1.Property<string>("Status")
+                                .IsRequired()
+                                .HasMaxLength(24)
+                                .HasColumnType("character varying(24)");
+
+                            b1.HasKey("RunId", "Stage");
+
+                            b1.ToTable("RunStages", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("RunId");
+                        });
+
+                    b.Navigation("Counts")
+                        .IsRequired();
+
+                    b.Navigation("Stages");
                 });
 
             modelBuilder.Entity("Keryx.Domain.Sources.Source", b =>
