@@ -1,0 +1,36 @@
+import { Injectable } from '@angular/core';
+import { ApiProblem, type SourcePage, type SourceQuery, type SourcesApi } from '@kx/api';
+
+/** The source catalogue over fetch, with the staff session's cookie (ADR 0005). */
+@Injectable()
+export class HttpSourcesApi implements SourcesApi {
+  async list(query: SourceQuery, signal: AbortSignal): Promise<SourcePage> {
+    const search = new URLSearchParams({
+      page: String(query.page),
+      page_size: String(query.pageSize),
+    });
+    if (query.kind) search.set('kind', query.kind);
+    return this.read<SourcePage>(`/admin/v1/sources?${search}`, signal);
+  }
+
+  private async read<T>(url: string, signal: AbortSignal): Promise<T> {
+    let response: Response;
+    try {
+      response = await fetch(url, { credentials: 'include', cache: 'no-store', signal });
+    } catch (error) {
+      if (signal.aborted) throw error;
+      throw new ApiProblem(0);
+    }
+    if (!response.ok) throw await problemOf(response);
+    return (await response.json()) as T;
+  }
+}
+
+/** The ProblemDetails of a refusal, or just its status when the body is not one. */
+export async function problemOf(response: Response): Promise<ApiProblem> {
+  const body = await response.json().catch(() => null);
+  const code = typeof body?.code === 'string' ? body.code : undefined;
+  const reference = typeof body?.trace_id === 'string' ? body.trace_id : undefined;
+  const errors = body?.errors && typeof body.errors === 'object' ? body.errors : undefined;
+  return new ApiProblem(response.status, code, reference, errors);
+}

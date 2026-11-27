@@ -15,3 +15,6 @@ export { NavLink } from './nav-link/nav-link';
 export { PageHeader } from './page-header/page-header';
 export { SettingsSection } from './settings-section/settings-section';
 export { Field } from './field/field';
+export { Health, type HealthTone } from './health/health';
+export { Source } from './source/source';
+export { Table, type TableColumn } from './table/table';

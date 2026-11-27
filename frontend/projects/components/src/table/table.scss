@@ -1,0 +1,89 @@
+// The data table (docs/design-system/components/table.html).
+:host {
+  display: block;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--text-body-sm);
+}
+
+.table th {
+  padding: var(--space-2-5) var(--space-3);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-surface-sunken);
+  color: var(--color-fg-muted);
+  font: var(--text-overline);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: var(--radius-lg);
+}
+
+.table thead th:last-child {
+  border-top-right-radius: var(--radius-lg);
+}
+
+.table td {
+  padding: var(--space-3);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  vertical-align: middle;
+}
+
+.table tbody tr:first-child td {
+  border-top: 0;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: var(--space-5);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: var(--space-5);
+}
+
+.table tr {
+  position: relative;
+}
+
+.table tbody tr {
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.table tbody tr:hover {
+  background: var(--color-bg-subtle);
+}
+
+.table .num {
+  text-align: right;
+}
+
+.table__primary {
+  min-width: 0;
+}
+
+.table__muted {
+  color: var(--color-fg-muted);
+}
+
+@media (max-width: 63.99rem) {
+  .table {
+    table-layout: fixed;
+  }
+
+  .table th.table__col-actions {
+    width: calc(var(--space-12) + var(--space-2));
+  }
+}

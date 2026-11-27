@@ -32,10 +32,10 @@ test.describe('Admin shell placeholder', () => {
       // The card has no icon and no action: neither an empty disc nor an empty row is drawn.
       await expect(shell.placeholderIcon).toBeHidden();
       await expect(shell.placeholderActions).toBeHidden();
-      // ADR 0006: each screen's link arrives with the screen; Settings is the first.
+      // ADR 0006: each screen's link arrives with the screen: Sources and Settings so far.
       await expect(shell.navigation).toHaveCount(1);
       await expect(shell.navigation).toHaveAccessibleName('Primary');
-      await expect(shell.navigation.getByRole('link')).toHaveText(['Settings']);
+      await expect(shell.navigation.getByRole('link')).toHaveText(['Sources', 'Settings']);
     },
   );
 

@@ -1,0 +1,10 @@
+<div class="source">
+  <span class="source__icon"><kx-icon [name]="icon()" /></span>
+  <div class="source__text">
+    <span class="source__name table__title truncate" dir="auto">{{ name() }}</span>
+    <span class="source__address table__sub table__sub--mono truncate"
+      ><span class="visually-hidden">{{ kindLabel() }}: </span>{{ address() }}</span
+    >
+    <ng-content />
+  </div>
+</div>

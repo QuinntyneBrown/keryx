@@ -1,0 +1,41 @@
+// The source cell (docs/design-system/components/source.html).
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.source {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.source__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--size-tile);
+  height: var(--size-tile);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+}
+
+.source__text {
+  min-width: 0;
+}
+
+.source__name {
+  display: block;
+  font: var(--text-label);
+  line-height: var(--line-height-snug);
+}
+
+.source__address {
+  display: block;
+  margin-top: var(--space-0-5);
+  font: var(--text-caption);
+  font-family: var(--font-family-mono);
+  color: var(--color-fg-subtle);
+}

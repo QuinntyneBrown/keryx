@@ -2,6 +2,9 @@
 <kx-app>
   <kx-sidebar slot="sidebar" [userName]="staff()?.name" [userRole]="staff()?.role">
     <kx-brand slot="brand" href="/" label="Keryx, go to overview" (navigate)="navigate($event)" />
+    <kx-nav-link href="/sources" [current]="isCurrent('/sources')" (navigate)="navigate($event)">
+      <kx-icon slot="icon" name="rss" size="sm" />Sources
+    </kx-nav-link>
     <kx-nav-link href="/settings" [current]="isCurrent('/settings')" (navigate)="navigate($event)">
       <kx-icon slot="icon" name="settings" size="sm" />Settings
     </kx-nav-link>

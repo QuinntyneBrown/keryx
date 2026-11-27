@@ -1,0 +1,69 @@
+@let state = store.state();
+<kx-page-header title="Sources" [description]="description()">
+  <kx-btn slot="actions" variant="primary" [disabled]="state.status === 'error'"
+    ><kx-icon name="plus" size="sm" />Add source</kx-btn
+  >
+</kx-page-header>
+<kx-page-body>
+  @switch (state.status) {
+    @case ('error') {
+      <kx-empty
+        card
+        tone="error"
+        announce
+        title="Sources didn’t load"
+        text="Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx."
+        [reference]="state.reference ?? undefined"
+      >
+        <kx-btn slot="actions" variant="primary" (activated)="retry()">Try again</kx-btn>
+        <kx-btn slot="actions" href="/" (navigate)="navigate($event)">Go to overview</kx-btn>
+      </kx-empty>
+    }
+    @case ('ready') {
+      @if (state.page.all_count === 0) {
+        <kx-empty
+          card
+          title="Add the first source"
+          text="A source is a feed, page, Instagram account, Eventbrite organiser or news query that Keryx checks on every run. Start with an organisation you already follow in Toronto or the GTA."
+        >
+          <kx-icon slot="icon" name="rss" size="lg" />
+          <kx-btn slot="actions" variant="primary"
+            ><kx-icon name="plus" size="sm" />Add a source</kx-btn
+          >
+        </kx-empty>
+      } @else {
+        <kx-table
+          caption="Sources, failing first"
+          [columns]="columns"
+          [rows]="rows()"
+          [rowKey]="rowKey"
+          [cells]="{ source: sourceCell, health: healthCell, region: regionCell }"
+        >
+          <ng-template #sourceCell let-row>
+            <kx-source
+              [kind]="row.item.kind"
+              [kindLabel]="row.kindLabel"
+              [name]="row.item.organization_name"
+              [address]="row.address"
+            >
+              <span class="sources__narrow-health until-lg"
+                ><kx-health
+                  [tone]="row.health.tone"
+                  [prefix]="row.health.prefix"
+                  [text]="row.health.text"
+              /></span>
+            </kx-source>
+          </ng-template>
+          <ng-template #healthCell let-row>
+            <kx-health
+              [tone]="row.health.tone"
+              [prefix]="row.health.prefix"
+              [text]="row.health.text"
+            />
+          </ng-template>
+          <ng-template #regionCell let-row>{{ row.item.region_name }}</ng-template>
+        </kx-table>
+      }
+    }
+  }
+</kx-page-body>

@@ -1,0 +1,41 @@
+// Health (docs/design-system/components/health.html): a dot in the solid status colour and the
+// condition, muted when healthy and in the status foreground otherwise.
+:host {
+  display: contents;
+}
+
+.health {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-fg-muted);
+}
+
+.health::before {
+  content: '';
+  flex: none;
+  width: var(--size-dot-lg);
+  height: var(--size-dot-lg);
+  border-radius: var(--radius-full);
+  background: var(--color-success-solid);
+}
+
+.health--warning {
+  color: var(--color-warning-fg);
+}
+
+.health--warning::before {
+  background: var(--color-warning-solid);
+}
+
+.health--danger {
+  color: var(--color-danger-fg);
+}
+
+.health--danger::before {
+  background: var(--color-danger-solid);
+}
+
+.health--paused::before {
+  background: var(--color-fg-subtle);
+}

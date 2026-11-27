@@ -1,0 +1,24 @@
+<div class="table-wrap">
+  <table class="table">
+    <!-- prettier-ignore -->
+    <caption class="visually-hidden">{{ caption() }}</caption>
+    <thead>
+      <tr>
+        @for (column of columns(); track column.key) {
+          <!-- prettier-ignore -->
+          <th scope="col" [attr.class]="headClass(column)">@if (column.hiddenLabel) {<span class="visually-hidden">{{ column.label }}</span>} @else {{{ column.label }}}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track rowKey()(row)) {
+        <tr>
+          @for (column of columns(); track column.key) {
+            <!-- prettier-ignore -->
+            <td [attr.class]="cellClass(column)"><ng-container *ngTemplateOutlet="template(column.key); context: { $implicit: row }" /></td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

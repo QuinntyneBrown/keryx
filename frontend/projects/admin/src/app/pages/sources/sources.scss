@@ -1,0 +1,7 @@
+// Sources composes library components; it adds only the narrow screen's health line under the
+// source's name (docs/mocks/pages/sources/default.html, below 1024 px).
+.sources__narrow-health {
+  display: block;
+  margin-top: var(--space-0-5);
+  font: var(--text-caption);
+}

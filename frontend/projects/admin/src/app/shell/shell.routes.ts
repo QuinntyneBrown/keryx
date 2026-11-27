@@ -17,6 +17,11 @@ export default [
         loadComponent: () => import('../pages/home-placeholder/home-placeholder'),
       },
       {
+        path: 'sources',
+        title: 'Sources · Keryx',
+        loadComponent: () => import('../pages/sources/sources'),
+      },
+      {
         path: 'settings',
         title: 'Settings · Keryx',
         loadComponent: () => import('../pages/settings/settings'),
