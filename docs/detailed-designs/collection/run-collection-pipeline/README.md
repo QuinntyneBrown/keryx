@@ -67,8 +67,10 @@ The pipeline runs in the Keryx Worker. Every fetch and rule sits behind a contra
   `done_with_warnings` when any item is held.
 - **`DeduplicateStage`** — matches each item by identity and merges duplicates through
   `IDeduplicator`; its summary gives `duplicates` and `rejected`.
-- **`StoreStage`** — writes `StagedRecord` rows in batches (batch size `<TO SUPPLY>`), one
-  transaction per batch.
+- **`StoreStage`** — writes `StagedArticle` rows, one save per source (a source has at most 200
+  items, so a source is the batch). When a save cannot reach the database the stage fails with
+  the reason "The records of this run could not be saved.", the reader stops reading sources,
+  the run's staged rows are discarded and `publish` is `not_run`.
 - **`PublishStage`** — applies the run's staged records to the live `Article`, `Event`,
   `Organization` and `Provenance` rows and sets `Run.PublishedAt` in one transaction, then
   deletes the staged rows. Before this commit the API serves exactly what it served before the

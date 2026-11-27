@@ -33,7 +33,12 @@ internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPi
         }
 
         var counts = await pipeline.ExecuteAsync(run, cancellationToken).ConfigureAwait(false);
-        run.Finish(counts, time.GetUtcNow());
+        // A stage that failed has already ended the run.
+        if (run.Outcome == RunOutcome.Running)
+        {
+            run.Finish(counts, time.GetUtcNow());
+        }
+
         lease.Release(run.PublicId);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

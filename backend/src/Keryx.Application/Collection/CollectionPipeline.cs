@@ -26,6 +26,9 @@ public sealed class CollectionPipeline(
     /// <summary>How many sources are fetched at once (L2-022).</summary>
     internal const int FetchConcurrency = 8;
 
+    /// <summary>The store stage's reason when it cannot save; generic, so no host, address or error text reaches a reader (L2-007 AC3).</summary>
+    internal const string StoreFailed = "The records of this run could not be saved.";
+
     /// <summary>How many fetched sources may wait for the reader.</summary>
     internal const int ChannelCapacity = 16;
 
@@ -60,7 +63,9 @@ public sealed class CollectionPipeline(
         {
             SingleReader = true,
         });
-        var fetching = FetchAllAsync(sources, timeout, fetched.Writer, cancellationToken);
+        using var stopFetching = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var fetching = FetchAllAsync(sources, timeout, fetched.Writer, stopFetching.Token);
+        var storeFailed = false;
 
         int ok = 0, failed = 0, items = 0, relevant = 0, held = 0, offTopic = 0;
         long parseTicks = 0, classifyTicks = 0, storeTicks = 0;
@@ -118,7 +123,21 @@ public sealed class CollectionPipeline(
             }
 
             run.SourceChecked();
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception) when (!cancellationToken.IsCancellationRequested)
+            {
+                // The store stage cannot reach the database: stop reading sources (L2-007 AC3).
+                storeFailed = true;
+                break;
+            }
+        }
+
+        if (storeFailed)
+        {
+            await stopFetching.CancelAsync().ConfigureAwait(false);
         }
 
         await fetching.ConfigureAwait(false);
@@ -132,6 +151,15 @@ public sealed class CollectionPipeline(
             new Dictionary<string, int> { ["duplicates"] = counts.Duplicates, ["rejected"] = counts.Rejected });
         run.RecordStage(PipelineStage.Store, StageStatus.Done, Milliseconds(storeTicks),
             new Dictionary<string, int> { ["added"] = counts.Added, ["updated"] = counts.Updated, ["unchanged"] = counts.Unchanged });
+        if (storeFailed)
+        {
+            // Nothing from this run is served: its staged records are discarded and publish does not run (L2-007 AC3, AC5).
+            DiscardStaged(run);
+            run.FailStage(PipelineStage.Store, StoreFailed, time.GetUtcNow());
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return new RunCounts { Held = held, OffTopic = offTopic, SourcesOk = ok, SourcesFailed = failed };
+        }
+
         run.RecordStage(PipelineStage.Publish, StageStatus.Running, 0, new Dictionary<string, int>());
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         var publishStarted = time.GetTimestamp();
@@ -150,6 +178,18 @@ public sealed class CollectionPipeline(
             SourcesOk = ok,
             SourcesFailed = failed,
         };
+    }
+
+    /// <summary>
+    /// The run's staged rows are removed: this context staged every one of them, so each is still
+    /// tracked; a saved row is deleted and an unsaved one forgotten.
+    /// </summary>
+    private void DiscardStaged(Run run)
+    {
+        foreach (var row in db.StagedArticles.Local.Where(row => row.RunId == run.Id).ToList())
+        {
+            db.StagedArticles.Remove(row);
+        }
     }
 
     /// <summary>
