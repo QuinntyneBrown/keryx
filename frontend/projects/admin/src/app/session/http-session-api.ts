@@ -6,6 +6,7 @@ export class SessionError extends Error {
   constructor(
     readonly status: number,
     readonly code?: string,
+    readonly reference?: string,
   ) {
     super('Session request failed');
   }
@@ -24,7 +25,7 @@ export class HttpSessionApi implements SessionApi {
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          throw new SessionError(response.status, error?.code);
+          throw new SessionError(response.status, error?.code, error?.trace_id);
         }
         subscriber.next(await response.json());
         subscriber.complete();
@@ -34,8 +35,24 @@ export class HttpSessionApi implements SessionApi {
     });
   }
 
-  signInUrl(returnPath: string): string {
+  async signOut(signal: AbortSignal): Promise<void> {
+    const options = { credentials: 'include', cache: 'no-store', signal } as const;
+    const token = await fetch('/admin/v1/auth/antiforgery', options);
+    if (token.status === 401) return;
+    if (!token.ok) throw new SessionError(token.status);
+    const body = await token.json();
+    if (typeof body.request_token !== 'string') throw new SessionError(400);
+    const ended = await fetch('/admin/v1/auth/sign-out', {
+      ...options,
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': body.request_token },
+    });
+    if (!ended.ok && ended.status !== 401) throw new SessionError(ended.status);
+  }
+
+  signInUrl(returnPath: string, selectAccount = false): string {
     const query = new URLSearchParams({ return: returnPath });
+    if (selectAccount) query.set('prompt', 'select_account');
     return '/admin/v1/auth/sign-in?' + query;
   }
 }

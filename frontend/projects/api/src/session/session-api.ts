@@ -9,7 +9,8 @@ export interface StaffProfile {
 
 export interface SessionApi {
   getMe(): Observable<StaffProfile>;
-  signInUrl(returnPath: string): string;
+  signOut(signal: AbortSignal): Promise<void>;
+  signInUrl(returnPath: string, selectAccount?: boolean): string;
 }
 
 export const SESSION_API = new InjectionToken<SessionApi>('Keryx staff session');

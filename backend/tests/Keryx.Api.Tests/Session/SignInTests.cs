@@ -8,6 +8,19 @@ namespace Keryx.Api.Tests.Session;
 public sealed class SignInTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
+    public async Task Given_an_account_switch_When_sign_in_starts_Then_the_provider_is_asked_to_select_an_account()
+    {
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false,
+        });
+        using var response = await client.GetAsync(new Uri("/admin/v1/auth/sign-in?prompt=select_account", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("select_account", QueryHelpers.ParseQuery(response.Headers.Location!.Query)["prompt"].ToString());
+    }
+
+    [Fact]
     public async Task Given_a_visitor_When_they_start_sign_in_Then_the_provider_receives_a_bound_code_challenge()
     {
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions

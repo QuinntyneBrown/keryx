@@ -12,6 +12,13 @@ export const staffGuard: CanMatchFn = () => {
     .pipe(
       map(() => true),
       catchError((error: unknown) => {
+        if (error instanceof SessionError && error.status === 403 && error.code === 'not_staff') {
+          return of(
+            router.createUrlTree(['/forbidden'], {
+              queryParams: { ref: error.reference, return: returnPath },
+            }),
+          );
+        }
         const state =
           error instanceof SessionError && error.status === 401
             ? error.code === 'session_expired'

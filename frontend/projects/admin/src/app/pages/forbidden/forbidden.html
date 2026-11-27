@@ -1,0 +1,24 @@
+<kx-skip-link />
+<kx-app bare>
+  <kx-page-body centered>
+    <kx-empty
+      card
+      tone="error"
+      [level]="1"
+      title="This account can’t open Keryx admin"
+      text="You’re signed in, but this account isn’t on the Keryx staff list. Ask whoever runs Keryx to add you, or sign in with a different account."
+      [reference]="reference"
+    >
+      <kx-brand slot="brand" />
+      <kx-icon slot="icon" name="lock" size="lg" />
+      @if (failed()) {
+        <kx-alert slot="notice" tone="danger" announcement="alert" title="Couldn’t switch accounts"
+          >Try again.</kx-alert
+        >
+      }
+      <kx-btn slot="actions" variant="primary" [busy]="busy()" (activated)="switchAccount()"
+        >Sign in with a different account</kx-btn
+      >
+    </kx-empty>
+  </kx-page-body>
+</kx-app>

@@ -22,9 +22,9 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("sign-in")]
-    public async Task<IActionResult> Start([FromQuery(Name = "return")] string? returnPath, CancellationToken cancellationToken)
+    public async Task<IActionResult> Start([FromQuery(Name = "return")] string? returnPath, [FromQuery] string? prompt, CancellationToken cancellationToken)
     {
         var path = await sender.Send(new PrepareSignIn(returnPath), cancellationToken).ConfigureAwait(false);
-        return Challenge(new AuthenticationProperties { RedirectUri = path }, OpenIdConnectDefaults.AuthenticationScheme);
+        return Challenge(new OpenIdConnectChallengeProperties { RedirectUri = path, Prompt = prompt == "select_account" ? prompt : null }, OpenIdConnectDefaults.AuthenticationScheme);
     }
 }

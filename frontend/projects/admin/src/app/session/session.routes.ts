@@ -9,6 +9,11 @@ export default [
     providers: [{ provide: SESSION_API, useClass: HttpSessionApi }],
     children: [
       {
+        path: 'forbidden',
+        title: 'Access denied · Keryx',
+        loadComponent: () => import('../pages/forbidden/forbidden'),
+      },
+      {
         path: 'sign-in',
         title: 'Sign in · Keryx',
         loadComponent: () => import('../pages/sign-in/sign-in'),

@@ -110,3 +110,6 @@ and running the worker's host on its own, made every schedule test deterministic
 - The sign-in mock already supplies separate copy and actions for provider errors, session
   expiry and sign-out. Test each URL state directly. Keep the expiry message accurate for
   both idle and absolute limits, since the API returns the same code for both.
+- The forbidden-screen mock shows a switch-account action. The design specifies the complete
+  sequence: obtain the anti-forgery token, end the old session, and request the provider account
+  chooser. Verify the outgoing provider query as well as the browser request.
