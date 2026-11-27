@@ -20,6 +20,7 @@ public static class ApplicationServiceCollectionExtensions
         {
             configuration.RegisterServicesFromAssembly(assembly);
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            configuration.AddOpenBehavior(typeof(RunRecordingBehavior<,>));
         });
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.TryAddSingleton(TimeProvider.System);

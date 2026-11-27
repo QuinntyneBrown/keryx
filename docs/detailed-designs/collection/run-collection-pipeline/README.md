@@ -33,9 +33,10 @@ is [retry-failed-sources](../retry-failed-sources/README.md).
 The pipeline runs in the Keryx Worker. Every fetch and rule sits behind a contract in
 `Keryx.Application`, with its client in `Keryx.Infrastructure`.
 
-- **`CollectionScheduler`** — the execution loop of the hosted service sends one
-  `RunCollectionCommand` per pickup interval (`<TO SUPPLY>` seconds, waited on `TimeProvider`)
-  and checks nothing itself.
+- **`CollectionRunner`** — hosted service with its own loop, separate from the schedule's, so a
+  slot arriving during a long run is still seen. Once the database is ready it sends
+  `RecoverInterruptedRuns`, then one `RunCollectionCommand` every 10 seconds (waited on
+  `TimeProvider`), and checks nothing itself.
 - **`RunCollectionCommand`** and **`RunCollectionCommandHandler`** — the handler loads the
   pending run named by the `RunLease` (a new run or a retry), returns at once when there is none,
   and otherwise marks execution started, sets `sources_total`, and builds a `RunPlan`. The plan

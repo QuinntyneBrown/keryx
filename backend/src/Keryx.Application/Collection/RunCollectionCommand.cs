@@ -1,4 +1,5 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Behaviors;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Keryx.Application.Collection;
 
 /// <summary>Runs the pending collection run, if there is one (L2-007).</summary>
-public sealed record RunCollectionCommand : IRequest;
+public sealed record RunCollectionCommand : IRequest, IWorkerRunCommand
+{
+    public RunWorker Worker => RunWorker.Collection;
+}
 
 /// <summary>
 /// Picks up the run the collection lease names when the pipeline has not started it, runs the

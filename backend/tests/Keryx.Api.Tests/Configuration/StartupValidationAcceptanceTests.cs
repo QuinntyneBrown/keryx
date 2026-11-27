@@ -86,12 +86,40 @@ public sealed class StartupValidationAcceptanceTests
 
         var exitCode = await HostRunner.RunAsync(
             () => WorkerHost.Build([], builder => builder.Configuration.AddInMemoryCollection(
-                new Dictionary<string, string?>(StringComparer.Ordinal) { ["ConnectionStrings:Keryx"] = connectionString })),
+                new Dictionary<string, string?>(StringComparer.Ordinal)
+                {
+                    ["ConnectionStrings:Keryx"] = connectionString,
+                    ["Keryx:Fetch:UserAgentContactUrl"] = "https://keryx.example/collector",
+                })),
             error,
             startedAnyway.Token);
 
         Assert.Equal(MissingSetting, exitCode);
         Assert.Equal(Message, error.ToString());
+    }
+
+    // L2-021 AC3: the worker fetches sources too, so it needs the contact URL as the API does.
+    [Theory]
+    [InlineData("")]
+    [InlineData("http://keryx.example/collector")]
+    public async Task Given_no_https_contact_url_When_the_worker_starts_Then_it_stops_naming_the_setting(string contactUrl)
+    {
+        using var error = new StringWriter();
+        using var startedAnyway = new CancellationTokenSource(StartedAnyway);
+
+        var exitCode = await HostRunner.RunAsync(
+            () => WorkerHost.Build([], builder => builder.Configuration.AddInMemoryCollection(
+                new Dictionary<string, string?>(StringComparer.Ordinal)
+                {
+                    ["ConnectionStrings:Keryx"] = TestStore.UnusedConnection,
+                    ["Keryx:Fetch:UserAgentContactUrl"] = contactUrl,
+                    ["OTEL_EXPORTER_OTLP_ENDPOINT"] = string.Empty,
+                })),
+            error,
+            startedAnyway.Token);
+
+        Assert.Equal(MissingSetting, exitCode);
+        Assert.Equal($"Missing required setting: Keryx__Fetch__UserAgentContactUrl{Environment.NewLine}", error.ToString());
     }
 
     // The CLI stops the same way, before its command touches anything.

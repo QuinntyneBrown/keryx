@@ -41,9 +41,10 @@ checks anything itself.
 - **`IWorkerRunCommand`** — marker implemented by `RunCollectionCommand` and by the retention
   and alert digest run commands.
 - **`RunRecordingBehavior`** — MediatR pipeline behaviour in `Keryx.Application` for every
-  `IWorkerRunCommand`. It creates or loads the run, calls the handler, and finishes the run.
-  When the handler throws, it records the run as `failed` with a generic reason and the current
-  trace id as `correlation_id`. It logs only the exception type and trace id, and does not
+  `IWorkerRunCommand`. The handler loads and finishes its own run. When the handler throws, the
+  behaviour records the run the worker's lease names as `failed` with the reason "The run
+  stopped unexpectedly." and the current trace id (or a new one) as `correlation_id`, in a scope
+  of its own, and frees the lease. It logs only the exception type and trace id, and does not
   rethrow, so the worker's next scheduled run still starts.
 - **Worker isolation** — `CollectionScheduler`, `RetentionWorker` and `AlertDigestWorker` are
   separate hosted services with their own loops and schedules. A failure in one does not stop the

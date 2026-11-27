@@ -18,6 +18,7 @@ public static class WorkerHost
         var builder = Host.CreateApplicationBuilder(args);
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddSourceFetching();
         builder.Services.AddKeryxTelemetry(builder.Configuration, KeryxTelemetry.WorkerServiceName);
 
         // One gate, which every worker awaits before its first schedule.
@@ -26,6 +27,7 @@ public static class WorkerHost
 
         // Each worker is its own hosted service with its own loop, so one failing stops no other.
         builder.Services.AddHostedService<CollectionScheduler>();
+        builder.Services.AddHostedService<CollectionRunner>();
 
         configure?.Invoke(builder);
         return builder.Build();

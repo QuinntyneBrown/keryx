@@ -117,8 +117,9 @@ dotnet format --verify-no-changes              # the format check CI runs
 ```
 
 To run the processes, set `ConnectionStrings__Keryx` to a PostgreSQL connection string. The API
-also requires the staff identity provider settings `Keryx__Oidc__Authority` and `Keryx__Oidc__ClientId`,
-and `Keryx__Fetch__UserAgentContactUrl`, the https page its requests to sources name. Every
+also requires the staff identity provider settings `Keryx__Oidc__Authority` and `Keryx__Oidc__ClientId`.
+The API and the worker both require `Keryx__Fetch__UserAgentContactUrl`, the https page their
+requests to sources name. Every
 setting is in [tools/deploy/configuration.md](tools/deploy/configuration.md); a missing
 required one stops a process at startup, naming it.
 

@@ -29,6 +29,7 @@ public sealed class WorkerHarness : IAsyncDisposable
             builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>(StringComparer.Ordinal)
             {
                 ["ConnectionStrings:Keryx"] = TestStore.UnusedConnection,
+                ["Keryx:Fetch:UserAgentContactUrl"] = "https://keryx.example/about-our-collector",
                 ["OTEL_EXPORTER_OTLP_ENDPOINT"] = string.Empty,
             });
             builder.Logging.AddFilter<ConsoleLoggerProvider>(_ => false);
