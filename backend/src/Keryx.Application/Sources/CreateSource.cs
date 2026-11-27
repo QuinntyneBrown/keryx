@@ -1,4 +1,5 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Errors;
 using Keryx.Domain.Sources;
 using MediatR;
 
@@ -11,8 +12,14 @@ internal sealed class CreateSourceHandler(IAppDbContext db, TimeProvider time) :
 {
     public async Task<SourceDto> Handle(CreateSource request, CancellationToken cancellationToken)
     {
+        var kind = SourceWords.KindOf(request.Kind)!.Value;
+        if (kind == SourceKind.NewsQuery)
+        {
+            throw new KindNotCreatableException();
+        }
+
         var source = Source.Add(
-            SourceWords.KindOf(request.Kind)!.Value,
+            kind,
             request.Address!,
             request.OrganizationName!,
             request.Region!,
@@ -22,3 +29,7 @@ internal sealed class CreateSourceHandler(IAppDbContext db, TimeProvider time) :
         return SourceDto.From(source);
     }
 }
+
+/// <summary>News query sources come from seed data only (L2-001 AC5).</summary>
+public sealed class KindNotCreatableException()
+    : KeryxException(400, "kind_not_creatable", "Sources of this kind are created by seed data only.");

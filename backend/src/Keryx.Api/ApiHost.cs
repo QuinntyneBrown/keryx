@@ -95,6 +95,7 @@ public static class ApiHost
         });
         app.UseExceptionHandler();
         app.UseStatusCodePages();
+        app.Use(AdminBodyLimit.EnforceAsync);
         app.UseRouting();
         app.UseAuthentication();
         // A missing route has no resource to authorize. Keep its documented 404 response.
