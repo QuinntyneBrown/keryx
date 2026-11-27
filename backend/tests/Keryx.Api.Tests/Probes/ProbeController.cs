@@ -9,6 +9,7 @@ namespace Keryx.Api.Tests.Probes;
 /// endpoint stands on before any real endpoint exists: validation, the unhandled failure and a
 /// route with a parameter.
 /// </summary>
+[Microsoft.AspNetCore.Authorization.AllowAnonymous]
 [ApiController]
 [Route("test/probe")]
 public sealed class ProbeController(ISender sender) : ControllerBase

@@ -78,3 +78,10 @@ would have hidden. "Honest red" caught tests that passed at once and proved noth
 rule was broken. Reading the initial total after each new Angular API kept `main` inside its
 budget (223.86 kB against 250 kB). Keeping background services out of the shared test host,
 and running the worker's host on its own, made every schedule test deterministic.
+
+## Journey 2: Staff signs in
+
+- The first endpoint-protection test returned 200 before the fallback policy and 401 after it.
+  Check endpoint selection before authorization so an unknown route keeps its documented 404.
+  Explicit anonymous metadata on test-only error and telemetry probes keeps their existing
+  behavior observable with the production fallback enabled.

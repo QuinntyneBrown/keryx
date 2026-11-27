@@ -5,6 +5,8 @@ using Keryx.Application;
 using Keryx.Infrastructure;
 using Keryx.Infrastructure.Health;
 using Keryx.Infrastructure.Telemetry;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -38,9 +40,43 @@ public static class ApiHost
         builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ProblemDetailsMapper.Customize);
         builder.Services.AddExceptionHandler<ProblemDetailsMapper>();
 
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                };
+            });
+        builder.Services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+
         var app = builder.Build();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
+        app.UseRouting();
+        app.UseAuthentication();
+        // A missing route has no resource to authorize. Keep its documented 404 response.
+        app.Use(async (context, next) =>
+        {
+            if (context.GetEndpoint() is null)
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
+            await next(context).ConfigureAwait(false);
+        });
+        app.UseAuthorization();
         MapHealth(app);
         app.MapControllers();
         return app;
