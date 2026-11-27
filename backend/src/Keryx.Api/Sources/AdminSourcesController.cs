@@ -11,6 +11,15 @@ namespace Keryx.Api.Sources;
 [Authorize(Policy = "Staff")]
 public sealed class AdminSourcesController(ISender sender) : ControllerBase
 {
+    /// <summary>One page of the catalogue, failing first (L2-062). The screen sends a page size of 12.</summary>
+    [HttpGet]
+    public Task<SourcePage> List(
+        [FromQuery] string? kind,
+        [FromQuery] int page = 1,
+        [FromQuery(Name = "page_size")] int pageSize = 12,
+        CancellationToken cancellationToken = default) =>
+        sender.Send(new ListSources(kind, page, pageSize), cancellationToken);
+
     [HttpPost]
     [ProducesResponseType<SourceDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateSourceBody body, CancellationToken cancellationToken)

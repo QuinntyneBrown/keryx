@@ -32,12 +32,12 @@ that derives health during a run.
 
 - `GET /admin/v1/sources` — staff policy. Query `kind` (one of the five kinds, optional), `page`
   and `page_size` (1 to 100; the screen sends 12). Outside the range the response is `400`
-  `invalid_page`, as for the other admin lists (L2-048). The `code` for an unknown `kind` is
-  `<TO SUPPLY>`.
+  `invalid_page`, as for the other admin lists (L2-048). An unknown `kind` is `400`
+  `validation_failed` with an `errors.kind` entry.
 - Response `200`: `items`, `total`, `page`, `page_size` as numbers, and header counts across all
   active sources whatever the filter (`all_count`, `failing_count`, `needs_look_count`; the names
-  are this design's). Each item has `id`, `kind`, `address`, `organization_name`, `region`,
-  `health`, `failure_reason` (L2-002 list or `null`), `consecutive_failures`, `held_count`,
+  are this design's). Each item has `id`, `kind`, `address`, `organization_name`, `region` (the slug),
+  `region_name`, `health`, `failure_reason` (L2-002 list or `null`), `consecutive_failures`, `held_count`,
   `articles_30d` and `last_fetched_at` (`null` when never fetched), numbers as numbers.
 - Order: `failing`, then `needs_look`, then `healthy`; within each group by organization name.
   Removed sources are excluded.
