@@ -374,3 +374,24 @@ J8-style misses. "Assert every match before writing" saved a half-applied design
 refused to write, though the commands after it in the same line still ran; keep edits and
 staging in separate commands. Deferred: source removal (journey 17) adds the active filter to
 `/v1/sources`; an event whose article staff hide (journey 12) is proven gone then.
+
+## Journey 10: Product reads reference data and status
+
+**What slowed it.** Two test assumptions. The seeded news query is never fetched by a run (its
+platform has no client yet), so "the news query fails" gave a run that succeeded; an unanswered
+RSS source made the issue. And a leak check for the word "issue" matched the legitimate status
+`completed_with_issues`.
+
+- **Make a failure with a source the run actually fetches.** An RSS source nothing answers fails
+  with `not_found`; a seeded news query is skipped and proves nothing.
+- **A leak check's words must not be legal output.** Probe for what must never appear (a source's
+  name, its address, a failure code), not for words the contract itself uses.
+- **A mutant that does not compile proves nothing, and its test runs a stale binary.** Read the
+  build status beside each mutant; redo it in a form that compiles (here, shifting the clock
+  instead of replacing it with a literal).
+- **Insert runs directly when the outcome is the input.** `Run.Start` then `Fail` through the
+  `KeryxDbContext` gives a failed, running or other-worker run without staging a pipeline fault.
+
+**How earlier lessons worked.** "Build an EF subquery outside the lambda" was applied first time:
+the served-article counts inside the category and region projections are captured variables.
+"Name the open decision when you close it" closed all five of this design's `<TO SUPPLY>`s.

@@ -9,4 +9,4 @@
 | serve-articles | 4 days | 95% |
 | serve-events | 3 days | 95% |
 | serve-organizations-and-sources | 3 days | 95% |
-| serve-reference-and-status | 2 days | 0% |
+| serve-reference-and-status | 2 days | 100% |
