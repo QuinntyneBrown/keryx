@@ -40,6 +40,8 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Keryx.Domain.Catalogue.EventRecord> Events => Set<Keryx.Domain.Catalogue.EventRecord>();
 
+    public DbSet<Keryx.Domain.Clients.ApiClient> ApiClients => Set<Keryx.Domain.Clients.ApiClient>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

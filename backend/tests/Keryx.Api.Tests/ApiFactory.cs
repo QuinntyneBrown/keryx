@@ -41,7 +41,7 @@ public class ApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        builder.UseEnvironment("Production");
+        builder.UseEnvironment(EnvironmentName);
         builder.UseSetting("Keryx:Oidc:Authority", "https://id.example.test");
         builder.UseSetting("Keryx:Oidc:ClientId", "keryx-test");
         builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
@@ -77,6 +77,9 @@ public class ApiFactory : WebApplicationFactory<Program>
             ConfigureServices(services);
         });
     }
+
+    /// <summary>The host environment: Production, as deployed, unless a fixture proves a rule of another.</summary>
+    protected virtual string EnvironmentName => "Production";
 
     /// <summary>Replaces services for one fixture: a fake behind a contract, or a fault.</summary>
     protected virtual void ConfigureServices(IServiceCollection services)

@@ -33,6 +33,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISchemaVersion, EfSchemaVersion>();
         services.AddSingleton<IHostResolver, DnsHostResolver>();
         services.AddSingleton<IFeedParser, FeedParser>();
+        services.AddSingleton<Keryx.Application.Clients.IApiKeyGenerator, Clients.ApiKeyGenerator>();
         services.AddScoped<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;

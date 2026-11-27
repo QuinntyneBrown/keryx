@@ -88,8 +88,8 @@ named by the mocks' blocks: `dialog`, `field`, `input`, `check` (and its `check-
   and at least one scope. An empty name gives "Enter the product’s name so you can recognise its
   key later."; no scope gives "Choose at least one scope." for the group, which is marked invalid
   as a whole, and focus moves to the name. It has a unit test per row of its case table, and the
-  backend validator's tests use the same inline case table. Whether surrounding whitespace is
-  trimmed before the length check is `<TO SUPPLY>`.
+  backend validator's tests use the same inline case table. Surrounding whitespace is trimmed
+  before the length check, and the name is stored trimmed.
 
 **API library (`frontend/projects/api`)**
 
@@ -112,13 +112,14 @@ named by the mocks' blocks: `dialog`, `field`, `input`, `check` (and its `check-
   with `ClientNameTakenException` (`409` `client_name_taken`). It asks `IApiKeyGenerator` for a
   key, hashes it through `IApiKeyHasher`, creates the `ApiClient` with the hash and the 12-
   character prefix, saves it, and returns the client with the full key. The full key exists only
-  in the handler's result and the response body. Whether the name comparison ignores case is
-  `<TO SUPPLY>`. A filtered unique index on the product name of active clients closes the race
+  in the handler's result and the response body. The name comparison ignores case (the
+  trimmed name, upper-cased invariantly, is kept as `NormalizedName`). A filtered unique index on the product name of active clients closes the race
   between two creates.
 - **`IApiKeyGenerator`** (`Keryx.Application`) and **`ApiKeyGenerator`**
   (`Keryx.Infrastructure`) — draws the random part from `RandomNumberGenerator`: at least 24
   characters from a URL-safe alphabet (the mock shows 24). The prefix is `kx_live_` in
-  production and `kx_test_` in every other environment (L2-035). The alphabet is `<TO SUPPLY>`.
+  production and `kx_test_` in every other environment (L2-035). The alphabet is the 62 ASCII letters and digits, 24 characters (about 143 bits), so a key
+  selects whole on a double-click.
 - **`RevokeApiClientCommand`** / **`RevokeApiClientCommandHandler`** — loads the client by its
   public id; an unknown or malformed id gives `ApiClientNotFoundException` (`404`
   `client_not_found`). An active client is revoked with `ApiClient.Revoke(now)`, the time read

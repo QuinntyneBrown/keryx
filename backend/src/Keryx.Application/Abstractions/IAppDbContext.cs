@@ -39,5 +39,7 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Catalogue.EventRecord> Events { get; }
 
+    DbSet<Keryx.Domain.Clients.ApiClient> ApiClients { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
