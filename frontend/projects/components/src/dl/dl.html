@@ -1,0 +1,6 @@
+<dl class="dl">
+  @for (item of items(); track item.key) {
+    <dt>{{ item.term }}</dt>
+    <dd><ng-container *ngTemplateOutlet="values()[item.key] ?? null" /></dd>
+  }
+</dl>

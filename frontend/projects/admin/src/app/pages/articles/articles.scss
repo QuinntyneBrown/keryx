@@ -1,4 +1,27 @@
 // Articles lays out library components; the article cell is a composite of text and a badge.
+// From 1024 px the open article's panel sits beside the list (the frame's split layout, drawn
+// here because the router outlet is inside the frame's main).
+@media (min-width: 64rem) {
+  .articles {
+    display: flex;
+    overflow-x: clip;
+  }
+}
+
+.articles__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.articles__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.articles__source {
+  display: block;
+}
 .articles__toolbar {
   margin-top: var(--space-4);
 }
@@ -10,9 +33,22 @@
 .articles__title {
   display: block;
   min-width: 0;
+  color: inherit;
   font: var(--text-label);
   line-height: var(--line-height-snug);
+  text-decoration: none;
   overflow-wrap: anywhere;
+}
+
+.articles__title:hover {
+  text-decoration: underline;
+}
+
+// The title's link covers its row, so the whole row opens the article by pointer or touch.
+.articles__title::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 .articles__sub {

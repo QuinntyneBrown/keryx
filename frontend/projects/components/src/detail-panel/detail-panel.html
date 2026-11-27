@@ -1,0 +1,29 @@
+<aside class="detail-panel" aria-labelledby="detail-title">
+  <div class="detail-panel__head">
+    <span class="mono text-subtle">{{ reference() }}</span>
+    <kx-icon-btn [label]="closeLabel()" (activated)="closed.emit()"
+      ><kx-icon name="close"
+    /></kx-icon-btn>
+  </div>
+  <div class="detail-panel__body">
+    <div>
+      <kx-badge dot [tone]="statusTone()">{{ status() }}</kx-badge>
+      <h2 class="detail-panel__title" id="detail-title" dir="auto" tabindex="-1">{{ title() }}</h2>
+      @if (summary()) {
+        <p class="detail-panel__summary">{{ summary() }}</p>
+      }
+      @if (url(); as href) {
+        <a class="detail-panel__link" [href]="href" target="_blank" rel="noopener noreferrer"
+          >Open original <kx-icon name="external" size="sm" /><span class="visually-hidden"
+            >(opens in a new tab)</span
+          ></a
+        >
+      } @else {
+        <span class="detail-panel__link detail-panel__link--unavailable"
+          >Original link unavailable</span
+        >
+      }
+    </div>
+    <ng-content />
+  </div>
+</aside>

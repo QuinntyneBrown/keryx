@@ -38,3 +38,5 @@ export { Tabs, type TabItem } from './tabs/tabs';
 export { Pagination } from './pagination/pagination';
 export { Search } from './search/search';
 export { Toolbar } from './search/toolbar';
+export { DetailPanel } from './detail-panel/detail-panel';
+export { Dl, type DlItem } from './dl/dl';

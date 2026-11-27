@@ -40,3 +40,27 @@ export function articlePage(page: number, total: number, rows?: unknown[], pageS
     page_size: pageSize,
   };
 }
+
+/** One article as `GET /admin/v1/articles/{id}` serves it: the row fields and its provenance. */
+export function articleDetail(n: number, fields: Record<string, unknown> = {}) {
+  return {
+    ...articleRow(n),
+    status_reason: null,
+    threshold: 0.6,
+    decided_by: 'system',
+    summary: 'A city-wide step challenge across 40 churches raises funds for winter shelters.',
+    url: 'https://news.example.com/youth-100km',
+    source: { id: 'src_aaaaaaaaaaaa', name: 'Google News' },
+    tags: ['challenge', 'youth'],
+    provenance: [
+      {
+        source_id: 'src_aaaaaaaaaaaa',
+        source_name: 'Google News',
+        url: 'https://news.example.com/youth-100km',
+        first_seen_at: '2026-11-27T11:03:00Z',
+        last_seen_at: '2026-11-27T11:03:00Z',
+      },
+    ],
+    ...fields,
+  };
+}

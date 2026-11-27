@@ -1,4 +1,4 @@
-import type { PublicationStatus } from './publication-status';
+import { REVIEW_FLOOR, type PublicationStatus } from './publication-status';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -117,4 +117,64 @@ export function noResultsWords(
         text: `Try another region or category, or clear the filters to see ${all}.`,
         action: 'Clear filters',
       };
+}
+
+const DAY_KEY = (zone: string) =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: zone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+/**
+ * When an article was collected, in the staff member's time zone: "Today, 6:03 AM",
+ * "Yesterday, 6:01 PM", otherwise "Mon, Mar 9, 6:02 PM", with the year when it is not this one.
+ */
+export function formatCollectedAt(at: string | Date, now: Date, timeZone: string): string {
+  const when = new Date(at);
+  const days = DAY_KEY(timeZone);
+  const time = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(when);
+  const day = days.format(when);
+  const today = days.format(now);
+  if (day === today) return `Today, ${time}`;
+  const yesterday = days.format(new Date(Date.parse(`${today}T12:00:00Z`) - 24 * 60 * 60 * 1000));
+  if (day === yesterday) return `Yesterday, ${time}`;
+  const sameYear = day.slice(0, 4) === today.slice(0, 4);
+  const date = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  }).format(when);
+  return `${date}, ${time}`;
+}
+
+/**
+ * Why the system gave an article its status, as the panel's alert says it (L2-051 AC4): held
+ * below the publish threshold in force when it was collected, or hidden below the review floor.
+ */
+export function articleReasonAlert(
+  status: PublicationStatus,
+  reason: string | null,
+  threshold: number,
+): { tone: 'warning' | 'neutral'; text: string } | null {
+  if (status === 'needs_review' && reason === 'below_publish_threshold') {
+    return {
+      tone: 'warning',
+      text: `Held because its relevance score is below the ${threshold.toFixed(2)} publish threshold.`,
+    };
+  }
+  if (status === 'hidden' && reason === 'below_review_floor') {
+    return {
+      tone: 'neutral',
+      text: `Hidden automatically: its relevance score is below ${REVIEW_FLOOR.toFixed(2)}. The API does not serve it.`,
+    };
+  }
+  return null;
 }

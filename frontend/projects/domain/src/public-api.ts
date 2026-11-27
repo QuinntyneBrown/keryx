@@ -27,7 +27,9 @@ export {
 } from './articles/publication-status';
 export {
   ARTICLE_CATEGORIES,
+  articleReasonAlert,
   articleStatusLabel,
+  formatCollectedAt,
   articleStatusTone,
   categoryName,
   formatCount,

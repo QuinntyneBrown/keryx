@@ -27,6 +27,18 @@ export class ArticlesPage {
   readonly emptyTitle: Locator;
   readonly emptyText: Locator;
   readonly clearSearch: Locator;
+  readonly detail: Locator;
+  readonly panelId: Locator;
+  readonly panelClose: Locator;
+  readonly panelStatus: Locator;
+  readonly panelTitle: Locator;
+  readonly panelSummary: Locator;
+  readonly panelLink: Locator;
+  readonly panelTerms: Locator;
+  readonly panelValues: Locator;
+  readonly panelTags: Locator;
+  readonly panelAlert: Locator;
+  readonly toast: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -54,6 +66,18 @@ export class ArticlesPage {
     this.emptyTitle = this.empty.locator('.empty__title');
     this.emptyText = this.empty.locator('.empty__text');
     this.clearSearch = this.empty.locator('.empty__actions .btn');
+    this.detail = page.locator('main aside.detail-panel');
+    this.panelId = this.detail.locator('.detail-panel__head .mono');
+    this.panelClose = this.detail.locator('.detail-panel__head .icon-btn');
+    this.panelStatus = this.detail.locator('.detail-panel__body .badge').first();
+    this.panelTitle = this.detail.locator('.detail-panel__title');
+    this.panelSummary = this.detail.locator('.detail-panel__summary');
+    this.panelLink = this.detail.locator('.detail-panel__link');
+    this.panelTerms = this.detail.locator('.dl dt');
+    this.panelValues = this.detail.locator('.dl dd');
+    this.panelTags = this.detail.locator('.dl dd .badge');
+    this.panelAlert = this.detail.locator('.alert');
+    this.toast = page.locator('.toast-region .toast');
   }
 
   async open(query = ''): Promise<void> {

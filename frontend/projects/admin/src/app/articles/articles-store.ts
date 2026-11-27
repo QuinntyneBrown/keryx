@@ -3,6 +3,7 @@ import {
   ApiProblem,
   ARTICLES_API,
   type ArticleCounts,
+  type ArticleDetail,
   type ArticlePage,
   type Region,
 } from '@kx/api';
@@ -20,6 +21,7 @@ export const ARTICLES_PAGE_SIZE = 10;
 export class ArticlesStore {
   private readonly api = inject(ARTICLES_API);
   private controller: AbortController | null = null;
+  private detailController: AbortController | null = null;
   private readonly pause = searchPause();
 
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
@@ -27,10 +29,13 @@ export class ArticlesStore {
   readonly counts = signal<ArticleCounts | null>(null);
   readonly regions = signal<readonly Region[]>([]);
   readonly reference = signal<string | null>(null);
+  /** The open article, or null while none is open or it is loading. */
+  readonly detail = signal<ArticleDetail | null>(null);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       this.controller?.abort();
+      this.detailController?.abort();
       this.pause.cancel();
     });
   }
@@ -38,6 +43,33 @@ export class ArticlesStore {
   /** Runs `search` once typing has paused; a key within the pause cancels the pending one. */
   afterTypingPauses(search: () => void): void {
     this.pause.run(search);
+  }
+
+  /**
+   * Opens one article, or closes it with null. Resolves `missing` when no article has the id
+   * and `failed` when it could not be read; the panel then stays closed.
+   */
+  async openArticle(id: string | null): Promise<'shown' | 'missing' | 'failed' | 'closed'> {
+    this.detailController?.abort();
+    if (id === null) {
+      this.detail.set(null);
+      return 'closed';
+    }
+    if (this.detail()?.id === id) return 'shown';
+    const controller = new AbortController();
+    this.detailController = controller;
+    try {
+      const detail = await this.api.get(id, controller.signal);
+      if (controller.signal.aborted) return 'closed';
+      this.detail.set(detail);
+      return 'shown';
+    } catch (error) {
+      if (controller.signal.aborted) return 'closed';
+      this.detail.set(null);
+      return error instanceof ApiProblem && error.code === 'article_not_found'
+        ? 'missing'
+        : 'failed';
+    }
   }
 
   /** Loads the page the query names; resolves true once it is shown. */

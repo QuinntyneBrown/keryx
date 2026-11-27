@@ -43,9 +43,13 @@ The slice runs from the routed Articles page to three admin read endpoints.
   (`pages/articles/articles-page.ts`, `.html`, `.scss`). It provides `ArticlesStore` in its own
   `providers` (`L2-089`). It composes the page header ("Articles", "Everything Keryx has
   collected. Only published articles are served by the API.", "Export CSV"), the tabs, the
-  toolbar, the table with its footer and pager, and the detail panel inside a `@defer` block
-  (`L2-088`). With the panel open, `app__main--split` places it beside the table from 1024 px;
-  below 1024 px the panel covers the screen with a Close button. It moves focus to the table
+  toolbar, the table with its footer and pager, and the detail panel. The panel is not in a
+  `@defer` block: its code is a few kilobytes of the screen's own lazy chunk (about 15 kB in
+  all), and the first `@defer` in the app adds 6.6 kB of Angular's defer runtime to the
+  initial bundle (`L2-088`), which costs more than it saves. With the panel open, the page lays
+  the list and the panel side by side from 1024 px, as `app__main--split` does (the router
+  outlet sits inside the frame's `main`, so the page draws the split itself); below 1024 px the
+  panel covers the screen with a Close button. It moves focus to the table
   caption after a page change, returns focus to the opener row when the panel closes and to the
   search field after "Clear search". "Clear search" clears the search, the region and the
   category and keeps the status tab, so its "all N articles" is that tab's total. When filters
@@ -59,8 +63,11 @@ The slice runs from the routed Articles page to three admin read endpoints.
   (`loading`, `ready`, `empty`, `no-results`, `error`), `selected` and `showSkeleton` (set only
   when no answer arrives within 300 ms). A failed first load sets `error`; a failed page change
   keeps the rows shown and raises a danger notification with "Try again" through `NOTIFIER`.
-  An `?article=` id that does not exist leaves the list, opens no panel and raises a
-  notification that the article could not be found; its copy is `<TO SUPPLY>`.
+  An `?article=` id that does not exist leaves the list, opens no panel, removes the id from
+  the URL (replacing the entry) and raises a warning notification "Article not found", "The
+  link names an article Keryx doesn’t have, so the list is shown without it." An article that
+  cannot be read does the same with a danger notification "Article didn’t load", "Keryx
+  couldn’t reach its API just now. Open the article again in a moment."
 
 **Frontend — `frontend/projects/components`** (presentation only, named by mock block)
 
@@ -86,11 +93,18 @@ The slice runs from the routed Articles page to three admin read endpoints.
   "0.94"; the bar is hidden from assistive technology and the number is read.
 - **`DetailPanel`** (`detail-panel`, elements `detail-panel__head`, `__body`, `__title`,
   `__summary`, `__link`, `__foot`) — the id (`art_18429`), status badge, title, summary, "Open
-  original (opens in a new tab)" with `target="_blank"` and `rel="noopener noreferrer"` (plain
-  text when the URL is not `http` or `https`), and a `dl` of Organisation, Source, Category,
+  original (opens in a new tab)" with `target="_blank"` and `rel="noopener noreferrer"` (when
+  the URL is not `http` or `https`, the plain text "Original link unavailable", since no mock
+  shows that case), and a `dl` of Organisation, Source, Category,
   Region, Published, Collected, Relevance and Tags (all tags, wrapping). It shows an `Alert`
   (`alert--warning`) "Held because its relevance score is below the 0.60 publish threshold."
-  for a held article, with the threshold from the article. Its actions follow the status:
+  for a held article, with the threshold from the article, and a neutral `Alert` "Hidden
+  automatically: its relevance score is below 0.45. The API does not serve it." for an article
+  the system hid (mock `selected-hidden`); a status staff chose shows neither. Source is the
+  source's current name, or the name its first provenance entry kept once it was removed.
+  Collected reads in the staff member's time zone: "Today, 6:03 AM", "Yesterday, 6:01 PM",
+  otherwise "Mon, Mar 9, 6:02 PM", with the year when it is not this one. Its actions, which journey 12 (decide on an article)
+  adds with their behaviour, follow the status:
   "Publish" and "Hide from API" when held, "Hide from API" when published, "Publish" when
   hidden. It emits `publish`, `hide` and `closed`; Escape and the `icon-btn` Close emit
   `closed`.

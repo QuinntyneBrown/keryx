@@ -1,6 +1,8 @@
 import {
   ARTICLE_CATEGORIES,
+  articleReasonAlert,
   articleStatusLabel,
+  formatCollectedAt,
   categoryName,
   formatCount,
   noResultsWords,
@@ -155,5 +157,63 @@ describe('noResultsWords', () => {
     ],
   ])('words %j with %i in the tab', (q, total, expected) => {
     expect(noResultsWords(q, total)).toEqual(expected);
+  });
+});
+
+describe('formatCollectedAt', () => {
+  // In the staff member's zone: today and yesterday by name, else the weekday and date, with
+  // the year only when it is not this year (mocks: pages/articles/selected*.html, edge.html).
+  const now = new Date('2026-11-27T15:00:00Z');
+  it.each([
+    ['2026-11-27T11:03:00Z', 'America/Toronto', 'Today, 6:03 AM'],
+    ['2026-11-27T05:00:00Z', 'America/Toronto', 'Today, 12:00 AM'],
+    ['2026-11-27T04:59:00Z', 'America/Toronto', 'Yesterday, 11:59 PM'],
+    ['2026-11-26T23:01:00Z', 'America/Toronto', 'Yesterday, 6:01 PM'],
+    ['2026-11-26T04:59:00Z', 'America/Toronto', 'Wed, Nov 25, 11:59 PM'],
+    ['2026-03-09T22:02:00Z', 'America/Toronto', 'Mon, Mar 9, 6:02 PM'],
+    ['2025-12-31T12:00:00Z', 'America/Toronto', 'Wed, Dec 31, 2025, 7:00 AM'],
+    ['2026-11-27T04:59:00Z', 'Etc/UTC', 'Today, 4:59 AM'],
+  ])('reads %s in %s as %s', (at, zone, expected) => {
+    expect(formatCollectedAt(at, now, zone)).toBe(expected);
+  });
+});
+
+describe('articleReasonAlert', () => {
+  // L2-051 AC4 with the threshold in force when it was collected; mock selected-hidden.html.
+  it.each([
+    [
+      'needs_review',
+      'below_publish_threshold',
+      0.6,
+      {
+        tone: 'warning',
+        text: 'Held because its relevance score is below the 0.60 publish threshold.',
+      },
+    ],
+    [
+      'needs_review',
+      'below_publish_threshold',
+      0.75,
+      {
+        tone: 'warning',
+        text: 'Held because its relevance score is below the 0.75 publish threshold.',
+      },
+    ],
+    [
+      'hidden',
+      'below_review_floor',
+      0.6,
+      {
+        tone: 'neutral',
+        text: 'Hidden automatically: its relevance score is below 0.45. The API does not serve it.',
+      },
+    ],
+    ['published', null, 0.6, null],
+    ['hidden', null, 0.6, null],
+    // A status staff chose keeps the system's reason, which no longer applies.
+    ['published', 'below_review_floor', 0.6, null],
+    ['published', 'below_publish_threshold', 0.6, null],
+  ] as const)('words %s for %s at %s', (status, reason, threshold, expected) => {
+    expect(articleReasonAlert(status, reason, threshold)).toEqual(expected);
   });
 });

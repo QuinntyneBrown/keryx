@@ -1,0 +1,21 @@
+// The description list (docs/design-system/components/dl.html).
+:host {
+  display: block;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: var(--layout-term-width) minmax(0, 1fr);
+  gap: var(--space-2-5) var(--space-4);
+  padding-top: var(--space-5);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.dl dt {
+  color: var(--color-fg-muted);
+}
+
+.dl dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
