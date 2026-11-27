@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion — Keryx design system</title>
+<meta name="description" content="Six durations and four easings, what moves and why, and how everything stops under reduced motion.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation</p>
+      <h1>Motion</h1>
+      <p class="ds-lead">Six durations and four easings, what moves and why, and how everything stops under reduced motion.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Light and dark</span><span class="ds-pill">Source: tokens/tokens.css</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#durations">Durations</a></li><li><a href="#easings">Easings</a></li><li><a href="#choreography">What moves</a></li><li><a href="#accessibility">Reduced motion</a></li><li><a href="#tokens">Tokens</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Motion in Keryx is short and functional: it shows where something came from (a dialog rising, a toast arriving) or that something is still working (a spinner, a shimmer). Nothing moves for decoration, and nothing moves at all for people who ask for reduced motion.</p>
+    </section>
+    <section class="ds-section" id="durations"><h2><a href="#durations">Durations</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-motion-demo" style="--demo-duration: var(--duration-fast); --demo-ease: var(--ease-standard)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay fast · 150 ms</button><span class="dot"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-base); --demo-ease: var(--ease-enter)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay base · 220 ms</button><span class="dot"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-enter)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay slow · 320 ms</button><span class="dot"></span></div></div><div class="ds-example__caption"><span>Press a button to replay. With reduced motion on, the dot jumps.</span></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--duration-instant</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-instant"></span></span></td><td></td></tr>
+          <tr><td><code>--duration-fast</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-fast"></span></span></td><td>hover, colour changes, menus</td></tr>
+          <tr><td><code>--duration-base</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-base"></span></span></td><td>panels, toasts, backdrop</td></tr>
+          <tr><td><code>--duration-slow</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-slow"></span></span></td><td>dialogs, sheets</td></tr>
+          <tr><td><code>--duration-deliberate</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-deliberate"></span></span></td><td>skeleton shimmer, indeterminate progress, running pulse</td></tr>
+          <tr><td><code>--duration-spin</code></td><td><span class="ds-swatch-cell"><span data-token="--duration-spin"></span></span></td><td>one turn of a spinner</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="easings"><h2><a href="#easings">Easings</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-standard)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay standard</button><span class="dot"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-exit)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay exit</button><span class="dot"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-spring)" data-run="false"><button class="btn btn--sm" type="button" data-motion-run>Replay spring</button><span class="dot"></span></div></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--ease-standard</code></td><td><span class="ds-swatch-cell"><span data-token="--ease-standard"></span></span></td><td></td></tr>
+          <tr><td><code>--ease-enter</code></td><td><span class="ds-swatch-cell"><span data-token="--ease-enter"></span></span></td><td></td></tr>
+          <tr><td><code>--ease-exit</code></td><td><span class="ds-swatch-cell"><span data-token="--ease-exit"></span></span></td><td></td></tr>
+          <tr><td><code>--ease-spring</code></td><td><span class="ds-swatch-cell"><span data-token="--ease-spring"></span></span></td><td>reserved: no mock uses it yet</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>standard</b> and <b>enter</b> are the same strong ease-out: fast start, soft landing.</li>
+        <li><b>exit</b> accelerates away.</li>
+        <li><b>spring</b> overshoots slightly. No mock uses it; it is reserved.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="choreography"><h2><a href="#choreography">What moves</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Element</th><th scope="col">Motion</th><th scope="col">Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Hover and colour changes</td><td>Colour cross-fade</td><td>fast</td></tr>
+          <tr><td>Button press</td><td>Scale to 0.98</td><td>fast</td></tr>
+          <tr><td>Switch</td><td>Thumb slides</td><td>fast</td></tr>
+          <tr><td>Menu, tooltip</td><td>Scale in from 0.96 / fade</td><td>fast</td></tr>
+          <tr><td>Toast</td><td>Slides up 8 px and fades in</td><td>base</td></tr>
+          <tr><td>Detail panel</td><td>Slides in 16 px from the right</td><td>base</td></tr>
+          <tr><td>Backdrop</td><td>Fades in</td><td>base</td></tr>
+          <tr><td>Dialog</td><td>Scales in from 0.96; a sheet slides up</td><td>slow</td></tr>
+          <tr><td>Skeleton shimmer, indeterminate progress, running chart bar</td><td>Loop</td><td>deliberate</td></tr>
+          <tr><td>Spinner</td><td>One turn</td><td>spin</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Things enter with motion and leave without it, or faster.</li>
+        <li>Only opacity, translate and scale are animated; layout properties are not.</li>
+        <li>Numbers do not count up and charts do not grow in.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Reduced motion</a></h2>
+      <ul>
+        <li>Under <code>prefers-reduced-motion: reduce</code> the tokens set <code>--duration-fast</code>, <code>-base</code> and <code>-slow</code> to 0 ms, so transitions written with tokens need no media query of their own.</li>
+        <li><code>components.css</code> also stops every animation, including the loops: the spinner shows as a static ring, skeletons as a flat tint, and the running bar stops pulsing. Text always says what is happening.</li>
+        <li>Nothing flashes. Auto-dismissing toasts last at least 8 seconds and pause on hover and focus.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <p>Listed above: <a href="#durations">durations</a> and <a href="#easings">easings</a>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

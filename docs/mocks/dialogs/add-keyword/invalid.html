@@ -7,6 +7,7 @@
 <meta name="mock:kind" content="dialog">
 <meta name="mock:screen" content="add-keyword">
 <meta name="mock:state" content="invalid">
+<meta name="mock:requirements" content="L2-072">
 <meta name="description" content="The topic already exists.">
 <link rel="stylesheet" href="../../assets/tokens.css">
 <link rel="stylesheet" href="../../assets/ui.css">
@@ -121,6 +122,17 @@
           <label class="switch"><input type="checkbox" role="switch" checked>When a whole run fails</label>
           <label class="switch"><input type="checkbox" role="switch" checked>Daily digest of held articles</label>
         </fieldset>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-account">
+      <div><h2 class="text-h3" id="s-account">Account</h2><p class="settings-section__hint">Who is signed in on this device.</p></div>
+      <div class="settings-section__fields">
+        <div class="field">
+          <span class="field__label">Signed in as</span>
+          <p>Daniel Adeyemi · Owner</p>
+        </div>
+        <div><a class="btn" role="button" href="../../pages/sign-in/signed-out.html">Sign out</a></div>
       </div>
     </section>
   </form>

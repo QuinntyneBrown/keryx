@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table — Keryx design system</title>
+<meta name="description" content="Rows of records with the same fields: articles, sources, API consumers. Real tables, so headers and cells are announced together.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Table</h1>
+      <p class="ds-lead">Rows of records with the same fields: articles, sources, API consumers. Real tables, so headers and cells are announced together.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;table&gt;</code></span><span class="ds-pill">Block: <code>.table</code>, <code>.table-wrap</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a table when people compare the same fields across many records. Keryx has three. Each has a primary column that holds the record's name and, on small screens, everything else stacked beneath it. A list of unlike things is a <a href="list.html">list</a>.</p>
+      <ul>
+        <li>The first column is the record: a title, a secondary line, and on phones the status and context that the hidden columns held.</li>
+        <li>Numeric columns are right-aligned with tabular figures.</li>
+        <li>Row actions sit in a fixed-width last column: an <a href="icon-btn.html">icon button</a> with a <a href="menu.html">menu</a>, or one small ghost button.</li>
+        <li>Every table is paged on the server and ends with a <a href="pagination.html">table footer</a>.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="table"><div class="table-wrap" data-part="1"><table class="table"><caption class="visually-hidden">Anatomy example</caption><thead data-part="2"><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody data-part="3"><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Shepherd’s 5K returns to Lakefront Promenade this May</a><span class="table__sub">Shepherd’s 5K · 2h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Mississauga · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Mississauga</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 94%"></span></span><span class="meter__value">0.94</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr></tbody></table></div><span class="ds-callout" style="left: 96.6%; top: 100.5%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 2.9%; top: -0.3%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 2.9%; top: 10.2%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Wrapper</b><small>Surface, hairline edge, <code>--radius-lg</code>; scrolls sideways if the table cannot shrink.</small></div></li>
+          <li><div><b>Head</b><small><code>--text-overline</code> labels in muted text on <code>--color-bg-surface-sunken</code>.</small></div></li>
+          <li><div><b>Rows</b><small><code>--space-3</code> cell padding (<code>--space-5</code> at the outer edges), a hairline between rows, a subtle fill on hover.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Articles, newest first</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Shepherd’s 5K returns to Lakefront Promenade this May</a><span class="table__sub">Shepherd’s 5K · 2h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Mississauga · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Mississauga</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 94%"></span></span><span class="meter__value">0.94</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Supplement brand sponsors church basketball league</a><span class="table__sub">Google News · 9h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot">Hidden</span><span class="text-caption">GTA · Events</span></span></td><td class="table__muted from-lg">Events</td><td class="table__muted table__nowrap from-lg">GTA</td><td class="from-lg"><span class="meter"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 31%"></span></span><span class="meter__value">0.31</span></span></td><td class="from-lg"><span class="badge badge--dot">Hidden</span></td></tr></tbody></table></div></div>
+        <div class="ds-example__caption"><span>Articles: title link, context, a relevance meter and a status badge</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="table-wrap"&gt;
+&lt;table class="table"&gt;
+&lt;caption class="visually-hidden"&gt;Articles, newest first&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col"&gt;Article&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Category&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Region&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Relevance&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Status&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="table__primary"&gt;
+&lt;a class="table__title" dir="auto" href="#top"&gt;Shepherd’s 5K returns to Lakefront Promenade this May&lt;/a&gt;
+&lt;span class="table__sub"&gt;Shepherd’s 5K · 2h ago&lt;/span&gt;
+&lt;span class="table__stacked until-lg"&gt;
+&lt;span class="badge badge--dot badge--success"&gt;Published&lt;/span&gt;
+&lt;span class="text-caption"&gt;Mississauga · Races &amp;amp; Challenges&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="table__muted from-lg"&gt;Races &amp;amp; Challenges&lt;/td&gt;
+&lt;td class="table__muted table__nowrap from-lg"&gt;Mississauga&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="meter meter--success"&gt;
+&lt;span class="meter__track" aria-hidden="true"&gt;
+&lt;span class="meter__fill"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="meter__value"&gt;0.94&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="badge badge--dot badge--success"&gt;Published&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td class="table__primary"&gt;
+&lt;a class="table__title" dir="auto" href="#top"&gt;Toronto youth pastors challenge congregations to 100 km in March&lt;/a&gt;
+&lt;span class="table__sub"&gt;Ontario Christian Coaches Network · 6h ago&lt;/span&gt;
+&lt;span class="table__stacked until-lg"&gt;
+&lt;span class="badge badge--dot badge--warning"&gt;Needs review&lt;/span&gt;
+&lt;span class="text-caption"&gt;Toronto · Races &amp;amp; Challenges&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="table__muted from-lg"&gt;Races &amp;amp; Challenges&lt;/td&gt;
+&lt;td class="table__muted table__nowrap from-lg"&gt;Toronto&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="meter meter--warning"&gt;
+&lt;span class="meter__track" aria-hidden="true"&gt;
+&lt;span class="meter__fill"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="meter__value"&gt;0.58&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="badge badge--dot badge--warning"&gt;Needs review&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td class="table__primary"&gt;
+&lt;a class="table__title" dir="auto" href="#top"&gt;Supplement brand sponsors church basketball league&lt;/a&gt;
+&lt;span class="table__sub"&gt;Google News · 9h ago&lt;/span&gt;
+&lt;span class="table__stacked until-lg"&gt;
+&lt;span class="badge badge--dot"&gt;Hidden&lt;/span&gt;
+&lt;span class="text-caption"&gt;GTA · Events&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="table__muted from-lg"&gt;Events&lt;/td&gt;
+&lt;td class="table__muted table__nowrap from-lg"&gt;GTA&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="meter"&gt;
+&lt;span class="meter__track" aria-hidden="true"&gt;
+&lt;span class="meter__fill"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="meter__value"&gt;0.31&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="badge badge--dot"&gt;Hidden&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>With row actions</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Sources, failing first</caption><thead><tr><th scope="col">Source</th><th scope="col" class="from-lg">Health</th><th scope="col" class="num from-lg">Articles · 30d</th><th scope="col" class="table__col-actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody><tr><td class="table__primary"><div class="source"><span class="source__icon"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></span><div class="source__text"><span class="table__title truncate">Redeemed Run Club Toronto</span><span class="table__sub table__sub--mono truncate"><span class="visually-hidden">RSS: </span>redeemedrun.ca/feed</span></div></div></td><td class="from-lg"><span class="health health--danger"><span class="visually-hidden">Failing: </span>404 Not Found</span></td><td class="num from-lg">31</td><td class="num"><button class="icon-btn table__action" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Actions for Redeemed Run Club Toronto"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td></tr><tr class="table__row--revoked"><td class="table__primary"><span class="table__title">Old staging key</span><span class="table__sub">revoked Mar 2</span></td><td class="from-lg">—</td><td class="num from-lg">0</td><td></td></tr></tbody></table></div></div>
+        <div class="ds-example__caption"><span>Sources: an actions column; a revoked row struck through</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="table-wrap"&gt;
+&lt;table class="table"&gt;
+&lt;caption class="visually-hidden"&gt;Sources, failing first&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col"&gt;Source&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Health&lt;/th&gt;
+&lt;th scope="col" class="num from-lg"&gt;Articles · 30d&lt;/th&gt;
+&lt;th scope="col" class="table__col-actions"&gt;
+&lt;span class="visually-hidden"&gt;Actions&lt;/span&gt;&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="table__primary"&gt;
+&lt;div class="source"&gt;
+&lt;span class="source__icon"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+&lt;div class="source__text"&gt;
+&lt;span class="table__title truncate"&gt;Redeemed Run Club Toronto&lt;/span&gt;
+&lt;span class="table__sub table__sub--mono truncate"&gt;
+&lt;span class="visually-hidden"&gt;RSS: &lt;/span&gt;redeemedrun.ca/feed&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="health health--danger"&gt;
+&lt;span class="visually-hidden"&gt;Failing: &lt;/span&gt;404 Not Found&lt;/span&gt;&lt;/td&gt;
+&lt;td class="num from-lg"&gt;31&lt;/td&gt;
+&lt;td class="num"&gt;
+&lt;button class="icon-btn table__action" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Actions for Redeemed Run Club Toronto"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr class="table__row--revoked"&gt;
+&lt;td class="table__primary"&gt;
+&lt;span class="table__title"&gt;Old staging key&lt;/span&gt;
+&lt;span class="table__sub"&gt;revoked Mar 2&lt;/span&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;—&lt;/td&gt;
+&lt;td class="num from-lg"&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One density: 12 px cell padding, about 56 px per two-line row. There is no compact variant; ten to twelve rows per page fit a laptop screen."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One density: 12 px cell padding, about 56 px per two-line row. There is no compact variant; ten to twelve rows per page fit a laptop screen.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Row states are shown on the row; table states replace the body.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Looks like</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Row hover</th><td><code>--color-bg-subtle</code> fill; the whole row is the title link's hit area.</td></tr>
+          <tr><th scope="row">Row selected</th><td><code>--color-accent-subtle</code> fill while its detail panel is open.</td></tr>
+          <tr><th scope="row">Row revoked</th><td>Subtle text and a struck-through title; no actions.</td></tr>
+          <tr><th scope="row">Loading</th><td>Skeleton rows in the same columns, <code>aria-busy="true"</code> on the wrapper.</td></tr>
+          <tr><th scope="row">Empty</th><td>The table is replaced by a first-run <a href="empty.html">empty state</a>.</td></tr>
+          <tr><th scope="row">No results</th><td>The body is replaced by a compact empty state; filters stay.</td></tr>
+          <tr><th scope="row">Error</th><td>The table is replaced by an error state with Try again.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Themes example</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr data-state="hover"><td class="table__primary"><a class="table__title" dir="auto" href="#top">Grace Barbell Club opens second location in Leslieville</a><span class="table__sub">Grace Barbell Club · 3h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Toronto · Gyms &amp; Studios</span></span></td><td class="table__muted from-lg">Gyms &amp; Studios</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 91%"></span></span><span class="meter__value">0.91</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr><tr aria-current="true"><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr></tbody></table></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Themes example</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr data-state="hover"><td class="table__primary"><a class="table__title" dir="auto" href="#top">Grace Barbell Club opens second location in Leslieville</a><span class="table__sub">Grace Barbell Club · 3h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Toronto · Gyms &amp; Studios</span></span></td><td class="table__muted from-lg">Gyms &amp; Studios</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 91%"></span></span><span class="meter__value">0.91</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr><tr aria-current="true"><td class="table__primary"><a class="table__title" dir="auto" href="#top">Toronto youth pastors challenge congregations to 100 km in March</a><span class="table__sub">Ontario Christian Coaches Network · 6h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--warning">Needs review</span><span class="text-caption">Toronto · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Toronto</td><td class="from-lg"><span class="meter meter--warning"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 57%"></span></span><span class="meter__value">0.58</span></span></td><td class="from-lg"><span class="badge badge--dot badge--warning">Needs review</span></td></tr></tbody></table></div></div></div></div>
+      <ul>
+        <li>Above: the first row hovered, the second selected.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 1024 px only the primary column and the actions column remain (<code>.from-lg</code> hides the rest); status and context move into <code>.table__stacked</code> under the title (<code>.until-lg</code>). The table uses a fixed layout so long titles wrap instead of pushing it wide.</li>
+        <li>From 1024 px all columns show. With the detail panel open, between 1024 and 1535 px, <code>.table__optional</code> columns hide and <code>.table__context</code> shows them as a line under the title.</li>
+        <li>If a table still cannot fit, <code>.table-wrap</code> scrolls it horizontally; the page never scrolls sideways.</li>
+        <li>While a row menu is open the wrapper is <code>.table-wrap--open</code> so the menu is not clipped.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Head on the sunken surface, rows on the surface, hover on subtle, selection on accent-subtle (pale volt in light, deep olive in dark). All four are distinguishable in both themes and all text pairs pass on each.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native <code>&lt;table&gt;</code> with a <code>&lt;caption&gt;</code> (visually hidden, and saying the sort order), <code>&lt;th scope="col"&gt;</code> headers, and a hidden header for the actions column. Not a grid: cells are not individually focusable.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td><kbd>Enter</kbd> on a title link</td><td>Opens the record's detail panel.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on a row action</td><td>Opens the row menu or runs the action.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>Tab stops are the title link and the row action, row by row. The title link's ring is drawn around the title text. When a panel or dialog opened from a row closes, focus returns to that row.</p>
+      <h3>Labelling</h3>
+      <p>The caption names the table and its order: “Articles, newest first”. The selected row is marked with <code>aria-current="true"</code>; <code>aria-selected</code> is only valid in a grid. Row actions name their row.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Head label</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-sunken" data-min="4.5"></span></div><div class="ds-pair"><span>Cell text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Secondary text on hover</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Text on selected row</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Secondary text on selected row</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Mono sub line on hover</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-subtle" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Row fill changes over <code>--duration-fast</code>.</p>
+      <h3>Touch</h3>
+      <p>The whole row is the title link's target. Row actions are 32 px, 44 px on touch, in a 56 px column.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Column headers are one or two words; units go in the header (“Articles · 30d”, “Requests · 24h”).</li>
+        <li>An empty cell is an em dash, never blank or “N/A”.</li>
+        <li>Titles and organisation names come from sources: render as text with <code>dir="auto"</code>, never as HTML.</li>
+        <li>Times are relative when recent (“2h ago”) and absolute otherwise, Toronto time.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Do example</caption><thead><tr><th scope="col">Article</th><th scope="col" class="from-lg">Category</th><th scope="col" class="from-lg">Region</th><th scope="col" class="from-lg">Relevance</th><th scope="col" class="from-lg">Status</th></tr></thead><tbody><tr><td class="table__primary"><a class="table__title" dir="auto" href="#top">Shepherd’s 5K returns to Lakefront Promenade this May</a><span class="table__sub">Shepherd’s 5K · 2h ago</span><span class="table__stacked until-lg"><span class="badge badge--dot badge--success">Published</span><span class="text-caption">Mississauga · Races &amp; Challenges</span></span></td><td class="table__muted from-lg">Races &amp; Challenges</td><td class="table__muted table__nowrap from-lg">Mississauga</td><td class="from-lg"><span class="meter meter--success"><span class="meter__track" aria-hidden="true"><span class="meter__fill" style="--value: 94%"></span></span><span class="meter__value">0.94</span></span></td><td class="from-lg"><span class="badge badge--dot badge--success">Published</span></td></tr></tbody></table></div></div><figcaption>A real table with a caption and column headers.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="list ds-w"><div class="list__item"><div class="list__body"><p class="list__title">Shepherd’s 5K returns…</p></div><span>Mississauga</span><span>0.94</span><span>Published</span></div></div></div><figcaption>The design drew these as div rows. A screen reader then reads “Mississauga 0.94 Published” with no idea which is which.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><table class="table ds-w"><caption class="visually-hidden">Do example 2</caption><tbody><tr aria-current="true"><td>Selected row</td></tr></tbody></table></div><figcaption>Mark the open row with <code>aria-current="true"</code>.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><table class="table ds-w"><caption class="visually-hidden">Dont example</caption><tbody><tr aria-selected="true"><td>Selected row</td></tr></tbody></table></div><figcaption>The mocks use <code>aria-selected</code> on a <code>&lt;tr&gt;</code>; outside a grid it is invalid and ignored.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Wrapper</td><td><code>--color-bg-surface</code> <code>--color-border-default</code> <code>--radius-lg</code></td><td colspan="2"><span data-token="--color-bg-surface"></span> · <span data-token="--color-border-default"></span> · <span data-token="--radius-lg"></span></td></tr>
+          <tr><td>Head</td><td><code>--color-bg-surface-sunken</code> <code>--color-fg-muted</code> <code>--text-overline</code></td><td colspan="2"><span data-token="--color-bg-surface-sunken"></span> · <span data-token="--color-fg-muted"></span> · <span data-token="--text-overline"></span></td></tr>
+          <tr><td>Row divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Hover / selected fill</td><td><code>--color-bg-subtle</code> <code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Cell padding / edge padding</td><td><code>--space-3</code> <code>--space-5</code></td><td colspan="2"><span data-token="--space-3"></span> · <span data-token="--space-5"></span></td></tr>
+          <tr><td>Title / sub line</td><td><code>--text-label</code> <code>--text-caption</code></td><td colspan="2"><span data-token="--text-label"></span> · <span data-token="--text-caption"></span></td></tr>
+          <tr><td>Revoked row</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr>
+          <tr><td>Text</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+          <tr><td>Hover transition</td><td><code>--duration-fast</code> <code>--ease-standard</code></td><td colspan="2"><span data-token="--duration-fast"></span> · <span data-token="--ease-standard"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.table</code>, <code>.table-wrap</code>. The Angular component lives in <code>frontend/projects/components/src/table/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="table-wrap"&gt;
+&lt;table class="table"&gt;
+&lt;caption class="visually-hidden"&gt;Articles, newest first&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col"&gt;Article&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Category&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Region&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Relevance&lt;/th&gt;
+&lt;th scope="col" class="from-lg"&gt;Status&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="table__primary"&gt;
+&lt;a class="table__title" dir="auto" href="#top"&gt;Shepherd’s 5K returns to Lakefront Promenade this May&lt;/a&gt;
+&lt;span class="table__sub"&gt;Shepherd’s 5K · 2h ago&lt;/span&gt;
+&lt;span class="table__stacked until-lg"&gt;
+&lt;span class="badge badge--dot badge--success"&gt;Published&lt;/span&gt;
+&lt;span class="text-caption"&gt;Mississauga · Races &amp;amp; Challenges&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="table__muted from-lg"&gt;Races &amp;amp; Challenges&lt;/td&gt;
+&lt;td class="table__muted table__nowrap from-lg"&gt;Mississauga&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="meter meter--success"&gt;
+&lt;span class="meter__track" aria-hidden="true"&gt;
+&lt;span class="meter__fill"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="meter__value"&gt;0.94&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;
+&lt;td class="from-lg"&gt;
+&lt;span class="badge badge--dot badge--success"&gt;Published&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.table-wrap</code></td><td>Edge, radius, horizontal scroll; <code>--open</code> while a row menu is open.</td></tr>
+        <tr><td><code>.table</code></td><td>The table.</td></tr>
+        <tr><td><code>.table__primary</code> / <code>__title</code> / <code>__sub</code></td><td>The record cell: title and secondary lines; <code>__sub--mono</code> for URLs.</td></tr>
+        <tr><td><code>.table__stacked</code> + <code>.until-lg</code></td><td>Status and context under the title on small screens.</td></tr>
+        <tr><td><code>.table__optional</code> / <code>__context</code></td><td>Columns that give way to the detail panel, and their stand-in line.</td></tr>
+        <tr><td><code>.table__muted</code> / <code>__nowrap</code> / <code>.num</code></td><td>Cell helpers.</td></tr>
+        <tr><td><code>.table__col-actions</code> + <code>--wide</code></td><td>Fixed-width actions column (56 or 88 px).</td></tr>
+        <tr><td><code>.table__action</code></td><td>Lifts a row control above the row-wide link.</td></tr>
+        <tr><td><code>.table__row--revoked</code></td><td>A dead record.</td></tr>
+        <tr><td><code>aria-current="true"</code> / <code>aria-selected="true"</code> on <code>&lt;tr&gt;</code></td><td>Selected row (product / mocks).</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/articles/default.html">pages/articles/default</a> (articles table)</li>
+        <li><a href="../../mocks/pages/articles/selected.html">pages/articles/selected</a> (a selected row beside the panel)</li>
+        <li><a href="../../mocks/pages/articles/loading.html">pages/articles/loading</a> (skeleton rows)</li>
+        <li><a href="../../mocks/pages/articles/edge.html">pages/articles/edge</a> (long and right-to-left titles)</li>
+        <li><a href="../../mocks/pages/sources/default.html">pages/sources/default</a> (sources table with row menus)</li>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (consumers table with a revoked row)</li>
+      </ul>
+      <p>Drift fixed during extraction: the selected row was <code>aria-selected="true"</code> on a plain <code>&lt;tr&gt;</code>; the CSS now also styles <code>aria-current="true"</code>, which is the documented markup. Action-column widths were raw rem values and are now built from the spacing scale.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

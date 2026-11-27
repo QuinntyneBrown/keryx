@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summary card — Keryx design system</title>
+<meta name="description" content="One identifying value and three numbers about it: the API&#x27;s base URL with its requests, latency and error rate.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Summary card</h1>
+      <p class="ds-lead">One identifying value and three numbers about it: the API's base URL with its requests, latency and error rate.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;section&gt;</code></span><span class="ds-pill">Block: <code>.summary-card</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A simpler sibling of the <a href="status-card.html">status card</a>, used at the top of the API screen. The lead is a value people copy; the stats say how it is doing.</p>
+      <ul>
+        <li>Lead on the left, stats on the right from 768 px.</li>
+        <li>The lead value is mono, medium weight, and truncates.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="summary-card"><section class="card summary-card" aria-label="API usage"><div class="summary-card__lead" data-part="1"><p class="text-caption">Base URL</p><code class="summary-card__value truncate">https://api.keryx.ca/v1</code></div><dl class="stats summary-card__stats" data-part="2"><div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div><div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div><div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div></dl></section><span class="ds-callout" style="left: 7%; top: 25.2%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 42.8%; top: 22.8%;" aria-hidden="true">2</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Lead</b><small>A caption and a mono value (<code>--text-code-lg</code>).</small></div></li>
+          <li><div><b>Stats</b><small>Three stats; under the lead with a rule above, beside it with a rule at the left from 768 px.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><section class="card summary-card" aria-label="API usage"><div class="summary-card__lead"><p class="text-caption">Base URL</p><code class="summary-card__value truncate">https://api.keryx.ca/v1</code></div><dl class="stats summary-card__stats"><div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div><div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div><div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div></dl></section></div>
+        <div class="ds-example__caption"><span>API usage</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card summary-card" aria-label="API usage"&gt;
+&lt;div class="summary-card__lead"&gt;
+&lt;p class="text-caption"&gt;Base URL&lt;/p&gt;
+&lt;code class="summary-card__value truncate"&gt;https://api.keryx.ca/v1&lt;/code&gt;&lt;/div&gt;
+&lt;dl class="stats summary-card__stats"&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Requests · 24h&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;52,826&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;p95 latency&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;84&lt;span class="stat__unit"&gt;ms&lt;/span&gt;&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Error rate&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;0.05%&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p></p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Shows</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td>Base URL and live numbers.</td></tr>
+          <tr><th scope="row">Loading</th><td>Skeleton text and stat blocks.</td></tr>
+          <tr><th scope="row">Empty (no consumers yet)</th><td>Zeros: “0”, “—”, “—”.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><section class="card summary-card" aria-label="API usage"><div class="summary-card__lead"><p class="text-caption">Base URL</p><code class="summary-card__value truncate">https://api.keryx.ca/v1</code></div><dl class="stats summary-card__stats"><div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div><div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div><div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div></dl></section></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><section class="card summary-card" aria-label="API usage"><div class="summary-card__lead"><p class="text-caption">Base URL</p><code class="summary-card__value truncate">https://api.keryx.ca/v1</code></div><dl class="stats summary-card__stats"><div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div><div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div><div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div></dl></section></div></div></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Column below 768 px, row from 768 px.</li>
+        <li>The base URL truncates rather than wrapping; it stays selectable in full.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>It reads semantic tokens only, so both themes and <code>prefers-contrast: more</code> restyle it with no rule of its own.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A <code>&lt;section aria-label&gt;</code>; the value is in a <code>&lt;code&gt;</code> element.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td>—</td><td>Not focusable. It is read in document order with the content around it.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>Not focusable.</p>
+      <h3>Labelling</h3>
+      <p>The caption (“Base URL”) labels the value by proximity; the stats are a <code>&lt;dl&gt;</code>.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Value</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Caption</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>Not interactive, so no target size applies.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>The lead is something exact: a URL, an id.</li>
+        <li>Stat labels carry their window: “Requests · 24h”.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><section class="card summary-card" aria-label="API usage"><div class="summary-card__lead"><p class="text-caption">Base URL</p><code class="summary-card__value truncate">https://api.keryx.ca/v1</code></div><dl class="stats summary-card__stats"><div class="stat"><dt class="stat__label">Requests · 24h</dt><dd class="stat__value">52,826</dd></div><div class="stat"><dt class="stat__label">p95 latency</dt><dd class="stat__value">84<span class="stat__unit">ms</span></dd></div><div class="stat"><dt class="stat__label">Error rate</dt><dd class="stat__value">0.05%</dd></div></dl></section></div><figcaption>Numbers as numbers.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><section class="card ds-w"><p>The API is healthy and handling a normal amount of traffic.</p></section></div><figcaption>A sentence in place of numbers cannot be compared with yesterday; contracts serve numbers, not words.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><code class="summary-card__value truncate ds-w">https://api.keryx.ca/v1</code></div><figcaption>Mono for the URL.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="ds-w">https://api.keryx.ca/v1</span></div><figcaption>In a proportional face, l, 1 and I in a URL are easy to confuse.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Lead value</td><td><code>--text-code-lg</code></td><td colspan="2"><span data-token="--text-code-lg"></span></td></tr>
+          <tr><td>Rule</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Gaps</td><td><code>--space-5</code> <code>--space-6</code> <code>--space-8</code></td><td colspan="2"><span data-token="--space-5"></span> · <span data-token="--space-6"></span> · <span data-token="--space-8"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.summary-card</code>. The Angular component lives in <code>frontend/projects/components/src/summary-card/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;section class="card summary-card" aria-label="API usage"&gt;
+&lt;div class="summary-card__lead"&gt;
+&lt;p class="text-caption"&gt;Base URL&lt;/p&gt;
+&lt;code class="summary-card__value truncate"&gt;https://api.keryx.ca/v1&lt;/code&gt;&lt;/div&gt;
+&lt;dl class="stats summary-card__stats"&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Requests · 24h&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;52,826&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;p95 latency&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;84&lt;span class="stat__unit"&gt;ms&lt;/span&gt;&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Error rate&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;0.05%&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;&lt;/section&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.summary-card</code> on a <code>.card</code></td><td>The block.</td></tr>
+        <tr><td><code>.summary-card__lead</code> / <code>__value</code></td><td>Caption and value.</td></tr>
+        <tr><td><code>.summary-card__stats</code></td><td>The stats with their rule.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (API usage)</li>
+        <li><a href="../../mocks/pages/api/loading.html">pages/api/loading</a> (skeleton)</li>
+        <li><a href="../../mocks/pages/api/empty.html">pages/api/empty</a> (no consumers yet)</li>
+      </ul>
+      <p>Drift fixed during extraction: the lead value's font was composed in place and is now <code>--text-code-lg</code>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

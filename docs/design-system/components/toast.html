@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toast — Keryx design system</title>
+<meta name="description" content="A short message that confirms what just happened, in the corner, without taking focus: a source was added, a run finished, a key was copied.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Toast</h1>
+      <p class="ds-lead">A short message that confirms what just happened, in the corner, without taking focus: a source was added, a run finished, a key was copied.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Live region</span><span class="ds-pill">Block: <code>.toast</code>, <code>.toast-region</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A toast reports the result of something the person did, or of the collector they are watching. It appears bottom right, stays at least eight seconds, and leaves on its own, except errors, which stay until dismissed. If the person must act before continuing, use a <a href="dialog.html">dialog</a>; if the message belongs to a field or a section, use an <a href="alert.html">alert</a> there.</p>
+      <ul>
+        <li>Four tones, by icon colour: info, success, warning, danger. The surface is always the inverse colour.</li>
+        <li>At most one action: Undo, View run, Retry now.</li>
+        <li>At most three are visible, newest at the bottom.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="toast"><div class="ds-toast-col"><div class="toast toast--info"><svg data-part="1" class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="toast__body" data-part="2"><p class="toast__title">Hidden from the API</p><p class="toast__text">The article is no longer served. It stays in Keryx.</p><button class="toast__action" type="button" data-part="3">Undo</button></div><button class="icon-btn" type="button" aria-label="Dismiss" data-part="4"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true" data-part="5"></span></div></div><span class="ds-callout" style="left: 4.1%; top: 10.1%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 53.4%; top: 91.6%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 10.3%; top: 68.1%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 61.6%; top: 5%;" aria-hidden="true">4</span><span class="ds-callout" style="left: 2.7%; top: 96.6%;" aria-hidden="true">5</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Status icon</b><small>16 px, in the on-inverse status colour.</small></div></li>
+          <li><div><b>Title and text</b><small>Title in <code>--text-label</code>; text muted for the inverse surface.</small></div></li>
+          <li><div><b>Action (optional)</b><small>An underlined text button in the on-inverse brand colour.</small></div></li>
+          <li><div><b>Dismiss</b><small>An <a href="icon-btn.html">icon button</a> with a 14 px ×.</small></div></li>
+          <li><div><b>Countdown</b><small>A 2 px bar along the bottom showing the time left; absent on errors.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-toast-col"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="toast__body"><p class="toast__title">Hidden from the API</p><p class="toast__text">“Shepherd’s 5K returns to Lakefront Promenade this May” is no longer served. It stays in Keryx.</p><button class="toast__action" type="button">Undo</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><div class="toast__body"><p class="toast__title">Source added</p><p class="toast__text">LifePoint Fitness Ministry will be checked at 12:00 PM.</p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Collection finished with 2 failing sources</p><p class="toast__text">47 new articles. Redeemed Run Club Toronto and Covenant Cycling Collective didn’t respond.</p><button class="toast__action" type="button">View run</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.</p><button class="toast__action" type="button">Retry now</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div></div>
+        <div class="ds-example__caption"><span>Info with Undo, success, warning with a link, danger (no countdown)</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-toast-col"&gt;
+&lt;div class="toast toast--info"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="toast__body"&gt;
+&lt;p class="toast__title"&gt;Hidden from the API&lt;/p&gt;
+&lt;p class="toast__text"&gt;“Shepherd’s 5K returns to Lakefront Promenade this May” is no longer served. It stays in Keryx.&lt;/p&gt;
+&lt;button class="toast__action" type="button"&gt;Undo&lt;/button&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Dismiss"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;div class="toast toast--success"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="toast__body"&gt;
+&lt;p class="toast__title"&gt;Source added&lt;/p&gt;
+&lt;p class="toast__text"&gt;LifePoint Fitness Ministry will be checked at 12:00 PM.&lt;/p&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Dismiss"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;div class="toast toast--warning"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="toast__body"&gt;
+&lt;p class="toast__title"&gt;Collection finished with 2 failing sources&lt;/p&gt;
+&lt;p class="toast__text"&gt;47 new articles. Redeemed Run Club Toronto and Covenant Cycling Collective didn’t respond.&lt;/p&gt;
+&lt;button class="toast__action" type="button"&gt;View run&lt;/button&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Dismiss"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;div class="toast toast--danger" role="alert"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="toast__body"&gt;
+&lt;p class="toast__title"&gt;Collection failed&lt;/p&gt;
+&lt;p class="toast__text"&gt;Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.&lt;/p&gt;
+&lt;button class="toast__action" type="button"&gt;Retry now&lt;/button&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Dismiss"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size: 384 px wide (&lt;code&gt;--layout-toast-width&lt;/code&gt;) from 640 px, the width of the screen minus 16 px margins below."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size: 384 px wide (&lt;code&gt;--layout-toast-width&lt;/code&gt;) from 640 px, the width of the screen minus 16 px margins below.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p></p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Behaviour</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Entering</th><td>Slides up 8 px and fades in over <code>--duration-base</code>.</td></tr>
+          <tr><th scope="row">Showing</th><td>The countdown runs for at least 8 seconds.</td></tr>
+          <tr><th scope="row">Paused</th><td>Hovering or focusing anything inside stops the countdown; it restarts on leave.</td></tr>
+          <tr><th scope="row">Persistent</th><td>Danger toasts have no countdown and wait for Dismiss or their action.</td></tr>
+          <tr><th scope="row">Leaving</th><td>Fades out; focus, if it was inside, moves to the next toast or back to the page.</td></tr>
+          <tr><th scope="row">Stacked</th><td>Up to three, 8 px apart, newest at the bottom; older ones are dropped and remain visible on the Runs screen.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-toast-col"><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Collection finished with 2 failing sources</p><p class="toast__text">47 new articles. Redeemed Run Club Toronto and Covenant Cycling Collective didn’t respond.</p><button class="toast__action" type="button">View run</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.</p><button class="toast__action" type="button">Retry now</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-toast-col"><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Collection finished with 2 failing sources</p><p class="toast__text">47 new articles. Redeemed Run Club Toronto and Covenant Cycling Collective didn’t respond.</p><button class="toast__action" type="button">View run</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.</p><button class="toast__action" type="button">Retry now</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div></div></div></div>
+      <ul>
+        <li>Action hover thickens the underline; the dismiss button brightens.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 640 px: pinned to the bottom, full width with 16 px margins. Add <code>env(safe-area-inset-bottom)</code> on phones with a home indicator.</li>
+        <li>From 640 px: bottom right, 384 px wide, 24 px from the edges.</li>
+        <li>The region ignores pointer events between toasts, so it never blocks the page; it must not cover the save bar's buttons, so the settings page offsets it by the bar's height.</li>
+        <li>Text wraps; nothing is truncated.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The toast is the inverse surface: ink in the light theme, paper in the dark theme. Its icons and action use the <code>--color-on-inverse-*</code> tokens, which flip with it: bright status colours and volt on ink, the standard status colours and dark olive on paper. Inside a toast the focus ring is the on-inverse brand colour.</p>
+      <pre><code>.toast, .toast-region { --color-focus-ring: var(--color-on-inverse-brand); }</code></pre>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Two live regions that exist from page load: one <code>role="status"</code> (<code>aria-live="polite"</code>) for info, success and warning, and one <code>role="alert"</code> for danger. A toast is inserted into the matching region. Toasts do not take focus.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Reaches the action and Dismiss in DOM order; the region is last in the page.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Runs the action or dismisses.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Dismisses the newest toast when focus is inside the region.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>Focus never moves to a toast by itself. If focus is inside a toast when it leaves, it moves to the next toast or returns to the element that had it before.</p>
+      <h3>Labelling</h3>
+      <p>The title is read first, then the text. Dismiss is labelled “Dismiss”; with several toasts it names its toast (“Dismiss: Source added”).</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="4.5"></span></div><div class="ds-pair"><span>Text</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse-muted|--color-bg-inverse" data-min="4.5"></span></div><div class="ds-pair"><span>Action</span><span class="ds-pair__ratio" data-contrast="--color-on-inverse-brand|--color-bg-inverse" data-min="4.5"></span></div><div class="ds-pair"><span>Success icon</span><span class="ds-pair__ratio" data-contrast="--color-on-inverse-success|--color-bg-inverse" data-min="3"></span></div><div class="ds-pair"><span>Warning icon</span><span class="ds-pair__ratio" data-contrast="--color-on-inverse-warning|--color-bg-inverse" data-min="3"></span></div><div class="ds-pair"><span>Danger icon</span><span class="ds-pair__ratio" data-contrast="--color-on-inverse-danger|--color-bg-inverse" data-min="3"></span></div><div class="ds-pair"><span>Info icon</span><span class="ds-pair__ratio" data-contrast="--color-on-inverse-info|--color-bg-inverse" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Entrance over <code>--duration-base</code>, instant under reduced motion. The countdown is a width change, not a flash. Timing meets WCAG 2.2.1: at least 8 seconds, pausable, and never for errors.</p>
+      <h3>Touch</h3>
+      <p>Dismiss is 32 px (44 px on touch). The action's line box is at least 24 px.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title: what happened, past tense, no full stop: “Source added”, “Key copied”, “Collection failed”.</li>
+        <li>Text: the consequence and the next fact: “LifePoint Fitness Ministry will be checked at 12:00 PM.”</li>
+        <li>Errors say what was not lost: “The API is still serving the previous run.”</li>
+        <li>Action labels are one or two words: Undo, View run, Retry now.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.</p><button class="toast__action" type="button">Retry now</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div></div><figcaption>Keep an error until it is dismissed.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Nothing was stored.</p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>An error that disappears after eight seconds may never be seen.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="toast__body"><p class="toast__title">Hidden from the API</p><p class="toast__text">It stays in Keryx.</p><button class="toast__action" type="button">Undo</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>Offer Undo instead of asking “Are you sure?” for a reversible change.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><div class="toast__body"><p class="toast__title">Success</p><p class="toast__text">The operation completed successfully.</p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>A toast that names nothing cannot be matched to what the person did.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="ds-w"><code>role="status"</code> region + separate <code>role="alert"</code> region</p></div><figcaption>Two regions, one polite and one assertive.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="ds-w"><code>role="status"</code> region containing a <code>role="alert"</code> toast</p></div><figcaption>The stacked mock nests an alert inside the status region; nested live regions are announced inconsistently.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Surface / title</td><td><code>--color-bg-inverse</code> <code>--color-fg-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td></tr>
+          <tr><td>Text and dismiss</td><td><code>--color-fg-inverse-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-inverse-muted" data-swatch></i><span data-token="--color-fg-inverse-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-inverse-muted" data-swatch></i><span data-token="--color-fg-inverse-muted"></span></span></td></tr>
+          <tr><td>Icons</td><td><code>--color-on-inverse-info</code> <code>--color-on-inverse-success</code> <code>--color-on-inverse-warning</code> <code>--color-on-inverse-danger</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-on-inverse-info" data-swatch></i><span data-token="--color-on-inverse-info"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-on-inverse-success" data-swatch></i><span data-token="--color-on-inverse-success"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-on-inverse-warning" data-swatch></i><span data-token="--color-on-inverse-warning"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-on-inverse-danger" data-swatch></i><span data-token="--color-on-inverse-danger"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-on-inverse-info" data-swatch></i><span data-token="--color-on-inverse-info"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-on-inverse-success" data-swatch></i><span data-token="--color-on-inverse-success"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-on-inverse-warning" data-swatch></i><span data-token="--color-on-inverse-warning"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-on-inverse-danger" data-swatch></i><span data-token="--color-on-inverse-danger"></span></span></td></tr>
+          <tr><td>Action and countdown</td><td><code>--color-on-inverse-brand</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-on-inverse-brand" data-swatch></i><span data-token="--color-on-inverse-brand"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-on-inverse-brand" data-swatch></i><span data-token="--color-on-inverse-brand"></span></span></td></tr>
+          <tr><td>Width</td><td><code>--layout-toast-width</code></td><td colspan="2"><span data-token="--layout-toast-width"></span></td></tr>
+          <tr><td>Radius / shadow</td><td><code>--radius-lg</code> <code>--shadow-3</code></td><td colspan="2"><span data-token="--radius-lg"></span> · <span data-token="--shadow-3"></span></td></tr>
+          <tr><td>Padding / gap</td><td><code>--space-3</code> <code>--space-4</code> <code>--space-2</code></td><td colspan="2"><span data-token="--space-3"></span> · <span data-token="--space-4"></span> · <span data-token="--space-2"></span></td></tr>
+          <tr><td>Layer</td><td><code>--z-toast</code></td><td colspan="2"><span data-token="--z-toast"></span></td></tr>
+          <tr><td>Entrance</td><td><code>--duration-base</code> <code>--ease-enter</code></td><td colspan="2"><span data-token="--duration-base"></span> · <span data-token="--ease-enter"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.toast</code>, <code>.toast-region</code>. The Angular component lives in <code>frontend/projects/components/src/toast/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;div class="toast-region" role="status" aria-live="polite"&gt;
+&lt;div class="toast toast--success"&gt;
+&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+&lt;div class="toast__body"&gt;
+&lt;p class="toast__title"&gt;Source added&lt;/p&gt;
+&lt;p class="toast__text"&gt;LifePoint Fitness Ministry will be checked at 12:00 PM.&lt;/p&gt;&lt;/div&gt;
+&lt;button class="icon-btn" type="button" aria-label="Dismiss"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="toast-region" role="alert"&gt;&lt;/div&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.toast-region</code></td><td>Fixed container; one polite, one assertive.</td></tr>
+        <tr><td><code>.toast</code> + <code>--info</code> <code>--success</code> <code>--warning</code> <code>--danger</code></td><td>A toast and its tone.</td></tr>
+        <tr><td><code>.toast__body</code> / <code>__title</code> / <code>__text</code></td><td>Text.</td></tr>
+        <tr><td><code>.toast__action</code></td><td>Its one action.</td></tr>
+        <tr><td><code>.toast__progress</code></td><td>Countdown bar; omit on errors.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/notifications/collection-toast/info.html">notifications/collection-toast/info</a> (collection started)</li>
+        <li><a href="../../mocks/notifications/collection-toast/success.html">notifications/collection-toast/success</a> (finished clean)</li>
+        <li><a href="../../mocks/notifications/collection-toast/warning.html">notifications/collection-toast/warning</a> (finished with failing sources)</li>
+        <li><a href="../../mocks/notifications/collection-toast/danger.html">notifications/collection-toast/danger</a> (failed, persistent)</li>
+        <li><a href="../../mocks/notifications/collection-toast/stacked.html">notifications/collection-toast/stacked</a> (three stacked)</li>
+        <li><a href="../../mocks/notifications/article-toast/with-action.html">notifications/article-toast/with-action</a> (Undo)</li>
+        <li><a href="../../mocks/notifications/source-toast/success.html">notifications/source-toast/success</a> (source added)</li>
+        <li><a href="../../mocks/notifications/run-toast/success.html">notifications/run-toast/success</a> (muted with Undo)</li>
+        <li><a href="../../mocks/notifications/api-toast/success.html">notifications/api-toast/success</a> (key copied)</li>
+        <li><a href="../../mocks/notifications/api-toast/warning.html">notifications/api-toast/warning</a> (key revoked)</li>
+      </ul>
+      <p>Drift fixed during extraction: the stacked mock puts a <code>role="alert"</code> toast inside the <code>role="status"</code> region; the product uses two regions. The toast width was a raw 24rem and is now <code>--layout-toast-width</code>. A hover style for the action was added.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

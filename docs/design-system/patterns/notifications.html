@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications — Keryx design system</title>
+<meta name="description" content="How Keryx tells staff that something happened without being asked: toasts, the navigation badge, the Overview, and e-mail alerts.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern</p>
+      <h1>Notifications</h1>
+      <p class="ds-lead">How Keryx tells staff that something happened without being asked: toasts, the navigation badge, the Overview, and e-mail alerts.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Composes components</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Keryx notifies in layers, from quiet to loud. A fact that will still be true in an hour lives on a screen (the Overview status card, the Runs badge). A fact about the last few seconds is a <a href="../components/toast.html">toast</a>. Things that need someone who is not looking go out by e-mail, configured in Settings. There is no notification centre: the Runs screen is the history.</p>      <ul>
+        <li>Toasts confirm; they are never the only record of something important.</li>
+        <li>A persistent problem is shown persistently, where it can be acted on.</li>
+        <li>One event, one notification.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Event</th><th scope="col">Channel</th></tr></thead>
+        <tbody>
+          <tr><td>The person's own action finished</td><td>Toast</td></tr>
+          <tr><td>A run started, finished or failed while the admin is open</td><td>Toast; status card and badge update</td></tr>
+          <tr><td>Sources are failing now</td><td>Count on the Runs link; issue cards on Overview</td></tr>
+          <tr><td>Articles are waiting for review</td><td>Warning count on the Needs review tab; an issue card</td></tr>
+          <tr><td>A source failed N runs in a row</td><td>E-mail alert (Settings › Alerts); a streak line on the issue</td></tr>
+          <tr><td>A whole run failed</td><td>E-mail alert; danger toast if the admin is open; status card</td></tr>
+          <tr><td>A one-time secret was created</td><td><a href="../components/callout.html">Callout</a>, not a toast</td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Tone</th><th scope="col">For</th><th scope="col">Leaves</th></tr></thead>
+        <tbody>
+          <tr><td>Info</td><td>Something started or changed neutrally</td><td>After 8 s or more</td></tr>
+          <tr><td>Success</td><td>An action completed</td><td>After 8 s or more</td></tr>
+          <tr><td>Warning</td><td>Completed with problems; needs a look</td><td>After 8 s or more, with a link to the detail</td></tr>
+          <tr><td>Danger</td><td>Failed</td><td>Only when dismissed or retried</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-toast-col"><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">Collection failed</p><p class="toast__text">Keryx couldn’t reach its database, so nothing was stored. The API is still serving the previous run.</p><button class="toast__action" type="button">Retry now</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Collection finished with 2 failing sources</p><p class="toast__text">47 new articles. Redeemed Run Club Toronto and Covenant Cycling Collective didn’t respond.</p><button class="toast__action" type="button">View run</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="toast__body"><p class="toast__title">Collection started</p><p class="toast__text">Checking 64 sources. This usually takes about 4 minutes.</p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div>
+        <div class="ds-example__caption"><span>Three stacked: the newest at the bottom, the error without a countdown</span></div>
+      </div>
+      <ul>
+        <li><b>Stack</b>: at most three, 8 px apart, newest at the bottom. A fourth pushes the oldest out; errors are kept in preference to others.</li>
+        <li><b>Grouping</b>: repeated events merge (“3 sources removed”) rather than queueing three toasts.</li>
+        <li><b>Action</b>: one per toast. Undo, View run, Retry now.</li>
+        <li><b>Position</b>: bottom right; offset above the save bar on Settings.</li>
+        <li><b>Priority</b>: a danger toast is assertive and may interrupt; everything else is polite.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Toast state</th><th scope="col">Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td>Entering</td><td>Slides up and fades in.</td></tr>
+          <tr><td>Showing</td><td>Countdown bar runs.</td></tr>
+          <tr><td>Paused</td><td>On hover or focus inside.</td></tr>
+          <tr><td>Persistent</td><td>Danger: no countdown.</td></tr>
+          <tr><td>Leaving</td><td>Fades; focus handed on.</td></tr>
+          <tr><td>Stacked</td><td>Up to three.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Full width at the bottom below 640 px; 384 px bottom right above.</li>
+        <li>On phones add the bottom safe-area inset.</li>
+        <li>The Runs badge is visible in the top bar on small screens, so the count is never hidden with the sidebar footer.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>Two live regions exist from page load: polite (<code>role="status"</code>) and assertive (<code>role="alert"</code>); a toast is inserted into the right one (WCAG 4.1.3).</li>
+        <li>Toasts never take focus; their controls are reachable by Tab at the end of the page.</li>
+        <li>At least 8 seconds, paused on hover and focus, and errors persist (WCAG 2.2.1).</li>
+        <li>The badge's meaning is hidden text inside the link (“Runs, 2 failing sources”).</li>
+        <li>Nothing is conveyed by a toast alone: the same fact is on Overview or Runs.</li>
+        <li>E-mail alerts contain no tokens or keys and no private contact details.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title in the past tense, no full stop: “Source added”, “Collection failed”.</li>
+        <li>Text gives the consequence and the next fact.</li>
+        <li>Warnings name what failed; errors say what is still fine.</li>
+        <li>Action labels are one or two words.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Collection finished with 2 failing sources</p><p class="toast__text">47 new articles.</p><button class="toast__action" type="button">View run</button></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>Link a warning to the place that explains it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><div class="toast__body"><p class="toast__title">Warning</p><p class="toast__text">Some sources had problems.</p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>A warning with no names and no link leaves the person to go looking.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="ds-w">Runs <span class="badge badge--danger">2</span> stays until the sources recover.</p></div><figcaption>Show a standing problem where it stands.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-toast-col"><div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="toast__body"><p class="toast__title">2 sources are failing</p><p class="toast__text"></p></div><button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>A toast that vanishes is the wrong carrier for a problem that lasts for days.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Mocks this pattern was drawn from:</p>
+      <ul>
+        <li><a href="../../mocks/notifications/collection-toast/info.html">notifications/collection-toast/info</a> (started)</li>
+        <li><a href="../../mocks/notifications/collection-toast/success.html">notifications/collection-toast/success</a> (finished)</li>
+        <li><a href="../../mocks/notifications/collection-toast/warning.html">notifications/collection-toast/warning</a> (finished with issues)</li>
+        <li><a href="../../mocks/notifications/collection-toast/danger.html">notifications/collection-toast/danger</a> (failed)</li>
+        <li><a href="../../mocks/notifications/collection-toast/stacked.html">notifications/collection-toast/stacked</a> (stacked)</li>
+        <li><a href="../../mocks/notifications/article-toast/with-action.html">notifications/article-toast/with-action</a> (Undo)</li>
+        <li><a href="../../mocks/notifications/source-toast/with-action.html">notifications/source-toast/with-action</a> (removed, with Undo)</li>
+        <li><a href="../../mocks/notifications/run-toast/info.html">notifications/run-toast/info</a> (retrying)</li>
+        <li><a href="../../mocks/notifications/api-toast/warning.html">notifications/api-toast/warning</a> (key revoked)</li>
+        <li><a href="../../mocks/pages/overview/default.html">pages/overview/default</a> (badge and issue cards)</li>
+        <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> (e-mail alert settings)</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

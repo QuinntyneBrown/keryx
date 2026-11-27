@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkbox — Keryx design system</title>
+<meta name="description" content="Zero or more choices from a short list, each with room for a line of explanation.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Checkbox</h1>
+      <p class="ds-lead">Zero or more choices from a short list, each with room for a line of explanation.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;input type="checkbox"&gt;</code></span><span class="ds-pill">Block: <code>.check</code>, <code>.check-list</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use checkboxes when several options can be on at once and the choice is applied on submit: the scopes of an API key. A setting that takes effect on Save and reads as on/off is a <a href="switch.html">switch</a>. With <code>type="radio"</code> the same block is a plain radio list; the mocks use <a href="choice-card.html">choice cards</a> for that instead.</p>
+      <ul>
+        <li>The group is a <code>&lt;fieldset&gt;</code> with a <code>&lt;legend&gt;</code>.</li>
+        <li>Each option can carry a description in <code>&lt;small&gt;</code> under its label.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage" data-anatomy="check"><label class="check" data-part="3"><input type="checkbox" checked data-part="1"><span class="check__text"><span class="mono" data-part="2">articles:read</span><small>Published articles and their summaries</small></span></label><span class="ds-callout" style="left: 3.4%; top: -30.8%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 17.6%; top: -28.2%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 91.6%; top: 135.9%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Box</b><small>The native control at 16 px, tinted with <code>accent-color: var(--color-accent)</code>.</small></div></li>
+          <li><div><b>Label and description</b><small>Label in body text (mono for a scope name); description in <code>--text-caption</code>, muted.</small></div></li>
+          <li><div><b>Row</b><small>The whole <code>&lt;label&gt;</code> is the target; <code>--space-2-5</code> between box and text.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block"><fieldset><legend>Scopes</legend><div class="check-list"><label class="check"><input type="checkbox" checked><span class="check__text"><span class="mono">articles:read</span><small>Published articles and their summaries</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">events:read</span><small>Events with dates and places</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">sources:read</span><small>The list of organisations and sources</small></span></label></div></fieldset></div>
+        <div class="ds-example__caption"><span>A check list with descriptions, as in New API key</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset&gt;
+&lt;legend&gt;Scopes&lt;/legend&gt;
+&lt;div class="check-list"&gt;
+&lt;label class="check"&gt;
+&lt;input type="checkbox" checked&gt;
+&lt;span class="check__text"&gt;
+&lt;span class="mono"&gt;articles:read&lt;/span&gt;
+&lt;small&gt;Published articles and their summaries&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;
+&lt;label class="check"&gt;
+&lt;input type="checkbox" &gt;
+&lt;span class="check__text"&gt;
+&lt;span class="mono"&gt;events:read&lt;/span&gt;
+&lt;small&gt;Events with dates and places&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;
+&lt;label class="check"&gt;
+&lt;input type="checkbox" &gt;
+&lt;span class="check__text"&gt;
+&lt;span class="mono"&gt;sources:read&lt;/span&gt;
+&lt;small&gt;The list of organisations and sources&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size: a 16 px box with a label row at least 24 px tall."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size: a 16 px box with a label row at least 24 px tall.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Native states, drawn by the browser in the accent colour.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col"></th><th scope="col">Unchecked</th><th scope="col">Checked</th><th scope="col">Focus</th><th scope="col">Disabled</th><th scope="col">Disabled checked</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Checkbox</th><td><label class="check"><input type="checkbox" ><span class="check__text">events:read</span></label></td><td><label class="check"><input type="checkbox" checked><span class="check__text">events:read</span></label></td><td><label class="check"><input type="checkbox" data-state="focus"><span class="check__text">events:read</span></label></td><td><label class="check"><input type="checkbox" disabled><span class="check__text">events:read</span></label></td><td><label class="check"><input type="checkbox" checked disabled><span class="check__text">events:read</span></label></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><fieldset><legend>Scopes</legend><div class="check-list"><label class="check"><input type="checkbox" checked><span class="check__text"><span class="mono">articles:read</span><small>Published articles and their summaries</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">events:read</span><small>Events with dates and places</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">sources:read</span><small>The list of organisations and sources</small></span></label></div></fieldset></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block"><fieldset><legend>Scopes</legend><div class="check-list"><label class="check"><input type="checkbox" checked><span class="check__text"><span class="mono">articles:read</span><small>Published articles and their summaries</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">events:read</span><small>Events with dates and places</small></span></label><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">sources:read</span><small>The list of organisations and sources</small></span></label></div></fieldset></div></div></div>
+      <ul>
+        <li><b>Indeterminate</b> is set from script (<code>input.indeterminate = true</code>) for a “select all” box; no mock has one.</li>
+        <li><b>Invalid</b>: when at least one scope is required, the error goes under the list and the fieldset gets <code>aria-describedby</code>.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Options stack in one column at every width.</li>
+        <li>Labels and descriptions wrap beside the box, never under it.</li>
+        <li>The label row is the target, so it comfortably exceeds 24 px; rows are 8 px apart.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p><code>accent-color</code> follows <code>--color-accent</code>: an ink box with a light tick in the light theme, a volt box with an ink tick in the dark theme. The browser picks the tick colour for contrast.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native checkboxes in a <code>&lt;fieldset&gt;</code> with a <code>&lt;legend&gt;</code>. See the <a href="https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/">WAI-ARIA checkbox pattern</a>.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the control in DOM order.</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Toggles the focused box.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>The browser draws the shared ring around the box.</p>
+      <h3>Labelling</h3>
+      <p>The <code>&lt;label&gt;</code> wraps the input, so the label and its description are both read. The legend names the group.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Checked box vs surface</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface-raised" data-min="3"></span></div><div class="ds-pair"><span>Label</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Description</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>The whole label row toggles the box. Rows are at least 24 px tall and 8 px apart.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Label what is granted, not the action of ticking: “articles:read”, not “Enable articles”.</li>
+        <li>The description says what the option gives in plain words.</li>
+        <li>Pre-tick the option nearly everyone needs (articles:read).</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><label class="check"><input type="checkbox" ><span class="check__text"><span class="mono">events:read</span><small>Events with dates and places</small></span></label></div><figcaption>Wrap the input in its label so the text is clickable.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="check"><input type="checkbox" aria-label="events:read"><span class="check__text">events:read</span></div></div><figcaption>A box with separate text leaves a 16 px target.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><fieldset><legend>Scopes</legend><div class="check-list"><label class="check"><input type="checkbox" checked><span class="check__text">articles:read</span></label><label class="check"><input type="checkbox" ><span class="check__text">events:read</span></label></div></fieldset></div><figcaption>Checkboxes for choices submitted with a form.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><fieldset><legend>Scopes</legend><label class="switch"><input type="checkbox" role="switch" checked>articles:read</label></fieldset></div><figcaption>A switch suggests the scope changes the moment it is flipped, before the key exists.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Box</td><td><code>--icon-size-md</code> <code>--color-accent</code></td><td colspan="2"><span data-token="--icon-size-md"></span> · <span data-token="--color-accent"></span></td></tr>
+          <tr><td>Description</td><td><code>--text-caption</code> <code>--color-fg-muted</code></td><td colspan="2"><span data-token="--text-caption"></span> · <span data-token="--color-fg-muted"></span></td></tr>
+          <tr><td>Box to text</td><td><code>--space-2-5</code></td><td colspan="2"><span data-token="--space-2-5"></span></td></tr>
+          <tr><td>Between options</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.check</code>, <code>.check-list</code>. The Angular component lives in <code>frontend/projects/components/src/check/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;fieldset&gt;
+&lt;legend&gt;Scopes&lt;/legend&gt;
+&lt;div class="check-list"&gt;
+&lt;label class="check"&gt;
+&lt;input type="checkbox" name="scope" value="articles:read" checked&gt;
+&lt;span class="check__text"&gt;
+&lt;span class="mono"&gt;articles:read&lt;/span&gt;
+&lt;small&gt;Published articles and their summaries&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;&lt;/fieldset&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.check-list</code></td><td>Column of options.</td></tr>
+        <tr><td><code>.check</code></td><td>The label row.</td></tr>
+        <tr><td><code>.check__text</code> with <code>&lt;small&gt;</code></td><td>Label and description.</td></tr>
+        <tr><td><code>type="radio"</code></td><td>The same block as a plain radio list.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/dialogs/new-api-key/default.html">dialogs/new-api-key/default</a> (three scopes, one ticked)</li>
+        <li><a href="../../mocks/dialogs/new-api-key/invalid.html">dialogs/new-api-key/invalid</a> (no scope ticked)</li>
+        <li><a href="../../mocks/dialogs/new-api-key/busy.html">dialogs/new-api-key/busy</a> (disabled)</li>
+      </ul>
+      <p>Drift fixed during extraction: none; every mock used the kit classes as they are documented here.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
