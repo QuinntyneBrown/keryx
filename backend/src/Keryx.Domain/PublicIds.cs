@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Security.Cryptography;
 
 namespace Keryx.Domain;
@@ -12,6 +13,7 @@ public static class PublicIds
 {
     private const string Alphabet = "abcdefghijklmnopqrstuvwxyz234567";
     private const int Length = 12;
+    private static readonly SearchValues<char> Characters = SearchValues.Create(Alphabet);
 
     public static string New(string prefix)
     {
@@ -22,5 +24,15 @@ public static class PublicIds
         }
 
         return prefix + "_" + new string(random);
+    }
+
+    /// <summary>Whether an id has the shape of one this prefix draws: the prefix, <c>_</c> and 12 base32 characters.</summary>
+    public static bool IsWellFormed(string id, string prefix)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(prefix);
+        return id.Length == prefix.Length + 1 + Length
+            && id.StartsWith(prefix + "_", StringComparison.Ordinal)
+            && id.AsSpan(prefix.Length + 1).IndexOfAnyExcept(Characters) < 0;
     }
 }

@@ -40,6 +40,8 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(article => article.Threshold).HasPrecision(3, 2);
         builder.Property(article => article.DecidedBy).HasConversion(by => by == DecisionMaker.Staff ? "staff" : "system", word => word == "staff" ? DecisionMaker.Staff : DecisionMaker.System).HasMaxLength(8);
         builder.HasIndex(article => new { article.Status, article.CollectedAt });
+        // A product's list: served articles, newest first, sought by (ListedAt, Id) (L2-026, L2-086).
+        builder.HasIndex(article => new { article.Status, article.ListedAt, article.Id });
         builder.OwnsMany(article => article.Provenance, entry =>
         {
             entry.ToTable("ArticleProvenance");

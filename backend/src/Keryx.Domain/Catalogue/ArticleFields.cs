@@ -112,6 +112,9 @@ public static partial class ArticleCategory
 {
     public const string Default = "faith-wellness";
 
+    /// <summary>Every category's slug, as products filter by it (L2-015).</summary>
+    public static IReadOnlyList<string> Slugs => [.. Rules.Select(rule => rule.Slug)];
+
     private static readonly (string Slug, string Name, Regex Words)[] Rules =
     [
         ("races-challenges", "Races & Challenges", Races()),

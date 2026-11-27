@@ -48,6 +48,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset>("ListedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<long?>("OrganizationId")
                         .HasColumnType("bigint");
 
@@ -118,6 +121,8 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("Status", "CollectedAt");
+
+                    b.HasIndex("Status", "ListedAt", "Id");
 
                     b.ToTable("Articles", (string)null);
                 });

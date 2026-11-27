@@ -49,6 +49,12 @@ public sealed class Article
     /// <summary>When Keryx first collected it, in UTC.</summary>
     public DateTimeOffset CollectedAt { get; private set; }
 
+    /// <summary>
+    /// Where it sorts in a product's list, newest first: when the source published it, or, when the
+    /// source gave no time, when Keryx first collected it (L2-026).
+    /// </summary>
+    public DateTimeOffset ListedAt { get; private set; }
+
     public decimal Score { get; private set; }
 
     public PublicationStatus Status { get; private set; }
@@ -96,6 +102,7 @@ public sealed class Article
         RegionSlug = facts.RegionSlug;
         Tags = facts.Tags;
         PublishedAt = facts.PublishedAt;
+        ListedAt = facts.PublishedAt ?? CollectedAt;
         Score = facts.Score;
         Fingerprint = facts.Fingerprint;
         if (DecidedBy == DecisionMaker.System)

@@ -53,13 +53,16 @@ The slice runs from the consuming product's HTTPS request to the relational data
     regions (L2-018); `category` shall be one of `events`, `races-challenges`, `gyms-studios`,
     `ministry-programs`, `nutrition`, `faith-wellness` (L2-015). An unknown slug fails with
     `invalid_filter`.
-  - `since` shall parse as an ISO 8601 time with an offset; a malformed value fails with
-    `invalid_filter`. The response to an `org` value that is well formed but unknown, or
-    malformed, is `<TO SUPPLY>` (L2-026 names no code for it).
+  - `since` shall parse as an ISO 8601 date and time with an offset (`Z` or `±hh:mm`); a
+    malformed value, or one with no offset, fails with `invalid_filter`. It keeps the articles
+    listed at or after that time.
+  - `org` shall have the shape of an organization id (`org_` and 12 base32 characters); any other
+    value fails with `invalid_filter`. A well-formed id no organization has filters to an empty
+    page, as a filter that matches nothing does.
   - `cursor`, when present, shall decode through `ICursorCodec`; a cursor not issued by Keryx
-    fails with `invalid_cursor`.
+    fails with `invalid_cursor`. An empty `cursor=` is read as no cursor.
 - **`ListArticlesQueryHandler`** — builds one keyset query over served articles. It applies
-  every filter given, so a row matches all of them, orders by `published_at` descending then `id`
+  every filter given, so a row matches all of them, orders by `listed_at` descending then `id`
   descending, seeks after the cursor's position, takes `limit + 1` rows, and projects only the
   list columns into `ArticleSummaryDto` with no tracking. When the extra row exists it drops it
   and encodes the last returned row's position as `next_cursor`; otherwise `next_cursor` is
@@ -74,12 +77,12 @@ The slice runs from the consuming product's HTTPS request to the relational data
   is not `null` (L2-015 acceptance criterion 3). The events, organizations and status features
   reuse `ServedEvents` and `ListedOrganizations`, so "served" means one thing across `/v1`.
 - **`ICursorCodec`** (`Keryx.Application`) and **`DataProtectionCursorCodec`**
-  (`Keryx.Infrastructure`) — encode a `CursorPosition` (list name, filter fingerprint, last sort
+  (`Keryx.Api`, the one process that issues cursors and the one with Data Protection) — encode a `CursorPosition` (list name, filter fingerprint, last sort
   time, last id) into an opaque, URL-safe string protected by ASP.NET Core Data Protection, and
   refuse any string they did not produce. The filter fingerprint makes a cursor presented with
-  different filters fail with `invalid_cursor`; that rule is a design choice that the
-  requirements do not state, and its confirmation is `<TO SUPPLY>`. Cursor expiry is
-  `<TO SUPPLY>`. The Data Protection key store is a documented deployment setting (L2-096).
+  different filters fail with `invalid_cursor`, since a position means nothing in another
+  filtered list; the limit may change between pages. A cursor does not expire: it stops decoding
+  only when its Data Protection key is retired. The Data Protection key store is a documented deployment setting (L2-096).
 - **DTOs** — `PageDto<T>` (`data`, `next_cursor`); `ArticleSummaryDto` (`id`, `title`,
   `organization` as `OrganizationRefDto` with `id` and `name` or `null`, `category`, `region`,
   `published_at`, `url`, `summary`); `ArticleDetailDto` adds `tags`, `collected_at`, the linked
@@ -105,8 +108,10 @@ Endpoints:
 | `GET /v1/articles` | `limit` (1–100, default 20), `cursor`, `region`, `category`, `org`, `since` | `200` `{ data: [ArticleSummary], next_cursor }` | `400` `invalid_limit`, `invalid_filter`, `invalid_cursor` |
 | `GET /v1/articles/{id}` | path `id` (`art_…`) | `200` `ArticleDetail` | `404` `article_not_found` |
 
-The behaviour of an article whose source gave no publication time, within an order keyed on
-`published_at`, is `<TO SUPPLY>`.
+An article is listed by `Article.ListedAt`: the time its source published it, or, when the
+source gave none, the time Keryx first collected it. Its `published_at` is served as the source
+gave it, so `null` in that case; the stored `ListedAt` keeps the order indexable as
+(`Status`, `ListedAt`, `Id`).
 
 ## Requirements
 

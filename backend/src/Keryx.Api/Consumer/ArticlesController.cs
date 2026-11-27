@@ -11,6 +11,18 @@ namespace Keryx.Api.Consumer;
 [Authorize(Policy = ApiKeyDefaults.ArticlesRead)]
 public sealed class ArticlesController(ISender sender) : ControllerBase
 {
+    /// <summary>A page of published articles, newest first; follow <c>next_cursor</c> for the next.</summary>
+    [HttpGet]
+    public Task<PageDto<ArticleSummaryDto>> List(
+        [FromQuery] string? limit,
+        [FromQuery] string? cursor,
+        [FromQuery] string? region,
+        [FromQuery] string? category,
+        [FromQuery] string? org,
+        [FromQuery] string? since,
+        CancellationToken cancellationToken) =>
+        sender.Send(new ListArticles(limit, cursor, region, category, org, since), cancellationToken);
+
     [HttpGet("{id}")]
     public Task<ArticleDetailDto> Get(string id, CancellationToken cancellationToken) =>
         sender.Send(new GetArticle(id), cancellationToken);

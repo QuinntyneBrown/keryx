@@ -83,6 +83,7 @@ public static class ApiHost
             .AddApiKeyPolicies()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
         builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationMiddlewareResultHandler, ApiAuthorizationResultHandler>();
+        builder.Services.AddSingleton<Keryx.Application.Consumer.ICursorCodec, DataProtectionCursorCodec>();
 
         var app = builder.Build();
         app.Use(async (context, next) =>
