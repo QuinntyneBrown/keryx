@@ -1,11 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Keryx.Api.Tests.Session;
 
@@ -22,7 +17,7 @@ public sealed class CurrentStaffTests(ApiFactory factory) : IClassFixture<ApiFac
     [Fact]
     public async Task Given_a_non_staff_session_When_requesting_the_current_person_Then_it_returns_not_staff()
     {
-        using var client = SessionClient([new Claim("sub", "non-staff")]);
+        using var client = await TestSession.OpenAsync(factory, "non-staff");
         using var response = await client.GetAsync(new Uri("/admin/v1/me", UriKind.Relative), TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
@@ -35,7 +30,7 @@ public sealed class CurrentStaffTests(ApiFactory factory) : IClassFixture<ApiFac
         await using var db = Fakes.TestStore.Open(factory.Store);
         db.StaffMembers.Add(new Keryx.Domain.Staff.StaffMember("subject-1", "Daniel Adeyemi", "Owner"));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        using var client = SessionClient([new Claim("sub", "subject-1"), new Claim("roles", "KeryxStaff")]);
+        using var client = await TestSession.OpenAsync(factory, "subject-1", staff: true);
         using var response = await client.GetAsync(new Uri("/admin/v1/me", UriKind.Relative), TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var me = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
@@ -45,14 +40,4 @@ public sealed class CurrentStaffTests(ApiFactory factory) : IClassFixture<ApiFac
         Assert.Equal("Owner", me.GetProperty("role").GetString());
     }
 
-    private HttpClient SessionClient(Claim[] claims)
-    {
-        var client = factory.CreateClient();
-        const string scheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        var options = factory.Services.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>().Get(scheme);
-        var identity = new ClaimsIdentity(claims, scheme);
-        var cookie = options.TicketDataFormat.Protect(new AuthenticationTicket(new ClaimsPrincipal(identity), scheme));
-        client.DefaultRequestHeaders.Add("Cookie", $"{options.Cookie.Name}={cookie}");
-        return client;
-    }
 }

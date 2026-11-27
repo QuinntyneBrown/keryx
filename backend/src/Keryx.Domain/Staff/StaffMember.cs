@@ -6,4 +6,10 @@ public sealed class StaffMember(string subjectId, string name, string role)
     public string SubjectId { get; private set; } = subjectId;
     public string Name { get; private set; } = name;
     public string Role { get; private set; } = role;
+
+    public void SetDisplay(string name, string role)
+    {
+        Name = name;
+        Role = role;
+    }
 }

@@ -97,3 +97,7 @@ and running the worker's host on its own, made every schedule test deterministic
 - Verify the current-person endpoint separately for an anonymous browser, an authenticated
   non-staff identity, and a staff identity. Assert the exact JSON field names so a provider
   subject or additional claim cannot become part of the response by accident.
+- Test the full code exchange with an in-process provider that signs its ID token and echoes
+  the challenge nonce. For other API acceptance tests issue sessions through the cookie
+  handler, so their cookies use the same ticket store. Advance the fixture clock to the exact
+  expiry threshold; changing either comparison to strict greater-than fails its boundary case.

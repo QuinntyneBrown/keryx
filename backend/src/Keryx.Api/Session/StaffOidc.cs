@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using System.Security.Claims;
+using Keryx.Application.Session;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
@@ -34,17 +37,30 @@ internal static class StaffOidc
                     context.Response.Redirect($"/sign-in?state=error&ref={Activity.Current?.TraceId.ToHexString() ?? context.HttpContext.TraceIdentifier}");
                     return Task.CompletedTask;
                 };
-                options.Events.OnTicketReceived = context =>
+                options.Scope.Add("profile");
+                options.Events.OnTicketReceived = async context =>
                 {
-                    // Never issue a client-side identity ticket. Session creation needs the server-side store.
-                    var cookies = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
-                    if (cookies.Get(CookieAuthenticationDefaults.AuthenticationScheme).SessionStore is null)
+                    var identity = context.Principal;
+                    var subject = identity?.FindFirst("sub")?.Value;
+                    if (string.IsNullOrWhiteSpace(subject) || subject.Length > 255)
                     {
                         context.HandleResponse();
                         context.Response.Redirect($"/sign-in?state=error&ref={context.HttpContext.TraceIdentifier}");
+                        return;
                     }
 
-                    return Task.CompletedTask;
+                    var staffValue = settings.Value.StaffClaim;
+                    var claims = new List<Claim> { new("sub", subject), new(ClaimTypes.NameIdentifier, subject) };
+                    if (identity!.HasClaim("roles", staffValue))
+                    {
+                        var name = identity.FindFirst("name")?.Value ?? "Staff";
+                        var role = identity.FindFirst("role")?.Value ?? "Staff";
+                        var sender = context.HttpContext.RequestServices.GetRequiredService<ISender>();
+                        await sender.Send(new RecordStaffSignIn(subject, name, role), context.HttpContext.RequestAborted).ConfigureAwait(false);
+                        claims.Add(new Claim("roles", staffValue));
+                    }
+
+                    context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
                 };
             });
     }
@@ -53,6 +69,7 @@ internal static class StaffOidc
     {
         public string? Authority { get; set; }
         public string? ClientId { get; set; }
+        public string StaffClaim { get; set; } = "KeryxStaff";
         public string? ClientSecret { get; set; }
     }
 }

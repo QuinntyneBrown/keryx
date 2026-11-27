@@ -191,6 +191,32 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.ToTable("StaffMembers");
                 });
 
+            modelBuilder.Entity("Keryx.Domain.Staff.StaffSession", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("ProtectedTicket")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("SubjectId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StaffSessions");
+                });
+
             modelBuilder.Entity("Keryx.Domain.Sources.Source", b =>
                 {
                     b.HasOne("Keryx.Domain.Reference.Region", null)

@@ -58,6 +58,18 @@ public static class ApiHost
                     return Task.CompletedTask;
                 };
             });
+        builder.Services.AddOptions<SessionLimits>().BindConfiguration("Keryx:Session")
+            .Validate(limits => limits.IdleMinutes > 0 && limits.LifetimeHours > 0,
+                "Session idle minutes and lifetime hours must be positive.").ValidateOnStart();
+        builder.Services.AddSingleton<StaffTicketStore>();
+        builder.Services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+            .Configure<StaffTicketStore, TimeProvider, Microsoft.Extensions.Options.IOptions<SessionLimits>>((options, store, clock, limits) =>
+            {
+                options.SessionStore = store;
+                options.TimeProvider = clock;
+                options.ExpireTimeSpan = TimeSpan.FromHours(limits.Value.LifetimeHours);
+                options.SlidingExpiration = false;
+            });
         builder.Services.AddStaffOidc();
         builder.Services.AddAntiforgery(AdminAntiforgery.Configure);
         builder.Services.AddAuthorizationBuilder()

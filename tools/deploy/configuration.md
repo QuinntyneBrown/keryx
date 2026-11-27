@@ -13,6 +13,8 @@ committed.
 | Setting | Meaning | Default | Secret | Read by |
 |---------|---------|---------|--------|---------|
 | `ConnectionStrings__Keryx` | The connection string of the Keryx database (PostgreSQL), for example `Host=…;Database=keryx;Username=…;Password=…`. | None: required. | Yes | API, worker, CLI |
+| `Keryx__Session__IdleMinutes` | Minutes a staff session may go without activity. Positive integer. | 60 | No | API |
+| `Keryx__Session__LifetimeHours` | Maximum hours from sign-in regardless of activity. Positive integer. | 12 | No | API |
 | `Keryx__Oidc__Authority` | HTTPS issuer for the staff identity provider. | Required. | No | API |
 | `Keryx__Oidc__ClientId` | Client registered with the provider for authorization code flow with PKCE. Register the absolute API callback URL ending in `/admin/v1/auth/callback`. | Required. | No | API |
 | `Keryx__Oidc__StaffClaim` | Value required in the signed identity provider token’s `roles` claim to authorize staff operations. | `KeryxStaff` | No | API |
