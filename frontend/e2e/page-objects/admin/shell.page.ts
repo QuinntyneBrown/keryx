@@ -25,6 +25,11 @@ export class ShellPage {
   /** The card's icon disc and action row, which take no room while nothing is in them. */
   readonly placeholderIcon: Locator;
   readonly placeholderActions: Locator;
+  /** The sidebar footer and the signed-in person in it. */
+  readonly footer: Locator;
+  readonly avatar: Locator;
+  readonly userName: Locator;
+  readonly userRole: Locator;
 
   private readonly scripts: Promise<{ path: string; text: string }>[] = [];
 
@@ -45,6 +50,10 @@ export class ShellPage {
     this.placeholderText = this.placeholder.locator('.empty__text');
     this.placeholderIcon = this.placeholder.locator('.empty__icon');
     this.placeholderActions = this.placeholder.locator('.empty__actions');
+    this.footer = this.sidebar.locator('.sidebar__foot');
+    this.avatar = this.footer.locator('.sidebar__user .avatar');
+    this.userName = this.footer.locator('.sidebar__user-name');
+    this.userRole = this.footer.locator('.sidebar__user .sidebar__caption');
 
     page.on('response', (response) => this.keepScript(response));
   }
@@ -53,6 +62,11 @@ export class ShellPage {
   async open(path = '/'): Promise<void> {
     await this.page.goto(path);
     await this.frame.waitFor();
+  }
+
+  /** Sets the viewport width, keeping the height. */
+  async resize(width: number): Promise<void> {
+    await this.page.setViewportSize({ width, height: 800 });
   }
 
   title(): Promise<string> {

@@ -1,17 +1,22 @@
 import { SessionError } from './http-session-api';
 import { inject } from '@angular/core';
 import { type CanMatchFn, Router } from '@angular/router';
-import { SESSION_API } from '@kx/api';
+import { CURRENT_STAFF, SESSION_API } from '@kx/api';
 import { catchError, map, of } from 'rxjs';
 
 export const staffGuard: CanMatchFn = () => {
   const router = inject(Router);
+  const staff = inject(CURRENT_STAFF);
   const returnPath = router.currentNavigation()?.extractedUrl.toString() ?? '/';
   return inject(SESSION_API)
     .getMe()
     .pipe(
-      map(() => true),
+      map((profile) => {
+        staff.set(profile);
+        return true;
+      }),
       catchError((error: unknown) => {
+        staff.clear();
         if (error instanceof SessionError && error.status === 403 && error.code === 'not_staff') {
           return of(
             router.createUrlTree(['/forbidden'], {

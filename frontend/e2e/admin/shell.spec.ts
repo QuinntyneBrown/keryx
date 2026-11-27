@@ -115,3 +115,33 @@ test.describe('Admin shell placeholder', () => {
     expect(shell.path()).toBe('/');
   });
 });
+
+test.describe('Signed-in person', () => {
+  // L2-039 AC5, L2-042 AC1 and AC7: the shell shows who is signed in, read from GET /admin/v1/me.
+  test('shows the initials, name and role in the sidebar footer', async ({ page, api }) => {
+    api.on('GET', '/admin/v1/me', () => ({
+      json: { name: 'Grace Okafor', initials: 'GO', role: 'Editor' },
+    }));
+    const shell = new ShellPage(page);
+
+    await shell.open();
+
+    await expect(shell.footer).toBeVisible();
+    await expect(shell.avatar).toHaveText('GO');
+    await expect(shell.avatar).toHaveAttribute('aria-hidden', 'true');
+    await expect(shell.userName).toHaveText('Grace Okafor');
+    await expect(shell.userRole).toHaveText('Editor');
+  });
+
+  // L2-042 AC7: below 1024 px the footer, and the person in it, is not shown.
+  test('hides the person with the footer below 1024 px', async ({ page }) => {
+    const shell = new ShellPage(page);
+    await shell.resize(1023);
+
+    await shell.open();
+
+    await expect(shell.userName).toBeHidden();
+    await shell.resize(1024);
+    await expect(shell.userName).toHaveText('Daniel Adeyemi');
+  });
+});

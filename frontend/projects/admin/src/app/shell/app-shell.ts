@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { App, Brand, Empty, PageBody, Sidebar, SkipLink } from '@kx/components';
+import { CURRENT_STAFF } from '@kx/api';
+import { App, Avatar, Brand, Empty, PageBody, Sidebar, SkipLink } from '@kx/components';
 
 /**
  * The admin shell: the frame every screen sits in. It orchestrates and composes; it draws
@@ -12,12 +13,14 @@ import { App, Brand, Empty, PageBody, Sidebar, SkipLink } from '@kx/components';
  */
 @Component({
   selector: 'kx-app-shell',
-  imports: [App, Brand, Empty, PageBody, Sidebar, SkipLink],
+  imports: [App, Avatar, Brand, Empty, PageBody, Sidebar, SkipLink],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })
 export default class AppShell {
   private readonly router = inject(Router);
+  /** The signed-in person, read by the staff guard before the shell matched. */
+  protected readonly staff = inject(CURRENT_STAFF).profile;
 
   /** A library link was followed: the router goes there, and the document stays. */
   protected navigate(href: string): void {

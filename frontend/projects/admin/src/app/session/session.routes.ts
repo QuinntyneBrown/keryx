@@ -1,12 +1,16 @@
 import type { Routes } from '@angular/router';
-import { SESSION_API } from '@kx/api';
+import { CURRENT_STAFF, SESSION_API } from '@kx/api';
+import { CurrentStaffStore } from './current-staff-store';
 import { HttpSessionApi } from './http-session-api';
 import { staffGuard } from './staff-guard';
 
 export default [
   {
     path: '',
-    providers: [{ provide: SESSION_API, useClass: HttpSessionApi }],
+    providers: [
+      { provide: SESSION_API, useClass: HttpSessionApi },
+      { provide: CURRENT_STAFF, useClass: CurrentStaffStore },
+    ],
     children: [
       {
         path: 'forbidden',

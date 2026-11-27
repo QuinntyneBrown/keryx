@@ -1,0 +1,17 @@
+// The avatar (docs/design-system/components/avatar.html): one size, no states.
+:host {
+  display: contents;
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--size-avatar);
+  height: var(--size-avatar);
+  border-radius: var(--radius-full);
+  background: var(--color-brand-subtle);
+  color: var(--color-fg-brand);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}

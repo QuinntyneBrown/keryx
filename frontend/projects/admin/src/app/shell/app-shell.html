@@ -1,7 +1,15 @@
 <kx-skip-link />
 <kx-app>
-  <kx-sidebar slot="sidebar" [navigation]="false">
+  <kx-sidebar
+    slot="sidebar"
+    [navigation]="false"
+    [userName]="staff()?.name"
+    [userRole]="staff()?.role"
+  >
     <kx-brand slot="brand" href="/" label="Keryx, go to overview" (navigate)="navigate($event)" />
+    @if (staff(); as person) {
+      <kx-avatar slot="avatar" [initials]="person.initials" />
+    }
   </kx-sidebar>
   <kx-page-body centered>
     <kx-empty card [level]="1" title="Keryx Admin" text="The admin screens are not built yet." />
