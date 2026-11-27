@@ -15,3 +15,12 @@ export {
 } from './sources/sources-api';
 export { type NewSource, type SourceDetail } from './sources/new-source';
 export { NOTIFIER, type Notice, type Notifier } from './notifier/notifier';
+export {
+  API_CLIENTS_API,
+  type ApiClientDto,
+  type ApiClientPage,
+  type ApiClientsApi,
+  type ApiScope,
+  type CreateApiClientRequest,
+  type CreatedApiClientDto,
+} from './clients/api-clients-api';
