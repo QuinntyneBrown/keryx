@@ -71,7 +71,8 @@ layers. All time is read from `TimeProvider`; no code reads `DateTime.Now`.
   interval is saved as 3 hours at 09:46, it is 12:00 and the one after is 15:00.
 - **Endpoints** — the query is served as `next_run_at` on `GET /v1/status` (consumer, L2-030)
   and on the admin overview read by the shell and Overview (`GET /admin/v1/overview`, owned by the
-  admin Overview design). This feature adds no endpoint of its own.
+  admin Overview design). This feature adds no endpoint of its own: until those endpoints are
+  built, its acceptance tests send the query through MediatR.
 - **Tests** — `Keryx.Application.Tests` prove each case by advancing `FakeTimeProvider`: from
   05:59:59 by one second (exactly one run starts), across the spring and autumn clock changes,
   and with a run held open across a slot (one `run_skipped` issue, no second run). No test
