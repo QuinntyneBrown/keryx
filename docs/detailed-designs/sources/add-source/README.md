@@ -76,8 +76,10 @@ The feature is a vertical slice from the Add a source dialog to the database.
   already in the list; its exact copy is `<TO SUPPLY>` because no mock state shows it.
 - **Narrow viewport** — below 640 px the dialog is a bottom sheet whose actions stay visible above
   the on-screen keyboard (L2-074).
-- **Region options** — the dialog lists regions in rank order. The admin endpoint that serves
-  them is `<TO SUPPLY>`; `GET /v1/regions` is a consumer endpoint behind an API key.
+- **Region options** — the dialog lists regions in rank order. Staff read them from
+  `GET /admin/v1/regions` (Staff policy), which answers `{ "items": [{ "slug", "name",
+  "time_zone" }] }` in rank order, bounded at 200; `GET /v1/regions` is the consumer endpoint
+  behind an API key.
 - **`SourcesApi`** (`SOURCES_API`) — `createSource(body)` and `testAddress(kind, address)`,
   implemented by `HttpSourcesApi`.
 
