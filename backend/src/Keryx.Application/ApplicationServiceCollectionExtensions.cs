@@ -24,6 +24,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<Sources.SafeAddressCheck>();
+        services.AddSingleton<Scoring.IRelevanceScorer, Scoring.RelevanceScorer>();
         return services;
     }
 }

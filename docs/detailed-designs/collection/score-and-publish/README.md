@@ -33,8 +33,11 @@ The score and the status are pure, deterministic rules with case-table tests in 
   `Keryx.Application`. `Score(item, settings)` reads the item's title, summary, tags, place and
   organization, and the `ScoringSettings` topics, exclusions, focus areas and the "Ontario-wide
   organisations" and "National Canadian news" switches. The same item with the same settings
-  always gives the same score. The weights are `<TO SUPPLY>`; they shall satisfy the scoring case
-  table:
+  always gives the same score. An exclusion scores 0.10. Otherwise the score is 0.6 × the topic
+  share (distinct topics matched, at most 3, over 3) plus 0.4 × the geography, and an item with
+  no topic scores 0.3 × the geography. Geography is 1.0 in a focus area, 0.6 in Ontario with
+  "Ontario-wide organisations" on, 0.5 in Canada with "National Canadian news" on, and 0.2
+  elsewhere. Words match whole, ignoring case. These weights satisfy the scoring case table:
   - an item matching several topics in a focus area scores highest;
   - an item matching topics outside every focus area scores lower;
   - an item matching an exclusion, and one matching no topic, score lower still and below 0.45;
