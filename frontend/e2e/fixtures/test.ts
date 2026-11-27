@@ -44,7 +44,11 @@ interface Fixtures {
  */
 export const test = base.extend<Fixtures>({
   api: async ({}, use) => {
-    await use(new ApiHandlers());
+    const handlers = new ApiHandlers();
+    handlers.on('GET', '/admin/v1/me', () => ({
+      json: { name: 'Daniel Adeyemi', initials: 'DA', role: 'Owner' },
+    }));
+    await use(handlers);
   },
 
   page: async ({ page, api }, use) => {

@@ -2,12 +2,7 @@ import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@ang
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 
-/**
- * The composition root of the admin app: it binds every injection token (AGENTS.md). Zoneless
- * change detection is Angular's default, so no zone provider appears here. No HTTP client is
- * provided yet: nothing calls the API, and providing it would grow the initial bundle for
- * nothing (L2-088). The first journey that calls the API adds it.
- */
+/** The router loads the staff session providers with the admin routes (ADR 0005). */
 export const appConfig: ApplicationConfig = {
   providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
 };

@@ -103,3 +103,7 @@ and running the worker's host on its own, made every schedule test deterministic
   expiry threshold; changing either comparison to strict greater-than fails its boundary case.
 - Checking the sign-out cookie alone does not verify revocation. Retain the original cookie
   in the test client and send it again after sign-out to verify the server refuses it.
+- A button's first class-map binding added over 5 kB of Angular styling code to the initial
+  bundle. Using the existing components' attribute binding brought the initial total below
+  the scaffold. The production CSS optimizer can also serialize 150ms as .15s. Compare the
+  measured duration in milliseconds so a change in its value still fails the behavior test.

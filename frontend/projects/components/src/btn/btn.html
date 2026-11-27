@@ -1,0 +1,13 @@
+<button
+  type="button"
+  [attr.class]="classes()"
+  [disabled]="disabled() || busy()"
+  [attr.aria-busy]="busy() || null"
+  [attr.aria-label]="label() ?? null"
+  (click)="activated.emit()"
+>
+  @if (!busy()) {
+    <ng-content select="[slot=icon]" />
+  }
+  <ng-content />
+</button>

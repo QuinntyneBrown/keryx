@@ -64,6 +64,13 @@ export class DocumentPage {
     );
   }
 
+  async durationMs(name: string): Promise<number> {
+    const value = await this.token(name);
+    const match = /^(-?(?:\d*\.)?\d+)(ms|s)$/.exec(value);
+    if (!match) throw new Error('Expected a CSS time for ' + name);
+    return Number(match[1]) * (match[2] === 's' ? 1000 : 1);
+  }
+
   bodyStyle(property: string): Promise<string> {
     return this.page.evaluate(
       (name) => getComputedStyle(document.body).getPropertyValue(name),

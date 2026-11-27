@@ -1,0 +1,17 @@
+<kx-skip-link />
+<kx-app bare>
+  <kx-page-body centered>
+    <kx-empty
+      card
+      [level]="1"
+      title="Sign in to Keryx"
+      text="The admin is for Keryx staff. You sign in with your organisation account; Keryx never sees or stores your password."
+    >
+      <kx-brand slot="brand" />
+      <kx-btn slot="actions" variant="primary" [busy]="busy()" (activated)="start()">
+        <kx-icon slot="icon" name="sign-in" size="sm" />
+        {{ busy() ? 'Redirecting…' : 'Sign in' }}
+      </kx-btn>
+    </kx-empty>
+  </kx-page-body>
+</kx-app>

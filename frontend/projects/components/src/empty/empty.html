@@ -1,4 +1,5 @@
 <div [attr.class]="classes()" [attr.role]="announce() ? 'alert' : null">
+  <ng-content select="[slot=brand]" />
   <span class="empty__icon"><ng-content select="[slot=icon]" /></span>
   @switch (level()) {
     @case (1) {

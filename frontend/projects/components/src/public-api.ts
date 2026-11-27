@@ -7,3 +7,5 @@ export { Brand, type BrandSize, type BrandTone } from './brand/brand';
 export { Empty, type EmptyTone } from './empty/empty';
 export { Sidebar } from './sidebar/sidebar';
 export { SkipLink } from './skip-link/skip-link';
+export { Btn } from './btn/btn';
+export { Icon } from './icon/icon';

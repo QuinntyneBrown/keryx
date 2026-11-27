@@ -44,12 +44,12 @@ test.describe('Document foundations', () => {
 
     await doc.prefer({ reducedMotion: 'no-preference' });
     await doc.open();
-    expect(await doc.token('--duration-fast')).toBe('150ms');
+    expect(await doc.durationMs('--duration-fast')).toBe(150);
 
     await doc.prefer({ reducedMotion: 'reduce' });
-    expect(await doc.token('--duration-fast')).toBe('0ms');
-    expect(await doc.token('--duration-base')).toBe('0ms');
-    expect(await doc.token('--duration-slow')).toBe('0ms');
+    expect(await doc.durationMs('--duration-fast')).toBe(0);
+    expect(await doc.durationMs('--duration-base')).toBe(0);
+    expect(await doc.durationMs('--duration-slow')).toBe(0);
   });
 
   // L2-088 AC5: Geist comes from the app's own origin as woff2 with font-display: swap, and only
