@@ -41,6 +41,14 @@ export class ArticlesPage {
   readonly toast: Locator;
   /** Below 1024 px the panel opens in a modal dialog over the screen. */
   readonly dialog: Locator;
+  readonly skeletonRows: Locator;
+  readonly loadingStatus: Locator;
+  readonly state: Locator;
+  readonly stateTitle: Locator;
+  readonly stateText: Locator;
+  readonly stateReference: Locator;
+  readonly stateActions: Locator;
+  readonly toastAction: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -81,6 +89,14 @@ export class ArticlesPage {
     this.panelAlert = this.detail.locator('.alert');
     this.toast = page.locator('.toast-region .toast');
     this.dialog = page.getByRole('dialog');
+    this.skeletonRows = this.rows.filter({ has: page.locator('.skeleton') });
+    this.loadingStatus = this.panel.locator('[role="status"].visually-hidden');
+    this.state = page.locator('main .page-body > .empty, main kx-page-body .empty').first();
+    this.stateTitle = page.locator('main .empty__title');
+    this.stateText = page.locator('main .empty__text');
+    this.stateReference = page.locator('main .empty__ref');
+    this.stateActions = page.locator('main .empty__actions .btn');
+    this.toastAction = this.toast.locator('.toast__action');
   }
 
   async open(query = ''): Promise<void> {

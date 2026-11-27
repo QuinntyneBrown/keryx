@@ -55,4 +55,10 @@ export {
   type ApiKeyFormEntries,
   type ApiKeyFormErrors,
 } from './clients/api-key-form-validation';
-export { SEARCH_PAUSE_MS, searchPause, type SearchPause } from './articles/search-pause';
+export {
+  SEARCH_PAUSE_MS,
+  SKELETON_DELAY_MS,
+  searchPause,
+  skeletonDelay,
+  type SearchPause,
+} from './articles/search-pause';

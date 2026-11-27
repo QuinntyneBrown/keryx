@@ -7,7 +7,7 @@ import {
   type ArticlePage,
   type Region,
 } from '@kx/api';
-import { searchPause, searchTerm, type ArticleQuery } from '@kx/domain';
+import { searchPause, searchTerm, skeletonDelay, type ArticleQuery } from '@kx/domain';
 
 /** The page size the Articles screen asks for (L2-048). */
 export const ARTICLES_PAGE_SIZE = 10;
@@ -23,12 +23,15 @@ export class ArticlesStore {
   private controller: AbortController | null = null;
   private detailController: AbortController | null = null;
   private readonly pause = searchPause();
+  private readonly skeleton = skeletonDelay();
 
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
   readonly page = signal<ArticlePage | null>(null);
   readonly counts = signal<ArticleCounts | null>(null);
   readonly regions = signal<readonly Region[]>([]);
   readonly reference = signal<string | null>(null);
+  /** The first load has had no answer for 300 ms: skeleton rows stand in (L2-055 AC1). */
+  readonly slow = signal(false);
   /** The open article, or null while none is open or it is loading. */
   readonly detail = signal<ArticleDetail | null>(null);
 
@@ -37,12 +40,18 @@ export class ArticlesStore {
       this.controller?.abort();
       this.detailController?.abort();
       this.pause.cancel();
+      this.skeleton.cancel();
     });
   }
 
   /** Runs `search` once typing has paused; a key within the pause cancels the pending one. */
   afterTypingPauses(search: () => void): void {
     this.pause.run(search);
+  }
+
+  private settle(): void {
+    this.skeleton.cancel();
+    this.slow.set(false);
   }
 
   /**
@@ -79,6 +88,7 @@ export class ArticlesStore {
     this.controller = controller;
     const { signal } = controller;
     this.status.set('loading');
+    if (!this.page()) this.skeleton.run(() => this.slow.set(true));
     try {
       const [page, counts, regions] = await Promise.all([
         this.api.list(
@@ -96,6 +106,7 @@ export class ArticlesStore {
         this.regions().length ? this.regions() : this.api.regions(signal),
       ]);
       if (signal.aborted) return false;
+      this.settle();
       this.page.set(page);
       this.counts.set(counts);
       this.regions.set(regions);
@@ -103,6 +114,7 @@ export class ArticlesStore {
       return true;
     } catch (error) {
       if (signal.aborted) return false;
+      this.settle();
       this.reference.set(error instanceof ApiProblem ? (error.reference ?? null) : null);
       this.status.set('error');
       return false;

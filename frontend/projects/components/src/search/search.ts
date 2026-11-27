@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, model } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, inject, input, model } from '@angular/core';
 import { Icon } from '../icon/icon';
 import { Input } from '../input/input';
 
@@ -21,6 +21,7 @@ export class Search {
   readonly label = input.required<string>();
   readonly placeholder = input<string>();
   readonly value = model('');
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   focus(): void {
     this.host.nativeElement.querySelector('input')?.focus();

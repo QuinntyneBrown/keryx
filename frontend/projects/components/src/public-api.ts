@@ -40,3 +40,4 @@ export { Search } from './search/search';
 export { Toolbar } from './search/toolbar';
 export { DetailPanel } from './detail-panel/detail-panel';
 export { Dl, type DlItem } from './dl/dl';
+export { Skeleton } from './skeleton/skeleton';

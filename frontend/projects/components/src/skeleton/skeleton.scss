@@ -1,0 +1,73 @@
+// The skeleton (docs/design-system/components/skeleton.html).
+:host {
+  display: block;
+}
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle-hover) 25%,
+    var(--color-bg-subtle) 50%,
+    var(--color-bg-subtle-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--duration-deliberate) linear infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    background: var(--color-bg-subtle-hover);
+    animation: none;
+  }
+}
+
+.skeleton--text {
+  --skeleton-line: calc(var(--font-size-sm) * var(--line-height-normal));
+
+  width: 100%;
+  height: var(--space-3);
+  margin-block: calc((var(--skeleton-line) - var(--space-3)) / 2);
+}
+
+.skeleton--title {
+  width: 55%;
+  height: var(--space-5);
+}
+
+.skeleton--pill {
+  width: var(--space-20);
+  height: var(--space-5);
+  border-radius: var(--radius-full);
+}
+
+.skeleton--w20 {
+  width: 20%;
+}
+
+.skeleton--w30 {
+  width: 30%;
+}
+
+.skeleton--w40 {
+  width: 40%;
+}
+
+.skeleton--w60 {
+  width: 60%;
+}
+
+.skeleton--w80 {
+  width: 80%;
+}

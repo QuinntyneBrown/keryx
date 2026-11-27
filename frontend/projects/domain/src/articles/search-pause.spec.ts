@@ -1,4 +1,4 @@
-import { searchPause } from '../public-api';
+import { searchPause, skeletonDelay } from '../public-api';
 
 describe('searchPause', () => {
   beforeEach(() => vi.useFakeTimers());
@@ -29,5 +29,28 @@ describe('searchPause', () => {
     vi.advanceTimersByTime(1000);
 
     expect(sent).toEqual([]);
+  });
+});
+
+describe('skeletonDelay', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  // L2-055 AC1: skeleton rows only when no answer has come within 300 ms.
+  it('shows the skeleton 300 ms after a load starts, and not once the load ends first', () => {
+    const shown: string[] = [];
+    const slow = skeletonDelay();
+    slow.run(() => shown.push('slow'));
+    vi.advanceTimersByTime(299);
+    expect(shown).toEqual([]);
+    vi.advanceTimersByTime(1);
+    expect(shown).toEqual(['slow']);
+
+    const fast = skeletonDelay();
+    fast.run(() => shown.push('fast'));
+    vi.advanceTimersByTime(299);
+    fast.cancel();
+    vi.advanceTimersByTime(1000);
+    expect(shown).toEqual(['slow']);
   });
 });

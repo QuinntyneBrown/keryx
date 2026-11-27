@@ -21,6 +21,7 @@ import {
   Pagination,
   Search,
   Select,
+  Skeleton,
   Table,
   Tabs,
   Toolbar,
@@ -86,6 +87,7 @@ const PARAMS = ['status', 'q', 'region', 'category', 'page', 'article'] as const
     Pagination,
     Search,
     Select,
+    Skeleton,
     Table,
     Tabs,
     Toolbar,
@@ -176,8 +178,7 @@ export default class Articles {
 
   protected readonly tabs = computed<TabItem[]>(() => {
     const counts = this.store.counts();
-    const count = (value: number | undefined) =>
-      value === undefined ? undefined : formatCount(value);
+    const count = (value: number | undefined) => (value === undefined ? '…' : formatCount(value));
     return [
       { id: 'all', label: 'All', count: count(counts?.all) },
       {
@@ -231,6 +232,23 @@ export default class Articles {
   });
 
   protected readonly rowKey = (row: unknown) => (row as { item: ArticleRow }).item.id;
+
+  /** Ten rows of skeletons, the size of a page, so the list does not shift when it arrives. */
+  protected readonly skeletonRows = Array.from({ length: 10 }, (_, i) => ({ key: `s${i}` }));
+  protected readonly skeletonKey = (row: unknown) => (row as { key: string }).key;
+
+  /** Nothing has ever been collected: the empty state stands alone (L2-055 AC2). */
+  protected readonly nothingCollected = computed(
+    () => this.store.status() === 'ready' && this.store.counts()?.all === 0,
+  );
+
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
+  }
+
+  protected retry(): void {
+    void this.reload();
+  }
 
   constructor() {
     const subscription = this.route.queryParamMap.subscribe((params) => {
@@ -387,8 +405,20 @@ export default class Articles {
     });
   }
 
+  /**
+   * Loads the list the URL names. When a later page fails, the rows shown stay and a
+   * notification offers to try again (L2-055 AC4); a first load that fails shows the error state.
+   */
   private async reload(): Promise<void> {
     const shown = await this.store.load(this.query());
+    if (!shown && this.store.status() === 'error' && this.store.page()) {
+      this.notifier.notify({
+        tone: 'danger',
+        title: "Articles didn't load",
+        text: "Keryx couldn't reach its API just now. The articles shown are from before.",
+        action: { label: 'Try again', run: () => this.retry() },
+      });
+    }
     const table = this.focusAfterLoad;
     this.focusAfterLoad = null;
     if (shown) table?.focusCaption();

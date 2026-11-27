@@ -65,7 +65,13 @@ The slice runs from the routed Articles page to three admin read endpoints.
   `switchMap`, which aborts it. It holds one page of `rows`, `total`, `counts`, `listStatus`
   (`loading`, `ready`, `empty`, `no-results`, `error`), `selected` and `showSkeleton` (set only
   when no answer arrives within 300 ms). A failed first load sets `error`; a failed page change
-  keeps the rows shown and raises a danger notification with "Try again" through `NOTIFIER`.
+  keeps the rows shown and raises a danger notification with "Try again" through `NOTIFIER`
+  ("Articles didn't load", "Keryx couldn't reach its API just now. The articles shown are from
+  before."). While the first load is pending the tab counts read "…" and the search and filters
+  are disabled. Until journey 15 (run collection now) builds the run endpoints this screen
+  would call, the empty state reads "No articles yet", "Articles appear here after a collection
+  finds something." with "Check sources" only; the next run's time and "Run now" join it then.
+  "Export CSV" arrives with journey 22 (export articles).
   An `?article=` id that does not exist leaves the list, opens no panel, removes the id from
   the URL (replacing the entry) and raises a warning notification "Article not found", "The
   link names an article Keryx doesn’t have, so the list is shown without it." An article that
