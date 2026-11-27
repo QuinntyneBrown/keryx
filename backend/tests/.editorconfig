@@ -1,0 +1,3 @@
+# Tests read as Given_When_Then sentences.
+[*.cs]
+dotnet_diagnostic.CA1707.severity = none

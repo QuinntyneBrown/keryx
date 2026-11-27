@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- MediatR handlers, validators, DTOs, IAppDbContext and the source contracts. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Keryx.Domain\Keryx.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+</Project>
