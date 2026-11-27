@@ -21,6 +21,19 @@ public sealed class AdminSourcesController(ISender sender) : ControllerBase
         return Created($"/admin/v1/sources/{source.Id}", source);
     }
 
+    /// <summary>Test-fetches an address before it is added; an unreachable one is still 200 (L2-002).</summary>
+    [HttpPost("test")]
+    public Task<SourceTestResult> Test(TestSourceBody body, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        return sender.Send(new TestSourceFetch(body.Kind, body.Address), cancellationToken);
+    }
+
+    /// <summary>Test-fetches a source in the catalogue without changing its health (L2-002 AC3).</summary>
+    [HttpPost("{id}/test")]
+    public Task<SourceTestResult> TestExisting(string id, CancellationToken cancellationToken) =>
+        sender.Send(new TestExistingSourceFetch(id), cancellationToken);
+
     [HttpGet("{id}")]
     public Task<SourceDto> Get(string id, CancellationToken cancellationToken) =>
         sender.Send(new GetSource(id), cancellationToken);
@@ -28,3 +41,6 @@ public sealed class AdminSourcesController(ISender sender) : ControllerBase
 
 /// <summary>What staff send to add a source.</summary>
 public sealed record CreateSourceBody(string? Kind, string? Address, string? OrganizationName, string? Region);
+
+/// <summary>What staff send to test an address.</summary>
+public sealed record TestSourceBody(string? Kind, string? Address);

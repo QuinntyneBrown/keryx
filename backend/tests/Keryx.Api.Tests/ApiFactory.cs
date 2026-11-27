@@ -29,6 +29,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Every line the API logs.</summary>
     public CapturedLogs Logs { get; } = new();
 
+    /// <summary>The sources: every address answers what a test gave it, or not found.</summary>
+    public FakeSourceFetcher Sources { get; } = new();
+
     /// <summary>DNS: every host resolves to a public address unless a test says otherwise.</summary>
     public FakeHostResolver Hosts { get; } = new();
 
@@ -56,6 +59,8 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<TimeProvider>();
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<ILoggerProvider>(Logs);
+            services.RemoveAll<ISourceFetcher>();
+            services.AddSingleton<ISourceFetcher>(Sources);
             services.RemoveAll<IHostResolver>();
             services.AddSingleton<IHostResolver>(Hosts);
             services.RemoveAll<IDatabaseMigrator>();

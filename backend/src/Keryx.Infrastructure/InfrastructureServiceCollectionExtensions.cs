@@ -32,6 +32,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<KeryxDbContext>());
         services.AddScoped<ISchemaVersion, EfSchemaVersion>();
         services.AddSingleton<IHostResolver, DnsHostResolver>();
+        services.AddSingleton<IFeedParser, FeedParser>();
         services.AddScoped<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;
