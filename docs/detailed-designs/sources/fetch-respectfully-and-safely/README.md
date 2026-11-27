@@ -52,24 +52,27 @@ handler or stage opens its own connection.
   connect time (DNS rebinding) cannot redirect the socket. TLS still validates the host name.
 - **Redirect handling** — `HttpSourceFetcher` follows at most 5 redirects. It resolves and checks
   each `Location` host before connecting. It refuses a redirect from `https` to `http`. A
-  redirect to a non-public address fails with `unsafe_address`. The failure reason for an
-  over-long chain or a downgrade is `<TO SUPPLY>`; the specs say only that the source fails.
+  redirect to a non-public address fails with `unsafe_address`. An over-long chain or a
+  downgrade fails with `refused`, and so does a redirect to a scheme other than `http(s)`. The
+  hops of a redirect belong to their fetch: each hop's origin has its `robots.txt` checked, but
+  hops are not spaced from one another.
 - **`RobotsTxtPolicy`** (`IRobotsPolicy`) — fetches `/robots.txt` for an origin through the same
   safe path, parses the group for Keryx's user-agent token and the `*` group, and caches the
   result for 24 hours by the time read from `TimeProvider`. A disallowed path yields
   `blocked_by_robots` with no request to the path. A `robots.txt` answer of 5xx or a timeout
-  means the site is not fetched in this run; the failure reason recorded for that case is
-  `<TO SUPPLY>`. A `Crawl-delay` is returned to the caller, capped at 30 seconds. Whether the
-  cache is shared between the API and the Worker processes is `<TO SUPPLY>`.
+  means the site is not fetched in this run, with reason `refused` (5xx) or `timeout`. A `4xx`
+  `robots.txt` allows everything. A `Crawl-delay` is returned to the caller, capped at 30
+  seconds. The cache is per process: the API and the Worker each read `robots.txt` once a day.
+  The `robots.txt` request is not spaced from the fetch that needed it.
 - **`HostRateLimiter`** — keeps at most 1 request in flight per host and at least 1 second
   between successive requests to it, or the `Crawl-delay` when longer. It admits at most 8 hosts
   concurrently. It waits on `TimeProvider`, so tests advance `FakeTimeProvider` and never sleep.
-  The limiter is per process; coordination between an API test fetch and a Worker run against
-  the same host is `<TO SUPPLY>`.
+  The limiter is per process; an API test fetch and a Worker run are not coordinated, which at
+  worst adds one request to a host in a second.
 - **Back-off and retry** — a source is attempted up to 3 times in total (L2-008). After `429` or
   `503` with `Retry-After`, the next attempt waits at least that long, capped at 60 seconds, and
-  exponentially longer on each further attempt. The base delay without `Retry-After` and the set
-  of other statuses that are retried are `<TO SUPPLY>`.
+  exponentially longer on each further attempt. Without `Retry-After` the waits are 1 then 2
+  seconds. A timeout, a `5xx` and a connection error are retried; any other status is not.
 - **Time-outs** — each attempt arms a `CancellationTokenSource` on `TimeProvider` with the
   per-source timeout from `Settings` (5 to 120 seconds, default 30). Expiry cancels the call and
   counts it as an attempt with reason `timeout`. No outbound call is made without a timeout.
@@ -78,8 +81,10 @@ handler or stage opens its own connection.
   setting is documented under `tools/deploy/` (L2-096).
 - **`BoundedContentReader`** — checks `Content-Type` against the feed, HTML or JSON types the
   source's kind expects, and does not parse an unexpected type. It reads the decompressed stream
-  and stops at 5 MB of expanded content. Both cases fail with `invalid_content`. The exact list of
-  accepted media types per kind is `<TO SUPPLY>`.
+  and stops at 5 MB of expanded content. Both cases fail with `invalid_content`. The accepted types are:
+  `rss` `application/rss+xml`, `application/atom+xml`, `application/rdf+xml`, `application/xml`,
+  `text/xml`; `website` `text/html`, `application/xhtml+xml`; `instagram` and `eventbrite`
+  `application/json`. A response with no `Content-Type` is not parsed.
 - **`RssFeedParser` and `HtmlPageParser`** (`IFeedParser`) — parse with
   `DtdProcessing.Prohibit` and no `XmlResolver`, so no DTD is processed and no entity is resolved.
   A feed with more than 200 items keeps the 200 newest. An item whose link is not `http` or
@@ -94,8 +99,8 @@ handler or stage opens its own connection.
   `<TO SUPPLY>`. It sends its requests through the same named `HttpClient`, so the
   `User-Agent`, the pinned connection, the host slot and the timeout apply to it as well.
 - **HTTP status mapping** — a `404` yields `not_found`, and a `304` counts as a successful fetch
-  with no items. The mapping of other statuses (for example `401`, `403`, `410`, `5xx`) onto the
-  fixed reasons is `<TO SUPPLY>`.
+  with no items. A `410` is `not_found`; `401`, `403`, another `4xx` and a `5xx` after the last
+  attempt are `refused`; a connection to a non-public address is `unsafe_address`.
 - **Telemetry** — each fetch is a span carrying the source's id, never its URL's query, and the
   Worker records fetch latency (L2-094). No log line holds fetched content.
 

@@ -31,7 +31,8 @@ public sealed class StartupValidationAcceptanceTests
 
         var exitCode = await HostRunner.RunAsync(
             () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={connectionString}",
-                "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test"]),
+                "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test",
+                "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector"]),
             error,
             startedAnyway.Token);
 
@@ -46,11 +47,32 @@ public sealed class StartupValidationAcceptanceTests
         using var startedAnyway = new CancellationTokenSource(StartedAnyway);
         var exitCode = await HostRunner.RunAsync(
             () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
-                "--Keryx:Oidc:Authority=", "--Keryx:Oidc:ClientId="]),
+                "--Keryx:Oidc:Authority=", "--Keryx:Oidc:ClientId=", "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector"]),
             error, startedAnyway.Token);
         Assert.Equal(MissingSetting, exitCode);
         Assert.Contains("Keryx__Oidc__Authority", error.ToString(), StringComparison.Ordinal);
         Assert.Contains("Keryx__Oidc__ClientId", error.ToString(), StringComparison.Ordinal);
+    }
+
+    // L2-021 AC3: the contact URL every request names is required, and must be https.
+    [Theory]
+    [InlineData("")]
+    [InlineData("http://keryx.example/collector")]
+    [InlineData("not a url")]
+    public async Task Given_no_https_contact_url_When_the_API_starts_Then_it_stops_naming_the_setting(string contactUrl)
+    {
+        using var error = new StringWriter();
+        using var startedAnyway = new CancellationTokenSource(StartedAnyway);
+
+        var exitCode = await HostRunner.RunAsync(
+            () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
+                "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test",
+                $"--Keryx:Fetch:UserAgentContactUrl={contactUrl}"]),
+            error,
+            startedAnyway.Token);
+
+        Assert.Equal(MissingSetting, exitCode);
+        Assert.Equal($"Missing required setting: Keryx__Fetch__UserAgentContactUrl{Environment.NewLine}", error.ToString());
     }
 
     // L2-096 AC2, the worker.

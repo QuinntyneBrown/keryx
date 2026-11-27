@@ -24,7 +24,7 @@ public class ApiFactory : WebApplicationFactory<Program>
     public string Store { get; } = TestStore.NewName();
 
     /// <summary>The fixture's clock. It starts on a fixed instant, in UTC.</summary>
-    public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 27, 15, 0, 0, TimeSpan.Zero));
+    public SignallingTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 27, 15, 0, 0, TimeSpan.Zero));
 
     /// <summary>Every line the API logs.</summary>
     public CapturedLogs Logs { get; } = new();
@@ -45,6 +45,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Keryx:Oidc:Authority", "https://id.example.test");
         builder.UseSetting("Keryx:Oidc:ClientId", "keryx-test");
         builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
+        builder.UseSetting("Keryx:Fetch:UserAgentContactUrl", "https://keryx.example/about-our-collector");
         // No OTLP endpoint, whatever the machine's environment says: a test reaches no network.
         builder.UseSetting("OTEL_EXPORTER_OTLP_ENDPOINT", string.Empty);
         builder.ConfigureTestServices(services =>

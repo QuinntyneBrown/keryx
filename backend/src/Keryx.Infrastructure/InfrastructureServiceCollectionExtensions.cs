@@ -37,4 +37,18 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;
     }
+
+    /// <summary>
+    /// The source fetcher, for the processes that fetch sources. It needs the contact URL its
+    /// User-Agent names, and a process without it does not start (L2-021 AC3, L2-096).
+    /// </summary>
+    public static IServiceCollection AddSourceFetching(this IServiceCollection services)
+    {
+        services.AddOptions<FetchOptions>().BindConfiguration(FetchOptions.Section)
+            .Validate(options => options.UserAgentContactUrl is { IsAbsoluteUri: true } url && url.Scheme == Uri.UriSchemeHttps, FetchOptions.MissingContactUrl)
+            .ValidateOnStart();
+        services.AddSingleton(provider => SourceSockets.Connect(provider.GetRequiredService<IHostResolver>()));
+        services.AddSingleton<ISourceFetcher, HttpSourceFetcher>();
+        return services;
+    }
 }

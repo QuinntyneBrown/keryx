@@ -75,12 +75,13 @@ outbound fetch.
 - **`SourceTester`** — Application service shared by both handlers and by the create and update
   handlers. It reads the per-source timeout from `Settings`, calls `ISourceFetcher`, parses with
   `IFeedParser`, scores each item with `IRelevanceScorer`, and returns `SourceTestResultDto`. It
-  writes nothing. The score an item needs to count under `items_relevant` (the publish threshold
-  or the review floor of 0.45) is `<TO SUPPLY>`.
+  writes nothing. An item counts under `items_relevant` when its score reaches the publish threshold
+  in `Settings`, so the number says how much a run would publish.
 - **Platform kinds** — an `instagram` or `eventbrite` test with no platform credentials
   configured returns `reachable: false` with `reason` `refused`. L2-021 says the add-source test
-  then reports the kind as unavailable; the response field that distinguishes "kind
-  unavailable" from a refused fetch is `<TO SUPPLY>`.
+  then reports the kind as unavailable; no extra field is served: the screen
+  reads `refused` for a platform kind as "kind unavailable", since only the missing credentials
+  refuse a platform test before any request.
 - **Telemetry** — the request span records the route template and the fetch span records the
   source id, never the address's query (L2-094).
 

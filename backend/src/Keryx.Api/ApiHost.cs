@@ -22,6 +22,7 @@ public static class ApiHost
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddSourceFetching();
         builder.Services.AddHostedService<SchemaStatusLogger>();
 
         // Traces, metrics and logs (L2-094). ASP.NET Core's own request logs print the full URL,
