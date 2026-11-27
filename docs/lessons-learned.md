@@ -88,3 +88,6 @@ and running the worker's host on its own, made every schedule test deterministic
 - Checking only a successful controller action misses refusals and missing routes. Register
   the admin cache header before the error and authentication middleware, then assert the header
   on each response through the API.
+- Run the secure-cookie anti-forgery validator on admin mutations. Its secure transport
+  check also runs on safe methods when invoked directly. Test token issuance and submission with one HTTPS client so the cookie takes
+  the same path it does in the browser.

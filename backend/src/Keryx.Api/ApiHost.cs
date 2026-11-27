@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Keryx.Api.Errors;
 using Keryx.Api.Health;
+using Keryx.Api.Session;
 using Keryx.Application;
 using Keryx.Infrastructure;
 using Keryx.Infrastructure.Health;
@@ -57,6 +58,7 @@ public static class ApiHost
                     return Task.CompletedTask;
                 };
             });
+        builder.Services.AddAntiforgery(AdminAntiforgery.Configure);
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
@@ -90,6 +92,8 @@ public static class ApiHost
             await next(context).ConfigureAwait(false);
         });
         app.UseAuthorization();
+        app.Use(AdminAntiforgery.ValidateAsync);
+        app.MapGet("/admin/v1/auth/antiforgery", AdminAntiforgery.Issue).RequireAuthorization();
         MapHealth(app);
         app.MapControllers();
         return app;
