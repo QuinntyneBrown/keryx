@@ -1,0 +1,38 @@
+// The settings section (docs/design-system/components/settings-section.html).
+@use '../breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+.settings-section {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+// The first section of the form has no rule above it.
+:host:first-child .settings-section {
+  border-top: 0;
+  padding-top: var(--space-2);
+}
+
+.settings-section__hint {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.settings-section__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+@include bp.from(768) {
+  .settings-section {
+    grid-template-columns: var(--layout-label-width) minmax(0, 1fr);
+    gap: var(--space-10);
+  }
+}

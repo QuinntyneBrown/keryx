@@ -1,0 +1,49 @@
+// The page header (docs/design-system/components/page-header.html).
+@use '../breakpoints' as bp;
+
+:host {
+  display: contents;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--layout-margin) var(--space-5);
+}
+
+.page-header__text {
+  min-width: 0;
+}
+
+.page-header__description {
+  margin-top: var(--space-1);
+  color: var(--color-fg-muted);
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+// No action: the row takes no room.
+.page-header__actions:empty {
+  display: none;
+}
+
+@include bp.from(640) {
+  .page-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+@include bp.from(768) {
+  .page-header {
+    padding-top: var(--space-8);
+  }
+}

@@ -1,0 +1,12 @@
+<a
+  class="nav-link"
+  [href]="href()"
+  [attr.aria-current]="current() ? 'page' : null"
+  (click)="follow($event)"
+>
+  <span class="nav-link__icon"><ng-content select="[slot=icon]" /></span>
+  <ng-content />
+  @if (count(); as count) {
+    <span class="nav-link__badge" [attr.aria-label]="countLabel() ?? null">{{ count }}</span>
+  }
+</a>

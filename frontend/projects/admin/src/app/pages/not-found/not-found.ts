@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Btn, Empty } from '@kx/components';
+import { Btn, Empty, PageBody } from '@kx/components';
 
 /**
  * Not found (docs/mocks/pages/not-found/default.html): an address inside the admin that does not
@@ -8,7 +8,7 @@ import { Btn, Empty } from '@kx/components';
  */
 @Component({
   selector: 'kx-not-found',
-  imports: [Btn, Empty],
+  imports: [Btn, Empty, PageBody],
   templateUrl: './not-found.html',
   styleUrl: './not-found.scss',
 })

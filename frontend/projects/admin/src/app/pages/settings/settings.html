@@ -1,0 +1,18 @@
+<kx-page-header title="Settings" description="How Keryx collects, filters and stores news." />
+<kx-page-body form>
+  <kx-settings-section title="Account" hint="Who is signed in on this device.">
+    @if (person(); as person) {
+      <kx-field label="Signed in as">
+        <p>{{ person.name }} · {{ person.role }}</p>
+      </kx-field>
+    }
+    @if (failed()) {
+      <kx-alert tone="danger" announcement="alert" title="Couldn’t sign out"
+        >You’re still signed in. Try again.</kx-alert
+      >
+    }
+    <div>
+      <kx-btn [busy]="busy()" (activated)="signOut()">Sign out</kx-btn>
+    </div>
+  </kx-settings-section>
+</kx-page-body>

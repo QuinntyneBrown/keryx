@@ -1,0 +1,20 @@
+// The form field (docs/design-system/components/field.html).
+:host {
+  display: contents;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.field__label {
+  font: var(--text-label);
+}
+
+.field__help {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

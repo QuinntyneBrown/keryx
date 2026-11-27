@@ -1,0 +1,9 @@
+<section class="settings-section" [attr.aria-labelledby]="headingId">
+  <div>
+    <h2 class="text-h3" [id]="headingId">{{ title() }}</h2>
+    @if (hint(); as hint) {
+      <p class="settings-section__hint">{{ hint }}</p>
+    }
+  </div>
+  <div class="settings-section__fields"><ng-content /></div>
+</section>

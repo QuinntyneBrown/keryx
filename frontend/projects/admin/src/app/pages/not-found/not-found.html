@@ -1,10 +1,12 @@
-<kx-empty
-  card
-  [level]="1"
-  title="Page not found"
-  text="There’s nothing at this address. It may have been mistyped, or the link is out of date."
->
-  <kx-btn slot="actions" variant="primary" href="/" (navigate)="navigate($event)"
-    >Go to overview</kx-btn
+<kx-page-body centered>
+  <kx-empty
+    card
+    [level]="1"
+    title="Page not found"
+    text="There’s nothing at this address. It may have been mistyped, or the link is out of date."
   >
-</kx-empty>
+    <kx-btn slot="actions" variant="primary" href="/" (navigate)="navigate($event)"
+      >Go to overview</kx-btn
+    >
+  </kx-empty>
+</kx-page-body>

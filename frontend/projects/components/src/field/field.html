@@ -1,0 +1,11 @@
+<div class="field">
+  @if (for(); as control) {
+    <label class="field__label" [attr.for]="control">{{ label() }}</label>
+  } @else {
+    <span class="field__label">{{ label() }}</span>
+  }
+  <ng-content />
+  @if (help(); as help) {
+    <p class="field__help">{{ help }}</p>
+  }
+</div>

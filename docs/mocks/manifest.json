@@ -156,7 +156,8 @@
         "submitting",
         "success",
         "loading",
-        "error"
+        "error",
+        "sign-out-failed"
       ],
       "requirements": [
         "L2-041",

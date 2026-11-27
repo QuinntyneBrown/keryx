@@ -17,6 +17,11 @@ export default [
         loadComponent: () => import('../pages/home-placeholder/home-placeholder'),
       },
       {
+        path: 'settings',
+        title: 'Settings · Keryx',
+        loadComponent: () => import('../pages/settings/settings'),
+      },
+      {
         path: '**',
         title: 'Page not found · Keryx',
         loadComponent: () => import('../pages/not-found/not-found'),
