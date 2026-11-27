@@ -39,26 +39,19 @@ internal sealed class ListArticlesValidator : AbstractValidator<ListArticles>
             .Must(limit => limit is null || PageLimit.TryParse(limit, out _))
             .WithErrorCode("invalid_limit")
             .WithMessage("Give limit as a whole number from 1 to 100.");
-        RuleFor(request => request.Region)
-            .MustAsync(async (region, cancellationToken) => region is null
-                || await db.Regions.AnyAsync(known => known.Slug == region, cancellationToken).ConfigureAwait(false))
-            .WithErrorCode("invalid_filter")
-            .WithMessage("Give region as a slug that /v1/regions lists.");
+        RuleFor(request => request.Region).MustBeKnownRegion(db);
         RuleFor(request => request.Category)
             .Must(category => category is null || ArticleCategory.Slugs.Contains(category))
             .WithErrorCode("invalid_filter")
             .WithMessage("Give category as a slug that /v1/categories lists.");
-        RuleFor(request => request.Org)
-            .Must(org => org is null || Keryx.Domain.PublicIds.IsWellFormed(org, "org"))
-            .WithErrorCode("invalid_filter")
-            .WithMessage("Give org as an organization's id, org_ followed by its characters.");
+        RuleFor(request => request.Org).MustBeOrganizationId();
         RuleFor(request => request.Since)
             .Must(since => since is null || FilterTime.TryParse(since, out _))
             .WithErrorCode("invalid_filter")
             .WithMessage("Give since as an ISO 8601 time with its offset, such as 2026-11-26T12:00:00Z.");
         RuleFor(request => request.Cursor)
             .Must((request, cursor) => cursor is null
-                || cursors.Decode(cursor) is { List: ListArticles.ListName } position && position.Filters == request.Filters)
+                || cursors.Decode(cursor) is { List: ListArticles.ListName, Time: not null } position && position.Filters == request.Filters)
             .WithErrorCode("invalid_cursor")
             .WithMessage("Use the next_cursor of a page read with the same filters.");
     }
@@ -120,9 +113,9 @@ internal sealed class ListArticlesHandler(IAppDbContext db, ICursorCodec cursors
             query = query.Where(article => article.ListedAt >= since);
         }
 
-        if (request.Cursor is not null && cursors.Decode(request.Cursor) is { } after)
+        if (request.Cursor is not null && cursors.Decode(request.Cursor) is { Time: { } afterTime } after)
         {
-            query = query.Where(article => article.ListedAt < after.SortedAt || (article.ListedAt == after.SortedAt && article.Id < after.Id));
+            query = query.Where(article => article.ListedAt < afterTime || (article.ListedAt == afterTime && article.Id < after.Id));
         }
 
         var rows = await query
@@ -151,6 +144,6 @@ internal sealed class ListArticlesHandler(IAppDbContext db, ICursorCodec cursors
         var last = rows[limit - 1];
         return new PageDto<ArticleSummaryDto>(
             [.. rows.Take(limit).Select(row => row.Item)],
-            cursors.Encode(new CursorPosition(ListArticles.ListName, request.Filters, last.ListedAt, last.Id)));
+            cursors.Encode(CursorPosition.At(ListArticles.ListName, request.Filters, last.ListedAt, last.Id)));
     }
 }

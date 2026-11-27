@@ -63,18 +63,11 @@ internal sealed class ListEventsValidator : AbstractValidator<ListEvents>
             .WithName("to")
             .WithErrorCode("invalid_filter")
             .WithMessage("Ask for a range of at most 366 days.");
-        RuleFor(request => request.Region)
-            .MustAsync(async (region, cancellationToken) => region is null
-                || await db.Regions.AnyAsync(known => known.Slug == region, cancellationToken).ConfigureAwait(false))
-            .WithErrorCode("invalid_filter")
-            .WithMessage("Give region as a slug that /v1/regions lists.");
-        RuleFor(request => request.Org)
-            .Must(org => org is null || Keryx.Domain.PublicIds.IsWellFormed(org, "org"))
-            .WithErrorCode("invalid_filter")
-            .WithMessage("Give org as an organization's id, org_ followed by its characters.");
+        RuleFor(request => request.Region).MustBeKnownRegion(db);
+        RuleFor(request => request.Org).MustBeOrganizationId();
         RuleFor(request => request.Cursor)
             .Must((request, cursor) => cursor is null
-                || cursors.Decode(cursor) is { List: ListEvents.ListName } position && position.Filters == request.Filters)
+                || cursors.Decode(cursor) is { List: ListEvents.ListName, Time: not null } position && position.Filters == request.Filters)
             .WithErrorCode("invalid_cursor")
             .WithMessage("Use the next_cursor of a page read with the same filters.");
     }
@@ -107,9 +100,9 @@ internal sealed class ListEventsHandler(IAppDbContext db, ICursorCodec cursors, 
             query = query.Where(item => item.Organization != null && item.Organization.PublicId == org);
         }
 
-        if (request.Cursor is not null && cursors.Decode(request.Cursor) is { } after)
+        if (request.Cursor is not null && cursors.Decode(request.Cursor) is { Time: { } afterTime } after)
         {
-            query = query.Where(item => item.StartsAtUtc > after.SortedAt || (item.StartsAtUtc == after.SortedAt && item.Id > after.Id));
+            query = query.Where(item => item.StartsAtUtc > afterTime || (item.StartsAtUtc == afterTime && item.Id > after.Id));
         }
 
         var rows = await EventProjection.Rows(query.OrderBy(item => item.StartsAtUtc).ThenBy(item => item.Id).Take(limit + 1))
@@ -122,7 +115,7 @@ internal sealed class ListEventsHandler(IAppDbContext db, ICursorCodec cursors, 
         var last = rows[limit - 1];
         return new PageDto<EventDto>(
             [.. rows.Take(limit).Select(row => row.Item)],
-            cursors.Encode(new CursorPosition(ListEvents.ListName, request.Filters, last.Item.StartsAt, last.Id)));
+            cursors.Encode(CursorPosition.At(ListEvents.ListName, request.Filters, last.Item.StartsAt, last.Id)));
     }
 }
 

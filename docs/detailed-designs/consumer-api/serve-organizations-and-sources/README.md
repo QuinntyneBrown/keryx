@@ -38,15 +38,19 @@ The slice runs from the consuming product's HTTPS request to the relational data
 - **`ListOrganizationsQuery`** and **`ListOrganizationsQueryValidator`** — `Limit`, `Cursor`,
   `Region`, `Kind` and `Q`. The validator applies the `limit` and `cursor` rules of L2-026.
   `region` shall be a known slug, and `kind` shall be one of `church`, `ministry`, `gym`,
-  `club`, `network`, `business`, `other`; either failing gives `invalid_filter`. `q` shall be a
-  name prefix of 2 to 60 characters. The error `code` for a `q` outside those bounds is
-  `<TO SUPPLY>`; this design uses `invalid_filter`, consistent with L2-026.
+  `club`, `network`, `business`, `other` (lower case, as served); either failing gives
+  `invalid_filter`. `q` shall be a name prefix of 2 to 60 characters, and one outside those
+  bounds gives `invalid_filter`, as every other filter does (L2-026).
 - **`ListOrganizationsQueryHandler`** — applies `ServedRecordFilters.ListedOrganizations`,
   then `region`, `kind` and a prefix match of `q` on the organization's normalized name. It
-  orders by name then `id`, seeks after the cursor and takes `limit + 1` rows. `article_count`
+  orders by name then `id`, seeks after the cursor and takes `limit + 1` rows. The database's
+  collation both orders the names and compares the seek, so the two agree; the cursor carries
+  the last name as its sort value (cursors are JSON inside Data Protection, so a name may hold
+  any character). `article_count`
   comes from one grouped subquery over served articles in the same statement, so the query
   count does not grow with the page size (L2-086). The match is case-insensitive through the
-  normalized name; the exact normalization is the one L2-010 uses for organization names.
+  normalized name; the exact normalization is the one L2-010 uses for organization names, so
+  `q` ignores case and a leading "The", and matches from the first word.
 - **`GetOrganizationQuery`** / **`GetOrganizationQueryHandler`** — reads one listed
   organization by its public id (`org_…`) with the same fields. An organization that is not
   listed, a malformed id and an unknown id all give `NotFoundException` with code

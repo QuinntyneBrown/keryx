@@ -18,4 +18,15 @@ public static class ServedRecordFilters
         events.Where(item => item.Title != null && (item.LinkedArticle != null
             ? item.LinkedArticle.Status == PublicationStatus.Published && item.LinkedArticle.Title != null
             : item.Status == PublicationStatus.Published));
+
+    /// <summary>Organizations with at least one served article or served event (L2-029 AC1).</summary>
+    // The served queries are built first and captured, so EF inlines them as subqueries.
+    public static IQueryable<Organization> ListedOrganizations(IQueryable<Organization> organizations, IQueryable<Article> articles, IQueryable<EventRecord> events)
+    {
+        var servedArticles = ServedArticles(articles);
+        var servedEvents = ServedEvents(events);
+        return organizations.Where(organization =>
+            servedArticles.Any(article => article.OrganizationId == organization.Id)
+            || servedEvents.Any(item => item.OrganizationId == organization.Id));
+    }
 }

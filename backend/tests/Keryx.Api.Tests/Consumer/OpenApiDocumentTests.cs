@@ -15,7 +15,7 @@ public sealed class OpenApiDocumentTests
     {
         var document = await DocumentAsync();
 
-        Assert.Equal(["/v1/articles", "/v1/articles/{id}", "/v1/events", "/v1/events/{id}"], document.GetProperty("paths").EnumerateObject().Select(path => path.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(["/v1/articles", "/v1/articles/{id}", "/v1/events", "/v1/events/{id}", "/v1/organizations", "/v1/organizations/{id}"], document.GetProperty("paths").EnumerateObject().Select(path => path.Name).Order(StringComparer.Ordinal));
         var scheme = document.GetProperty("components").GetProperty("securitySchemes").EnumerateObject().Single().Value;
         Assert.Equal(("http", "bearer"), (scheme.GetProperty("type").GetString(), scheme.GetProperty("scheme").GetString()));
     }
@@ -50,7 +50,23 @@ public sealed class OpenApiDocumentTests
         { "/v1/events", "429", ["rate_limited"] },
         { "/v1/events/{id}", "404", ["event_not_found"] },
         { "/v1/events/{id}", "403", ["insufficient_scope"] },
+        { "/v1/organizations", "400", ["invalid_cursor", "invalid_filter", "invalid_limit"] },
+        { "/v1/organizations/{id}", "404", ["organization_not_found"] },
+        { "/v1/organizations/{id}", "401", ["invalid_api_key"] },
     };
+
+    [Fact]
+    public async Task Given_the_organizations_list_When_its_parameters_are_read_Then_kind_lists_its_words_and_q_its_length_bounds()
+    {
+        var list = (await DocumentAsync()).GetProperty("paths").GetProperty("/v1/organizations").GetProperty("get");
+
+        var parameters = list.GetProperty("parameters").EnumerateArray().ToDictionary(p => p.GetProperty("name").GetString()!, p => p.GetProperty("schema"));
+        Assert.Equal(["cursor", "kind", "limit", "q", "region"], parameters.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(
+            ["business", "church", "club", "gym", "ministry", "network", "other"],
+            parameters["kind"].GetProperty("enum").EnumerateArray().Select(value => value.GetString()).Order(StringComparer.Ordinal));
+        Assert.Equal((2, 60), (parameters["q"].GetProperty("minLength").GetInt32(), parameters["q"].GetProperty("maxLength").GetInt32()));
+    }
 
     [Fact]
     public async Task Given_the_events_list_When_its_parameters_are_read_Then_from_and_to_are_times_and_limit_is_bounded()
@@ -92,6 +108,7 @@ public sealed class OpenApiDocumentTests
         Assert.Equal(
             ["article_id", "ends_at", "id", "organization", "place_name", "region", "starts_at", "time_zone", "title", "url"],
             Fields("/v1/events/{id}"));
+        Assert.Equal(["article_count", "id", "kind", "name", "region", "website_url"], Fields("/v1/organizations/{id}"));
         Assert.Equal(
             ["category", "collected_at", "event_id", "id", "organization", "published_at", "region", "sources", "summary", "tags", "title", "url"],
             Fields("/v1/articles/{id}"));

@@ -83,6 +83,8 @@ internal static class ConsumerOpenApi
         },
         "cursor" => new OpenApiSchema { Type = JsonSchemaType.String, Description = "The next_cursor of the previous page, read with the same filters." },
         "category" => new OpenApiSchema { Type = JsonSchemaType.String, Enum = [.. ArticleCategory.Slugs.Select(slug => (JsonNode)JsonValue.Create(slug))] },
+        "kind" => new OpenApiSchema { Type = JsonSchemaType.String, Enum = [.. ListOrganizations.Kinds.Select(kind => (JsonNode)JsonValue.Create(kind))] },
+        "q" => new OpenApiSchema { Type = JsonSchemaType.String, MinLength = ListOrganizations.QMin, MaxLength = ListOrganizations.QMax, Description = "The start of a name; case and a leading \"The\" are ignored." },
         "region" => new OpenApiSchema { Type = JsonSchemaType.String, Description = "A region's slug, such as toronto." },
         "org" => new OpenApiSchema { Type = JsonSchemaType.String, Pattern = "^org_[a-z2-7]{12}$" },
         "since" or "from" or "to" => new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time", Description = "ISO 8601 with an offset, such as 2026-11-26T12:00:00Z." },
