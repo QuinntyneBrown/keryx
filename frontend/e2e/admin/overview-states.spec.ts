@@ -106,7 +106,7 @@ test.describe('Overview states', () => {
 
     await overview.open();
 
-    await expect(overview.pageStateTitle).toHaveText('The overview didn’t load');
+    await expect(overview.pageStateTitle).toHaveText("The overview didn't load");
     await expect(overview.pageStateText).toHaveText(
       "Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx.",
     );

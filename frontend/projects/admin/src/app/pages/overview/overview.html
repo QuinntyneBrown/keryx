@@ -8,7 +8,7 @@
       card
       tone="error"
       announce
-      title="The overview didn’t load"
+      title="The overview didn't load"
       text="Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx."
       [reference]="store.reference() ?? undefined"
     >
@@ -32,7 +32,16 @@
     </kx-empty>
   } @else {
     <kx-stack gap="lg">
-      @if (card(); as shown) {
+      @if (store.status().state === 'error') {
+        <ng-container
+          [ngTemplateOutlet]="sectionError"
+          [ngTemplateOutletContext]="{
+            $implicit: 'status',
+            title: 'The run status didn\'t load',
+            text: 'The latest articles and issues are up to date; only the run status failed.',
+          }"
+        />
+      } @else if (card(); as shown) {
         <kx-status-card
           [eyebrow]="shown.eyebrow"
           [headline]="shown.headline"
@@ -42,7 +51,16 @@
           [stats]="shown.stats"
           historyCaption="New articles per run · last 14 runs"
         >
-          @if (bars(); as shownBars) {
+          @if (store.chart().state === 'error') {
+            <ng-container
+              [ngTemplateOutlet]="sectionError"
+              [ngTemplateOutletContext]="{
+                $implicit: 'chart',
+                title: 'The run chart didn\'t load',
+                text: null,
+              }"
+            />
+          } @else if (bars(); as shownBars) {
             <kx-run-chart [bars]="shownBars" />
           }
         </kx-status-card>
@@ -56,7 +74,16 @@
             [linkText]="latest()?.viewAll ?? null"
             (navigate)="navigate($event)"
           />
-          @if (latest(); as shown) {
+          @if (store.latest().state === 'error') {
+            <ng-container
+              [ngTemplateOutlet]="sectionError"
+              [ngTemplateOutletContext]="{
+                $implicit: 'latest',
+                title: 'Latest articles didn\'t load',
+                text: 'The run status and issues are up to date; only this list failed.',
+              }"
+            />
+          } @else if (latest(); as shown) {
             @if (shown.failedNotice; as notice) {
               <kx-empty
                 card
@@ -77,7 +104,16 @@
             headingId="attention-title"
             [note]="attention()?.note ?? null"
           />
-          @if (attention(); as shown) {
+          @if (store.issues().state === 'error') {
+            <ng-container
+              [ngTemplateOutlet]="sectionError"
+              [ngTemplateOutletContext]="{
+                $implicit: 'issues',
+                title: 'Needs attention didn\'t load',
+                text: 'The run status and latest articles are up to date; only this list failed.',
+              }"
+            />
+          } @else if (attention(); as shown) {
             @if (shown.cards.length) {
               <kx-stack list gap="sm">
                 @for (card of shown.cards; track card.id) {
@@ -107,3 +143,15 @@
     </kx-stack>
   }
 </kx-page-body>
+
+<!-- One section's failure in its place, with a Try again that repeats its request alone. -->
+<ng-template #sectionError let-name let-title="title" let-text="text">
+  <kx-empty card compact tone="error" [title]="title" [text]="text ?? undefined">
+    <kx-btn
+      slot="actions"
+      [busy]="store.retryingSection() === name"
+      (activated)="retrySection(name)"
+      >Try again</kx-btn
+    >
+  </kx-empty>
+</ng-template>

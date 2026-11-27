@@ -162,6 +162,17 @@ issue cards, "All runs", the problems link and the page error's "Go to runs" ope
 screen, so they arrive in journey 14, which builds it (ADR 0006); until then a card is not a
 link and the page error offers "Try again" alone.
 
+**Section errors** (`L2-045` AC5) — a section that fails shows its error in its place with a
+"Try again" that repeats its request alone, busy meanwhile, while the others stay shown. Only
+Latest articles has a mock (`partial.html`): "Latest articles didn't load", "The run status and
+issues are up to date; only this list failed.". The others follow it as stand-ins: "Needs
+attention didn't load", "The run status and latest articles are up to date; only this list
+failed."; the run status, in place of the status card, "The run status didn't load", "The latest
+articles and issues are up to date; only the run status failed.", and its Try again also reads
+the chart, which is drawn inside the card; the run chart, inside the card's history, "The run
+chart didn't load" with Try again. The page error is shown only when all four have failed, never
+while one is still loading. While the status has not loaded, times read in Toronto's zone.
+
 **Retry** — "Try again" repeats all four requests with the button busy, and the page error stays
 until every answer is in: the store shows the answers together, so the page never flashes the
 error away and back (`L2-073` AC3).

@@ -30,6 +30,10 @@ export const ATTENTION_ISSUES = 5;
 /** How often the countdown to the next run is worked out again. */
 const CLOCK_MS = 30_000;
 
+/** Overview's four parts, each read on its own. */
+export type SectionName = 'status' | 'chart' | 'latest' | 'issues';
+const SECTIONS: readonly SectionName[] = ['status', 'chart', 'latest', 'issues'];
+
 /** One part of Overview, loaded on its own: its data once read, or the reference of its failure. */
 export type Section<T> =
   { state: 'loading' } | { state: 'ready'; data: T } | { state: 'error'; reference: string | null };
@@ -57,6 +61,8 @@ export class OverviewStore {
   readonly now = signal(new Date());
   /** Try again is repeating every request. */
   readonly retrying = signal(false);
+  /** A section's Try again is repeating its request. */
+  readonly retryingSection = signal<SectionName | null>(null);
 
   private readonly sections = [this.status, this.chart, this.latest, this.issues] as const;
 
@@ -88,48 +94,74 @@ export class OverviewStore {
     });
   }
 
+  /** Each section's signal and the request that fills it. */
+  private readonly readers = {
+    status: this.reader(this.status, (abort) => this.api.status(abort)),
+    chart: this.reader(this.chart, async (abort) => {
+      const page = await this.runs.list({ page: 1, pageSize: CHART_RUNS }, abort);
+      return page.items;
+    }),
+    latest: this.reader(this.latest, async (abort) => {
+      const [page, regions] = await Promise.all([
+        this.articles.list({ page: 1, pageSize: LATEST_ARTICLES }, abort),
+        this.articles.regions(abort),
+      ]);
+      return { page, regions };
+    }),
+    issues: this.reader(this.issues, (abort) => this.runs.openIssues(ATTENTION_ISSUES, abort)),
+  };
+
   /**
-   * Reads every section, each shown as it answers; resolves once all have. With `together`, the
-   * answers are shown at once when the last arrives, so a retry's page error stays until then.
+   * Reads the sections named, each shown as it answers; resolves once all have. With `together`,
+   * the answers are shown at once when the last arrives, so a retry's error stays until then.
    */
-  async load(together = false): Promise<void> {
-    const { signal: abort } = this.controller;
-    const held: (() => void)[] = [];
-    const settle = async <T>(section: WritableSignal<Section<T>>, fetch: () => Promise<T>) => {
-      const next = await this.read(fetch);
-      const show = () => {
-        if (!abort.aborted) section.set(next);
-      };
-      if (together) held.push(show);
-      else show();
-    };
-    await Promise.all([
-      settle(this.status, () => this.api.status(abort)),
-      settle(this.chart, async () => {
-        const page = await this.runs.list({ page: 1, pageSize: CHART_RUNS }, abort);
-        return page.items;
+  async load(names: readonly SectionName[] = SECTIONS, together = false): Promise<void> {
+    const shows = await Promise.all(
+      names.map(async (name) => {
+        const show = await this.readers[name]();
+        if (!together) show();
+        return show;
       }),
-      settle(this.latest, async () => {
-        const [page, regions] = await Promise.all([
-          this.articles.list({ page: 1, pageSize: LATEST_ARTICLES }, abort),
-          this.articles.regions(abort),
-        ]);
-        return { page, regions };
-      }),
-      settle(this.issues, () => this.runs.openIssues(ATTENTION_ISSUES, abort)),
-    ]);
-    for (const show of held) show();
-    if (!abort.aborted) this.now.set(new Date());
+    );
+    if (together) for (const show of shows) show();
+    if (!this.controller.signal.aborted) this.now.set(new Date());
   }
 
   /** Repeats every request after the page error, busy meanwhile (L2-073 AC3). */
   async retry(): Promise<void> {
     this.retrying.set(true);
     try {
-      await this.load(true);
+      await this.load(SECTIONS, true);
     } finally {
       this.retrying.set(false);
     }
+  }
+
+  /**
+   * Repeats one failed section's request, busy meanwhile (L2-045 AC5). The run status brings its
+   * chart, which is drawn inside it.
+   */
+  async retrySection(name: SectionName): Promise<void> {
+    this.retryingSection.set(name);
+    try {
+      await this.load(name === 'status' ? ['status', 'chart'] : [name], true);
+    } finally {
+      this.retryingSection.set(null);
+    }
+  }
+
+  /** What reads one section and resolves to what shows its answer, a no-op once the visit ends. */
+  private reader<T>(
+    section: WritableSignal<Section<T>>,
+    fetch: (abort: AbortSignal) => Promise<T>,
+  ): () => Promise<() => void> {
+    return async () => {
+      const abort = this.controller.signal;
+      const next = await this.read(() => fetch(abort));
+      return () => {
+        if (!abort.aborted) section.set(next);
+      };
+    };
   }
 
   /** A section's next state: its data, or its failure with the response's trace id. */

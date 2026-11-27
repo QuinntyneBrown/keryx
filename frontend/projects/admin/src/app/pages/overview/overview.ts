@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ARTICLES_API, OVERVIEW_API, RUNS_API } from '@kx/api';
@@ -36,7 +37,7 @@ import {
 } from '@kx/domain';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
-import { OverviewStore, type Section } from '../../overview/overview-store';
+import { OverviewStore, type Section, type SectionName } from '../../overview/overview-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
 
 /** A section's data once it is ready, otherwise null. */
@@ -51,6 +52,7 @@ function ready<T>(section: Section<T>): T | null {
 @Component({
   selector: 'kx-overview',
   imports: [
+    NgTemplateOutlet,
     Btn,
     Empty,
     Icon,
@@ -76,6 +78,14 @@ function ready<T>(section: Section<T>): T | null {
 export default class Overview {
   protected readonly store = inject(OverviewStore);
   private readonly router = inject(Router);
+
+  /**
+   * The zone times read in: the one the status names, or Toronto's, Keryx's first region, while
+   * the status has not loaded.
+   */
+  private readonly zone = computed(
+    () => ready(this.store.status())?.time_zone ?? 'America/Toronto',
+  );
 
   /** The status card's words and stats for the last run. */
   protected readonly card = computed(() => {
@@ -141,8 +151,8 @@ export default class Overview {
   /** Needs attention: the open count and a card per issue, most severe first (L2-045 AC2). */
   protected readonly attention = computed(() => {
     const issues = ready(this.store.issues());
-    const zone = ready(this.store.status())?.time_zone;
-    if (!issues || !zone) return null;
+    if (!issues) return null;
+    const zone = this.zone();
     const now = this.store.now();
     return {
       note: issues.total > 0 ? `${formatCount(issues.total)} open` : null,
@@ -159,6 +169,10 @@ export default class Overview {
 
   protected retry(): void {
     void this.store.retry();
+  }
+
+  protected retrySection(name: SectionName): void {
+    void this.store.retrySection(name);
   }
 
   protected navigate(href: string): void {

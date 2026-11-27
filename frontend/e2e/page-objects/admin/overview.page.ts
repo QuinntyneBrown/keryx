@@ -39,6 +39,11 @@ export class OverviewPage {
   readonly pageStateActions: Locator;
   /** The notice in Latest articles after a failed run. */
   readonly latestNotice: Locator;
+  /** A section's error in place of its content. */
+  readonly latestError: Locator;
+  readonly attentionError: Locator;
+  readonly statusError: Locator;
+  readonly chartError: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.locator('main h1');
@@ -75,6 +80,10 @@ export class OverviewPage {
     this.pageStateReference = this.pageState.locator('.empty__ref');
     this.pageStateActions = this.pageState.locator('.empty__actions .btn');
     this.latestNotice = this.latest.locator('.empty');
+    this.latestError = this.latest.locator('.empty--error');
+    this.attentionError = this.attention.locator('.empty--error');
+    this.statusError = page.locator('main .page-body .stack > kx-empty > .empty--error');
+    this.chartError = this.statusCard.locator('.status-card__history .empty--error');
     this.navLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', {
       name: 'Overview',
     });
