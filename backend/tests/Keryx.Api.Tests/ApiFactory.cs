@@ -35,11 +35,19 @@ public class ApiFactory : WebApplicationFactory<Program>
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.UseEnvironment("Production");
+        builder.UseSetting("Keryx:Oidc:Authority", "https://id.example.test");
+        builder.UseSetting("Keryx:Oidc:ClientId", "keryx-test");
         builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
         // No OTLP endpoint, whatever the machine's environment says: a test reaches no network.
         builder.UseSetting("OTEL_EXPORTER_OTLP_ENDPOINT", string.Empty);
         builder.ConfigureTestServices(services =>
         {
+            services.Configure<Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectOptions>("OpenIdConnect", options =>
+                options.Configuration = new Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration
+                {
+                    Issuer = "https://id.example.test",
+                    AuthorizationEndpoint = "https://id.example.test/authorize",
+                });
             services.UseTestStore(Store);
             services.RemoveAll<TimeProvider>();
             services.AddSingleton<TimeProvider>(Time);

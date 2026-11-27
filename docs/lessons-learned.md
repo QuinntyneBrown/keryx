@@ -91,3 +91,6 @@ and running the worker's host on its own, made every schedule test deterministic
 - Run the secure-cookie anti-forgery validator on admin mutations. Its secure transport
   check also runs on safe methods when invoked directly. Test token issuance and submission with one HTTPS client so the cookie takes
   the same path it does in the browser.
+- A fixed OpenID Connect discovery document in the API fixture lets the production challenge
+  handler generate the redirect, nonce, state and PKCE values without contacting an identity
+  provider. Keep a separate startup check for missing deployment settings.

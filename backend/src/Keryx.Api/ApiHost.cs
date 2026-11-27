@@ -58,6 +58,7 @@ public static class ApiHost
                     return Task.CompletedTask;
                 };
             });
+        builder.Services.AddStaffOidc();
         builder.Services.AddAntiforgery(AdminAntiforgery.Configure);
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());

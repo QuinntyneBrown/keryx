@@ -30,12 +30,27 @@ public sealed class StartupValidationAcceptanceTests
         using var startedAnyway = new CancellationTokenSource(StartedAnyway);
 
         var exitCode = await HostRunner.RunAsync(
-            () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={connectionString}"]),
+            () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={connectionString}",
+                "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test"]),
             error,
             startedAnyway.Token);
 
         Assert.Equal(MissingSetting, exitCode);
         Assert.Equal(Message, error.ToString());
+    }
+
+    [Fact]
+    public async Task Given_missing_provider_configuration_When_the_API_starts_Then_it_names_both_settings()
+    {
+        using var error = new StringWriter();
+        using var startedAnyway = new CancellationTokenSource(StartedAnyway);
+        var exitCode = await HostRunner.RunAsync(
+            () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
+                "--Keryx:Oidc:Authority=", "--Keryx:Oidc:ClientId="]),
+            error, startedAnyway.Token);
+        Assert.Equal(MissingSetting, exitCode);
+        Assert.Contains("Keryx__Oidc__Authority", error.ToString(), StringComparison.Ordinal);
+        Assert.Contains("Keryx__Oidc__ClientId", error.ToString(), StringComparison.Ordinal);
     }
 
     // L2-096 AC2, the worker.
