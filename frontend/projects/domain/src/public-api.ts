@@ -62,3 +62,8 @@ export {
   skeletonDelay,
   type SearchPause,
 } from './articles/search-pause';
+export {
+  decidedNotice,
+  decisionFailedNotice,
+  type DecisionNotice,
+} from './articles/decision-words';

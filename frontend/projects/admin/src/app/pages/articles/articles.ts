@@ -10,6 +10,7 @@ import {
 import type { DialogRef } from '@angular/cdk/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  ApiProblem,
   ARTICLES_API,
   NOTIFIER,
   type ArticleDecision,
@@ -56,6 +57,8 @@ import {
   titleLabel,
   type ArticleParams,
   type ArticleQuery,
+  decidedNotice,
+  decisionFailedNotice,
 } from '@kx/domain';
 import { ArticlesStore } from '../../articles/articles-store';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
@@ -364,29 +367,55 @@ export default class Articles {
   }
 
   /**
-   * Publishes the open article and reports it with Undo (L2-052 AC1). The store ignores a second
-   * press while one is in flight (AC5).
+   * Publishes or hides the open article and reports it with Undo (L2-052 AC1, AC3). The store
+   * ignores a second press while one is in flight (AC5); a request that fails changes nothing and
+   * offers to try again (AC4).
    */
   protected async decide(kind: 'publish' | 'hide'): Promise<void> {
     const shown = this.panel()[0];
     if (!shown) return;
     const pending = this.store.decide(kind);
     this.pushDialog();
-    const decision = await pending;
-    this.pushDialog();
-    if (!decision || kind !== 'publish') return;
-    this.notifier.notify({
-      tone: 'success',
-      title: 'Article published',
-      text: `“${shown.title}” is now served by the API.`,
-      action: { label: 'Undo', run: () => void this.undo(decision) },
-    });
+    try {
+      const decision = await pending;
+      if (!decision) return;
+      this.notifier.notify({
+        ...decidedNotice(kind, shown.title),
+        action: { label: 'Undo', run: () => void this.undo(decision, shown.title) },
+      });
+    } catch {
+      this.notifier.notify({
+        ...decisionFailedNotice(kind, shown.detail.status),
+        action: { label: 'Try again', run: () => void this.decide(kind) },
+      });
+    } finally {
+      this.pushDialog();
+    }
   }
 
-  /** Returns the article to the status the decision replaced (L2-052 AC2). */
-  private async undo(decision: ArticleDecision): Promise<void> {
-    await this.store.undo(decision);
-    this.pushDialog();
+  /**
+   * Returns the article to the status the decision replaced (L2-052 AC2). An Undo that fails keeps
+   * the decision and offers to try again, unless the server says it can no longer be undone.
+   */
+  private async undo(decision: ArticleDecision, title: string): Promise<void> {
+    try {
+      await this.store.undo(decision);
+    } catch (error) {
+      this.notifier.notify(
+        error instanceof ApiProblem && error.code === 'revert_unavailable'
+          ? {
+              tone: 'danger',
+              title: 'Keryx couldn’t undo the decision',
+              text: 'This decision can no longer be undone here. Publish or hide the article again instead.',
+            }
+          : {
+              ...decisionFailedNotice('undo', decision.status),
+              action: { label: 'Try again', run: () => void this.undo(decision, title) },
+            },
+      );
+    } finally {
+      this.pushDialog();
+    }
   }
 
   /** The dialog's panel takes its inputs from here, as the inline panel does from the template. */

@@ -50,11 +50,16 @@ commands, and into the collection pipeline that respects the decision.
   | Published | success | "Article published" | "“<title>” is now served by the API." | Undo |
   | Hidden | info (as in mock `with-action.html`) | "Hidden from the API" | "“<title>” is no longer served. It stays in Keryx." | Undo |
   | Publish failed | danger | "Keryx couldn’t publish the article" | "Nothing changed — it is still waiting in Needs review." | Try again |
-  | Hide failed | danger | `<TO SUPPLY>` | `<TO SUPPLY>` | Try again |
-  | Undo failed | danger | `<TO SUPPLY>` | `<TO SUPPLY>` | `<TO SUPPLY>` |
+  | Hide failed | danger | "Keryx couldn’t hide the article" | "Nothing changed — it is still …" | Try again |
+  | Undo failed | danger | "Keryx couldn’t undo the decision" | "Nothing changed — it is still …" | Try again |
+  | Undo refused (`revert_unavailable`) | danger | "Keryx couldn’t undo the decision" | "This decision can no longer be undone here. Publish or hide the article again instead." | — |
 
-  The title is bound as text in every notification (`L2-053`, `L2-075`). The body for a publish
-  failure of a hidden article ("still waiting in Needs review") is `<TO SUPPLY>`.
+  The title is bound as text in every notification (`L2-053`, `L2-075`). A failure body ends
+  with the status the article still has, following the publish failure's words: "waiting in
+  Needs review.", "served by the API." or "hidden from the API.". The words are worked out by
+  `decidedNotice` and `decisionFailedNotice` in the domain library. After a decision, focus
+  moves to the remaining action in the foot; the narrow-screen dialog's panel takes the same
+  inputs. Undo reads the article again, so the reason its restored status carries shows.
 
 **Frontend — `frontend/projects/components`**
 
