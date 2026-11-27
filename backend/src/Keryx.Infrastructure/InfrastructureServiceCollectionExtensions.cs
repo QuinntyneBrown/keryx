@@ -1,8 +1,10 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Sources;
 using Keryx.Infrastructure.Configuration;
 using Keryx.Infrastructure.Health;
 using Keryx.Infrastructure.Persistence;
 using Keryx.Infrastructure.Persistence.Schema;
+using Keryx.Infrastructure.Sources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +31,7 @@ public static class InfrastructureServiceCollectionExtensions
             options.UseNpgsql(provider.GetRequiredService<IOptions<DatabaseOptions>>().Value.ConnectionString));
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<KeryxDbContext>());
         services.AddScoped<ISchemaVersion, EfSchemaVersion>();
+        services.AddSingleton<IHostResolver, DnsHostResolver>();
         services.AddScoped<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;

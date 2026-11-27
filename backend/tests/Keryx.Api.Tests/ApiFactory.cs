@@ -1,6 +1,7 @@
 using FluentValidation;
 using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Probes;
+using Keryx.Application.Sources;
 using Keryx.Infrastructure.Persistence.Schema;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -28,6 +29,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Every line the API logs.</summary>
     public CapturedLogs Logs { get; } = new();
 
+    /// <summary>DNS: every host resolves to a public address unless a test says otherwise.</summary>
+    public FakeHostResolver Hosts { get; } = new();
+
     /// <summary>The migrations, which the API must never touch: a test asserts it was never called.</summary>
     public RecordingMigrator Migrator { get; } = new();
 
@@ -52,6 +56,8 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<TimeProvider>();
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<ILoggerProvider>(Logs);
+            services.RemoveAll<IHostResolver>();
+            services.AddSingleton<IHostResolver>(Hosts);
             services.RemoveAll<IDatabaseMigrator>();
             services.AddSingleton<IDatabaseMigrator>(Migrator);
 

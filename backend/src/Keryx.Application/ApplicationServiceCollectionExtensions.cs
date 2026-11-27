@@ -23,6 +23,7 @@ public static class ApplicationServiceCollectionExtensions
         });
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
         services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<Sources.SafeAddressCheck>();
         return services;
     }
 }
