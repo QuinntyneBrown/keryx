@@ -211,3 +211,43 @@ form (a new required setting). Deferred, and recorded where they land: `next_run
 `/v1/status` and the admin overview (journeys 10 and 13), the toast's next-run time (journey 13),
 the store-failure and API-unchanged criteria with the store stage (journey 5), issue listing and
 muting (journey 20), and the news query and platform sources (their clients).
+
+## Journey 5: Worker ingests idempotently
+
+**What slowed it.** Three designs (ingest-idempotently, store-records, keep-facts-not-copies)
+met in two stages, with `<TO SUPPLY>` values to settle: the item-URL rules, the merge window's
+clock, the over-long title and tag, the category rule, the organization kind, the event
+module, the DST reading of an event's local time and the noindex count. The headline merge
+needs "the same organization", so organizations moved ahead of merging in the slice order.
+
+- **zsh does not split an unquoted variable.** A mutation loop passed `--filter` and its value
+  in one variable; zsh handed `dotnet test` a single argument, every run errored, and every
+  mutation looked killed. Pass each argument in its own quoted variable, and start every loop
+  with a control run that changes nothing and must pass.
+- **A test fixed to one machine's zone hides a rule.** `DateTime.TryParse` converts an offset to
+  the machine's zone; on a Toronto machine with a Toronto region, dropping the zoned branch
+  changed nothing. A case whose region zone differs from both the machine's and the offset
+  (`+01:00` read for `Europe/London`) proves it anywhere.
+- **Ask what decides order before asserting it.** Sources reach the reader in the order they
+  answer, so "which item becomes the article" in a same-run merge varied between runs. Assert
+  the order-free facts (one article, both links), and make an order a rule only where the code
+  fixes it (organizations are named by the earliest-added source).
+- **A fingerprint is a list of what counts as a change.** The event's time was not in the
+  article's fingerprint, so a moved event was "unchanged"; then the staged row rebuilt its facts
+  without the event, so every event counted as updated. A test for each direction caught one
+  each.
+- **The context remembers what it saved.** Discarding a failed run's staged rows by query was
+  dead code: the same context had staged and saved them, so its tracked rows were enough. The
+  surviving mutation said so.
+- **Analysers name things, again.** CA1716 refused `Event`; it is `EventRecord`.
+- **A session does not outlive a jump of the clock.** Opening the staff client before advancing
+  the fake clock six hours gave a 401; open it after.
+
+**How earlier lessons worked.** "A guard that no behaviour reaches is dead code" removed the
+spring-gap branch in `EventTime` at once. "A test's setup can make a rule unreachable" found the
+link-only merge test that never reached the live-article organization filter, and the
+fail-first store fault that never saved a row. "Capture `$?` first" held. Deferred, and recorded
+where they land: the robots meta tag in HTML pages (the page parser, with website sources), the
+null organization of a news-query item (the news client), `GET /v1/regions` and focus-area
+regions (journeys 10 and 18), and serving events and organizations (journey 9).
+
