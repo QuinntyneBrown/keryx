@@ -177,6 +177,11 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("OrganizationKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
                     b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -215,6 +220,10 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1300)
                         .HasColumnType("character varying(1300)");
 
+                    b.Property<string>("TargetUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("Title")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
@@ -225,6 +234,8 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2048)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RunId", "OrganizationKey");
 
                     b.HasIndex("RunId", "Url");
 

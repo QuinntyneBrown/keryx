@@ -22,14 +22,18 @@ public sealed class IngestionCounts
 }
 
 /// <summary>
-/// The deduplicate and store stages for one source's items (L2-009, L2-011, L2-015): each item is
-/// bounded into an article's facts, matched by its canonical link against the articles Keryx holds
-/// and the items this run already staged, counted, and staged for the publish stage.
+/// The deduplicate and store stages for one source's items (L2-009, L2-010, L2-011, L2-015): each
+/// item is bounded into an article's facts, matched against the articles Keryx holds and the
+/// items this run already staged, counted, and staged for the publish stage.
 /// </summary>
 public sealed class ArticleIngestion(IAppDbContext db)
 {
+    /// <summary>How far back a headline of the same organization is compared, on the time it was collected (L2-010).</summary>
+    public static readonly TimeSpan MergeWindow = TimeSpan.FromDays(14);
+
     public async Task StageAsync(
-        Run run, Source source, IReadOnlyList<(FeedItem Item, decimal Score, PublicationStatus Status)> items, IngestionCounts counts, CancellationToken cancellationToken)
+        Run run, Source source, IReadOnlyList<(FeedItem Item, decimal Score, PublicationStatus Status)> items, bool merge, IngestionCounts counts,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(source);
@@ -52,40 +56,79 @@ public sealed class ArticleIngestion(IAppDbContext db)
             }
 
             var facts = FactsOf(item, url, source, score, status);
-            var action = await MatchAsync(run, source, facts, counts, cancellationToken).ConfigureAwait(false);
-            db.StagedArticles.Add(StagedArticle.Of(run.Id, action, source.Id, source.OrganizationName, facts));
+            var (action, target) = await MatchAsync(run, source, facts, merge, counts, cancellationToken).ConfigureAwait(false);
+            db.StagedArticles.Add(StagedArticle.Of(run.Id, action, target, source.Id, source.OrganizationName, facts));
         }
     }
 
-    private async Task<StagedAction> MatchAsync(Run run, Source source, ArticleFacts facts, IngestionCounts counts, CancellationToken cancellationToken)
+    private async Task<(StagedAction Action, string? Target)> MatchAsync(
+        Run run, Source source, ArticleFacts facts, bool merge, IngestionCounts counts, CancellationToken cancellationToken)
     {
+        // Its identity: this source has published this link before (L2-009).
         var known = await db.Articles.AsNoTracking()
-            .Where(article => article.Url == facts.Url)
-            .Select(article => new { article.Fingerprint, FromThisSource = article.Provenance.Any(entry => entry.SourceId == source.Id) })
-            .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-        if (known is { FromThisSource: true })
+            .Where(article => article.Provenance.Any(entry => entry.SourceId == source.Id && entry.Url == facts.Url))
+            .Select(article => new { article.Url, article.SourceId, article.Fingerprint })
+            .FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+        if (known is not null)
         {
-            if (known.Fingerprint == facts.Fingerprint)
+            // Only the article's own source changes its facts; a merged item seen again is unchanged.
+            if (known.SourceId == source.Id && known.Fingerprint != facts.Fingerprint)
             {
-                counts.Unchanged++;
-                return StagedAction.Seen;
+                counts.Updated++;
+                return (StagedAction.Update, null);
             }
 
-            counts.Updated++;
-            return StagedAction.Update;
+            counts.Unchanged++;
+            return (StagedAction.Seen, Other(known.Url, facts));
         }
 
-        var stagedThisRun = await db.StagedArticles.AnyAsync(staged => staged.RunId == run.Id && staged.Url == facts.Url, cancellationToken).ConfigureAwait(false);
-        if (known is not null || stagedThisRun)
+        // The same link from another source, held or staged this run, is the same story whatever the setting (L2-010 AC1, AC3).
+        var sameLink = await db.Articles.AnyAsync(article => article.Url == facts.Url, cancellationToken).ConfigureAwait(false) ||
+            await db.StagedArticles.AnyAsync(staged => staged.RunId == run.Id && staged.Url == facts.Url && staged.Action == StagedAction.Add, cancellationToken).ConfigureAwait(false);
+        if (sameLink)
         {
-            // Another source's article, or another source's item this run: the same story (L2-010 AC1).
             counts.Duplicates++;
-            return StagedAction.Seen;
+            return (StagedAction.Seen, null);
+        }
+
+        if (merge && await AlikeHeadlineAsync(run, source, facts, cancellationToken).ConfigureAwait(false) is { } alike)
+        {
+            counts.Duplicates++;
+            return (StagedAction.Seen, alike);
         }
 
         counts.Added++;
-        return StagedAction.Add;
+        return (StagedAction.Add, null);
     }
+
+    /// <summary>
+    /// The link of an article of the same organization, collected within the last 14 days or
+    /// staged this run, whose headline is at least 0.90 alike (L2-010 AC2); null when there is none.
+    /// </summary>
+    private async Task<string?> AlikeHeadlineAsync(Run run, Source source, ArticleFacts facts, CancellationToken cancellationToken)
+    {
+        var key = OrganizationName.Normalize(source.OrganizationName);
+        if (key.Length == 0 || facts.Title is null)
+        {
+            return null;
+        }
+
+        var since = run.StartedAt - MergeWindow;
+        var held = await db.Articles.AsNoTracking()
+            .Where(article => article.Organization != null && article.Organization.NormalizedName == key && article.CollectedAt >= since && article.Title != null)
+            .OrderBy(article => article.Id)
+            .Select(article => new { article.Url, Title = article.Title! })
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var staged = await db.StagedArticles.AsNoTracking()
+            .Where(row => row.RunId == run.Id && row.OrganizationKey == key && row.Action == StagedAction.Add && row.Title != null)
+            .OrderBy(row => row.Id)
+            .Select(row => new { row.Url, Title = row.Title! })
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        return held.Concat(staged).FirstOrDefault(candidate => HeadlineSimilarity.Merges(candidate.Title, facts.Title))?.Url;
+    }
+
+    private static string? Other(string articleUrl, ArticleFacts facts) =>
+        string.Equals(articleUrl, facts.Url, StringComparison.Ordinal) ? null : articleUrl;
 
     private static ArticleFacts FactsOf(FeedItem item, string url, Source source, decimal score, PublicationStatus status)
     {
@@ -110,13 +153,13 @@ public sealed class ArticlePublication(IAppDbContext db)
         ArgumentNullException.ThrowIfNull(run);
         var staged = await db.StagedArticles.Where(row => row.RunId == run.Id).OrderBy(row => row.Id)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
-        var urls = staged.Select(row => row.Url).Distinct().ToList();
+        var urls = staged.Select(row => row.TargetUrl ?? row.Url).Distinct().ToList();
         var articles = await db.Articles.Where(article => urls.Contains(article.Url))
             .ToDictionaryAsync(article => article.Url, StringComparer.Ordinal, cancellationToken).ConfigureAwait(false);
         var organizations = await OrganizationsAsync(run, staged, cancellationToken).ConfigureAwait(false);
         foreach (var row in staged)
         {
-            if (!articles.TryGetValue(row.Url, out var article))
+            if (!articles.TryGetValue(row.TargetUrl ?? row.Url, out var article))
             {
                 article = Article.Collect(row.Facts, organizations.GetValueOrDefault(row.SourceId), row.SourceId, row.SourceName, run.StartedAt);
                 articles[row.Url] = article;

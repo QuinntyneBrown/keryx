@@ -64,8 +64,11 @@ the `IDeduplicator` contract.
     merging on in Settings (default on), an article of the same organization within 14 days has
     a headline similarity of at least 0.90;
   - `new_record` otherwise.
-  The 14-day window is measured on `<TO SUPPLY>` (the source's publish time or the collection
-  time).
+  The 14-day window is measured on the collection time (every article has one; a publish time
+  may be missing), inclusive: an article collected exactly 14 days before the run starts is
+  compared. Only the article's own source changes its facts; an item merged into another
+  article and collected again is `unchanged`, and its provenance entry keeps the item's own
+  link.
 - **`DeduplicateStage`** — counts `added`, `updated`, `unchanged`, `duplicates` and `rejected`
   from the match results; an unchanged item counts as neither added nor updated.
 - **`StoreStage`** and **`PublishStage`** — stage and apply the changes. `ArticleIngestion`

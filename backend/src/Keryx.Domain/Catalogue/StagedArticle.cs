@@ -36,7 +36,14 @@ public sealed class StagedArticle
 
     public string SourceName { get; private set; } = string.Empty;
 
+    /// <summary>The item's canonical link: the URL its facts were read from.</summary>
     public string Url { get; private set; } = string.Empty;
+
+    /// <summary>The link of the article the item merges into, when that is another article's (L2-010); null otherwise.</summary>
+    public string? TargetUrl { get; private set; }
+
+    /// <summary>The match key of the organization behind the source; empty when there is none.</summary>
+    public string OrganizationKey { get; private set; } = string.Empty;
 
     public string? Title { get; private set; }
 
@@ -56,13 +63,15 @@ public sealed class StagedArticle
 
     public ArticleFacts Facts => new(Url, Title, Summary, Category, RegionSlug, Tags, PublishedAt, Score, Status);
 
-    public static StagedArticle Of(long runId, StagedAction action, long sourceId, string sourceName, ArticleFacts facts)
+    public static StagedArticle Of(long runId, StagedAction action, string? targetUrl, long sourceId, string sourceName, ArticleFacts facts)
     {
         ArgumentNullException.ThrowIfNull(facts);
         return new StagedArticle
         {
             RunId = runId,
             Action = action,
+            TargetUrl = targetUrl,
+            OrganizationKey = OrganizationName.Normalize(sourceName),
             SourceId = sourceId,
             SourceName = sourceName,
             Url = facts.Url,

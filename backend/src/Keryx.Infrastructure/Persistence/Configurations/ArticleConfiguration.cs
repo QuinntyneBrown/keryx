@@ -94,6 +94,9 @@ internal sealed class StagedArticleConfiguration : IEntityTypeConfiguration<Stag
         builder.Property(staged => staged.SourceName).HasMaxLength(120);
         builder.Property(staged => staged.Url).HasMaxLength(ArticleConfiguration.UrlLength);
         builder.HasIndex(staged => new { staged.RunId, staged.Url });
+        builder.Property(staged => staged.TargetUrl).HasMaxLength(ArticleConfiguration.UrlLength);
+        builder.Property(staged => staged.OrganizationKey).HasMaxLength(120);
+        builder.HasIndex(staged => new { staged.RunId, staged.OrganizationKey });
         builder.Property(staged => staged.Title).HasMaxLength(ArticleTitle.MaxLength);
         builder.Property(staged => staged.Summary).HasMaxLength(ArticleSummary.MaxLength);
         builder.Property(staged => staged.Category).HasMaxLength(ReferenceConfiguration.SlugLength);
