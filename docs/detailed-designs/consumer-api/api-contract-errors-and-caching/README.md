@@ -50,9 +50,11 @@ command. It has no admin app part.
   type and meaning.
 - **OpenAPI document v1** — produced by `Microsoft.AspNetCore.OpenApi` and served at
   `/openapi/v1.json`. It describes every `/v1` endpoint, parameter, response body and error
-  `code`, and it changes in the same pull request as the endpoint it describes. Whether the
-  document requires an API key is `<TO SUPPLY>`; L2-025 and L2-033 do not say, and the fallback
-  policy requires authentication unless `[AllowAnonymous]` is explicit.
+  `code`, and it changes in the same pull request as the endpoint it describes. The document is
+  served with an explicit `[AllowAnonymous]`, so a product's developers can read the contract
+  before they are given a key; it holds no data and names no client. It declares the `ApiKey`
+  bearer scheme as every operation's requirement, and lists `invalid_api_key` (`401`),
+  `insufficient_scope` (`403`) and `rate_limited` (`429`) on every operation beside its own codes.
 - **`ErrorCodesOperationTransformer`** — OpenAPI operation transformer that reads each
   action's `ProducesErrorCodeAttribute` (status and `code`) and adds a ProblemDetails response
   listing those codes. It also writes parameter bounds from the validators' constants:

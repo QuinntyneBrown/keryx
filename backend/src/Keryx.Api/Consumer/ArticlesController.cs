@@ -14,6 +14,9 @@ public sealed class ArticlesController(ISender sender) : ControllerBase
 {
     /// <summary>A page of published articles, newest first; follow <c>next_cursor</c> for the next.</summary>
     [HttpGet]
+    [ProducesErrorCode(StatusCodes.Status400BadRequest, "invalid_limit")]
+    [ProducesErrorCode(StatusCodes.Status400BadRequest, "invalid_filter")]
+    [ProducesErrorCode(StatusCodes.Status400BadRequest, "invalid_cursor")]
     public Task<PageDto<ArticleSummaryDto>> List(
         [FromQuery] string? limit,
         [FromQuery] string? cursor,
@@ -24,7 +27,9 @@ public sealed class ArticlesController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         sender.Send(new ListArticles(limit, cursor, region, category, org, since), cancellationToken);
 
+    /// <summary>One published article with its tags and every source that reported it.</summary>
     [HttpGet("{id}")]
+    [ProducesErrorCode(StatusCodes.Status404NotFound, "article_not_found")]
     public Task<ArticleDetailDto> Get(string id, CancellationToken cancellationToken) =>
         sender.Send(new GetArticle(id), cancellationToken);
 }

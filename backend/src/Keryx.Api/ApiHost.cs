@@ -89,6 +89,9 @@ public static class ApiHost
                 "Rate limits must be positive.").ValidateOnStart();
         builder.Services.AddSingleton<ClientRateLimiter>();
         builder.Services.AddSingleton<EtagFilter>();
+        builder.Services.AddConsumerOpenApi();
+        builder.Services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 
         var app = builder.Build();
         app.Use(async (context, next) =>
@@ -126,6 +129,7 @@ public static class ApiHost
         app.MapGet("/admin/v1/auth/antiforgery", AdminAntiforgery.Issue).RequireAuthorization();
         MapHealth(app);
         app.MapControllers();
+        app.MapOpenApi().AllowAnonymous();
         return app;
     }
 
