@@ -63,6 +63,15 @@ internal static class ConsumerApi
             "</item>")) +
         "</channel></rss>";
 
+    /// <summary>An event's public id, found by the link of the article it came from.</summary>
+    public static async Task<string> EventIdAsync(ApiFactory factory, string url)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        return await scope.ServiceProvider.GetRequiredService<KeryxDbContext>().Events
+            .Where(item => item.LinkedArticle!.Url == url).Select(item => item.PublicId)
+            .SingleAsync(TestContext.Current.CancellationToken);
+    }
+
     /// <summary>An article's public id, read from the fixture's store, for a test to request it on /v1.</summary>
     public static async Task<string> ArticleIdAsync(ApiFactory factory, string url)
     {

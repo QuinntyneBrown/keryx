@@ -135,6 +135,8 @@ internal sealed class EventConfiguration : IEntityTypeConfiguration<EventRecord>
         builder.HasOne(item => item.Organization).WithMany().HasForeignKey(item => item.OrganizationId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(item => item.LinkedArticle).WithMany().HasForeignKey(item => item.LinkedArticleId).OnDelete(DeleteBehavior.SetNull);
         builder.HasIndex(item => new { item.OrganizationId, item.StartsAtUtc });
+        // A product's list: soonest first, sought by (StartsAtUtc, Id) (L2-028, L2-086).
+        builder.HasIndex(item => new { item.StartsAtUtc, item.Id });
         builder.Property(item => item.Score).HasPrecision(3, 2);
         builder.Property(item => item.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
         builder.OwnsMany(item => item.Provenance, entry =>

@@ -196,6 +196,8 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrganizationId", "StartsAtUtc");
 
+                    b.HasIndex("StartsAtUtc", "Id");
+
                     b.ToTable("Events", (string)null);
                 });
 

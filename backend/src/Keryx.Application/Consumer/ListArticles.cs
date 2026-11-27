@@ -20,7 +20,7 @@ public sealed record ListArticles(string? Limit, string? Cursor, string? Region,
     /// <summary>The filters a cursor is bound to: a cursor read with other filters is refused.</summary>
     public string Filters =>
         string.Join('&', $"region={Region}", $"category={Category}", $"org={Org}",
-            $"since={(SinceTime.TryParse(Since, out var since) ? since.UtcTicks.ToString(CultureInfo.InvariantCulture) : string.Empty)}");
+            $"since={(FilterTime.TryParse(Since, out var since) ? since.UtcTicks.ToString(CultureInfo.InvariantCulture) : string.Empty)}");
 }
 
 /// <summary>A page of a list: its items and the cursor of the next page, or null on the last.</summary>
@@ -53,7 +53,7 @@ internal sealed class ListArticlesValidator : AbstractValidator<ListArticles>
             .WithErrorCode("invalid_filter")
             .WithMessage("Give org as an organization's id, org_ followed by its characters.");
         RuleFor(request => request.Since)
-            .Must(since => since is null || SinceTime.TryParse(since, out _))
+            .Must(since => since is null || FilterTime.TryParse(since, out _))
             .WithErrorCode("invalid_filter")
             .WithMessage("Give since as an ISO 8601 time with its offset, such as 2026-11-26T12:00:00Z.");
         RuleFor(request => request.Cursor)
@@ -74,8 +74,8 @@ public static class PageLimit
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out limit) && limit is >= 1 and <= Max;
 }
 
-/// <summary>A time a product filters by: ISO 8601 with a date, a time and an offset (<c>Z</c> or <c>±hh:mm</c>).</summary>
-public static class SinceTime
+/// <summary>A time a product filters by (<c>since</c>, <c>from</c>, <c>to</c>): ISO 8601 with a date, a time and an offset (<c>Z</c> or <c>±hh:mm</c>).</summary>
+public static class FilterTime
 {
     private static readonly string[] Formats = ["yyyy-MM-dd'T'HH:mm:ssK", "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFK"];
 
@@ -115,7 +115,7 @@ internal sealed class ListArticlesHandler(IAppDbContext db, ICursorCodec cursors
             query = query.Where(article => article.Organization != null && article.Organization.PublicId == org);
         }
 
-        if (SinceTime.TryParse(request.Since, out var since))
+        if (FilterTime.TryParse(request.Since, out var since))
         {
             query = query.Where(article => article.ListedAt >= since);
         }

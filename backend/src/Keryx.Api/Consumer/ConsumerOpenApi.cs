@@ -85,7 +85,7 @@ internal static class ConsumerOpenApi
         "category" => new OpenApiSchema { Type = JsonSchemaType.String, Enum = [.. ArticleCategory.Slugs.Select(slug => (JsonNode)JsonValue.Create(slug))] },
         "region" => new OpenApiSchema { Type = JsonSchemaType.String, Description = "A region's slug, such as toronto." },
         "org" => new OpenApiSchema { Type = JsonSchemaType.String, Pattern = "^org_[a-z2-7]{12}$" },
-        "since" => new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time", Description = "ISO 8601 with an offset, such as 2026-11-26T12:00:00Z." },
+        "since" or "from" or "to" => new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time", Description = "ISO 8601 with an offset, such as 2026-11-26T12:00:00Z." },
         _ => null,
     };
 

@@ -43,16 +43,17 @@ The slice runs from the consuming product's HTTPS request to the relational data
   - `to` shall not be earlier than `from`.
   - the range from `from` to `to` shall not be longer than 366 days.
   - `region` shall be a known region slug.
-  The validity of a range given by `to` alone, measured from the current time, is
-  `<TO SUPPLY>`.
+  A range given by `to` alone is measured from the current time, so `to` may be at most 366
+  days from now; a `to` before now is valid and lists nothing. Both ends of a range are
+  inclusive.
 - **`ListEventsQueryHandler`** — reads the current time from `TimeProvider`, never
   `DateTime.Now`. It applies `ServedRecordFilters.ServedEvents`, keeps events starting at or
   after the current time and inside `from`..`to`, applies `region` and `org`, orders by
   `starts_at` then `id` ascending, seeks after the cursor's position and takes `limit + 1` rows.
   The result is one keyset query projected into `EventDto` with no tracking; `next_cursor` is
   issued through `ICursorCodec` only when more rows remain. Whether a `from` earlier than the
-  current time widens the list to past events is `<TO SUPPLY>`; this design keeps the later of
-  the two, as L2-028 says the list starts "from now".
+  current time widens the list to past events: it does not. The list starts at the later of the
+  two, as L2-028 says the list starts "from now"; a past event stays readable by its id.
 - **`GetEventQuery`** / **`GetEventQueryHandler`** — reads one served event by its public id.
   An event that is not served, a malformed id and an unknown id all raise `NotFoundException`
   with code `event_not_found` (L2-028, L2-083).
@@ -61,9 +62,10 @@ The slice runs from the consuming product's HTTPS request to the relational data
   or the event has no linked article and its own status is `published`.
 - **`EventDto`** — `id` (prefixed `evt_`), `title`, `starts_at` (UTC), `ends_at` or `null`,
   `time_zone` (IANA, for example `America/Toronto`), `place_name`, `region`, `organization`
-  (`id`, `name`, or `null`), `url` and `article_id` or `null`. The shape of `organization` and
-  `region` follows the article list; L2-028 does not state it, so its confirmation is
-  `<TO SUPPLY>`.
+  (`id`, `name`, or `null`), `url` and `article_id` or `null`. `organization` and `region` take
+  the article list's shape, so a product reads both the same way. `url` is the page where Keryx
+  first saw the event (its earliest provenance entry). One projection serves the list and the
+  read, so a listed event and the same event read by id are the same JSON.
 - **Domain types** (`Keryx.Domain`) — `Event` with its own `ArticleStatus`-valued status,
   linked `Article`, `Organization`, `Region` and `PublicId`.
 - **Reused parts** — `ICursorCodec` and `DataProtectionCursorCodec`, `PageDto<T>`,
