@@ -21,6 +21,12 @@ export class SourcesPage {
   readonly caption: Locator;
   readonly columns: Locator;
   readonly rows: Locator;
+  readonly toastRegion: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
+  readonly toastAction: Locator;
+  readonly toastDismiss: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -41,6 +47,12 @@ export class SourcesPage {
     this.caption = this.table.locator('caption');
     this.columns = this.table.locator('thead th');
     this.rows = this.table.locator('tbody tr');
+    this.toastRegion = page.locator('.toast-region');
+    this.toast = this.toastRegion.locator('.toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
+    this.toastAction = this.toast.locator('.toast__action');
+    this.toastDismiss = this.toast.getByRole('button', { name: 'Dismiss' });
   }
 
   async open(): Promise<void> {

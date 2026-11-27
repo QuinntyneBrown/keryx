@@ -36,9 +36,8 @@ The feature is a vertical slice from the Add a source dialog to the database.
   - `400` `kind_not_creatable` for kind `news_query`.
   - `409` `source_exists` when an active source has the same kind and normalized address.
   - `413` for a body over 64 KB (L2-083).
-  - A host that resolves to a non-public address is refused with reason `unsafe_address`
-    (L2-024). Whether that refusal is a `validation_failed` entry on `address` or a separate
-    `code` is `<TO SUPPLY>`.
+  - A host that resolves to a non-public address is refused with `400`, `code`
+    `unsafe_address` and an `errors.address` entry (L2-024).
 - The test fetch on blur calls `POST /admin/v1/sources/test`, designed in
   [Test a source fetch](../test-source-fetch/README.md).
 
@@ -68,13 +67,14 @@ The feature is a vertical slice from the Add a source dialog to the database.
 - **Success** — the dialog closes, `SourcesStore` shows the new row, focus returns to "Add
   source", and `Notifier` shows "Source added" with "<organization> will be checked on the next
   run at 12:00 PM." When the last test found nothing relevant, the toast is the warning "Source
-  added, but nothing looked relevant" with the action "Edit source". The source of the next run
-  time on the client (the shell's next collection or a field of the create response) is
-  `<TO SUPPLY>`.
+  added, but nothing looked relevant" with the action "Edit source". Until runs are scheduled
+  (journey 4) there is no next run time, so the sentence ends "…on the next run."; the time joins
+  it then, from the shell's next collection.
 - **Failure** — the dialog stays open with an `alert` "Keryx couldn’t add the source", "Nothing
   was saved and your entries are still here…" and "Reference req_…" from the response's
-  `trace_id`; every entry is kept. On `source_exists` the URL field states that the source is
-  already in the list; its exact copy is `<TO SUPPLY>` because no mock state shows it.
+  `trace_id`; every entry is kept. On `source_exists` the URL field reads "This source is
+  already in the list.", and on `unsafe_address` "Keryx can’t fetch this address: it isn’t on
+  the public internet."; focus moves to URL, and the message stays until the URL changes.
 - **Narrow viewport** — below 640 px the dialog is a bottom sheet whose actions stay visible above
   the on-screen keyboard (L2-074).
 - **Region options** — the dialog lists regions in rank order. Staff read them from

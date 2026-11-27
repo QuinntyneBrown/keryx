@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, Component, computed, input, output } from '@angular/core';
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 
 /**
  * The button (docs/design-system/components/btn.html). With an `href` it is a link drawn as a
@@ -14,6 +22,8 @@ import { booleanAttribute, Component, computed, input, output } from '@angular/c
   styleUrl: './btn.scss',
 })
 export class Btn {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /** Where it leads. With one it is a link; `disabled`, `busy` and `label` then do not apply. */
   readonly href = input<string>();
   readonly variant = input<'default' | 'primary' | 'ghost' | 'danger' | 'danger-solid'>('default');
@@ -40,6 +50,11 @@ export class Btn {
       .filter(Boolean)
       .join(' '),
   );
+
+  /** Moves focus to it, as when a dialog it opened closes. */
+  focus(): void {
+    this.host.nativeElement.querySelector<HTMLElement>('.btn')?.focus();
+  }
 
   protected follow(event: MouseEvent, href: string): void {
     // A new tab, a new window or a download is the browser's to do.

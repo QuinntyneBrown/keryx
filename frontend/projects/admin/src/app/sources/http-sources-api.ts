@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import {
   ApiProblem,
+  type NewSource,
   type Region,
+  type SourceDetail,
   type SourcePage,
   type SourceQuery,
   type SourcesApi,
 } from '@kx/api';
+import { antiforgeryToken } from '../session/antiforgery';
 
 /** The source catalogue over fetch, with the staff session's cookie (ADR 0005). */
 @Injectable()
@@ -23,10 +26,19 @@ export class HttpSourcesApi implements SourcesApi {
     return (await this.read<{ items: Region[] }>('/admin/v1/regions', signal)).items;
   }
 
-  private async read<T>(url: string, signal: AbortSignal): Promise<T> {
+  async create(source: NewSource, signal: AbortSignal): Promise<SourceDetail> {
+    const token = await antiforgeryToken(signal);
+    return this.read<SourceDetail>('/admin/v1/sources', signal, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
+      body: JSON.stringify(source),
+    });
+  }
+
+  private async read<T>(url: string, signal: AbortSignal, init: RequestInit = {}): Promise<T> {
     let response: Response;
     try {
-      response = await fetch(url, { credentials: 'include', cache: 'no-store', signal });
+      response = await fetch(url, { ...init, credentials: 'include', cache: 'no-store', signal });
     } catch (error) {
       if (signal.aborted) throw error;
       throw new ApiProblem(0);

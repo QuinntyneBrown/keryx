@@ -1,0 +1,13 @@
+<div [attr.class]="'toast toast--' + tone()">
+  <kx-icon class="toast__icon" [name]="icon()" />
+  <div class="toast__body">
+    <p class="toast__title">{{ title() }}</p>
+    @if (text(); as text) {
+      <p class="toast__text">{{ text }}</p>
+    }
+    @if (actionLabel(); as label) {
+      <button class="toast__action" type="button" (click)="acted.emit()">{{ label }}</button>
+    }
+  </div>
+  <kx-icon-btn label="Dismiss" (activated)="dismiss.emit()"><kx-icon name="close" /></kx-icon-btn>
+</div>

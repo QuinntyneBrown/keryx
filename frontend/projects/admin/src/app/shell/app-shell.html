@@ -14,3 +14,15 @@
   </kx-sidebar>
   <router-outlet />
 </kx-app>
+<kx-toast-region>
+  @for (shown of notifier.notices(); track shown.key) {
+    <kx-toast
+      [tone]="shown.notice.tone"
+      [title]="shown.notice.title"
+      [text]="shown.notice.text"
+      [actionLabel]="shown.notice.action?.label"
+      (acted)="notifier.act(shown)"
+      (dismiss)="notifier.dismiss(shown.key)"
+    />
+  }
+</kx-toast-region>

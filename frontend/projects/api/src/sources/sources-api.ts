@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import type { NewSource, SourceDetail } from './new-source';
 
 /** The kinds of source (L2-001). Staff add every kind but `news_query`, which seed data creates. */
 export type SourceKind = 'rss' | 'website' | 'instagram' | 'eventbrite' | 'news_query';
@@ -51,6 +52,8 @@ export interface SourcesApi {
   list(query: SourceQuery, signal: AbortSignal): Promise<SourcePage>;
   /** The regions in rank order. */
   regions(signal: AbortSignal): Promise<Region[]>;
+  /** Adds a source; a refusal names its `code` (`source_exists`, `unsafe_address`, …). */
+  create(source: NewSource, signal: AbortSignal): Promise<SourceDetail>;
 }
 
 export const SOURCES_API = new InjectionToken<SourcesApi>('Keryx sources');

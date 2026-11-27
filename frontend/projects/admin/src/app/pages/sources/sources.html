@@ -1,10 +1,11 @@
 @let state = store.state();
 <kx-page-header title="Sources" [description]="description()">
   <kx-btn
+    #addButton
     slot="actions"
     variant="primary"
     [disabled]="state.status === 'error'"
-    (activated)="addSource()"
+    (activated)="addSource(addButton)"
     ><kx-icon name="plus" size="sm" />Add source</kx-btn
   >
 </kx-page-header>
@@ -31,7 +32,7 @@
           text="A source is a feed, page, Instagram account, Eventbrite organiser or news query that Keryx checks on every run. Start with an organisation you already follow in Toronto or the GTA."
         >
           <kx-icon slot="icon" name="rss" size="lg" />
-          <kx-btn slot="actions" variant="primary" (activated)="addSource()"
+          <kx-btn slot="actions" variant="primary" (activated)="addSource(addButton)"
             ><kx-icon name="plus" size="sm" />Add a source</kx-btn
           >
         </kx-empty>

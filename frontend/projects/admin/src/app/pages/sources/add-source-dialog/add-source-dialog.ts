@@ -1,6 +1,6 @@
 import { DialogRef } from '@angular/cdk/dialog';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { SOURCES_API, type Region, type SourceKind } from '@kx/api';
+import { ChangeDetectorRef, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { ApiProblem, SOURCES_API, type Region, type SourceKind } from '@kx/api';
 import {
   Alert,
   Btn,
@@ -29,6 +29,17 @@ interface Focusable {
   focus(): void;
 }
 
+/** What the dialog closes with when the source was added. */
+export interface SourceAdded {
+  organisation: string;
+}
+
+/** The URL field's message for a refusal the API words by its code (L2-064 AC7, L2-024). */
+const URL_REFUSALS: Readonly<Record<string, string>> = {
+  source_exists: 'This source is already in the list.',
+  unsafe_address: 'Keryx can’t fetch this address: it isn’t on the public internet.',
+};
+
 /** The ids the CDK container is labelled and described by. */
 export const ADD_SOURCE_TITLE_ID = 'add-source-title';
 export const ADD_SOURCE_DESCRIPTION_ID = 'add-source-description';
@@ -45,7 +56,8 @@ export const ADD_SOURCE_DESCRIPTION_ID = 'add-source-description';
 })
 export class AddSourceDialog {
   private readonly api = inject(SOURCES_API);
-  private readonly ref = inject(DialogRef);
+  private readonly ref = inject<DialogRef<SourceAdded>>(DialogRef);
+  private readonly changes = inject(ChangeDetectorRef);
   private readonly abort = new AbortController();
 
   protected readonly titleId = ADD_SOURCE_TITLE_ID;
@@ -58,15 +70,25 @@ export class AddSourceDialog {
   private readonly regions = signal<Region[]>([]);
   /** Whether staff have tried to add: from then on each field's error follows its entry. */
   private readonly attempted = signal(false);
-  protected readonly errors = computed<SourceFormErrors>(() =>
-    this.attempted()
+  /** The API's refusal of the URL, for as long as the URL is the one it refused. */
+  private readonly refusedUrl = signal<{ url: string; message: string } | null>(null);
+  protected readonly errors = computed<SourceFormErrors>(() => {
+    const errors = this.attempted()
       ? sourceFormValidation({
           url: this.url(),
           organisation: this.organisation(),
           region: this.region(),
         })
-      : {},
-  );
+      : {};
+    const refused = this.refusedUrl();
+    return !errors.url && refused?.url === this.url()
+      ? { url: refused.message, ...errors }
+      : errors;
+  });
+  /** A request is in flight: every control is disabled and nothing closes the dialog. */
+  protected readonly busy = signal(false);
+  /** The last request failed for a reason staff cannot fix in the form. */
+  protected readonly failure = signal<{ reference: string | null } | null>(null);
   protected readonly regionOptions = computed(() =>
     this.regions().map((region) => ({ value: region.slug, label: region.name })),
   );
@@ -97,9 +119,49 @@ export class AddSourceDialog {
       first.focus();
       return;
     }
+    void this.save(url);
+  }
+
+  /** Sends the source once; the dialog stays open, busy, until the answer (L2-064 AC4 to AC7). */
+  private async save(url: Focusable): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set(true);
+    this.failure.set(null);
+    this.ref.disableClose = true;
+    const address = this.url().trim();
+    try {
+      const created = await this.api.create(
+        {
+          kind: this.kind(),
+          address,
+          organization_name: this.organisation().trim(),
+          region: this.region(),
+        },
+        this.abort.signal,
+      );
+      this.ref.disableClose = false;
+      this.ref.close({ organisation: created.organization_name });
+    } catch (error) {
+      if (this.abort.signal.aborted) return;
+      this.ref.disableClose = false;
+      this.busy.set(false);
+      const message =
+        error instanceof ApiProblem && error.code ? URL_REFUSALS[error.code] : undefined;
+      if (message) {
+        this.refusedUrl.set({ url: this.url(), message });
+        // The URL is enabled again before focus moves to it.
+        this.changes.detectChanges();
+        url.focus();
+        return;
+      }
+      this.failure.set({
+        reference: error instanceof ApiProblem ? (error.reference ?? null) : null,
+      });
+    }
   }
 
   protected close(): void {
+    if (this.busy()) return;
     this.ref.close();
   }
 }

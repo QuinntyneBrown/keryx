@@ -3,9 +3,19 @@
   description="Keryx will check it on every scheduled run."
   [titleId]="titleId"
   [descriptionId]="descriptionId"
+  [closeDisabled]="busy()"
   (dismiss)="close()"
   (submitted)="submit(urlInput, organisationInput, regionSelect)"
 >
+  @if (failure(); as failure) {
+    <kx-alert tone="danger" announcement="alert" title="Keryx couldn’t add the source"
+      >Nothing was saved and your entries are still here. Try again; if it keeps failing, check the
+      Runs screen for a database problem.
+      @if (failure.reference; as reference) {
+        <span class="mono">Reference {{ reference }}</span>
+      }
+    </kx-alert>
+  }
   <fieldset>
     <legend>Type</legend>
     <kx-choice-grid>
@@ -14,6 +24,7 @@
           name="source-type"
           [value]="option.value"
           [checked]="kind() === option.value"
+          [disabled]="busy()"
           (chosen)="kind.set($any($event))"
           ><kx-icon [name]="option.icon" size="sm" />{{ option.label }}</kx-choice-card
         >
@@ -29,6 +40,7 @@
       mono
       [invalid]="!!errors().url"
       [describedBy]="errors().url ? 'source-url-error' : undefined"
+      [disabled]="busy()"
       [(value)]="url"
     />
   </kx-field>
@@ -44,6 +56,7 @@
         controlId="source-org"
         [invalid]="!!errors().organisation"
         [describedBy]="errors().organisation ? 'source-org-error' : undefined"
+        [disabled]="busy()"
         [(value)]="organisation"
       />
     </kx-field>
@@ -60,6 +73,7 @@
         [describedBy]="errors().region ? 'source-region-error' : undefined"
         placeholder="Choose a region"
         [options]="regionOptions()"
+        [disabled]="busy()"
         [(value)]="region"
       />
     </kx-field>
@@ -67,6 +81,8 @@
   <kx-alert tone="neutral"
     >Paste a URL and Keryx runs a test fetch before anything is added.</kx-alert
   >
-  <kx-btn slot="actions" variant="ghost" (activated)="close()">Cancel</kx-btn>
-  <kx-btn slot="actions" variant="primary" submit>Add source</kx-btn>
+  <kx-btn slot="actions" variant="ghost" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="primary" submit [busy]="busy()">{{
+    busy() ? 'Adding…' : 'Add source'
+  }}</kx-btn>
 </kx-dialog>

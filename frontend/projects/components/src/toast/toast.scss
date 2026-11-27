@@ -1,0 +1,90 @@
+// The toast (docs/design-system/components/toast.html): inverse surface, a tinted icon by tone.
+:host {
+  display: block;
+  pointer-events: auto;
+}
+
+.toast {
+  --color-focus-ring: var(--color-on-inverse-brand);
+
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+  box-shadow: var(--shadow-3);
+  animation: slide-up var(--duration-base) var(--ease-enter);
+}
+
+.toast__icon {
+  margin-top: var(--space-0-5);
+}
+
+.toast--success .toast__icon {
+  color: var(--color-on-inverse-success);
+}
+
+.toast--warning .toast__icon {
+  color: var(--color-on-inverse-warning);
+}
+
+.toast--danger .toast__icon {
+  color: var(--color-on-inverse-danger);
+}
+
+.toast--info .toast__icon {
+  color: var(--color-on-inverse-info);
+}
+
+.toast__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__title {
+  font: var(--text-label);
+}
+
+.toast__text {
+  margin-top: var(--space-0-5);
+  color: var(--color-fg-inverse-muted);
+}
+
+.toast__action {
+  min-height: var(--target-min);
+  margin-top: var(--space-1-5);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-on-inverse-brand);
+  font: var(--text-label);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+
+.toast__action:hover {
+  text-decoration-thickness: var(--border-width-thick);
+}
+
+kx-icon-btn {
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2)) 0 0;
+  color: var(--color-fg-inverse-muted);
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    translate: 0 var(--space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

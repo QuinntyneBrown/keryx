@@ -1,7 +1,18 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { CURRENT_STAFF } from '@kx/api';
-import { App, Avatar, Brand, Icon, NavLink, Sidebar, SkipLink } from '@kx/components';
+import { CURRENT_STAFF, NOTIFIER } from '@kx/api';
+import {
+  App,
+  Avatar,
+  Brand,
+  Icon,
+  NavLink,
+  Sidebar,
+  SkipLink,
+  Toast,
+  ToastRegion,
+} from '@kx/components';
+import { NotifierStore } from '../notifier/notifier-store';
 
 /**
  * The admin shell: the frame every screen sits in. It orchestrates and composes; it draws
@@ -13,12 +24,15 @@ import { App, Avatar, Brand, Icon, NavLink, Sidebar, SkipLink } from '@kx/compon
  */
 @Component({
   selector: 'kx-app-shell',
-  imports: [App, Avatar, Brand, Icon, NavLink, RouterOutlet, Sidebar, SkipLink],
+  imports: [App, Avatar, Brand, Icon, NavLink, RouterOutlet, Sidebar, SkipLink, Toast, ToastRegion],
+  providers: [NotifierStore, { provide: NOTIFIER, useExisting: NotifierStore }],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })
 export default class AppShell {
   private readonly router = inject(Router);
+  /** The toasts every screen inside the shell raises through `NOTIFIER`. */
+  protected readonly notifier = inject(NotifierStore);
   /** The signed-in person, read by the staff guard before the shell matched. */
   protected readonly staff = inject(CURRENT_STAFF).profile;
   /** The path shown, without its query or fragment; it marks the current navigation link. */

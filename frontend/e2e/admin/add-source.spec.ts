@@ -14,6 +14,40 @@ const REGIONS = [
   { slug: 'global', name: 'Global', time_zone: 'Etc/UTC' },
 ];
 
+const EMPTY = {
+  items: [],
+  total: 0,
+  page: 1,
+  page_size: 12,
+  all_count: 0,
+  failing_count: 0,
+  needs_look_count: 0,
+};
+
+const ADDED = {
+  id: 'src_k3m9p2q7x4ab',
+  kind: 'website',
+  address: 'https://lifepointfit.ca/events',
+  organization_name: 'LifePoint Fitness Ministry',
+  region: 'scarborough',
+  region_name: 'Scarborough',
+  health: 'healthy',
+  failure_reason: null,
+  consecutive_failures: 0,
+  held_count: 0,
+  articles_30d: 0,
+  last_fetched_at: null,
+};
+
+const listOf = (item: unknown) => ({ ...EMPTY, items: [item], total: 1, all_count: 1 });
+
+async function fill(dialog: AddSourceDialog): Promise<void> {
+  await dialog.type('Website').check();
+  await dialog.url.fill('https://lifepointfit.ca/events');
+  await dialog.organisation.fill('LifePoint Fitness Ministry');
+  await dialog.region.selectOption({ label: 'Scarborough' });
+}
+
 function answerSourcesScreen(api: ApiHandlers): void {
   api.on('GET', '/admin/v1/sources', () => ({
     json: {
@@ -176,6 +210,164 @@ test.describe('Add a source', () => {
     await expect(dialog.region).toHaveAttribute('aria-invalid', 'true');
     await expect(dialog.region).toBeFocused();
   });
+
+  // L2-064 AC4 and AC5.
+  test(
+    'adds the source once, busy until it is saved, then lists it and says so',
+    { tag: '@critical' },
+    async ({ page, api }) => {
+      let lists = 0;
+      api.on('GET', '/admin/v1/sources', () => {
+        lists += 1;
+        return { json: lists === 1 ? EMPTY : listOf(ADDED) };
+      });
+      api.on('GET', '/admin/v1/regions', () => ({ json: { items: REGIONS } }));
+      api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+      const posts: { body: unknown; token?: string }[] = [];
+      let answer!: () => void;
+      const answered = new Promise<void>((resolve) => (answer = resolve));
+      api.on('POST', '/admin/v1/sources', async (request) => {
+        posts.push({ body: request.postDataJSON(), token: request.headers()['x-xsrf-token'] });
+        await answered;
+        return { status: 201, json: ADDED };
+      });
+      const sources = new SourcesPage(page);
+      const dialog = new AddSourceDialog(page);
+      await sources.open();
+      await sources.addSource.click();
+      await dialog.type('Website').check();
+      await dialog.url.fill('https://lifepointfit.ca/events');
+      await dialog.organisation.fill('LifePoint Fitness Ministry');
+      await dialog.region.selectOption({ label: 'Scarborough' });
+
+      await dialog.submit.click();
+
+      await expect(dialog.submit).toHaveText('Adding…');
+      await expect(dialog.submit).toHaveAttribute('aria-busy', 'true');
+      await expect(dialog.submit).toBeDisabled();
+      await expect(dialog.cancel).toBeDisabled();
+      await expect(dialog.close).toBeDisabled();
+      await expect(dialog.url).toBeDisabled();
+      await expect(dialog.type('RSS')).toBeDisabled();
+      await page.keyboard.press('Escape');
+      await expect(dialog.root).toHaveCount(1);
+      await dialog.submit.press('Enter');
+      expect(posts).toEqual([
+        {
+          body: {
+            kind: 'website',
+            address: 'https://lifepointfit.ca/events',
+            organization_name: 'LifePoint Fitness Ministry',
+            region: 'scarborough',
+          },
+          token: 'tok_1',
+        },
+      ]);
+
+      answer();
+
+      await expect(dialog.root).toHaveCount(0);
+      await expect(sources.addSource).toBeFocused();
+      await expect(sources.row(0).name).toHaveText('LifePoint Fitness Ministry');
+      await expect(sources.toast).toHaveClass(/toast--success/);
+      await expect(sources.toastTitle).toHaveText('Source added');
+      await expect(sources.toastText).toHaveText(
+        'LifePoint Fitness Ministry will be checked on the next run.',
+      );
+      await expect(sources.toastRegion).toHaveAttribute('role', 'status');
+      expect(posts).toHaveLength(1);
+
+      await sources.toastDismiss.click();
+      await expect(sources.toast).toHaveCount(0);
+    },
+  );
+
+  test('gives focus to "Add source" after adding from the empty state', async ({ page, api }) => {
+    let lists = 0;
+    api.on('GET', '/admin/v1/sources', () => {
+      lists += 1;
+      return { json: lists === 1 ? EMPTY : listOf(ADDED) };
+    });
+    api.on('GET', '/admin/v1/regions', () => ({ json: { items: REGIONS } }));
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/sources', () => ({ status: 201, json: ADDED }));
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.emptyAction.click();
+    await fill(dialog);
+
+    await dialog.submit.click();
+
+    await expect(sources.rows).toHaveCount(1);
+    await expect(sources.addSource).toBeFocused();
+  });
+
+  // L2-064 AC6.
+  test('keeps the dialog and every entry when adding fails, with a reference', async ({
+    page,
+    api,
+  }) => {
+    answerSourcesScreen(api);
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/sources', () => ({
+      status: 500,
+      json: { code: 'internal_error', trace_id: 'req_5be2c7a1' },
+    }));
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.addSource.click();
+    await fill(dialog);
+
+    await dialog.submit.click();
+
+    await expect(dialog.failure).toHaveAttribute('role', 'alert');
+    await expect(dialog.failure).toContainText('Keryx couldn’t add the source');
+    await expect(dialog.failure).toContainText(
+      'Nothing was saved and your entries are still here.',
+    );
+    await expect(dialog.failure).toContainText('Reference req_5be2c7a1');
+    await expect(dialog.url).toHaveValue('https://lifepointfit.ca/events');
+    await expect(dialog.organisation).toHaveValue('LifePoint Fitness Ministry');
+    await expect(dialog.region).toHaveValue('scarborough');
+    await expect(dialog.submit).toHaveText('Add source');
+    await expect(dialog.submit).toBeEnabled();
+  });
+
+  // L2-064 AC7, and the address the API finds unsafe (L2-024).
+  for (const [answer, message] of [
+    [{ status: 409, json: { code: 'source_exists' } }, 'This source is already in the list.'],
+    [
+      {
+        status: 400,
+        json: { code: 'unsafe_address', errors: { address: ['The address is not public.'] } },
+      },
+      'Keryx can’t fetch this address: it isn’t on the public internet.',
+    ],
+  ] as const) {
+    test(`says on the URL field when the API answers ${answer.json.code}`, async ({
+      page,
+      api,
+    }) => {
+      answerSourcesScreen(api);
+      api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+      api.on('POST', '/admin/v1/sources', () => answer);
+      const sources = new SourcesPage(page);
+      const dialog = new AddSourceDialog(page);
+      await sources.open();
+      await sources.addSource.click();
+      await fill(dialog);
+
+      await dialog.submit.click();
+
+      await expect(dialog.urlError).toHaveText(message);
+      await expect(dialog.url).toHaveAttribute('aria-invalid', 'true');
+      await expect(dialog.url).toBeFocused();
+      await expect(dialog.failure).toHaveCount(0);
+      await expect(dialog.root).toHaveCount(1);
+    });
+  }
 
   // L2-064 AC8, L2-074: a bottom sheet below 640 px.
   test('is a bottom sheet on a narrow screen', async ({ page, api }) => {

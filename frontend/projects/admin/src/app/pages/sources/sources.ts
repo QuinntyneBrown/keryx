@@ -1,6 +1,6 @@
 import { Component, computed, inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
-import { SOURCES_API, type SourceListItem } from '@kx/api';
+import { NOTIFIER, SOURCES_API, type SourceListItem } from '@kx/api';
 import {
   Btn,
   Empty,
@@ -20,6 +20,7 @@ import {
 } from '@kx/domain';
 import { HttpSourcesApi } from '../../sources/http-sources-api';
 import { SourcesStore } from '../../sources/sources-store';
+import type { SourceAdded } from './add-source-dialog/add-source-dialog';
 
 /** What the header says when it cannot count the catalogue: while loading, or after a failure. */
 const PURPOSE = 'Feeds, pages and queries Keryx checks on every run.';
@@ -39,6 +40,7 @@ const PURPOSE = 'Feeds, pages and queries Keryx checks on every run.';
 export default class Sources {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  private readonly notifier = inject(NOTIFIER);
   protected readonly store = inject(SourcesStore);
 
   protected readonly columns: TableColumn[] = [
@@ -76,13 +78,13 @@ export default class Sources {
    * The CDK dialog and the dialog's code load when it is first opened, not with the screen
    * (ADR 0008). Focus starts in URL and returns to the pressed button when it closes.
    */
-  protected async addSource(): Promise<void> {
+  protected async addSource(addButton: Btn): Promise<void> {
     const opener = document.activeElement;
     const [{ Dialog }, dialog] = await Promise.all([
       import('@angular/cdk/dialog'),
       import('./add-source-dialog/add-source-dialog'),
     ]);
-    this.injector.get(Dialog).open(dialog.AddSourceDialog, {
+    const ref = this.injector.get(Dialog).open<SourceAdded>(dialog.AddSourceDialog, {
       injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: dialog.ADD_SOURCE_TITLE_ID,
@@ -91,6 +93,24 @@ export default class Sources {
       restoreFocus: opener instanceof HTMLElement ? opener : true,
       backdropClass: 'kx-backdrop',
     });
+    ref.closed.subscribe((added) => {
+      if (added) void this.added(added, addButton);
+    });
+  }
+
+  /**
+   * A source was added: the list shows it, a notification says so, and focus is on "Add source",
+   * even when the dialog was opened from the empty state, which the list replaces (L2-064 AC5).
+   * The next run's time joins the sentence when runs are scheduled (journey 4).
+   */
+  private async added({ organisation }: SourceAdded, addButton: Btn): Promise<void> {
+    this.notifier.notify({
+      tone: 'success',
+      title: 'Source added',
+      text: `${organisation} will be checked on the next run.`,
+    });
+    await this.store.load();
+    addButton.focus();
   }
 
   protected retry(): void {
