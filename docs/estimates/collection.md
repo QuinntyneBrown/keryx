@@ -9,4 +9,4 @@
 | run-collection-now | 3 days | 0% |
 | run-collection-pipeline | 6 days | 80% |
 | schedule-collection | 3 days | 90% |
-| score-and-publish | 3 days | 40% |
+| score-and-publish | 3 days | 95% |

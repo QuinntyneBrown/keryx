@@ -251,3 +251,27 @@ where they land: the robots meta tag in HTML pages (the page parser, with websit
 null organization of a news-query item (the news client), `GET /v1/regions` and focus-area
 regions (journeys 10 and 18), and serving events and organizations (journey 9).
 
+## Journey 6: Worker scores and publishes
+
+**What slowed it.** Little: the scorer, `RelevanceScore` and `PublicationPolicy` arrived with
+journeys 3 and 4, and journey 5 already stored a score and a status. What remained was the
+decision an article keeps (reason, threshold, who decided), the rule that a run never overrules
+staff, and the frontend's copy of the case table.
+
+- **Pick the float case by running it.** `0.1 + 0.2 + 0.3` drifts above 0.6 and `0.3 - 0.1`
+  multiplies back to exactly 20, so neither caught a comparison made without rounding to
+  hundredths; `0.57 * 100` (56.99999999999999) did. Print the value in `node` before writing
+  the row.
+- **Work expected scores from the weights in the test.** Writing "one topic in Toronto:
+  0.6 × 1/3 + 0.4 = 0.60" above the items made the threshold cases (0.60 published at T 0.60,
+  held at T 0.65) exact, with no guessing at the scorer.
+- **An exact-keys assertion catches every new field.** The article's three new fields broke the
+  keep-facts test's key list at once, which is its purpose: the list is updated deliberately.
+
+**How earlier lessons worked.** "Start every mutation loop with a control run" ran first in
+each loop and passed. "A session does not outlive a jump of the clock" was applied up front:
+each test opens its staff client after its last advance. Deferred: the threshold help text and
+the article detail that use `publicationStatusFor` (journeys 11 and 18), the staff decision
+itself (journey 12), and an event with no linked article (none is made yet: every event comes
+from an article).
+
