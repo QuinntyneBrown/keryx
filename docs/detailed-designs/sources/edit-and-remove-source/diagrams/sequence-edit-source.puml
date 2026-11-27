@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Edit a source
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "EditSourceDialog" as dialog
+  participant "HttpSourcesApi" as client
+  participant "SourcesStore" as store
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "UpdateSourceCommandHandler" as handler
+  participant "Source" as entity
+  participant "SourceTester" as tester
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Choose "Edit source" (row menu or a run's issue)
+page -> dialog : Open with the source's current URL, organization, region
+opt source is failing
+  dialog --> actor : Alert "Last fetch failed today at 6:01 AM" with the reason (L2-065)
+end
+alt Cancel, Close, Escape or backdrop
+  dialog -> page : Close, nothing changed, focus to the opener
+else "Save source" with valid changes
+  dialog -> dialog : Busy, closing blocked, one request
+  dialog -> client : updateSource(id, {address, organization_name, region})
+  client -> controller : PUT /admin/v1/sources/{id}
+  controller -> handler : Send UpdateSourceCommand
+  handler -> db : Load active source
+  alt unknown id
+    handler --> controller : SourceNotFoundException
+    controller --> client : 404 source_not_found
+  else equal to another active source after normalization
+    handler --> controller : SourceExistsException
+    controller --> client : 409 source_exists, nothing changes (L2-003)
+  else saved
+    handler -> entity : Update(address, organization, region)
+    handler -> db : Save source and AuditEntry, applies from the next run
+    handler -> tester : TestAsync(kind, new address), health unchanged
+    tester --> handler : SourceTestResultDto
+    handler --> controller : {source, test}
+    controller --> client : 200
+    client --> dialog : Saved
+    dialog -> store : Replace the row with saved values
+    dialog -> page : Close, focus to the opener
+    dialog -> notifier : Success notification, copy <TO SUPPLY>
+  else save fails
+    handler --> controller : Exception
+    controller --> client : 500 ProblemDetails with trace_id
+    client --> dialog : Failure
+    dialog --> actor : Alert "Keryx couldn’t save your changes", Reference req_..., entries kept
+  end
+end
+@enduml

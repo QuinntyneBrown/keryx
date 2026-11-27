@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Edit and remove a source
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+
+Rel(staff, keryx, "Edits, removes and restores sources through")
+Rel(staff, idp, "Signs in with")
+Rel(keryx, sources, "Test-fetches an edited address once", "HTTPS")
+Rel(product, keryx, "Keeps reading articles collected from removed sources", "HTTPS /v1")
+@enduml

@@ -1,0 +1,153 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record runs and issues
+
+enum WorkerName {
+  collection
+  retention
+  alert_digest
+}
+enum RunTrigger {
+  schedule
+  manual
+}
+enum RunOutcome {
+  running
+  succeeded
+  completed_with_issues
+  failed
+}
+class Run {
+  +PublicId Id
+  +WorkerName Worker
+  +RunTrigger Trigger
+  +DateTimeOffset StartedAt
+  +DateTimeOffset? FinishedAt
+  +long? DurationMs
+  +RunOutcome Outcome
+  +string? FailureReason
+  +string? CorrelationId
+  +RunCounts Counts
+  +int SourcesChecked
+  +int SourcesTotal
+  +Finish(nowUtc): void
+  +Fail(reason: string, correlationId: string, nowUtc): void
+}
+class RunCounts <<value object>> {
+  +int Added
+  +int Updated
+  +int Unchanged
+  +int Duplicates
+  +int Held
+  +int OffTopic
+  +int Rejected
+  +int SourcesOk
+  +int SourcesFailed
+}
+class StageResult
+enum IssueSeverity {
+  error
+  warning
+}
+enum IssueKind {
+  source_not_found
+  source_timeout
+  source_blocked
+  source_invalid
+  items_held
+  stage_failed
+  run_skipped
+}
+enum IssueState {
+  open
+  muted
+  closed
+}
+class RunIssue {
+  +PublicId Id
+  +IssueSeverity Severity
+  +IssueKind Kind
+  +SourceId? SourceId
+  +StageName? Stage
+  +string Detail
+  +int ConsecutiveRuns
+  +DateTimeOffset Since
+  +IssueState State
+  +Recur(run: Run, detail: string): void
+  +Mute(nowUtc): void
+  +Unmute(): void
+  +Close(nowUtc): void
+}
+class IssueOccurrence {
+  +PublicId RunId
+  +PublicId IssueId
+  +DateTimeOffset OccurredAt
+  +string Detail
+}
+class IssueTracker {
+  +Record(run: Run, subject: IssueSubject, kind: IssueKind, rawDetail: string): RunIssue
+  +SourceSucceeded(run: Run, source: SourceId): void
+}
+class IssueDetailSanitizer {
+  +{static} int MaxLength = 300
+  +{static} Sanitize(raw: string): string
+}
+class RunRecordingBehavior<TRequest, TResponse> {
+  +Handle(request, next, ct): Task<TResponse>
+}
+interface IWorkerRunCommand {
+  +WorkerName Worker
+  +RunTrigger Trigger
+}
+class RunDto {
+  +string id
+  +string worker
+  +string trigger
+  +string started_at
+  +string? finished_at
+  +long? duration_ms
+  +string outcome
+  +int added, updated, unchanged, duplicates
+  +int held, off_topic, rejected
+  +int sources_ok, sources_failed
+  +int sources_checked
+  +int sources_total
+}
+class IssueDto {
+  +string id
+  +string severity
+  +string kind
+  +string detail
+  +int consecutive_runs
+  +string since
+  +bool muted
+}
+
+Run --> WorkerName
+Run --> RunTrigger
+Run --> RunOutcome
+Run *-- RunCounts
+Run "1" *-- "6" StageResult
+Run "1" o-- "*" IssueOccurrence : lists
+RunIssue "1" *-- "*" IssueOccurrence : occurred in
+RunIssue --> IssueSeverity
+RunIssue --> IssueKind
+RunIssue --> IssueState
+IssueTracker ..> RunIssue : opens / continues / closes
+IssueTracker ..> IssueDetailSanitizer : uses
+RunRecordingBehavior ..> IWorkerRunCommand : wraps
+RunRecordingBehavior ..> Run : records
+RunDto ..> Run : maps
+IssueDto ..> RunIssue : maps
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Expire a session
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Screen" as screen
+  participant "sessionInterceptor" as interceptor
+  participant "SessionStore" as store
+  participant "SignInPage" as page
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Cookie scheme (OnValidatePrincipal)" as cookie
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidateStaffSessionCommandHandler" as handler
+  participant "StaffSession" as session
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> screen : Act after a pause
+screen -> interceptor : GET or POST /admin/v1/...
+interceptor -> cookie : Request with session cookie
+cookie -> handler : Send ValidateStaffSessionCommand(session id)
+handler -> db : Load StaffSession
+db --> handler : Session
+handler -> session : IsExpired(now from TimeProvider, 60 min idle, 12 h absolute)
+alt idle 60 minutes or older than 12 hours (configurable)
+  session --> handler : true
+  handler -> db : Delete StaffSession
+  handler --> cookie : SessionExpiredException
+  cookie -> mapper : Reject principal
+  mapper --> interceptor : 401 session_expired (L2-041)
+  interceptor -> interceptor : Close open CDK Dialog by its ref
+  interceptor -> store : clear()
+  interceptor -> page : Navigate to /sign-in?state=session-expired&return=<current path>
+  page --> actor : Session-expired state; nothing the server saved is discarded
+else within both limits
+  session --> handler : false
+  handler -> session : Touch(now)
+  handler -> db : Save LastSeenAt
+  handler --> cookie : Valid
+  cookie --> interceptor : Request proceeds to StaffPolicy
+end
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Trace an API request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Admin page" as page
+  participant "Http…Api" as client
+  participant "alert" as alert
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "ASP.NET Core instrumentation" as inst
+  participant "Controller" as ctrl
+  participant "ProblemDetailsMapper" as pdm
+  participant "ApiMetrics" as metrics
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "TelemetryRedactionProcessor" as red
+  participant "OTLP exporter" as exp
+end box
+actor -> page : Open a screen
+page -> client : Build typed request
+client -> inst : GET /admin/v1/articles/art_…?q=…
+inst -> inst : Start span; http.route = /admin/v1/articles/{id}
+inst -> ctrl : Dispatch
+alt success
+  ctrl --> inst : 200
+else error
+  ctrl -> pdm : Exception
+  pdm --> inst : ProblemDetails with code and trace_id = current trace id (L2-094)
+end
+inst -> metrics : Record(route template, client id, status, duration)
+inst -> red : End span
+red -> red : Keep allow-listed tags; drop query, body, headers, key, cookie, e-mail, name
+red -> exp : Export span
+inst --> client : Response
+alt error response
+  client --> page : ApiError with code and trace_id
+  page -> alert : Generic message and Reference
+  alert --> actor : Shows Reference as text
+else success
+  client --> page : Data
+end
+@enduml

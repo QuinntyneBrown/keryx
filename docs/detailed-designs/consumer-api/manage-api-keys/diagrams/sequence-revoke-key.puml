@@ -1,0 +1,73 @@
+@startuml
+title UML sequence behaviour — Revoke a key
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "RevokeApiKeyDialog" as dialog
+  participant "ApiStore" as store
+  participant "HttpApiClientsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiClientsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RevokeApiClientCommandHandler" as handler
+  participant "ApiClient" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Press "Revoke" on a row
+page -> dialog : Open with the client; focus on "Cancel" (L2-069)
+dialog --> actor : "Revoke the key for <product>?", prefix, requests in 24 h, no Undo
+actor -> dialog : Press "Revoke key"
+dialog -> dialog : Busy "Revoking…"; Close, Cancel, Escape and backdrop ignored
+dialog -> client : revoke(id), sent once
+client -> controller : POST /admin/v1/api-clients/{id}/revoke with anti-forgery token
+controller -> handler : Send RevokeApiClientCommand
+handler -> db : Load client by public id
+alt client not found or id malformed
+  db --> handler : None
+  handler --> controller : ApiClientNotFoundException
+  controller --> client : 404 client_not_found
+else already revoked
+  db --> handler : Client with revoked_at
+  handler --> controller : Client unchanged
+  controller --> client : 200, revoked_at unchanged (L2-036)
+else active
+  db --> handler : Active client
+  handler -> entity : Revoke(now from TimeProvider)
+  handler -> db : Save client and audit entry
+  db --> handler : Committed
+  handler --> controller : ApiClientDto with revoked_at
+  controller --> client : 200 {client}
+end
+alt success
+  client --> dialog : Revoked client
+  dialog -> page : Close with result
+  page -> store : markRevoked(client): "Revoked" badge, no Revoke button
+  page -> notifier : Warning "Key revoked", "<product> now gets 401 Unauthorized. Create a new key to reconnect it.", action "New API key", no Undo
+else failure
+  client --> dialog : Error with trace id
+  dialog --> actor : Failed state "Keryx couldn’t revoke the key"; key still active
+end
+note over controller, db
+  The authentication handler reads the client on every /v1 request,
+  so the very next request with this key gets 401 invalid_api_key (L2-033).
+end note
+@enduml

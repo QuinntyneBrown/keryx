@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Route change, title and focus
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Angular Router" as router
+  participant "KeryxTitleStrategy" as title
+  participant "focusHeadingOnNavigation" as focus
+  participant "Routed screen" as screen
+  participant "Document" as doc
+end box
+actor -> router : Activate the "Runs" nav-link by keyboard
+router -> screen : loadComponent and create
+router -> title : updateTitle(snapshot)
+title -> doc : document.title = "Runs · Keryx" (L2-091 criterion 3)
+router -> focus : NavigationEnd
+focus -> screen : afterNextRender
+screen --> focus : First render done
+focus -> doc : Focus h1 (tabindex="-1")
+doc --> actor : Visible 2 px focus ring, 3:1 contrast, not hidden by top bar, save bar or toasts (L2-091 criterion 2)
+actor -> doc : Tab
+doc --> actor : Next control in visual order; no trap outside dialogs and menus (L2-091 criterion 1)
+@enduml

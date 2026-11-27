@@ -1,0 +1,127 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Serve events
+
+package "Keryx.Api" {
+  class EventsController {
+    +List(query: ListEventsQuery): Task<ActionResult<PageDto<EventDto>>>
+    +Get(id: string): Task<ActionResult<EventDto>>
+  }
+}
+
+package "Keryx.Application" {
+  class ListEventsQuery {
+    +int? Limit
+    +string? Cursor
+    +DateTimeOffset? From
+    +DateTimeOffset? To
+    +string? Region
+    +string? Org
+  }
+  class ListEventsQueryValidator {
+    +ListEventsQueryValidator(db: IAppDbContext, cursors: ICursorCodec)
+  }
+  class ListEventsQueryHandler {
+    +ListEventsQueryHandler(db: IAppDbContext, time: TimeProvider, cursors: ICursorCodec)
+    +Handle(query: ListEventsQuery): Task<PageDto<EventDto>>
+  }
+  class GetEventQuery {
+    +string Id
+  }
+  class GetEventQueryHandler {
+    +Handle(query: GetEventQuery): Task<EventDto>
+  }
+  class ServedRecordFilters <<static>> {
+    +ServedEvents(events: IQueryable<Event>, articles: IQueryable<Article>): IQueryable<Event>
+  }
+  interface ICursorCodec {
+    +Encode(position: CursorPosition): string
+    +TryDecode(cursor: string, out position: CursorPosition): bool
+  }
+  class "PageDto<T>" as PageDto {
+    +IReadOnlyList<T> Data
+    +string? NextCursor
+  }
+  class EventDto {
+    +string Id
+    +string Title
+    +DateTimeOffset StartsAt
+    +DateTimeOffset? EndsAt
+    +string TimeZone
+    +string PlaceName
+    +string Region
+    +OrganizationRefDto? Organization
+    +string Url
+    +string? ArticleId
+  }
+  class OrganizationRefDto {
+    +string Id
+    +string Name
+  }
+  class InvalidFilterException
+  class NotFoundException {
+    +string Code
+  }
+  interface IAppDbContext {
+    +Events: DbSet<Event>
+    +Articles: DbSet<Article>
+  }
+}
+
+package "Keryx.Domain" {
+  class Event {
+    +PublicId Id
+    +string Title
+    +DateTimeOffset StartsAt
+    +DateTimeOffset? EndsAt
+    +string TimeZone
+    +string PlaceName
+    +string Region
+    +CanonicalUrl Url
+    +PublicId? ArticleId
+    +ArticleStatus OwnStatus
+  }
+  class Article {
+    +PublicId Id
+    +ArticleStatus Status
+  }
+  enum ArticleStatus {
+    Published
+    NeedsReview
+    Hidden
+  }
+  class Organization {
+    +PublicId Id
+    +string Name
+  }
+}
+
+EventsController ..> ListEventsQuery : sends
+EventsController ..> GetEventQuery : sends
+ListEventsQueryValidator ..> ListEventsQuery : validates
+ListEventsQueryValidator ..> InvalidFilterException : throws invalid_filter
+ListEventsQueryHandler ..> ListEventsQuery : handles
+ListEventsQueryHandler ..> ServedRecordFilters : applies
+ListEventsQueryHandler ..> ICursorCodec
+ListEventsQueryHandler --> IAppDbContext : queries
+GetEventQueryHandler ..> GetEventQuery : handles
+GetEventQueryHandler ..> ServedRecordFilters : applies
+GetEventQueryHandler ..> NotFoundException : throws event_not_found
+PageDto "1" o-- "0..100" EventDto
+EventDto --> OrganizationRefDto
+Event "*" --> "0..1" Article : linked story
+Event "*" --> "0..1" Organization : belongs to
+Event --> ArticleStatus : own status when unlinked
+Article --> ArticleStatus
+@enduml

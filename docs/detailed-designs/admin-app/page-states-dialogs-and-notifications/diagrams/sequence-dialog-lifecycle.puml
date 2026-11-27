@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Dialog lifecycle
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Screen page" as page
+  participant "CDK Dialog" as cdk
+  participant "Dialog component" as dlg
+  participant "DialogCloseController" as ctl
+  participant "Angular Router" as router
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controller" as controller
+end box
+actor -> page : Activate "Remove" on a source
+page -> cdk : open(RemoveSourceDialog, dialogConfig(destructive))
+cdk -> dlg : Create with role="dialog", aria-modal="true", aria-labelledby, aria-describedby
+cdk -> cdk : Trap focus; block page scroll; shell root inert (L2-074 criterion 1)
+dlg --> actor : Focus on "Cancel"; "Remove source" styled as danger (L2-074 criterion 4)
+alt no request in flight
+  actor -> dlg : Escape, Close or backdrop click
+  dlg -> ctl : requestClose()
+  ctl -> ctl : busy is false
+  ctl -> cdk : ref.close() without a result
+  cdk --> actor : Dialog closed; focus restored to "Remove" (L2-074 criterion 2)
+else request in flight
+  actor -> dlg : Press "Remove source"
+  dlg -> controller : DELETE request
+  dlg --> actor : Button reads "Removing…", busy, not activated twice
+  actor -> dlg : Escape, Close or backdrop click
+  dlg -> ctl : requestClose()
+  ctl -> ctl : busy is true; stay open (L2-074 criterion 3)
+  controller --> dlg : Response
+  dlg -> cdk : ref.close(result)
+else the app navigates while open
+  actor -> router : Back button or a notification's "View run"
+  router -> cdk : NavigationStart: closeDialogsBeforeNavigation closes every ref (L2-074 criterion 5)
+  cdk --> router : Closed
+  router --> actor : New screen
+end
+note over dlg : Below 640 px the panel is a bottom sheet no taller than the viewport,\nits body scrolls and its actions stay visible (L2-074 criterion 6)
+@enduml

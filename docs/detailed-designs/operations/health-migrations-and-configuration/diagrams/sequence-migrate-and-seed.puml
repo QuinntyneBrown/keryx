@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Migrate and seed
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator or release pipeline" as op
+box "Backend — Keryx CLI application" #D1FADF
+  participant "migrate" as mig
+  participant "seed" as seed
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SeedDataCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+op -> mig : dotnet run --project src/Keryx.Cli -- migrate
+mig -> db : Database.MigrateAsync
+alt pending migrations
+  db --> mig : Applied
+else none pending
+  db --> mig : Nothing changed
+end
+mig --> op : Exit 0 (L2-095)
+op -> seed : … -- seed
+seed -> h : Send SeedDataCommand
+h -> db : Upsert regions by slug
+h -> db : Upsert categories by slug
+h -> db : Insert Settings row only when absent
+h -> db : Upsert news query sources by seed key
+db --> h : Each exists exactly once
+h --> seed : Done
+seed --> op : Exit 0
+@enduml

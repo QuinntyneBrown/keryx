@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Observe the system
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Shows trace_id as Reference")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+}
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls; reads trace_id on errors", "JSON/HTTPS")
+Rel(product, api, "Calls /v1", "JSON/HTTPS")
+Rel(api, otel, "Exports request spans, API metrics, logs", "OTLP")
+Rel(worker, otel, "Exports run traces, run metrics, logs", "OTLP")
+@enduml

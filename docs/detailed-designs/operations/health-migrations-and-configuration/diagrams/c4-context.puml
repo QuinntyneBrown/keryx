@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Health, migrations and configuration
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(staff, keryx, "Uses")
+Rel(product, keryx, "Calls /v1", "JSON/HTTPS")
+Rel(keryx, idp, "Configured authority and client id", "OIDC")
+Rel(keryx, mail, "Configured host and credentials", "SMTP")
+Rel(keryx, otel, "Configured OTLP endpoint", "OTLP")
+@enduml

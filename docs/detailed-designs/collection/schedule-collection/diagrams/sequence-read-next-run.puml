@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Schedule collection: read the next run time
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Shell sidebar / OverviewPage" as page
+  participant "HttpOverviewApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminOverviewController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetNextRunQueryHandler" as handler
+  participant "CollectionSchedule" as schedule
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open the admin app
+page -> client : Request the overview
+client -> controller : GET /admin/v1/overview
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send GetNextRunQuery
+handler -> db : Read Settings interval
+db --> handler : 6 hours
+handler -> schedule : NextSlotAfter(now from TimeProvider, 6 h)
+schedule --> handler : 12:00 America/Toronto as UTC (L2-005)
+handler --> controller : NextRunDto(next_run_at UTC, time_zone America/Toronto)
+controller --> client : 200 JSON with next_run_at
+client --> page : next run
+page --> actor : Show "12:00 PM · in 2h 14m" in Toronto time
+@enduml

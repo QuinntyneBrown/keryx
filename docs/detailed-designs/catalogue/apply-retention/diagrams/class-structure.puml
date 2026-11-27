@@ -1,0 +1,76 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Apply retention
+
+class RetentionWorker {
+  -TimeProvider time
+  -IMediator mediator
+  #ExecuteAsync(ct: CancellationToken): Task
+}
+class ApplyRetentionCommand {
+  +RunTrigger Trigger
+}
+class ApplyRetentionCommandHandler {
+  -IAppDbContext db
+  -TimeProvider time
+  +Handle(c: ApplyRetentionCommand, ct: CancellationToken): Task<RetentionResult>
+}
+class RetentionPolicy {
+  +{static} int BatchSize = 1000
+  +Cutoff(now: DateTimeOffset, months: int): DateTimeOffset
+  +IsOrphan(org: Organization): bool
+}
+class RetentionResult {
+  +int Articles
+  +int Events
+  +int Organizations
+  +int Runs
+  +int AuditEntries
+  +int Deleted
+}
+class Settings {
+  +int RetentionMonths
+}
+class Run {
+  +PublicId Id
+  +string Worker
+  +RunTrigger Trigger
+  +DateTimeOffset StartedAt
+  +DateTimeOffset? FinishedAt
+  +RunOutcome Outcome
+  +Finish(outcome: RunOutcome, now: DateTimeOffset): void
+}
+interface IAppDbContext {
+  +Settings Settings
+  +DbSet<Article> Articles
+  +DbSet<Event> Events
+  +DbSet<Organization> Organizations
+  +DbSet<Run> Runs
+  +DbSet<AuditEntry> AuditEntries
+  +SaveChangesAsync(ct): Task<int>
+}
+enum RunTrigger {
+  schedule
+  manual
+}
+
+RetentionWorker ..> ApplyRetentionCommand : sends
+ApplyRetentionCommandHandler ..> ApplyRetentionCommand : handles
+ApplyRetentionCommandHandler ..> RetentionPolicy : uses
+ApplyRetentionCommandHandler ..> IAppDbContext : deletes through
+ApplyRetentionCommandHandler ..> Settings : reads
+ApplyRetentionCommandHandler --> Run : records
+ApplyRetentionCommandHandler ..> RetentionResult : returns
+ApplyRetentionCommand --> RunTrigger
+@enduml

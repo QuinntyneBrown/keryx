@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Daily digest of held articles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "AlertDigestWorker" as worker
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SendHeldArticlesDigestCommandHandler" as handler
+  participant "AlertComposer" as comp
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SmtpMailSender" as smtp
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+worker -> worker : Wait until 08:00 America/Toronto read from TimeProvider
+worker -> handler : Send SendHeldArticlesDigestCommand(schedule)
+handler -> db : Start run, worker alert_digest (L2-078)
+handler -> db : Read settings and count of needs_review articles
+db --> handler : Switch, alert address, count 6
+alt switch on and count above 0
+  handler -> db : Read up to 20 titles
+  db --> handler : Titles
+  handler -> comp : Digest(6, titles)
+  comp --> handler : Count, titles as text, link to Articles filtered to Needs review
+  handler -> smtp : SendAsync(message)
+  smtp -> mail : SMTP over TLS
+  mail --> smtp : Accepted
+else switch off or no article needs review
+  handler -> handler : Send nothing
+end
+handler -> db : Finish run and save
+handler --> worker : Done
+worker -> worker : Wait for next 08:00
+@enduml

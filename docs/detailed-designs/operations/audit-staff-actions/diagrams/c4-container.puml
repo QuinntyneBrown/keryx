@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Audit staff actions
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Sends state-changing requests", "JSON/HTTPS")
+Rel(api, db, "Writes change and audit entry together", "EF Core")
+Rel(worker, db, "Deletes expired audit entries", "EF Core")
+Rel(api, otel, "Exports keryx.auth.refused", "OTLP")
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Run the collection pipeline
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+
+Rel(worker, sources, "Fetches with time-outs, retries and per-host limits", "HTTPS")
+Rel(worker, db, "Records stage results; stores staged records in batches; publishes in one transaction", "EF Core")
+Rel(api, db, "Reads published records only", "EF Core")
+Rel(product, api, "Reads", "JSON/HTTPS")
+Rel(worker, otel, "Exports telemetry", "OTLP")
+@enduml

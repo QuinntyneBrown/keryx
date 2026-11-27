@@ -1,0 +1,168 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Serve articles
+
+package "Keryx.Api" {
+  class ArticlesController {
+    +List(query: ListArticlesQuery): Task<ActionResult<PageDto<ArticleSummaryDto>>>
+    +Get(id: string): Task<ActionResult<ArticleDetailDto>>
+  }
+}
+
+package "Keryx.Application" {
+  class ListArticlesQuery {
+    +int? Limit
+    +string? Cursor
+    +string? Region
+    +string? Category
+    +string? Org
+    +DateTimeOffset? Since
+  }
+  class ListArticlesQueryValidator {
+    +ListArticlesQueryValidator(db: IAppDbContext, cursors: ICursorCodec)
+  }
+  class ListArticlesQueryHandler {
+    +Handle(query: ListArticlesQuery): Task<PageDto<ArticleSummaryDto>>
+  }
+  class GetArticleQuery {
+    +string Id
+  }
+  class GetArticleQueryHandler {
+    +Handle(query: GetArticleQuery): Task<ArticleDetailDto>
+  }
+  class ServedRecordFilters <<static>> {
+    +ServedArticles(articles: IQueryable<Article>): IQueryable<Article>
+    +ServedEvents(events: IQueryable<Event>, articles: IQueryable<Article>): IQueryable<Event>
+    +ListedOrganizations(orgs: IQueryable<Organization>, ...): IQueryable<Organization>
+  }
+  interface ICursorCodec {
+    +Encode(position: CursorPosition): string
+    +TryDecode(cursor: string, out position: CursorPosition): bool
+  }
+  class CursorPosition {
+    +string ListName
+    +string FilterFingerprint
+    +DateTimeOffset SortTime
+    +string LastId
+  }
+  class "PageDto<T>" as PageDto {
+    +IReadOnlyList<T> Data
+    +string? NextCursor
+  }
+  class ArticleSummaryDto {
+    +string Id
+    +string Title
+    +OrganizationRefDto? Organization
+    +string Category
+    +string Region
+    +DateTimeOffset PublishedAt
+    +string Url
+    +string Summary
+  }
+  class ArticleDetailDto {
+    +IReadOnlyList<string> Tags
+    +DateTimeOffset CollectedAt
+    +string? EventId
+    +IReadOnlyList<SourceLinkDto> Sources
+  }
+  class OrganizationRefDto {
+    +string Id
+    +string Name
+  }
+  class SourceLinkDto {
+    +string Name
+    +string Url
+  }
+  class KeryxException {
+    +string Code
+    +int Status
+  }
+  class InvalidLimitException
+  class InvalidFilterException
+  class InvalidCursorException
+  class NotFoundException
+  interface IAppDbContext {
+    +Articles: DbSet<Article>
+    +Organizations: DbSet<Organization>
+    +Regions: DbSet<Region>
+  }
+}
+
+package "Keryx.Domain" {
+  class Article {
+    +PublicId Id
+    +string? Title
+    +string Summary
+    +CanonicalUrl Url
+    +string Category
+    +string Region
+    +IReadOnlyList<string> Tags
+    +DateTimeOffset PublishedAt
+    +DateTimeOffset CollectedAt
+    +RelevanceScore Score
+    +ArticleStatus Status
+  }
+  enum ArticleStatus {
+    Published
+    NeedsReview
+    Hidden
+  }
+  class Provenance {
+    +PublicId SourceId
+    +string SourceName
+    +string Url
+    +DateTimeOffset FirstSeenAt
+    +DateTimeOffset LastSeenAt
+  }
+  class Organization {
+    +PublicId Id
+    +string Name
+  }
+}
+
+package "Keryx.Infrastructure" {
+  class DataProtectionCursorCodec {
+    -IDataProtector protector
+  }
+  class KeryxDbContext
+}
+
+ArticlesController ..> ListArticlesQuery : sends
+ArticlesController ..> GetArticleQuery : sends
+ListArticlesQueryValidator ..> ListArticlesQuery : validates
+ListArticlesQueryValidator ..> ICursorCodec : decodes cursor
+ListArticlesQueryHandler ..> ListArticlesQuery : handles
+ListArticlesQueryHandler ..> ServedRecordFilters : applies
+ListArticlesQueryHandler ..> ICursorCodec : issues next cursor
+ListArticlesQueryHandler --> IAppDbContext : queries
+ListArticlesQueryHandler ..> PageDto : returns
+GetArticleQueryHandler ..> GetArticleQuery : handles
+GetArticleQueryHandler ..> ServedRecordFilters : applies
+GetArticleQueryHandler --> IAppDbContext : queries
+GetArticleQueryHandler ..> NotFoundException : throws article_not_found
+PageDto "1" o-- "0..100" ArticleSummaryDto
+ArticleSummaryDto <|-- ArticleDetailDto
+ArticleSummaryDto --> OrganizationRefDto
+ArticleDetailDto "1" *-- "1..*" SourceLinkDto
+ICursorCodec ..> CursorPosition
+ICursorCodec <|.. DataProtectionCursorCodec
+IAppDbContext <|.. KeryxDbContext
+KeryxException <|-- InvalidLimitException
+KeryxException <|-- InvalidFilterException
+KeryxException <|-- InvalidCursorException
+KeryxException <|-- NotFoundException
+Article --> ArticleStatus : has
+Article "1" *-- "1..*" Provenance : provenance
+Article "*" --> "0..1" Organization : published by
+@enduml

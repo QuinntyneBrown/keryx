@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Store records
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+
+Rel(keryx, sources, "Collects items from", "HTTPS")
+Rel(product, keryx, "Reads articles, events, organizations and regions from", "JSON/HTTPS")
+Rel(staff, keryx, "Reviews records in")
+@enduml

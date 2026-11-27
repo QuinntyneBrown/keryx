@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Serve organizations and sources
+
+System_Ext(product, "Consuming product", "Reads the consumer API")
+Container_Boundary(api, "Keryx API") {
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "Authenticates the Bearer key; sources:read policy applies")
+  Component(orgs, "OrganizationsController", "ASP.NET Core controller", "GET /v1/organizations and /v1/organizations/{id}")
+  Component(srcs, "V1SourcesController", "ASP.NET Core controller", "GET /v1/sources")
+  Component(listo, "ListOrganizationsQueryHandler", "MediatR handler", "Keyset page of listed organizations by name")
+  Component(geto, "GetOrganizationQueryHandler", "MediatR handler", "One listed organization")
+  Component(lists, "ListSourcesQueryHandler", "MediatR handler", "Keyset page of active sources, public fields only")
+  Component(served, "ServedRecordFilters", "Application query helper", "ListedOrganizations: at least one served article or event")
+  Component(codec, "DataProtectionCursorCodec", "ICursorCodec implementation", "Protects and reads opaque cursors")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext, IAppDbContext", "No-tracking projections")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Organizations, sources, articles, events")
+
+Rel(product, auth, "GET /v1/organizations, /v1/sources", "HTTPS, Bearer")
+Rel(auth, orgs, "Authenticated client")
+Rel(auth, srcs, "Authenticated client")
+Rel(orgs, listo, "Sends ListOrganizationsQuery")
+Rel(orgs, geto, "Sends GetOrganizationQuery")
+Rel(srcs, lists, "Sends ListSourcesQuery")
+Rel(listo, served, "Applies")
+Rel(geto, served, "Applies")
+Rel(listo, codec, "Cursors")
+Rel(lists, codec, "Cursors")
+Rel(listo, ctx, "Queries")
+Rel(geto, ctx, "Queries")
+Rel(lists, ctx, "Queries")
+Rel(ctx, db, "SQL", "EF Core")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Ingest idempotently: the same story through two sources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "DeduplicateStage" as stage
+  participant "StoreStage / PublishStage" as store
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Deduplicator" as dedup
+  participant "RecordIdentity / CanonicalUrl" as identity
+  participant "HeadlineSimilarity" as sim
+  participant "Provenance" as prov
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+stage -> dedup : MatchAsync(item from a news query source)
+dedup -> identity : RecordIdentity for the news query source
+dedup -> db : Find by identity
+db --> dedup : none
+dedup -> db : Find article by canonical URL (any source)
+alt same canonical URL
+  db --> dedup : article from the organization's feed
+  dedup --> stage : merged_duplicate(existing id) (L2-010)
+else different URL and merging on in Settings
+  db --> dedup : none
+  dedup -> db : Articles of the same organization within 14 days
+  db --> dedup : candidates
+  dedup -> sim : Score(headline, candidate headline)
+  sim --> dedup : similarity
+  alt similarity >= 0.90 (inclusive)
+    dedup --> stage : merged_duplicate(existing id)
+  else below 0.90
+    dedup --> stage : new_record
+  end
+else merging off in Settings
+  dedup --> stage : new_record (same-URL items still match by identity)
+end
+stage -> stage : duplicates + 1 for a merge
+stage -> store : Stream
+store -> prov : Add provenance entry for the second source on the existing article
+store -> db : Publish: one article listing both sources
+@enduml

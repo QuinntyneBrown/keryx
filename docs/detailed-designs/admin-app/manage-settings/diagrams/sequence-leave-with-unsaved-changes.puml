@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Leave Settings with unsaved changes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Browser window" as window
+  participant "Angular Router" as router
+  participant "unsavedChangesGuard" as guard
+  participant "SettingsPage" as page
+  participant "SettingsStore" as store
+  participant "DestroyRef" as destroy
+end box
+actor -> page : Change a value
+page -> store : update(...)
+store --> page : dirty = true
+page -> window : Add beforeunload listener while dirty
+alt staff choose another screen
+  actor -> router : Activate the Runs link
+  router -> guard : canDeactivate(SettingsPage)
+  guard -> store : dirty()
+  store --> guard : true
+  guard --> actor : Ask to confirm leaving (presentation <TO SUPPLY>)
+  alt staff stay
+    actor -> guard : Stay
+    guard --> router : false
+    router --> actor : Settings stays with every entry (L2-071 criterion 6)
+  else staff leave
+    actor -> guard : Leave
+    guard --> router : true
+    router -> page : Destroy component
+    page -> destroy : onDestroy
+    destroy -> window : Remove beforeunload listener
+    destroy -> store : Release store, timers and requests (L2-089)
+  end
+else staff close the tab or reload
+  actor -> window : Close or reload
+  window -> page : beforeunload
+  page -> window : preventDefault while dirty
+  window --> actor : Browser leave prompt; staying loses nothing
+end
+@enduml

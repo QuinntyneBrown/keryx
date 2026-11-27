@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Score and publish: score and classify an item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "ClassifyStage" as stage
+  participant "PublishStage" as publish
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RelevanceScorer" as scorer
+  participant "RelevanceScore" as score
+  participant "PublicationPolicy" as policy
+  participant "Article" as article
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+stage -> scorer : Score(item, snapshot.Scoring)
+scorer -> scorer : Weigh topics, exclusions, focus areas, Ontario-wide (L2-012 deterministic)
+scorer -> score : From(raw) rounds to two decimals, half away from zero (0.585 -> 0.59)
+score --> scorer : RelevanceScore
+scorer --> stage : score
+stage -> policy : Classify(score, snapshot.PublishThreshold)
+alt T >= 0.45
+  policy --> stage : published if score >= T; needs_review if 0.45 <= score < T; hidden if < 0.45 (L2-013)
+else T < 0.45
+  policy --> stage : published if score >= T; hidden otherwise; nothing held
+end
+stage -> stage : Count relevant, held, off_topic; done_with_warnings when held > 0
+stage -> publish : Stream through deduplicate and store
+publish -> db : Load existing article
+alt new article, or existing with decided_by system
+  publish -> article : ApplyCollectedDecision(status, status_reason below_publish_threshold when held, threshold T)
+else decided_by staff
+  publish -> publish : Keep status (L2-014)
+end
+publish -> db : Commit in the publish transaction
+@enduml

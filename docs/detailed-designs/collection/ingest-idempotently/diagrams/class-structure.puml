@@ -1,0 +1,97 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Ingest idempotently
+
+package "Keryx.Domain" {
+  class CanonicalUrl <<value object>> {
+    +string Value
+    +{static} TryCreate(raw: string, out url: CanonicalUrl): bool
+  }
+  class RecordIdentity <<value object>> {
+    +SourceId SourceId
+    +string Key
+    +KeyKind KeyKind
+    +{static} For(source: SourceId, guid: string?, platformId: string?, url: CanonicalUrl): RecordIdentity
+  }
+  enum KeyKind {
+    feed_guid
+    platform_id
+    canonical_url
+  }
+  class PublicId <<value object>> {
+    +string Value
+    +{static} New(prefix: string): PublicId
+  }
+  class HeadlineSimilarity {
+    +{static} decimal MergeThreshold = 0.90
+    +{static} Normalize(headline: string): string[]
+    +{static} Score(a: string, b: string): decimal
+  }
+  class OrganizationName {
+    +{static} Normalize(name: string): string
+  }
+  class EventMatch {
+    +{static} TimeSpan StartTolerance = 1 h
+    +{static} IsSame(a: EventCandidate, b: Event): bool
+  }
+  class Provenance {
+    +RecordKind RecordKind
+    +PublicId RecordId
+    +SourceId SourceId
+    +string SourceName
+    +CanonicalUrl Url
+    +DateTimeOffset FirstSeenAt
+    +DateTimeOffset LastSeenAt
+    +Touch(runStartedAt: DateTimeOffset): void
+  }
+  class Article {
+    +PublicId Id
+    +RecordIdentity Identity
+    +CanonicalUrl Url
+    +OrganizationId? OrganizationId
+    +string ContentFingerprint
+    +DateTimeOffset PublishedAt
+  }
+}
+package "Keryx.Application" {
+  interface IDeduplicator {
+    +MatchAsync(item: ParsedItem, settings: SettingsSnapshot, ct): Task<MatchResult>
+  }
+  class Deduplicator
+  class MatchResult {
+    +MatchKind Kind
+    +PublicId? ExistingId
+    +bool ContentChanged
+  }
+  enum MatchKind {
+    new_record
+    same_identity
+    merged_duplicate
+    rejected
+  }
+}
+
+Deduplicator ..|> IDeduplicator
+Deduplicator ..> RecordIdentity : builds
+Deduplicator ..> HeadlineSimilarity : uses when merging is on
+Deduplicator ..> OrganizationName : uses
+Deduplicator ..> EventMatch : uses
+Deduplicator ..> MatchResult : returns
+MatchResult --> MatchKind
+RecordIdentity --> CanonicalUrl
+RecordIdentity --> KeyKind
+Article --> RecordIdentity
+Article --> PublicId
+Article "1" *-- "1..*" Provenance : facts came from
+@enduml

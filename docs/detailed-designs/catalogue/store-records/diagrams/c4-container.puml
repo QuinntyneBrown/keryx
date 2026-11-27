@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Store records
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(worker, sources, "Fetches items from", "HTTPS")
+Rel(worker, db, "Writes articles, events and organizations", "EF Core")
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls /admin/v1", "JSON/HTTPS")
+Rel(product, api, "Calls /v1", "JSON/HTTPS")
+Rel(api, db, "Reads records and regions", "EF Core")
+@enduml

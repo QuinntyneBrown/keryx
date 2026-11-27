@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Conditional GET with ETag
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "Response compression" as comp
+  participant "ArticlesController" as controller
+  participant "EtagFilter" as etag
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListArticlesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> comp : GET /v1/articles?region=toronto, If-None-Match "e1", Accept-Encoding br
+comp -> controller : Authenticated request (key checks in key-management features)
+controller -> handler : Send ListArticlesQuery
+handler -> ctx : Keyset query over served articles
+ctx -> db : One query
+db --> ctx : Current rows
+ctx --> handler : Page
+handler --> controller : PageDto
+controller --> etag : 200 ObjectResult
+etag -> etag : Serialize with API JSON options; ETag = strong hash of body
+alt If-None-Match matches current ETag (nothing changed)
+  etag --> comp : Apply L2-032 304, ETag, Cache-Control private, max-age=60, no body
+  comp --> product : 304 Not Modified
+else changed (for example an article hidden by staff)
+  etag --> comp : Apply L2-032 200, new ETag, Cache-Control private, max-age=60, body
+  comp -> comp : Apply L2-086 compression of JSON body (br or gzip)
+  comp --> product : 200 compressed JSON page without the hidden article
+end
+@enduml

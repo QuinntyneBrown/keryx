@@ -1,0 +1,132 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Serve organizations and sources
+
+package "Keryx.Api" {
+  class OrganizationsController {
+    +List(query: ListOrganizationsQuery): Task<ActionResult<PageDto<OrganizationDto>>>
+    +Get(id: string): Task<ActionResult<OrganizationDto>>
+  }
+  class V1SourcesController {
+    +List(query: ListSourcesQuery): Task<ActionResult<PageDto<PublicSourceDto>>>
+  }
+}
+
+package "Keryx.Application" {
+  class ListOrganizationsQuery {
+    +int? Limit
+    +string? Cursor
+    +string? Region
+    +string? Kind
+    +string? Q
+  }
+  class ListOrganizationsQueryValidator
+  class ListOrganizationsQueryHandler {
+    +Handle(query: ListOrganizationsQuery): Task<PageDto<OrganizationDto>>
+  }
+  class GetOrganizationQuery {
+    +string Id
+  }
+  class GetOrganizationQueryHandler {
+    +Handle(query: GetOrganizationQuery): Task<OrganizationDto>
+  }
+  class ListSourcesQuery {
+    +int? Limit
+    +string? Cursor
+  }
+  class ListSourcesQueryValidator
+  class ListSourcesQueryHandler {
+    +Handle(query: ListSourcesQuery): Task<PageDto<PublicSourceDto>>
+  }
+  class ServedRecordFilters <<static>> {
+    +ServedArticles(articles: IQueryable<Article>): IQueryable<Article>
+    +ServedEvents(events: IQueryable<Event>, articles: IQueryable<Article>): IQueryable<Event>
+    +ListedOrganizations(orgs: IQueryable<Organization>, articles: IQueryable<Article>, events: IQueryable<Event>): IQueryable<Organization>
+  }
+  class OrganizationDto {
+    +string Id
+    +string Name
+    +string Kind
+    +string Region
+    +string? WebsiteUrl
+    +int ArticleCount
+  }
+  class PublicSourceDto {
+    +string Name
+    +string Kind
+    +OrganizationRefDto? Organization
+    +string Region
+  }
+  class OrganizationRefDto {
+    +string Id
+    +string Name
+  }
+  class "PageDto<T>" as PageDto {
+    +IReadOnlyList<T> Data
+    +string? NextCursor
+  }
+  class NotFoundException {
+    +string Code
+  }
+  interface IAppDbContext {
+    +Organizations: DbSet<Organization>
+    +Sources: DbSet<Source>
+    +Articles: DbSet<Article>
+    +Events: DbSet<Event>
+  }
+}
+
+package "Keryx.Domain" {
+  class Organization {
+    +PublicId Id
+    +string Name
+    +string NormalizedName
+    +string Kind
+    +string Region
+    +string? WebsiteUrl
+  }
+  class Source {
+    +PublicId Id
+    +SourceKind Kind
+    +string Address
+    +string Region
+    +SourceHealth Health
+    +DateTimeOffset? RemovedAt
+  }
+  enum SourceKind {
+    Rss
+    Website
+    Instagram
+    Eventbrite
+    NewsQuery
+  }
+}
+
+OrganizationsController ..> ListOrganizationsQuery : sends
+OrganizationsController ..> GetOrganizationQuery : sends
+V1SourcesController ..> ListSourcesQuery : sends
+ListOrganizationsQueryValidator ..> ListOrganizationsQuery : validates
+ListSourcesQueryValidator ..> ListSourcesQuery : validates
+ListOrganizationsQueryHandler ..> ServedRecordFilters : applies
+GetOrganizationQueryHandler ..> ServedRecordFilters : applies
+GetOrganizationQueryHandler ..> NotFoundException : throws organization_not_found
+ListOrganizationsQueryHandler --> IAppDbContext
+GetOrganizationQueryHandler --> IAppDbContext
+ListSourcesQueryHandler --> IAppDbContext
+PageDto "1" o-- "0..100" OrganizationDto
+PageDto "1" o-- "0..100" PublicSourceDto
+PublicSourceDto --> OrganizationRefDto
+Source "*" --> "0..1" Organization : belongs to
+Source --> SourceKind
+@enduml

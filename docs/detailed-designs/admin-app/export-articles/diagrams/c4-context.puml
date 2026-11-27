@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Export articles
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Exports the filtered article list as CSV from", "HTTPS")
+@enduml

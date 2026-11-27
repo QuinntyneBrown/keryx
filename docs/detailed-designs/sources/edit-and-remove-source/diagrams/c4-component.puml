@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit and remove a source
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "SourcesPage / RunsPage", "Routed pages", "Open the dialogs from a row menu or an issue")
+  Component(edit, "EditSourceDialog", "CDK Dialog", "Shows current values, saves changes")
+  Component(remove, "RemoveSourceDialog", "CDK Dialog", "Confirms removal, focus on Cancel")
+  Component(store, "SourcesStore", "Screen store", "Updates rows and header counts")
+  Component(client, "HttpSourcesApi", "SourcesApi via SOURCES_API", "Typed admin source requests")
+  Component(notifier, "Notifier", "NOTIFIER token", "Removed with Undo, danger on failure")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "/admin/v1/sources/{id}")
+  Component(update, "UpdateSourceCommandHandler", "MediatR handler", "Changes address, organization, region and tests")
+  Component(rm, "RemoveSourceCommandHandler", "MediatR handler", "Marks the source removed")
+  Component(restore, "RestoreSourceCommandHandler", "MediatR handler", "Undo of a removal")
+  Component(tester, "SourceTester", "Application service", "Test fetch, stores nothing")
+  Component(entity, "Source", "Domain entity", "Update, Remove, Restore")
+  ComponentDb(db, "Keryx database", "EF Core", "Sources, provenance, audit")
+}
+Rel(page, edit, "Opens")
+Rel(page, remove, "Opens")
+Rel(edit, client, "getSource, updateSource")
+Rel(remove, client, "removeSource")
+Rel(store, client, "restoreSource, list reload")
+Rel(edit, store, "Hands saved source")
+Rel(remove, store, "Hands removed id")
+Rel(store, notifier, "Notifies")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, update, "Sends UpdateSourceCommand")
+Rel(ctrl, rm, "Sends RemoveSourceCommand")
+Rel(ctrl, restore, "Sends RestoreSourceCommand")
+Rel(update, tester, "Tests saved address")
+Rel(update, entity, "Update")
+Rel(rm, entity, "Remove")
+Rel(restore, entity, "Restore")
+Rel(update, db, "Saves", "EF Core")
+Rel(rm, db, "Saves", "EF Core")
+Rel(restore, db, "Saves", "EF Core")
+@enduml

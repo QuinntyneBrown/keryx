@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Test a source fetch
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "SourcesPage", "Routed page", "Hosts the row menu and reports results")
+  Component(store, "SourcesStore", "Screen store", "Runs the test and keeps the list unchanged")
+  Component(menu, "Menu", "Presentation component", "CDK menu with keyboard navigation")
+  Component(client, "HttpSourcesApi", "SourcesApi via SOURCES_API", "Typed admin source requests")
+  Component(notifier, "Notifier", "NOTIFIER token", "Shows the result notification")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "Exposes /admin/v1/sources test endpoints")
+  Component(handler, "TestSourceFetchCommandHandler / TestExistingSourceFetchCommandHandler", "MediatR handlers", "Validate, load the source when given, delegate")
+  Component(tester, "SourceTester", "Application service", "Fetches, parses and scores once, stores nothing")
+  Component(fetcher, "ISourceFetcher", "Application contract", "Respectful and safe fetch")
+  Component(parser, "IFeedParser", "Application contract", "Bounded parse of fetched content")
+  Component(scorer, "IRelevanceScorer", "Application contract", "Scores each parsed item")
+  ComponentDb(db, "Keryx database", "EF Core", "Sources and settings")
+}
+Rel(page, menu, "Renders, listens for item choice")
+Rel(page, store, "Calls testSource(id)")
+Rel(store, client, "POST /admin/v1/sources/{id}/test")
+Rel(store, notifier, "Reports outcome")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, handler, "Sends one command")
+Rel(handler, db, "Reads source and timeout", "EF Core")
+Rel(handler, tester, "Runs test")
+Rel(tester, fetcher, "Fetches")
+Rel(tester, parser, "Parses")
+Rel(tester, scorer, "Scores items")
+@enduml

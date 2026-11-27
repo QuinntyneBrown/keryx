@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — List sources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "V1SourcesController" as controller
+  participant "EtagFilter" as etag
+  participant "ProblemDetailsMapper" as mapper
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListSourcesQueryValidator" as validator
+  participant "ListSourcesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DataProtectionCursorCodec" as codec
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/sources?limit=…&cursor=…
+auth -> auth : Authenticate Bearer key and apply sources:read policy
+auth -> controller : Authenticated client
+controller -> validator : Send ListSourcesQuery
+validator -> codec : Apply L2-026 limit and cursor rules
+codec --> validator : CursorPosition or refused
+alt invalid limit or cursor
+  validator --> mapper : KeryxException with code
+  mapper --> product : 400 problem+json, code invalid_limit or invalid_cursor
+else valid
+  validator -> handler : Valid ListSourcesQuery
+  handler -> ctx : Active sources (not removed); seek after sort key; take limit + 1
+  ctx -> db : One query projecting name, kind, organization, region only
+  db --> ctx : Up to limit + 1 rows
+  ctx --> handler : PublicSourceDto rows (L2-029: no health, failure detail or query text)
+  opt more rows remain
+    handler -> codec : Encode last position
+    codec --> handler : next_cursor
+  end
+  handler --> controller : PageDto
+  controller --> etag : 200 result
+  etag --> product : 200 JSON page with ETag
+end
+@enduml

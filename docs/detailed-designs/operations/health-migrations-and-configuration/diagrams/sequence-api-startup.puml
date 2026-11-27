@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — API startup
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as op
+box "Backend — Keryx API application" #D1FADF
+  participant "Program" as prog
+  participant "KeryxOptions validation" as opts
+  participant "SchemaStatusLogger" as logger
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DatabaseReadinessCheck" as check
+  database "Keryx database" as db
+end box
+op -> prog : Start the API
+prog -> opts : ValidateOnStart
+alt a required setting is missing
+  opts --> prog : OptionsValidationException
+  prog --> op : Message naming the setting, not its value; non-zero exit (L2-096)
+else all required settings present
+  opts --> prog : Valid
+  prog -> logger : StartAsync
+  logger -> check : CheckHealthAsync
+  check -> db : CanConnect, last applied migration
+  alt schema behind the build
+    check --> logger : Unhealthy
+    logger -> logger : Log warning: run migrate (no migration applied, L2-095)
+  else schema at expected version
+    check --> logger : Healthy
+  end
+  prog --> op : Listening; /health/ready reports readiness
+end
+@enduml

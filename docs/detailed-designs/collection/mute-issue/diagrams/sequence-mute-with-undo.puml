@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Mute an issue: mute, then undo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+  participant "ScheduleStore" as shell
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminIssuesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "MuteIssueCommandHandler / UnmuteIssueCommandHandler" as handler
+  participant "RunIssue" as issue
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Mute" on "Timed out after 30s"
+page -> store : muteIssue(issue)
+store -> store : Mark the issue pending; its Mute button busy
+store -> client : muteIssue(id)
+client -> controller : POST /admin/v1/issues/{id}/mute
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send MuteIssueCommand
+handler -> db : Load issue
+handler -> issue : Mute(now): not open, no alerts (L2-020)
+handler -> db : Save
+handler --> controller : IssueDto(muted true)
+controller --> client : 200
+client --> store : issue muted
+store --> page : Issue shown as muted on its run
+store -> shell : refresh(): Overview open count and badge no longer count it (L2-060)
+store -> notifier : Success "Issue muted" / "“Timed out after 30s” no longer raises alerts for Covenant Cycling Collective." with "Undo"
+actor -> notifier : Activate "Undo"
+notifier -> store : unmuteIssue(issue)
+store -> client : unmuteIssue(id)
+client -> controller : POST /admin/v1/issues/{id}/unmute
+controller -> handler : Send UnmuteIssueCommand
+handler -> issue : Unmute(): open again
+handler -> db : Save
+controller --> client : 200 IssueDto(muted false)
+store --> page : Issue open again
+store -> shell : refresh()
+@enduml

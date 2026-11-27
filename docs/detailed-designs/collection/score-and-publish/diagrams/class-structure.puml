@@ -1,0 +1,90 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Score and publish
+
+package "Keryx.Application" {
+  interface IRelevanceScorer {
+    +Score(item: ParsedItem, settings: ScoringSettings): RelevanceScore
+  }
+  class RelevanceScorer
+  class ScoringSettings {
+    +IReadOnlyList<string> Topics
+    +IReadOnlyList<string> Exclusions
+    +IReadOnlyList<Region> FocusAreas
+    +bool OntarioWide
+    +bool NationalCanadian
+  }
+  class SettingsSnapshot {
+    +ScoringSettings Scoring
+    +decimal PublishThreshold
+  }
+}
+package "Keryx.Domain" {
+  class RelevanceScore <<value object>> {
+    +decimal Value
+    +{static} From(raw: decimal): RelevanceScore
+  }
+  class PublicationPolicy {
+    +{static} decimal ReviewFloor = 0.45
+    +{static} Classify(score: RelevanceScore, threshold: decimal): PublicationDecision
+  }
+  class PublicationDecision {
+    +ArticleStatus Status
+    +string? StatusReason
+    +decimal Threshold
+  }
+  enum ArticleStatus {
+    published
+    needs_review
+    hidden
+  }
+  enum DecidedBy {
+    system
+    staff
+  }
+  class Article {
+    +RelevanceScore Score
+    +ArticleStatus Status
+    +string? StatusReason
+    +decimal Threshold
+    +DecidedBy DecidedBy
+    +ApplyCollectedDecision(decision: PublicationDecision): void
+  }
+}
+package "Keryx.Worker" {
+  class ClassifyStage {
+    +relevant: int
+    +held: int
+    +off_topic: int
+  }
+}
+package "frontend/projects/domain" {
+  class publicationStatusFor <<function>> {
+    +publicationStatusFor(score: number, threshold: number): ArticleStatus
+  }
+}
+
+RelevanceScorer ..|> IRelevanceScorer
+RelevanceScorer ..> ScoringSettings : reads
+RelevanceScorer ..> RelevanceScore : returns
+SettingsSnapshot *-- ScoringSettings
+ClassifyStage ..> IRelevanceScorer : uses
+ClassifyStage ..> PublicationPolicy : uses
+ClassifyStage ..> SettingsSnapshot : reads
+PublicationPolicy ..> PublicationDecision : returns
+PublicationDecision --> ArticleStatus
+Article --> RelevanceScore
+Article --> ArticleStatus
+Article --> DecidedBy
+@enduml

@@ -1,0 +1,155 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage API keys
+
+package "frontend/projects/admin" {
+  class ApiPage {
+    +openNewKey(): void
+    +openRevoke(client: ApiClientDto): void
+    +copyKey(): void
+  }
+  class ApiStore {
+    +clients: Signal<ApiClientDto[]>
+    +revealedKey: Signal<RevealedKey | null>
+    +newClientId: Signal<string | null>
+    +addCreated(result: CreatedApiClientDto): void
+    +markRevoked(client: ApiClientDto): void
+    +discardKey(): void
+  }
+  class NewApiKeyDialog {
+    +productName: Signal<string>
+    +scopes: Signal<ApiScopeName[]>
+    +busy: Signal<boolean>
+    +submit(): void
+  }
+  class RevokeApiKeyDialog {
+    +data: ApiClientDto
+    +busy: Signal<boolean>
+    +confirm(): void
+  }
+  class RevealedKey {
+    +productName: string
+    +key: string
+  }
+}
+
+package "frontend/projects/domain" {
+  class apiKeyFormValidation <<function>> {
+    +validate(name: string, scopes: string[]): ApiKeyFormErrors
+  }
+}
+
+package "frontend/projects/api" {
+  interface ApiClientsApi {
+    +list(page: number): Observable<ApiClientsPageDto>
+    +create(request: CreateApiClientRequest): Observable<CreatedApiClientDto>
+    +revoke(id: string): Observable<ApiClientDto>
+  }
+  class HttpApiClientsApi
+  class CreatedApiClientDto {
+    +client: ApiClientDto
+    +key: string
+  }
+}
+
+package "Keryx.Api" {
+  class AdminApiClientsController {
+    +Create(body: CreateApiClientCommand): Task<IActionResult>
+    +Revoke(id: string): Task<IActionResult>
+  }
+}
+
+package "Keryx.Application" {
+  class CreateApiClientCommand {
+    +string ProductName
+    +IReadOnlyList<string> Scopes
+  }
+  class CreateApiClientCommandValidator
+  class CreateApiClientCommandHandler {
+    +Handle(command: CreateApiClientCommand): Task<CreatedApiClientResult>
+  }
+  class CreatedApiClientResult {
+    +ApiClientDto Client
+    +string Key
+  }
+  class RevokeApiClientCommand {
+    +string Id
+  }
+  class RevokeApiClientCommandHandler {
+    +Handle(command: RevokeApiClientCommand): Task<ApiClientDto>
+  }
+  interface IApiKeyGenerator {
+    +Generate(): string
+  }
+  interface IApiKeyHasher {
+    +Hash(key: string): byte[]
+  }
+  class ClientNameTakenException
+  class ApiClientNotFoundException
+  abstract class KeryxException {
+    +string Code
+  }
+}
+
+package "Keryx.Domain" {
+  class ApiClient {
+    +PublicId Id
+    +string ProductName
+    +string KeyPrefix
+    +byte[] KeyHash
+    +IReadOnlySet<ApiScope> Scopes
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset? RevokedAt
+    +{static} Create(name, scopes, prefix, hash, now): ApiClient
+    +Revoke(now: DateTimeOffset): void
+  }
+  enum ApiScope {
+    ArticlesRead
+    EventsRead
+    SourcesRead
+  }
+}
+
+package "Keryx.Infrastructure" {
+  class ApiKeyGenerator
+  class ApiKeyHasher
+}
+
+ApiPage --> ApiStore
+ApiPage ..> NewApiKeyDialog : opens
+ApiPage ..> RevokeApiKeyDialog : opens
+ApiStore --> "0..1" RevealedKey
+NewApiKeyDialog ..> apiKeyFormValidation
+NewApiKeyDialog --> ApiClientsApi
+RevokeApiKeyDialog --> ApiClientsApi
+HttpApiClientsApi ..|> ApiClientsApi
+HttpApiClientsApi ..> AdminApiClientsController : HTTPS
+AdminApiClientsController ..> CreateApiClientCommand : sends
+AdminApiClientsController ..> RevokeApiClientCommand : sends
+CreateApiClientCommandValidator ..> CreateApiClientCommand : validates
+CreateApiClientCommandHandler ..> CreateApiClientCommand : handles
+CreateApiClientCommandHandler ..> CreatedApiClientResult : returns
+CreateApiClientCommandHandler --> IApiKeyGenerator
+CreateApiClientCommandHandler --> IApiKeyHasher
+CreateApiClientCommandHandler ..> ApiClient : creates
+CreateApiClientCommandHandler ..> ClientNameTakenException : throws
+RevokeApiClientCommandHandler ..> RevokeApiClientCommand : handles
+RevokeApiClientCommandHandler ..> ApiClient : Revoke(now)
+RevokeApiClientCommandHandler ..> ApiClientNotFoundException : throws
+ApiClient --> "1..3" ApiScope
+ApiKeyGenerator ..|> IApiKeyGenerator
+ApiKeyHasher ..|> IApiKeyHasher
+KeryxException <|-- ClientNameTakenException
+KeryxException <|-- ApiClientNotFoundException
+@enduml

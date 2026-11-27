@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Export articles
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "ArticlesPage", "Routed component", "Export CSV button, disabled in the error state")
+  Component(store, "ArticlesStore", "Signal store on the route component", "Starts the export, saves the file, revokes the object URL")
+  Component(domain, "exportFileName", "Domain library", "articles-YYYY-MM-DD.csv in Toronto time")
+  Component(contracts, "ARTICLES_API, NOTIFIER", "API library", "Contracts and tokens")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminArticlesController", "ASP.NET Core controller", "GET /admin/v1/articles/export")
+  Component(handler, "ExportArticlesQueryHandler", "MediatR handler", "Bound check, then async row stream")
+  Component(cell, "CsvCell", "Application helper", "RFC 4180 quoting and formula guard")
+  Component(result, "ArticleCsvResult", "ASP.NET Core action result", "Writes the stream as text/csv")
+  ComponentDb(db, "Keryx database", "EF Core", "Articles")
+}
+Rel(staff, page, "Presses Export CSV")
+Rel(page, store, "export()")
+Rel(store, domain, "Names the file with")
+Rel(store, contracts, "Calls")
+Rel(contracts, ctrl, "GET with status, q, region, category", "HTTPS")
+Rel(ctrl, handler, "Sends ExportArticlesQuery")
+Rel(handler, db, "Counts and streams", "EF Core")
+Rel(ctrl, result, "Returns")
+Rel(result, cell, "Escapes each value with")
+@enduml

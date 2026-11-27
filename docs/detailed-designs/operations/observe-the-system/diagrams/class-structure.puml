@@ -1,0 +1,58 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Observe the system
+
+class KeryxTelemetry {
+  +{static} AddKeryxTelemetry(services, configuration, serviceName: string): IServiceCollection
+}
+class TelemetryRedactionProcessor {
+  -ISet<string> allowedTags
+  +OnEnd(activity: Activity): void
+}
+class CollectionTelemetry {
+  +{static} ActivitySource Source = "Keryx.Collection"
+  +StartRun(runId: string): Activity?
+  +StartStage(stage: StageName): Activity?
+  +StartFetch(sourceId: string): Activity?
+}
+class CollectionMetrics {
+  -Histogram<double> runDuration
+  -Counter<long> items
+  -Counter<long> sourcesFailed
+  -Histogram<double> fetchDuration
+  +RecordRun(run: Run): void
+  +RecordFetch(sourceId: string, ms: double): void
+}
+class ApiMetrics {
+  -Counter<long> requests
+  -Histogram<double> duration
+  -Counter<long> errors
+  +Record(routeTemplate: string, clientId: string?, status: int, ms: double): void
+}
+class ProblemDetailsMapper {
+  +Map(e: Exception, http: HttpContext): ProblemDetails
+}
+class "BaseProcessor<Activity>" as BP
+class ApiError <<TypeScript>> {
+  +code: string
+  +trace_id: string
+}
+
+BP <|-- TelemetryRedactionProcessor
+KeryxTelemetry ..> TelemetryRedactionProcessor : registers
+KeryxTelemetry ..> CollectionTelemetry : registers source
+KeryxTelemetry ..> CollectionMetrics : registers meter
+KeryxTelemetry ..> ApiMetrics : registers meter
+ProblemDetailsMapper ..> ApiError : trace_id read by admin app
+@enduml

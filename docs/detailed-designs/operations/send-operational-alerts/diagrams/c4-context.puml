@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send operational alerts
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+
+Rel(staff, keryx, "Sets alert address and switches in")
+Rel(keryx, mail, "Sends alerts and the daily digest through", "SMTP over TLS")
+Rel(mail, staff, "Delivers e-mail to")
+@enduml

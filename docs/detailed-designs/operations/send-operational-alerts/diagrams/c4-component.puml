@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send operational alerts
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(pipe, "CollectionPipeline", "Pipeline", "Publishes RunFinishedNotification")
+  Component(dw, "AlertDigestWorker", "BackgroundService", "08:00 America/Toronto from TimeProvider")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(raise, "RaiseRunAlertsHandler", "MediatR notification handler", "Source-failing and failed-run alerts")
+  Component(digest, "SendHeldArticlesDigestCommandHandler", "MediatR handler", "Daily digest of held articles")
+  Component(policy, "SourceFailureAlertPolicy", "Domain service", "Once per streak; never when muted")
+  Component(comp, "AlertComposer", "Application service", "Plain text, admin links only")
+  Component(isend, "IMailSender", "Application contract", "Sends one message")
+}
+Container_Boundary(infra, "Keryx Infrastructure") {
+  Component(smtp, "SmtpMailSender", "IMailSender client", "SMTP with configured credentials")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Settings, issues, alert records, runs")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+
+Rel(pipe, raise, "Publishes RunFinishedNotification")
+Rel(dw, digest, "Sends SendHeldArticlesDigestCommand")
+Rel(raise, policy, "Decides with")
+Rel(raise, comp, "Composes with")
+Rel(digest, comp, "Composes with")
+Rel(raise, isend, "Sends through")
+Rel(digest, isend, "Sends through")
+Rel(smtp, isend, "Implements")
+Rel(smtp, mail, "Sends", "SMTP over TLS")
+Rel(raise, db, "Reads and writes", "IAppDbContext")
+Rel(digest, db, "Reads and writes", "IAppDbContext")
+@enduml

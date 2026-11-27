@@ -1,0 +1,115 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Serve reference data and status
+
+package "Keryx.Api" {
+  class CategoriesController {
+    +List(): Task<ActionResult<ListDto<CategoryDto>>>
+  }
+  class RegionsController {
+    +List(): Task<ActionResult<ListDto<RegionDto>>>
+  }
+  class StatusController {
+    +Get(): Task<ActionResult<StatusDto>>
+  }
+}
+
+package "Keryx.Application" {
+  class ListCategoriesQuery
+  class ListRegionsQuery
+  class GetStatusQuery
+  class ListCategoriesQueryHandler {
+    +Handle(query: ListCategoriesQuery): Task<ListDto<CategoryDto>>
+  }
+  class ListRegionsQueryHandler {
+    +Handle(query: ListRegionsQuery): Task<ListDto<RegionDto>>
+  }
+  class GetStatusQueryHandler {
+    +GetStatusQueryHandler(db: IAppDbContext, time: TimeProvider, schedule: CollectionSchedule)
+    +Handle(query: GetStatusQuery): Task<StatusDto>
+  }
+  class "CollectionSchedule (L2-005, name TO SUPPLY)" as CollectionSchedule {
+    +NextRunAt(now: DateTimeOffset, intervalHours: int): DateTimeOffset
+  }
+  class "ListDto<T>" as ListDto {
+    +IReadOnlyList<T> Data
+  }
+  class CategoryDto {
+    +string Slug
+    +string Name
+    +int ArticleCount
+  }
+  class RegionDto {
+    +string Slug
+    +string Name
+    +string TimeZone
+    +int ArticleCount
+  }
+  class StatusDto {
+    +DateTimeOffset? LastRunAt
+    +string Status
+    +DateTimeOffset NextRunAt
+    +int ArticlesTotal
+  }
+  interface IAppDbContext {
+    +Categories: DbSet<Category>
+    +Regions: DbSet<Region>
+    +Articles: DbSet<Article>
+    +Runs: DbSet<Run>
+    +Settings: DbSet<Settings>
+  }
+}
+
+package "Keryx.Domain" {
+  class Category {
+    +string Slug
+    +string Name
+  }
+  class Region {
+    +string Slug
+    +string Name
+    +string TimeZone
+    +int Rank
+  }
+  class Run {
+    +PublicId Id
+    +string Worker
+    +DateTimeOffset StartedAt
+    +DateTimeOffset? FinishedAt
+    +RunOutcome? Outcome
+  }
+  enum RunOutcome {
+    Succeeded
+    CompletedWithIssues
+    Failed
+  }
+  class Settings {
+    +int CollectionIntervalHours
+  }
+}
+
+CategoriesController ..> ListCategoriesQuery : sends
+RegionsController ..> ListRegionsQuery : sends
+StatusController ..> GetStatusQuery : sends
+ListCategoriesQueryHandler ..> ListCategoriesQuery : handles
+ListRegionsQueryHandler ..> ListRegionsQuery : handles
+GetStatusQueryHandler ..> GetStatusQuery : handles
+ListCategoriesQueryHandler --> IAppDbContext
+ListRegionsQueryHandler --> IAppDbContext
+GetStatusQueryHandler --> IAppDbContext
+GetStatusQueryHandler ..> CollectionSchedule : next_run_at
+ListDto o-- CategoryDto
+ListDto o-- RegionDto
+Run --> RunOutcome
+@enduml

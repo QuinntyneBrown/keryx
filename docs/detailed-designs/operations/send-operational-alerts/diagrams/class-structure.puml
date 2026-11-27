@@ -1,0 +1,95 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Send operational alerts
+
+class Settings {
+  +string? AlertEmail
+  +int FailureStreakThreshold
+  +bool AlertOnRunFailure
+  +bool DailyDigestEnabled
+}
+class RunIssue {
+  +PublicId Id
+  +string Severity
+  +string Kind
+  +int ConsecutiveRuns
+  +DateTimeOffset Since
+  +bool Muted
+  +DateTimeOffset? ClosedAt
+}
+class AlertRecord {
+  +Guid Id
+  +AlertKind Kind
+  +PublicId? IssueId
+  +PublicId? RunId
+  +int Attempts
+  +DateTimeOffset? SentAt
+  +MarkSent(now: DateTimeOffset): void
+  +MarkFailed(): void
+  +CanRetry(): bool
+}
+enum AlertKind {
+  source_failing
+  run_failed
+}
+class SourceFailureAlertPolicy {
+  +ShouldAlert(issue: RunIssue, threshold: int, record: AlertRecord?): bool
+}
+class RunFinishedNotification {
+  +PublicId RunId
+}
+class RaiseRunAlertsHandler {
+  +Handle(n: RunFinishedNotification, ct): Task
+}
+class SendHeldArticlesDigestCommand {
+  +RunTrigger Trigger
+}
+class SendHeldArticlesDigestCommandHandler {
+  +Handle(c: SendHeldArticlesDigestCommand, ct): Task
+}
+class AlertDigestWorker {
+  #ExecuteAsync(ct): Task
+}
+class AlertComposer {
+  +SourceFailing(source: Source, issue: RunIssue): MailMessage
+  +RunFailed(run: Run, stage: StageName): MailMessage
+  +Digest(count: int, titles: IReadOnlyList<string>): MailMessage
+}
+class MailMessage {
+  +string To
+  +string Subject
+  +string PlainTextBody
+}
+interface IMailSender {
+  +SendAsync(m: MailMessage, ct): Task
+}
+class SmtpMailSender
+
+RaiseRunAlertsHandler ..> RunFinishedNotification : handles
+RaiseRunAlertsHandler ..> SourceFailureAlertPolicy : uses
+RaiseRunAlertsHandler ..> AlertComposer : uses
+RaiseRunAlertsHandler ..> IMailSender : sends through
+RaiseRunAlertsHandler --> AlertRecord : creates and updates
+RaiseRunAlertsHandler ..> Settings : reads
+SendHeldArticlesDigestCommandHandler ..> SendHeldArticlesDigestCommand : handles
+SendHeldArticlesDigestCommandHandler ..> AlertComposer : uses
+SendHeldArticlesDigestCommandHandler ..> IMailSender : sends through
+SendHeldArticlesDigestCommandHandler ..> Settings : reads
+AlertDigestWorker ..> SendHeldArticlesDigestCommand : sends
+AlertRecord --> AlertKind
+AlertRecord "0..1" --> "1" RunIssue : streak
+SourceFailureAlertPolicy ..> RunIssue : reads
+AlertComposer ..> MailMessage : creates
+SmtpMailSender ..|> IMailSender
+@enduml

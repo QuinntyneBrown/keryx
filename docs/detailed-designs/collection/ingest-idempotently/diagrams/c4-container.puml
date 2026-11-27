@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Ingest idempotently
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+
+Rel(worker, sources, "Fetches", "HTTPS")
+Rel(worker, db, "Matches identity; stages and publishes records with provenance", "EF Core")
+Rel(staff, spa, "Opens a record", "HTTPS")
+Rel(spa, api, "Reads records with provenance", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
+Rel(product, api, "Reads", "JSON/HTTPS")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Filter to runs with problems
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Angular Router" as router
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListRunsQueryHandler" as listh
+  participant "GetRunQueryHandler" as geth
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Choose "With problems"
+page -> router : navigate(?problems=true) keeps the choice in the URL (L2-056)
+page -> store : open(runId = null, problems = true)
+store -> client : listRuns(worker = collection, problems = true, page_size = 14)
+client -> controller : GET /admin/v1/runs?problems=true&page_size=14
+controller -> listh : Send ListRunsQuery(Problems = true)
+listh -> db : Read runs whose outcome is not succeeded or with a failed source
+db --> listh : Matching runs
+listh --> controller : Page of RunSummaryDto
+controller --> client : 200 page envelope
+client --> store : RunSummaryDto[]
+alt at least one run with problems
+  store -> store : Select the newest matching run
+  store --> page : runs and selected
+  page --> actor : Filtered list with "With problems" marked aria-current
+else no run with problems
+  store -> store : listStatus = no-results
+  store --> page : no-results
+  page --> actor : "No runs with problems" with "Show all runs" (L2-056 criterion 3)
+  actor -> page : Activate "Show all runs"
+  page -> router : navigate(problems removed)
+  page -> store : open(runId = null, problems = false)
+end
+@enduml

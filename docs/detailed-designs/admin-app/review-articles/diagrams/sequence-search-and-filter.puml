@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Search and filter articles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesStore" as store
+  participant "articleQuery" as domain
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetAdminArticlesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Type "pickleball" in "Search titles, organisations, places"
+page -> store : onSearch(text)
+store -> store : Debounce 300 ms; typing again cancels the pending request (L2-050)
+store -> domain : searchTerm(text)
+domain --> store : null for 1 character, else the term
+store -> store : Write ?q=pickleball and page 1 to the URL
+store -> client : list(q, status, region, category, page 1); switchMap aborts the previous
+client -> controller : GET /admin/v1/articles?q=pickleball&page=1&page_size=10
+controller -> handler : Send GetAdminArticlesQuery
+handler -> handler : Use the first 100 characters; escape %, _ and quotes as literals (L2-050)
+handler -> db : Parameterized match on title, organization and place
+db --> handler : Matching rows and total
+handler --> controller : Page of rows
+controller --> client : 200 JSON
+client --> store : Page result
+alt no article matches
+  store --> page : listStatus no-results
+  page --> actor : "No articles match “pickleball”" as text, "Clear search"
+  actor -> page : Press "Clear search"
+  page -> store : setQuery(q empty)
+  store -> client : list(unfiltered)
+  page -> page : Return focus to the search field
+else matches
+  page --> actor : Filtered rows
+end
+actor -> page : Choose Region "Toronto" or a Category
+page -> store : setQuery(region, page 1)
+store -> client : list(combined with tab and search)
+client -> controller : GET /admin/v1/articles?region=toronto&q=…&status=…&page=1
+controller --> client : 200 JSON
+actor -> page : Press Back
+page -> store : setQuery(from previous URL)
+store -> client : list(previous query)
+@enduml

@@ -1,0 +1,177 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Review articles
+
+enum ArticleStatus {
+  published
+  needs_review
+  hidden
+}
+package "frontend/projects/admin" {
+  class ArticlesPage <<component>> {
+    #store: ArticlesStore
+    +onTab(status): void
+    +onSearch(text): void
+    +onFilter(region, category): void
+    +onPage(page): void
+    +onOpen(id): void
+    +onClose(): void
+  }
+  class ArticlesStore <<injectable route>> {
+    +query: Signal<ArticleQuery>
+    +rows: Signal<ArticleRowDto[]>
+    +total: Signal<number>
+    +counts: Signal<ArticleStatusCountsDto | null>
+    +listStatus: Signal<'loading'|'ready'|'empty'|'no-results'|'error'>
+    +selected: Signal<ArticleDetailDto | null>
+    +showSkeleton: Signal<boolean>
+    +setQuery(change: Partial<ArticleQuery>): void
+    +open(id): void
+    +close(): void
+    +retry(): void
+  }
+}
+package "frontend/projects/domain" {
+  class ArticleQuery {
+    +status: ArticleStatus | null
+    +q: string
+    +region: string | null
+    +category: string | null
+    +page: number
+    +article: string | null
+  }
+  class articleQuery <<functions>> {
+    +fromParams(params): ArticleQuery
+    +toParams(query): Params
+    +searchTerm(text): string | null
+  }
+  class formatters <<functions>> {
+    +formatRelativeAge(at, now): string
+    +formatRelevance(score): string
+    +articleStatusLabel(status): string
+    +safeHttpUrl(url): string | null
+  }
+}
+package "frontend/projects/components" {
+  class Table <<component>>
+  class Tabs <<component>> {
+    +selected: input<string>
+    +select: output<string>
+  }
+  class Pagination <<component>> {
+    +page: input<number>
+    +pageSize: input<number>
+    +total: input<number>
+    +pageChange: output<number>
+  }
+  class DetailPanel <<component>> {
+    +article: input<ArticleDetailView>
+    +busy: input<boolean>
+    +publish: output<void>
+    +hide: output<void>
+    +closed: output<void>
+  }
+  class Search <<component>>
+  class Badge <<component>>
+  class Meter <<component>>
+}
+package "frontend/projects/api" {
+  interface ArticlesApi {
+    +list(query: ArticleQuery): Observable<Page<ArticleRowDto>>
+    +counts(query: ArticleQuery): Observable<ArticleStatusCountsDto>
+    +get(id: string): Observable<ArticleDetailDto>
+  }
+  class ArticleRowDto {
+    +id: string
+    +title: string | null
+    +organization: string | null
+    +category: string
+    +region: string
+    +relevance: number
+    +status: ArticleStatus
+    +published_at: string | null
+    +collected_at: string
+  }
+  class ArticleDetailDto {
+    +summary: string
+    +url: string
+    +source: SourceRefDto
+    +tags: string[]
+    +status_reason: string | null
+    +threshold: number | null
+  }
+  class ArticleStatusCountsDto {
+    +all: number
+    +needs_review: number
+    +published: number
+    +hidden: number
+  }
+}
+package "backend/src" {
+  class AdminArticlesController {
+    +List(query): Task<PageDto<ArticleRowDto>>
+    +Counts(query): Task<ArticleStatusCountsDto>
+    +Get(id): Task<ArticleDetailDto>
+  }
+  class GetAdminArticlesQuery {
+    +int Page
+    +int PageSize
+    +ArticleStatus? Status
+    +string? Q
+    +string? Region
+    +string? Category
+  }
+  class GetAdminArticlesQueryValidator
+  class GetAdminArticlesQueryHandler {
+    +Handle(query): Task<PageDto<ArticleRowDto>>
+  }
+  class GetArticleStatusCountsQueryHandler
+  class GetAdminArticleQueryHandler {
+    +Handle(query): Task<ArticleDetailDto>
+  }
+  class ArticleNotFoundException {
+    +Code = "article_not_found"
+  }
+  class Article {
+    +PublicId Id
+    +ArticleTitle? Title
+    +ArticleStatus Status
+    +RelevanceScore Score
+  }
+}
+
+ArticlesPage ..> ArticlesStore : reads
+ArticlesPage ..> Tabs
+ArticlesPage ..> Search
+ArticlesPage ..> Table
+ArticlesPage ..> Pagination
+ArticlesPage ..> DetailPanel : @defer
+Table ..> Badge
+Table ..> Meter
+ArticlesStore --> ArticleQuery : holds
+ArticlesStore ..> articleQuery
+ArticlesStore ..> formatters
+ArticlesStore ..> ArticlesApi : ARTICLES_API
+ArticleDetailDto --|> ArticleRowDto
+ArticlesApi ..> ArticleRowDto
+ArticlesApi ..> ArticleStatusCountsDto
+AdminArticlesController ..> GetAdminArticlesQuery : sends
+GetAdminArticlesQueryValidator ..> GetAdminArticlesQuery : validates
+GetAdminArticlesQueryHandler ..> GetAdminArticlesQuery : handles
+GetAdminArticlesQueryHandler --> Article : reads
+GetArticleStatusCountsQueryHandler --> Article : counts
+GetAdminArticleQueryHandler --> Article : reads
+GetAdminArticleQueryHandler ..> ArticleNotFoundException : throws
+Article --> ArticleStatus
+@enduml

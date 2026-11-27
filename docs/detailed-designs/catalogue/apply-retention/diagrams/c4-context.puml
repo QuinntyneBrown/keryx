@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Apply retention
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Sets the retention period and reads retention runs in")
+@enduml

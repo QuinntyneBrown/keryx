@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Record runs and issues: read a run and the open issues
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage / OverviewPage" as page
+  participant "HttpRunsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController / AdminIssuesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetRunQueryHandler / GetIssuesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open a run
+page -> client : getRun(run_2418)
+client -> controller : GET /admin/v1/runs/run_2418
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send GetRunQuery
+handler -> db : Load run, stage results, issue occurrences
+alt found
+  handler --> controller : RunDto, every count a number (L2-019)
+  controller --> client : 200 added 47, duplicates 18, sources_ok 62, sources_failed 2
+else unknown or malformed id
+  controller --> client : 404 code run_not_found
+end
+page -> client : getIssues(state open, page 1)
+client -> controller : GET /admin/v1/issues?state=open&page=1&page_size=n
+controller -> handler : Send GetIssuesQuery
+handler -> db : Open issues ordered by severity (error first), then since ascending
+handler --> controller : items, total, page, page_size (L2-020)
+controller --> client : 200
+client --> page : runs and issues
+page --> actor : Run detail and open issues
+@enduml

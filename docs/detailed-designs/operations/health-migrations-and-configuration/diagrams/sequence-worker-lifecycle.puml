@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Worker start and shutdown
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Platform" as plat
+box "Backend — Keryx Worker application" #D1FADF
+  participant "WorkerReadinessGate" as gate
+  participant "CollectionScheduler" as sched
+  participant "CollectionPipeline" as pipe
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RecordRunFailureCommandHandler" as fail
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DatabaseReadinessCheck" as check
+  participant "HttpSourceFetcher" as fetch
+  database "Keryx database" as db
+end box
+plat -> gate : Start worker host (options validated on start)
+loop until healthy
+  gate -> check : CheckHealthAsync
+  check -> db : CanConnect, last applied migration
+  alt not ready
+    check --> gate : Unhealthy
+    gate -> gate : Report not ready; run no worker (L2-095)
+  else ready
+    check --> gate : Healthy
+  end
+end
+gate --> sched : Ready
+sched -> pipe : Run at scheduled time
+pipe -> fetch : FetchAsync(source, stopping token)
+plat -> sched : Shutdown signal (ShutdownTimeout 30 s)
+sched -> fetch : Cancel stopping token
+fetch --> pipe : OperationCanceledException
+pipe -> fail : Send RecordRunFailureCommand(reason interrupted)
+fail -> db : Save run as failed, reason interrupted
+pipe --> sched : Stopped
+sched --> plat : Process exits within 30 seconds
+@enduml

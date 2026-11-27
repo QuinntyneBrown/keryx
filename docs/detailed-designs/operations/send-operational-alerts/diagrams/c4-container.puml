@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send operational alerts
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Edits Alerts settings", "HTTPS")
+Rel(spa, api, "PUT /admin/v1/settings", "JSON/HTTPS")
+Rel(api, db, "Saves settings", "EF Core")
+Rel(worker, db, "Reads settings, issues, held articles; writes alert records and runs", "EF Core")
+Rel(worker, mail, "Sends e-mail", "SMTP over TLS")
+@enduml

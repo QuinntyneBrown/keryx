@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Follow a running collection on Overview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "OverviewPage" as page
+  participant "OverviewStore" as store
+  participant "RunsApi / OverviewApi" as client
+  participant "CollectionWatcher" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetRunQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+store -> store : Status has current_run run_2419
+store --> page : "Current run", "Collecting news now…", "Started 9:46 AM · 38 of 64 sources checked"
+page --> actor : Progress bar with accessible value; disabled "Collecting…" (L2-043)
+loop while outcome is running, at most every 3 seconds
+  store -> client : getRun(run_2419)
+  client -> controller : GET /admin/v1/runs/run_2419
+  controller -> handler : Send GetRunQuery
+  handler -> db : Read run and stage progress
+  db --> handler : sources_checked, new_articles
+  handler --> controller : RunDto
+  controller --> client : JSON
+  client --> store : RunDto; replace progress, hold only the latest (L2-089)
+  store --> page : Counts update without reload
+end
+alt run finished
+  store -> client : getStatus() and listRuns(1, 14)
+  client --> store : New last_run and chart
+  store -> store : ScheduleStore refreshes next run
+  store --> page : Card returns to "Last run" (L2-043)
+  store -> notifier : runEnded(final RunDto)
+  notifier --> actor : Outcome notification once per run (L2-076)
+end
+note over store : Polling timer and in-flight request are released when Overview is left
+@enduml

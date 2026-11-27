@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Runs loading, empty and error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Angular Router" as router
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListRunsQueryHandler" as listh
+  participant "GetRunQueryHandler" as geth
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> router : Navigate to /runs
+router -> page : Create RunsPage
+page -> store : open(null, false)
+store -> client : listRuns(page_size = 14)
+client -> controller : GET /admin/v1/runs
+opt no response within 300 ms
+  store -> store : listStatus = loading
+  store --> page : loading
+  page --> actor : Skeletons of list and detail, aria-busy="true" (L2-061 criterion 1)
+end
+controller -> listh : Send ListRunsQuery
+alt runs exist
+  listh -> db : Read runs
+  db --> listh : Runs
+  listh --> controller : Page
+  controller --> client : 200
+  client --> store : RunSummaryDto[]
+  store -> client : getRun(newest)
+  client -> controller : GET /admin/v1/runs/{id}
+  controller -> geth : Send GetRunQuery
+  alt detail loads
+    geth -> db : Read run
+    db --> geth : Run
+    geth --> controller : RunDto
+    controller --> client : 200
+    client --> store : RunDto
+    store --> page : ready
+  else detail fails
+    controller --> client : ProblemDetails with code
+    client --> store : ApiError(code, trace id)
+    store -> store : detailStatus = error; list stays usable
+    store --> page : detail error
+    page --> actor : Inline alert with "Try again" in the detail area (L2-061 criterion 4)
+  end
+else no run exists
+  listh -> db : Read runs
+  db --> listh : None
+  listh --> controller : Empty page
+  controller --> client : 200 with no items
+  client --> store : []
+  store --> page : empty
+  page --> actor : "No runs yet", first scheduled time, "Run now" and "Add a source" (L2-061 criterion 2)
+else list request fails
+  controller --> client : ProblemDetails or network failure
+  client --> store : ApiError(code, trace id)
+  store --> page : error
+  page --> actor : "Runs didn't load", Reference req_…, "Try again", "Go to overview" (L2-073)
+end
+@enduml

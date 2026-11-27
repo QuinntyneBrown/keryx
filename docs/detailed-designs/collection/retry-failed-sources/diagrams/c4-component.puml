@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Retry failed sources
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "RunsPage", "Angular routed component", "Run detail with Retry failed sources")
+  Component(store, "RunsStore", "Screen store on RunsPage (RUNS_STORE)", "retryFailedSources(), polling no faster than 3 s")
+  Component(summary, "summarizeRetry", "domain library", "Recovered and still-failing sources to a notification")
+  Component(btn, "Btn / Toast", "components library", "btn and toast blocks")
+  Component(notifier, "Notifier", "Service (NOTIFIER)", "Shows run toasts")
+  Component(runsApi, "HttpRunsApi", "RunsApi (RUNS_API)", "retryFailedSources(id), getRun(id)")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "POST /admin/v1/runs/{id}/retry")
+  Component(handler, "RetryFailedSourcesCommandHandler", "MediatR handler", "Requests a retry or starts a new manual run")
+}
+Container_Boundary(worker, "Keryx Worker") {
+  Component(runHandler, "RunCollectionCommandHandler", "MediatR handler (worker host)", "Executes the retry through the pipeline")
+  Component(pipeline, "CollectionPipeline", "ICollectionPipeline", "Six stages over the failed sources only")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Run lease, runs, issues")
+
+Rel(page, store, "Calls retryFailedSources()")
+Rel(page, btn, "Renders")
+Rel(store, runsApi, "Calls")
+Rel(store, summary, "Builds notification from before and after")
+Rel(store, notifier, "Info, warning or danger toast")
+Rel(runsApi, ctrl, "POST /admin/v1/runs/{id}/retry", "JSON/HTTPS")
+Rel(ctrl, handler, "Sends RetryFailedSourcesCommand")
+Rel(handler, db, "Claims RunLease; marks retry pending", "EF Core")
+Rel(runHandler, db, "Loads the retry; merges results into the run", "EF Core")
+Rel(runHandler, pipeline, "ExecuteAsync(RunPlan.ForRetry)")
+@enduml

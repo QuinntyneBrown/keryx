@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Mute an issue
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "RunsPage", "Angular routed component", "Issues in this run, each with Mute and Edit source")
+  Component(store, "RunsStore", "Screen store on RunsPage", "muteIssue(), unmuteIssue()")
+  Component(shell, "ScheduleStore", "App-wide shell state (SCHEDULE_STORE)", "Open issue count and navigation badge")
+  Component(btn, "Btn / Toast", "components library", "btn ghost sm; toast success and danger")
+  Component(notifier, "Notifier", "Service (NOTIFIER)", "Issue muted with Undo; failure with Try again")
+  Component(runsApi, "HttpRunsApi", "RunsApi (RUNS_API)", "muteIssue(id), unmuteIssue(id)")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminIssuesController", "ASP.NET Core controller", "POST /admin/v1/issues/{id}/mute and /unmute")
+  Component(handler, "MuteIssueCommandHandler / UnmuteIssueCommandHandler", "MediatR handlers", "Change the issue state")
+  Component(issue, "RunIssue", "Domain entity", "open, muted, closed")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Issues")
+
+Rel(page, store, "Calls muteIssue(issue)")
+Rel(page, btn, "Renders")
+Rel(store, runsApi, "Calls")
+Rel(store, notifier, "Success or danger toast")
+Rel(store, shell, "Refreshes open count and badge")
+Rel(runsApi, ctrl, "POST", "JSON/HTTPS")
+Rel(ctrl, handler, "Sends one command")
+Rel(handler, issue, "Mute(now) / Unmute()")
+Rel(handler, db, "Saves", "EF Core")
+@enduml

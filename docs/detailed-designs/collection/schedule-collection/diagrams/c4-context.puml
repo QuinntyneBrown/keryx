@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Schedule collection
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Chooses the collection interval in Settings and reads the next run time", "HTTPS")
+Rel(keryx, sources, "Collects from at each scheduled time", "HTTPS")
+Rel(product, keryx, "Reads next_run_at from GET /v1/status", "JSON/HTTPS")
+@enduml

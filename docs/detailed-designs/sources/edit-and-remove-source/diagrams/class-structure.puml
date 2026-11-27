@@ -1,0 +1,114 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Edit and remove a source
+
+package "Keryx.Domain" {
+  class Source {
+    +PublicId Id
+    +SourceKind Kind
+    +CanonicalUrl Address
+    +string OrganizationName
+    +string RegionSlug
+    +DateTimeOffset? RemovedAt
+    +Update(address: CanonicalUrl, organization: string, region: string): void
+    +Remove(now: DateTimeOffset): void
+    +Restore(): void
+  }
+  class Provenance {
+    +PublicId SourceId
+    +string Url
+    +DateTimeOffset FirstSeenAt
+    +DateTimeOffset LastSeenAt
+  }
+  class AuditEntry {
+    +string SubjectId
+    +string Action
+    +string TargetId
+    +DateTimeOffset At
+  }
+}
+
+package "Keryx.Application" {
+  class GetSourceQuery {
+    +PublicId SourceId
+  }
+  class UpdateSourceCommand {
+    +PublicId SourceId
+    +string Address
+    +string OrganizationName
+    +string Region
+  }
+  class UpdateSourceCommandValidator
+  class UpdateSourceCommandHandler {
+    +Handle(cmd: UpdateSourceCommand): Task<UpdateSourceResultDto>
+  }
+  class UpdateSourceResultDto {
+    +SourceDto Source
+    +SourceTestResultDto Test
+  }
+  class RemoveSourceCommand {
+    +PublicId SourceId
+  }
+  class RemoveSourceCommandHandler {
+    +Handle(cmd: RemoveSourceCommand): Task
+  }
+  class RestoreSourceCommand {
+    +PublicId SourceId
+  }
+  class RestoreSourceCommandHandler {
+    +Handle(cmd: RestoreSourceCommand): Task<SourceDto>
+  }
+  class SourceTester {
+    +TestAsync(kind, address, ct): Task<SourceTestResultDto>
+  }
+  class SourceNotFoundException {
+    +Code = "source_not_found"
+  }
+  class SourceExistsException {
+    +Code = "source_exists"
+  }
+}
+
+package "admin app (frontend)" {
+  class EditSourceDialog {
+    +source: SourceDetailDto
+    +busy: signal<boolean>
+    +save(): void
+  }
+  class RemoveSourceDialog {
+    +source: SourceDetailDto
+    +busy: signal<boolean>
+    +confirm(): void
+  }
+}
+
+UpdateSourceCommandValidator ..> UpdateSourceCommand : validates
+UpdateSourceCommandHandler ..> UpdateSourceCommand : handles
+UpdateSourceCommandHandler --> Source : Update
+UpdateSourceCommandHandler --> SourceTester : tests once
+UpdateSourceCommandHandler ..> UpdateSourceResultDto : returns
+RemoveSourceCommandHandler ..> RemoveSourceCommand : handles
+RemoveSourceCommandHandler --> Source : Remove
+RestoreSourceCommandHandler ..> RestoreSourceCommand : handles
+RestoreSourceCommandHandler --> Source : Restore
+UpdateSourceCommandHandler ..> SourceExistsException : throws
+RestoreSourceCommandHandler ..> SourceExistsException : throws
+UpdateSourceCommandHandler ..> SourceNotFoundException : throws
+RemoveSourceCommandHandler ..> SourceNotFoundException : throws
+UpdateSourceCommandHandler ..> AuditEntry : records
+RemoveSourceCommandHandler ..> AuditEntry : records
+RestoreSourceCommandHandler ..> AuditEntry : records
+Provenance "*" --> "1" Source : kept after removal
+EditSourceDialog ..> UpdateSourceResultDto : receives
+@enduml

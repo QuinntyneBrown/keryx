@@ -1,0 +1,141 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Report API usage
+
+package "Keryx.Domain" {
+  class ApiClient {
+    +PublicId Id
+    +string ProductName
+    +string KeyPrefix
+    +IReadOnlySet<ApiScope> Scopes
+    +DateTimeOffset? RevokedAt
+    +DateTimeOffset? LastCallAt
+    +RecordCall(at: DateTimeOffset): void
+  }
+  class ApiUsageHour {
+    +PublicId ClientId
+    +DateTimeOffset HourStart
+    +long Requests
+    +long Errors
+    +long[] LatencyBucketCounts
+    +Add(counts: ApiUsageCounts): void
+  }
+  class ApiUsageClassifier <<static>> {
+    +IsError(status: int): bool
+  }
+  class ApiUsageSummary <<static>> {
+    +ErrorRate(requests: long, errors: long): double
+    +P95LatencyMs(buckets: long[]): double?
+  }
+}
+
+package "Keryx.Application" {
+  class RecordApiUsageCommand {
+    +PublicId ClientId
+    +int Status
+    +double ElapsedMs
+    +DateTimeOffset At
+  }
+  class RecordApiUsageCommandHandler
+  class FlushApiUsageCommand
+  class FlushApiUsageCommandHandler
+  interface IApiUsageAccumulator {
+    +Add(command: RecordApiUsageCommand, isError: bool): void
+    +Drain(): IReadOnlyList<ApiUsageCounts>
+  }
+  class ApiUsageCounts {
+    +PublicId ClientId
+    +DateTimeOffset HourStart
+    +long Requests
+    +long Errors
+    +long[] LatencyBucketCounts
+    +DateTimeOffset LastCallAt
+  }
+  class GetApiClientsQuery {
+    +int Page
+    +int PageSize
+  }
+  class GetApiClientsQueryValidator
+  class GetApiClientsQueryHandler
+  class GetApiUsageQuery
+  class GetApiUsageQueryHandler
+  class ApiClientDto {
+    +string Id
+    +string ProductName
+    +string KeyPrefix
+    +string[] Scopes
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset? RevokedAt
+    +long Requests24h
+    +long Errors24h
+    +double ErrorRate
+    +DateTimeOffset? LastCallAt
+  }
+  class ApiUsageDto {
+    +string BaseUrl
+    +long Requests24h
+    +double? P95LatencyMs
+    +double ErrorRate
+  }
+}
+
+package "Keryx.Infrastructure" {
+  class InMemoryApiUsageAccumulator
+}
+
+package "Keryx.Api" {
+  class ApiUsageMiddleware
+  class ApiUsageFlushService
+}
+
+package "frontend" {
+  class ApiStore {
+    +usage: Signal<ApiUsageDto | null>
+    +clients: Signal<ApiClientDto[]>
+    +usageState: Signal<RequestState>
+    +clientsState: Signal<RequestState>
+    +endpoint: Signal<string>
+    +load(): void
+    +retryUsage(): void
+    +choose(endpoint: string): void
+  }
+  interface ApiUsageApi {
+    +get(): Observable<ApiUsageDto>
+  }
+  interface ApiClientsApi {
+    +list(page: number): Observable<ApiClientsPageDto>
+  }
+}
+
+ApiUsageMiddleware ..> RecordApiUsageCommand : sends
+RecordApiUsageCommandHandler ..> RecordApiUsageCommand : handles
+RecordApiUsageCommandHandler ..> ApiUsageClassifier
+RecordApiUsageCommandHandler --> IApiUsageAccumulator
+InMemoryApiUsageAccumulator ..|> IApiUsageAccumulator
+InMemoryApiUsageAccumulator *-- "*" ApiUsageCounts
+ApiUsageFlushService ..> FlushApiUsageCommand : sends
+FlushApiUsageCommandHandler ..> FlushApiUsageCommand : handles
+FlushApiUsageCommandHandler --> IApiUsageAccumulator : drains
+FlushApiUsageCommandHandler ..> ApiUsageHour : upserts
+FlushApiUsageCommandHandler ..> ApiClient : RecordCall
+ApiClient "1" --> "*" ApiUsageHour : usage
+GetApiClientsQueryValidator ..> GetApiClientsQuery : validates
+GetApiClientsQueryHandler ..> GetApiClientsQuery : handles
+GetApiClientsQueryHandler ..> ApiClientDto : returns page of
+GetApiUsageQueryHandler ..> GetApiUsageQuery : handles
+GetApiUsageQueryHandler ..> ApiUsageSummary
+GetApiUsageQueryHandler ..> ApiUsageDto : returns
+ApiStore --> ApiUsageApi
+ApiStore --> ApiClientsApi
+@enduml

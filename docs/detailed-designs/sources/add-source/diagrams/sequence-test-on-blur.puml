@@ -1,0 +1,32 @@
+@startuml
+title UML sequence behaviour — Test fetch when the URL field loses focus
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "AddSourceDialog" as dialog
+  participant "sourceFormValidation" as rules
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TestSourceFetchCommandHandler" as handler
+end box
+
+actor -> dialog : Leave the URL field
+dialog -> rules : Validate URL
+alt URL invalid
+  rules --> dialog : Invalid
+  dialog --> actor : Hint "The test fetch runs once the URL is valid." (L2-064)
+else URL valid and not yet tested
+  rules --> dialog : Valid
+  dialog -> client : testAddress(kind, url)
+  client -> controller : POST /admin/v1/sources/test
+  controller -> handler : Send TestSourceFetchCommand
+  handler --> controller : SourceTestResultDto (L2-002)
+  controller --> client : 200
+  client --> dialog : Result
+  dialog --> actor : Alert role="status": "Test fetch found 6 event pages — 5 look relevant."
+end
+@enduml

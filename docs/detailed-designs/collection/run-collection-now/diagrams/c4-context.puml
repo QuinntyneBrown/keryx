@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Run collection now
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Presses Run now on Overview or Runs", "HTTPS")
+Rel(staff, idp, "Signs in through")
+Rel(keryx, sources, "Collects from in the started run", "HTTPS")
+@enduml

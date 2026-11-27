@@ -1,0 +1,30 @@
+@startuml
+title UML sequence behaviour — Open an unknown route
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Router (app.routes.ts)" as router
+  participant "staffGuard" as guard
+  participant "NotFoundPage" as page
+end box
+actor -> router : Open /reports (no such route)
+router -> guard : canMatch for the wildcard route
+guard --> router : Signed-in staff
+router -> page : loadComponent NotFoundPage
+page --> actor : Not found screen with a link to Overview (L2-040)
+actor -> page : Follow "Overview"
+page -> router : Navigate to /
+@enduml

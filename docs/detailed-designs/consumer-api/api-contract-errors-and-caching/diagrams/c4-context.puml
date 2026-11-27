@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — API contract, errors and caching
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+
+Rel(product, keryx, "Reads the versioned contract, revalidates with ETags, branches on error codes", "JSON/HTTPS, /v1, /openapi/v1.json")
+Rel(keryx, otel, "Exports request duration, errors and trace ids to", "OTLP")
+@enduml

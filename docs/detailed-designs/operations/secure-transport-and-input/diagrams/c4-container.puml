@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Secure transport and input
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app; served with a strict CSP")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Loads", "HTTPS, HSTS")
+Rel(spa, api, "Calls /admin/v1 from the admin origin", "JSON/HTTPS, credentials")
+Rel(product, api, "Calls /v1", "JSON/HTTPS, GET")
+Rel(api, db, "Parameterized queries only", "EF Core")
+@enduml

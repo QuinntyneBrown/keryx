@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — List sources with health
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Opens Sources", "HTTPS")
+Rel(spa, api, "GET /admin/v1/sources?kind&page&page_size", "JSON/HTTPS")
+Rel(api, db, "Reads a page of sources, counts and 30-day yield", "EF Core")
+Rel(worker, sources, "Fetches each active source", "HTTPS")
+Rel(worker, db, "Records each fetch outcome and held count", "EF Core")
+@enduml

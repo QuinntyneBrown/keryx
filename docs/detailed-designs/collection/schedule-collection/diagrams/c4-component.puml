@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Schedule collection
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(scheduler, "CollectionScheduler", "BackgroundService", "Sends one tick, then waits on TimeProvider until the returned wake time")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(tick, "TickCollectionScheduleCommandHandler", "MediatR handler", "Decides whether a slot is due; starts a scheduled run or records a skipped start")
+  Component(next, "GetNextRunQueryHandler", "MediatR handler", "Returns next_run_at in UTC with its zone")
+  Component(schedule, "CollectionSchedule", "Domain service", "Slots aligned to midnight America/Toronto, DST-aware")
+  Component(lease, "RunLease", "Domain entity", "One active collection run; last handled slot")
+  Component(run, "Run", "Domain entity", "Run record with trigger schedule and its issues")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(status, "StatusController", "ASP.NET Core controller", "GET /v1/status")
+  Component(overview, "AdminOverviewController", "ASP.NET Core controller", "GET /admin/v1/overview")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Settings, run lease, runs, issues")
+
+Rel(scheduler, tick, "Sends TickCollectionScheduleCommand")
+Rel(tick, schedule, "Asks for the latest due slot and the next slot")
+Rel(tick, lease, "Claims, or reads the active run")
+Rel(tick, run, "Creates a scheduled run or adds a run_skipped issue")
+Rel(tick, db, "Reads settings; saves in one unit of work", "EF Core")
+Rel(status, next, "Sends GetNextRunQuery")
+Rel(overview, next, "Sends GetNextRunQuery")
+Rel(next, schedule, "Asks for the next slot")
+Rel(next, db, "Reads the interval", "EF Core")
+@enduml

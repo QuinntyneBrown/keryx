@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Authenticate API clients
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+Container_Boundary(api, "Keryx API") {
+  Component(limiter, "ClientRateLimiter", "ASP.NET Core middleware", "Limits each address without a key and each client")
+  Component(authn, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "ApiKey scheme; reads only the Authorization header")
+  Component(policies, "Scope policies", "ScopeRequirement + ScopeAuthorizationHandler", "articles:read, events:read, sources:read, api-client")
+  Component(ctrls, "/v1 controllers", "ASP.NET Core controllers", "Declare the ApiKey scheme and a scope policy")
+  Component(mapper, "ProblemDetailsMapper", "ASP.NET Core", "invalid_api_key, insufficient_scope, rate_limited")
+  Component(handler, "AuthenticateApiClientQueryHandler", "MediatR handler", "Checks format, loads by prefix, compares hashes")
+  Component(hasher, "ApiKeyHasher", "Infrastructure", "SHA-256 and constant-time comparison")
+  Component(window, "RateWindow", "Domain value type", "Fixed one-minute window arithmetic")
+  Component(store, "InMemoryRateWindowStore", "Infrastructure", "One window per client id and per address")
+  ComponentDb(db, "Keryx database", "EF Core relational store", "API clients: prefix, hash, scopes, revoked_at")
+}
+Rel(product, limiter, "Sends request", "HTTPS")
+Rel(limiter, store, "Reads and updates windows")
+Rel(store, window, "Holds")
+Rel(limiter, authn, "Passes request on")
+Rel(authn, handler, "Sends AuthenticateApiClientQuery")
+Rel(handler, hasher, "Matches presented key")
+Rel(handler, db, "Loads active clients by key prefix", "EF Core")
+Rel(authn, policies, "Principal with scope claims")
+Rel(policies, ctrls, "Admits authorized request")
+Rel(authn, mapper, "Challenge: 401")
+Rel(policies, mapper, "Forbid: 403")
+Rel(limiter, mapper, "Refusal: 429")
+@enduml

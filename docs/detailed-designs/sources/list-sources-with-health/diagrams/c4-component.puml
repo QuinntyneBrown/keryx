@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — List sources with health
+
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "SourcesPage", "Routed page, loadComponent", "Header, chips, table, states")
+  Component(store, "SourcesStore", "Screen store on the page's providers", "Query from URL, one page of rows")
+  Component(ui, "PageHeader, FilterChip, Table, Source, Health, IconBtn, Pagination, Empty, Skeleton", "Presentation components", "Markup of pages/sources")
+  Component(helpers, "sourceHealthLabel, formatSourceAddress", "Domain helpers", "Health words and scheme-less address")
+  Component(client, "HttpSourcesApi", "SourcesApi via SOURCES_API", "Typed admin source requests")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "GET /admin/v1/sources")
+  Component(query, "GetSourcesQueryHandler", "MediatR handler", "Filters, orders failing first, pages, counts")
+  ComponentDb(db, "Keryx database", "EF Core", "Sources and provenance")
+}
+Container_Boundary(worker, "Keryx Worker") {
+  Component(stage, "FetchStage / ClassifyStage", "Pipeline stages", "Record fetch outcome and held items")
+  Component(entity, "Source", "Domain entity", "Derives health from recorded fetches")
+}
+Rel(page, store, "Reads signals")
+Rel(page, ui, "Composes")
+Rel(page, helpers, "Formats with")
+Rel(store, client, "listSources(kind, page)")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, query, "Sends GetSourcesQuery")
+Rel(query, db, "Reads", "EF Core")
+Rel(stage, entity, "RecordFetchSucceeded / RecordFetchFailed / RecordHeld")
+Rel(stage, db, "Saves", "EF Core")
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Record usage
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiUsageMiddleware" as mw
+  participant "/v1 controller" as controller
+  participant "ApiUsageFlushService" as flush
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RecordApiUsageCommandHandler" as record
+  participant "ApiUsageClassifier" as classifier
+  participant "FlushApiUsageCommandHandler" as flushH
+  participant "ApiUsageHour" as hour
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "InMemoryApiUsageAccumulator" as acc
+  database "Keryx database" as db
+end box
+product -> mw : Authenticated /v1 request (client id on the principal)
+mw -> controller : Continue
+controller --> mw : Response status
+mw --> product : Response
+mw -> record : Send RecordApiUsageCommand(client id, status, elapsed ms, now)
+note right of mw : No path parameter, query string,\naddress or body is passed (L2-037)
+record -> classifier : IsError(status)
+classifier --> record : true for 500-599; false for 2xx, 3xx, 4xx (L2-037)
+record -> acc : Add to (client, hour) counts and latency bucket
+== On each flush interval (TimeProvider timer) and on shutdown ==
+flush -> flushH : Send FlushApiUsageCommand
+flushH -> acc : Drain()
+acc --> flushH : Counts per client and hour
+loop each client and hour
+  flushH -> db : Load or create ApiUsageHour
+  flushH -> hour : Add(counts)
+  flushH -> db : Move ApiClient.LastCallAt forward
+end
+flushH -> db : Save in one unit of work
+db --> flushH : Committed
+@enduml

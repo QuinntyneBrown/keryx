@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Regions from Settings and the region list
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as settings
+  participant "RegionsController" as regionsCtl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SaveSettingsCommandHandler" as save
+  participant "FocusAreaRegionSync" as sync
+  participant "GetRegionsQueryHandler" as query
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> settings : PUT /admin/v1/settings with a new focus area
+settings -> save : Send SaveSettingsCommand
+save -> sync : Ensure regions for focus areas
+sync -> db : Find region by slug
+db --> sync : None
+sync -> db : Add Region.FromFocusArea(name), zone America/Toronto (L2-018)
+save -> db : Save settings and regions in one unit of work
+db --> save : Commit result
+save --> settings : Saved settings
+settings --> actor : 200
+product -> regionsCtl : GET /v1/regions
+regionsCtl -> query : Send GetRegionsQuery
+query -> db : Read regions ordered by rank
+db --> query : Regions
+query --> regionsCtl : Toronto first, global last, slug, name, time_zone
+regionsCtl --> product : 200 JSON
+@enduml

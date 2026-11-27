@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Run the collection pipeline
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(keryx, sources, "Fetches feeds, pages and platform APIs from", "HTTPS")
+Rel(product, keryx, "Reads only what a finished run published", "JSON/HTTPS")
+Rel(keryx, otel, "Exports run and stage spans and metrics to", "OTLP")
+@enduml

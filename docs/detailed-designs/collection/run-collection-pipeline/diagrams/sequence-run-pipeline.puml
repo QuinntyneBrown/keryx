@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Run the collection pipeline: every source answers
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as scheduler
+  participant "CollectionPipeline" as pipeline
+  participant "FetchStage" as fetch
+  participant "Parse / Classify / Deduplicate" as middle
+  participant "StoreStage" as store
+  participant "PublishStage" as publish
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RunCollectionCommandHandler" as handler
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetcher
+  database "Keryx database" as db
+end box
+participant "Sources" as sources
+
+scheduler -> handler : Send RunCollectionCommand
+handler -> db : Load pending run under RunLease, Settings, enabled sources
+db --> handler : run, settings, 64 sources
+handler -> handler : Build RunPlan with SettingsSnapshot
+handler -> run : Mark execution started; sources_total 64
+handler -> pipeline : ExecuteAsync(plan)
+pipeline -> fetch : Start (L2-007 stage order)
+loop each source, at most 8 hosts at once
+  fetch -> fetcher : FetchAsync(source) with per-source time-out
+  fetcher -> sources : GET
+  sources --> fetcher : 200 document
+  fetcher --> fetch : FetchResult ok
+  fetch -> middle : Write document to bounded channel (L2-087 streamed)
+  fetch -> handler : Report progress
+  handler -> db : Save sources_checked
+end
+middle -> middle : Parse, classify, deduplicate items as they arrive
+middle -> store : Stream matched items
+loop each full batch
+  store -> db : Insert StagedRecord batch in one transaction (L2-087)
+end
+store --> pipeline : StageResult done
+pipeline -> publish : Start
+publish -> db : Apply staged records to live tables and set Run.PublishedAt in one transaction
+db --> publish : committed
+publish --> pipeline : StageResult done
+pipeline --> handler : PipelineResult: six stages done with duration_ms and summaries
+handler -> run : CompleteStage for each; Finish(now) outcome succeeded
+handler -> db : Save run; release RunLease
+handler --> scheduler : RunCollectionResult
+@enduml

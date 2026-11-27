@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Notification lifecycle
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Screen store" as screen
+  participant "NotificationStore" as store
+  participant "toast-region" as region
+  participant "Browser timer" as timer
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controller" as controller
+end box
+actor -> screen : Press "Mute" on an issue
+screen -> controller : POST /admin/v1/issues/{id}/mute
+controller --> screen : 200
+screen -> store : notify(success "Issue muted", Undo)
+store -> store : Fourth item? dismiss the oldest and release its timer (L2-075 criterion 4)
+store -> timer : Start 8 s lifetime (none for danger)
+store --> region : visible (newest at the bottom)
+region --> actor : Toast with icon and title carrying the kind, role="status" (role="alert" for danger)
+opt hovered or focused
+  actor -> region : Hover or focus the toast
+  region -> store : pause(id)
+  store -> timer : Clear; keep remaining time
+  actor -> region : Leave
+  region -> store : resume(id)
+  store -> timer : Start remaining time
+end
+alt Undo activated within the lifetime
+  actor -> region : Activate "Undo"
+  region -> store : activate(id)
+  store -> controller : POST /admin/v1/issues/{id}/unmute
+  controller --> store : 200
+  store -> timer : Release
+  store --> region : Notification removed, none replaces it (L2-075 criterion 5)
+else Dismiss
+  actor -> region : Activate "Dismiss"
+  region -> store : dismiss(id)
+  store -> timer : Release
+  region --> actor : Focus returns to where it was (L2-075 criterion 6)
+else lifetime ends
+  timer -> store : Elapsed after 8 s (L2-075 criterion 2)
+  store -> store : Remove; the action stands
+  store --> region : visible
+end
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Record runs and issues: track an issue across runs
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "FetchStage" as fetch
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "IssueTracker" as tracker
+  participant "IssueDetailSanitizer" as sanitizer
+  participant "RunIssue" as issue
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+alt source fails in this run
+  fetch -> tracker : Record(run, source, source_timeout, raw detail)
+  tracker -> sanitizer : Sanitize(raw detail)
+  sanitizer --> tracker : at most 300 characters; no query string, credential, internal host or IP (L2-020)
+  tracker -> db : Find open or muted issue for this source and kind
+  alt found and it occurred in the previous run of this worker
+    tracker -> issue : Recur(run, detail): consecutive_runs + 1, since unchanged
+  else none
+    tracker -> issue : Open: consecutive_runs 1, since = this run's time
+  end
+  tracker -> db : Add IssueOccurrence for this run
+else source succeeds without that problem
+  fetch -> tracker : SourceSucceeded(run, source)
+  tracker -> db : Find open or muted issues for this source
+  tracker -> issue : Close(now): mute cleared, so a recurrence is a new open issue (L2-020)
+end
+@enduml

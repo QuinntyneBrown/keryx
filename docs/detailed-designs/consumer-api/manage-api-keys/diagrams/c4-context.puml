@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage API keys
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+
+Rel(staff, keryx, "Creates and revokes API keys in", "HTTPS")
+Rel(product, keryx, "Reads news with the key staff gave it", "HTTPS/JSON")
+@enduml

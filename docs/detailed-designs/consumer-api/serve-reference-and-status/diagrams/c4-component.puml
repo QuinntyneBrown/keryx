@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Serve reference data and status
+
+System_Ext(product, "Consuming product", "Reads the consumer API")
+Container_Boundary(api, "Keryx API") {
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "Any valid key; no scope needed")
+  Component(cats, "CategoriesController", "ASP.NET Core controller", "GET /v1/categories")
+  Component(regs, "RegionsController", "ASP.NET Core controller", "GET /v1/regions")
+  Component(stat, "StatusController", "ASP.NET Core controller", "GET /v1/status")
+  Component(catsh, "ListCategoriesQueryHandler", "MediatR handler", "Categories with served article counts")
+  Component(regsh, "ListRegionsQueryHandler", "MediatR handler", "Regions by rank with served article counts")
+  Component(stath, "GetStatusQueryHandler", "MediatR handler", "Latest collection run, next run, total served")
+  Component(served, "ServedRecordFilters", "Application query helper", "ServedArticles")
+  Component(sched, "Collection schedule (L2-005)", "Application rule", "Next run time from interval and TimeProvider")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext, IAppDbContext", "No-tracking projections")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Categories, regions, articles, runs, settings")
+
+Rel(product, auth, "GET /v1/categories, /v1/regions, /v1/status", "HTTPS, Bearer")
+Rel(auth, cats, "Authenticated client")
+Rel(auth, regs, "Authenticated client")
+Rel(auth, stat, "Authenticated client")
+Rel(cats, catsh, "Sends ListCategoriesQuery")
+Rel(regs, regsh, "Sends ListRegionsQuery")
+Rel(stat, stath, "Sends GetStatusQuery")
+Rel(catsh, served, "Counts")
+Rel(regsh, served, "Counts")
+Rel(stath, served, "Counts")
+Rel(stath, sched, "Asks next run time")
+Rel(catsh, ctx, "Queries")
+Rel(regsh, ctx, "Queries")
+Rel(stath, ctx, "Queries")
+Rel(ctx, db, "SQL", "EF Core")
+@enduml

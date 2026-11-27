@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Apply retention
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "RetentionWorker" as worker
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ApplyRetentionCommandHandler" as handler
+  participant "RetentionPolicy" as policy
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+worker -> worker : Wait for daily slot read from TimeProvider (L2-079)
+worker -> handler : Send ApplyRetentionCommand(schedule)
+handler -> run : Start run, worker retention
+handler -> ctx : Read Settings.RetentionMonths
+ctx --> handler : e.g. 24 months
+handler -> policy : Cutoff(now, months)
+policy --> handler : Cutoff instant
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Delete up to 1,000 articles collected before cutoff, with provenance
+  ctx -> db : Set-based delete, commit batch
+end
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Delete up to 1,000 events linked only to deleted articles
+  ctx -> db : Set-based delete, commit batch
+end
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Delete up to 1,000 organizations no article, event or source refers to
+  ctx -> db : Set-based delete, commit batch
+end
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Delete up to 1,000 runs started before cutoff, with stage results and issues
+  ctx -> db : Set-based delete, commit batch
+end
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Delete up to 1,000 audit entries before cutoff (L2-085)
+  ctx -> db : Set-based delete, commit batch
+end
+handler -> run : Finish succeeded with number deleted as a number
+handler -> ctx : Save run
+ctx -> db : Commit
+handler --> worker : RetentionResult
+worker -> worker : Wait for next daily slot
+@enduml

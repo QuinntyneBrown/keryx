@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Test-fetch an address
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "AddSourceDialog" as dialog
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TestSourceFetchCommandHandler" as handler
+  participant "SourceTester" as tester
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetcher
+  participant "RssFeedParser" as parser
+  database "Keryx database" as db
+end box
+participant "Source host" as host
+
+actor -> dialog : Leave a valid URL field
+dialog -> client : testAddress(kind, address)
+client -> controller : POST /admin/v1/sources/test {kind, address}
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send TestSourceFetchCommand
+handler -> handler : Validate kind and address (L2-001, L2-024)
+alt invalid
+  handler --> controller : ValidationException
+  controller --> client : 400 validation_failed with errors
+else valid
+  handler -> db : Read per-source timeout from Settings
+  db --> handler : Timeout
+  handler -> tester : TestAsync(kind, address)
+  tester -> fetcher : FetchAsync under L2-021 to L2-024
+  fetcher -> host : One identified, rate-limited, timed request
+  alt not found, timeout, robots, refused, invalid content or unsafe address
+    fetcher --> tester : Failure reason
+    tester --> handler : reachable false, reason (L2-002)
+  else fetched
+    host --> fetcher : Bounded content
+    fetcher --> tester : Content
+    tester -> parser : Parse (200 newest items at most)
+    parser --> tester : Items
+    tester -> tester : Score each item with IRelevanceScorer
+    tester --> handler : reachable true, items_found, items_relevant
+  end
+  handler --> controller : SourceTestResultDto (no article, event, organization or run stored)
+  controller --> client : 200 JSON
+end
+client --> dialog : Result
+dialog --> actor : Announce result politely
+@enduml

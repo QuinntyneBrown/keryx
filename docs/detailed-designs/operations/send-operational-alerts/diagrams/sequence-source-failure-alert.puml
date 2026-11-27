@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — A source keeps failing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionPipeline" as pipe
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RaiseRunAlertsHandler" as raise
+  participant "SourceFailureAlertPolicy" as policy
+  participant "AlertComposer" as comp
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SmtpMailSender" as smtp
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+pipe -> db : Save run with outcome and issues
+pipe -> raise : Publish RunFinishedNotification(run id)
+raise -> db : Read settings, run issues, alert records
+db --> raise : Threshold 3, alert address, issue consecutive_runs 3
+raise -> policy : ShouldAlert(issue, 3, no record)
+alt not muted, consecutive_runs reached 3, no alert yet for this streak
+  policy --> raise : true (L2-077)
+  raise -> comp : SourceFailing(source, issue)
+  comp --> raise : Plain text naming source, reason and streak; admin link only
+  raise -> smtp : SendAsync(message)
+  smtp -> mail : SMTP over TLS
+  mail --> smtp : Accepted
+  raise -> db : Save AlertRecord sent for this issue
+else fourth or later failure, issue muted, or no alert address
+  policy --> raise : false
+  raise -> raise : Send nothing
+end
+note over raise, db : On recovery the issue closes (L2-020);\na later third failure is a new issue and a new alert
+@enduml

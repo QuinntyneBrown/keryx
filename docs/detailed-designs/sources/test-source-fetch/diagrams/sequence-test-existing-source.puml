@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Test fetch now from the row menu
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "Menu" as menu
+  participant "SourcesStore" as store
+  participant "HttpSourcesApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TestExistingSourceFetchCommandHandler" as handler
+  participant "SourceTester" as tester
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> menu : Choose "Test fetch now"
+menu --> page : chosen(test)
+page -> store : testSource(id)
+store -> client : testSource(id)
+client -> controller : POST /admin/v1/sources/{id}/test
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send TestExistingSourceFetchCommand
+handler -> db : Load source by id
+alt id unknown or malformed
+  db --> handler : None
+  handler --> controller : SourceNotFoundException
+  controller --> client : 404 source_not_found
+  client --> store : Error code
+  store -> notifier : Danger notification, generic copy <TO SUPPLY>
+else source found
+  db --> handler : Source
+  handler -> tester : TestAsync(kind, address)
+  tester --> handler : SourceTestResultDto
+  handler -> handler : Leave stored health unchanged (L2-002)
+  handler --> controller : Result
+  controller --> client : 200 {reachable, reason, items_found, items_relevant}
+  client --> store : Result
+  store -> store : Keep list rows and health unchanged (L2-063)
+  store -> notifier : Report result, copy <TO SUPPLY>
+end
+notifier --> actor : Notification announced
+@enduml

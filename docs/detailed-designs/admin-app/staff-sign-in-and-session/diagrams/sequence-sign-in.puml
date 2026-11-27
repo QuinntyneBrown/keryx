@@ -1,0 +1,76 @@
+@startuml
+title UML sequence behaviour — Sign in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "staffGuard" as guard
+  participant "SessionStore" as store
+  participant "SignInPage" as page
+  participant "HttpSessionApi" as sapi
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AuthController" as ctrl
+  participant "OIDC and cookie schemes" as schemes
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "PrepareSignInCommandHandler" as prep
+  participant "RecordStaffSignInCommandHandler" as record
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "StaffSessionTicketStore" as tickets
+  database "Keryx database" as db
+end box
+participant "Identity provider" as idp
+actor -> guard : Open /runs
+guard -> store : load()
+store -> sapi : getMe()
+sapi -> ctrl : GET /admin/v1/me (no cookie)
+ctrl --> sapi : 401
+sapi --> store : Not signed in
+store --> guard : 401
+guard --> page : Redirect to /sign-in?return=/runs (L2-039)
+actor -> page : Press "Sign in"
+page -> page : Busy state; safeReturnPath(return)
+page -> ctrl : Browser navigates to GET /admin/v1/auth/sign-in?return=/runs
+ctrl -> prep : Send PrepareSignInCommand
+prep --> ctrl : Safe return path (/ for anything outside the app)
+ctrl -> schemes : Challenge with return path
+schemes --> idp : 302 with state, nonce, code_challenge (PKCE)
+actor -> idp : Authenticate
+alt provider returns a code and the expected state
+  idp --> schemes : GET /admin/v1/auth/callback?code&state
+  schemes -> idp : Exchange code with PKCE verifier
+  idp --> schemes : ID token
+  schemes -> schemes : Validate state and nonce; save no token
+  schemes -> record : Send RecordStaffSignInCommand(subject, name, role)
+  record -> db : Create or update StaffMember
+  schemes -> tickets : StoreAsync(ticket)
+  tickets -> db : Insert StaffSession(created_at, last_seen_at)
+  schemes --> actor : Set-Cookie HttpOnly; Secure; SameSite=Lax (L2-039); 302 to /runs
+  actor -> guard : Open /runs
+  guard -> store : load()
+  store -> sapi : getMe(), getAntiforgeryToken()
+  sapi -> ctrl : GET /admin/v1/me, GET /admin/v1/auth/antiforgery
+  ctrl --> sapi : name, initials, role; request_token
+  sapi --> store : me and token held in memory only
+  guard --> actor : Runs screen; shell shows "Daniel Adeyemi", "Owner"
+else provider error or mismatched state
+  idp --> schemes : Callback with error, or wrong state
+  schemes -> schemes : OnRemoteFailure: no session; count in metric without credential
+  schemes --> page : 302 to /sign-in?state=error&ref=<trace id>
+  page --> actor : Error state, generic message and reference (L2-039)
+end
+@enduml

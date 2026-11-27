@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Add and remove a chip value
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "CDK Dialog" as cdk
+  participant "AddKeywordDialog" as dialog
+  participant "domain: isDuplicateKeyword" as rules
+  participant "SettingsStore" as store
+end box
+actor -> page : Activate "Add" under Topics
+page -> cdk : open(AddKeywordDialog, data = topics and values)
+cdk -> dialog : Create with role="dialog", aria-modal, focus trapped (L2-074)
+dialog --> actor : "Add a topic", lead text, Topic field with hint, "Cancel", "Add topic"
+actor -> dialog : Enter "Running " and press "Add topic"
+dialog -> rules : isDuplicateKeyword("Running ", topics)
+rules --> dialog : true (case and surrounding space ignored)
+dialog --> actor : "“running” is already a topic. Enter a different word or phrase." with aria-invalid (L2-072 criterion 4)
+actor -> dialog : Enter "pickleball" and press "Add topic"
+dialog -> rules : isDuplicateKeyword("pickleball", topics)
+rules --> dialog : false; length 2 to 40
+dialog -> cdk : close("pickleball")
+cdk --> page : closed with value
+page -> store : update(topics + "pickleball"); mark new
+store --> page : draft, dirty = true, newValues
+page --> actor : Chip "pickleball" marked new as text; focus returns to "Add" (L2-072 criterion 5)
+actor -> page : Activate "Remove fitness"
+page -> store : update(topics - "fitness")
+store --> page : dirty = true
+page --> actor : Chip goes; focus moves to the next chip, or to "Add" if it was the last (L2-072 criterion 2)
+@enduml

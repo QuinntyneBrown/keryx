@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — A page asks not to be indexed
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Source site" as src
+box "Backend — Keryx Worker application" #D1FADF
+  participant "ParseStage" as parse
+  participant "StoreStage" as store
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "RobotsTxtPolicy" as robots
+  participant "HttpSourceFetcher" as fetch
+  participant "HtmlPageParser" as html
+end box
+parse -> robots : IsAllowedAsync(page url)
+alt robots.txt disallows the path
+  robots --> parse : false
+  parse -> parse : No request; source fails blocked_by_robots (L2-021)
+else allowed
+  robots --> parse : true
+  parse -> fetch : FetchAsync(source)
+  fetch -> src : GET page
+  src --> fetch : Response
+  fetch --> parse : FetchResult, NoIndex true when X-Robots-Tag noindex
+  parse -> html : Parse(result)
+  html --> parse : ParsedPage, NoIndex true when robots meta noindex
+  alt NoIndex on the fetch or the page
+    parse -> parse : Discard every item from the page (L2-080)
+  else indexable
+    parse -> store : Facts-only items
+  end
+end
+@enduml

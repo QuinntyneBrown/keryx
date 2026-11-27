@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Refuse invalid entries
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "AddSourceDialog" as dialog
+  participant "sourceFormValidation" as rules
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "CreateSourceCommandValidator" as validator
+end box
+
+actor -> dialog : Press "Add source" with URL "lifepointfit" and no organization
+dialog -> rules : Validate all fields
+rules --> dialog : URL and Organisation invalid with messages
+dialog --> actor : Messages shown, aria-invalid="true", focus on URL, entries kept, nothing sent (L2-064)
+== Server-side refusal (request built outside the dialog or a rule the dialog cannot see) ==
+client -> controller : POST /admin/v1/sources
+controller -> validator : Validate CreateSourceCommand
+alt URL scheme, user info or port invalid, organization empty or over 120, region unknown
+  validator --> controller : Field failures (L2-001, L2-024)
+  controller --> client : 400 validation_failed with errors per field, nothing stored
+else kind is news_query
+  validator --> controller : Kind not creatable
+  controller --> client : 400 kind_not_creatable (L2-001)
+end
+client --> dialog : Error code
+dialog --> actor : Generic copy chosen by code (L2-073)
+@enduml

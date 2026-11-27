@@ -1,0 +1,96 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Schedule collection
+
+class CollectionScheduler {
+  -IMediator mediator
+  -TimeProvider timeProvider
+  #ExecuteAsync(stoppingToken: CancellationToken): Task
+}
+class TickCollectionScheduleCommand
+class ScheduleTickResult {
+  +DateTimeOffset NextWakeAt
+  +TickAction Action
+  +PublicId? RunId
+}
+enum TickAction {
+  None
+  StartedRun
+  RecordedSkippedStart
+}
+class TickCollectionScheduleCommandHandler {
+  -IAppDbContext db
+  -TimeProvider timeProvider
+  +Handle(command: TickCollectionScheduleCommand): Task<ScheduleTickResult>
+}
+class CollectionSchedule {
+  +{static} TimeZoneInfo Toronto
+  +LatestSlotAtOrBefore(nowUtc: DateTimeOffset, interval: ScheduleInterval): DateTimeOffset
+  +NextSlotAfter(nowUtc: DateTimeOffset, interval: ScheduleInterval): DateTimeOffset
+}
+class ScheduleInterval <<value object>> {
+  +int Hours
+  +{static} ScheduleInterval Default
+  +{static} From(hours: int): ScheduleInterval
+}
+class RunLease {
+  +string Worker
+  +PublicId? ActiveRunId
+  +DateTimeOffset? LastScheduledSlotAt
+  +byte[] Version
+  +TryClaim(runId: PublicId): bool
+  +MarkSlotHandled(slotUtc: DateTimeOffset): void
+}
+class Run {
+  +PublicId Id
+  +RunTrigger Trigger
+  +RunOutcome Outcome
+  +DateTimeOffset StartedAt
+  +{static} StartScheduled(id: PublicId, nowUtc: DateTimeOffset): Run
+  +RecordSkippedStart(slotUtc: DateTimeOffset): RunIssue
+}
+enum RunTrigger {
+  schedule
+  manual
+}
+class RunIssue {
+  +IssueSeverity Severity
+  +IssueKind Kind
+  +string Detail
+}
+class Settings {
+  +int CollectionIntervalHours
+}
+class GetNextRunQueryHandler {
+  +Handle(query: GetNextRunQuery): Task<NextRunDto>
+}
+class NextRunDto {
+  +DateTimeOffset next_run_at
+  +string time_zone
+}
+
+CollectionScheduler ..> TickCollectionScheduleCommand : sends
+CollectionScheduler ..> ScheduleTickResult : waits until NextWakeAt
+TickCollectionScheduleCommandHandler ..> TickCollectionScheduleCommand : handles
+TickCollectionScheduleCommandHandler ..> CollectionSchedule : uses
+TickCollectionScheduleCommandHandler --> RunLease : claims
+TickCollectionScheduleCommandHandler --> Run : creates / adds issue
+TickCollectionScheduleCommandHandler ..> Settings : reads interval
+ScheduleTickResult --> TickAction : has
+CollectionSchedule ..> ScheduleInterval : uses
+Run --> RunTrigger : has
+Run "1" *-- "*" RunIssue : raises
+GetNextRunQueryHandler ..> CollectionSchedule : uses
+GetNextRunQueryHandler ..> NextRunDto : returns
+@enduml

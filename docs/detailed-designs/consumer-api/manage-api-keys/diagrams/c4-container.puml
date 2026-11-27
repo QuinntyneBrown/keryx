@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage API keys
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Uses the API screen", "HTTPS")
+Rel(spa, api, "POST /admin/v1/api-clients, POST .../{id}/revoke", "JSON/HTTPS, session cookie")
+Rel(api, db, "Stores hash and prefix; sets revoked_at", "EF Core")
+Rel(product, api, "Calls /v1 with its key", "HTTPS/JSON")
+@enduml

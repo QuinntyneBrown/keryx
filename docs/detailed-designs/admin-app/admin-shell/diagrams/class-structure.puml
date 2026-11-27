@@ -1,0 +1,129 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Admin shell
+
+package "frontend/projects/admin" {
+  class AppShell <<component>> {
+    #store: ScheduleStore
+    #navItems: NavItem[]
+  }
+  class ScheduleStore <<injectable root>> {
+    +schedule: Signal<ShellScheduleDto | null>
+    +now: Signal<Date>
+    +nextCollection: Signal<string>
+    +countdown: Signal<string>
+    +failingSources: Signal<number>
+    +load(): void
+    -onMinuteTick(): void
+    -refreshWhenDue(): void
+  }
+  class SessionStore <<injectable root>> {
+    +me: Signal<MeDto | null>
+    +load(): void
+  }
+  class NavItem {
+    +label: string
+    +path: string
+    +badge: number | null
+    +badgeLabel: string | null
+  }
+}
+package "frontend/projects/components" {
+  class Sidebar <<component>> {
+    +nextCollection: input<string>
+    +countdown: input<string>
+    +intervalLabel: input<string>
+    +personName: input<string>
+    +personRole: input<string>
+    +initials: input<string>
+  }
+  class NavLink <<component>> {
+    +label: input<string>
+    +badge: input<number | null>
+    +badgeLabel: input<string | null>
+  }
+  class Brand <<component>> {
+    +label: input<string>
+  }
+  class SkipLink <<component>> {
+    +target: input<string>
+  }
+  class Avatar <<component>> {
+    +initials: input<string>
+  }
+}
+package "frontend/projects/domain" {
+  class formatCountdown <<function>> {
+    +formatCountdown(now: Date, at: Date): string
+  }
+  class formatTorontoTime <<function>> {
+    +formatTorontoTime(at: Date, now: Date): string
+  }
+}
+package "frontend/projects/api" {
+  interface SessionApi {
+    +getMe(): Observable<MeDto>
+  }
+  interface OverviewApi {
+    +getSchedule(): Observable<ShellScheduleDto>
+  }
+  class MeDto {
+    +name: string
+    +initials: string
+    +role: string
+  }
+  class ShellScheduleDto {
+    +next_run_at: string
+    +interval_hours: number
+    +time_zone: string
+    +failing_sources: number
+  }
+}
+package "backend/src" {
+  class AdminOverviewController {
+    +GetSchedule(): Task<ShellScheduleDto>
+  }
+  class GetShellScheduleQuery
+  class GetShellScheduleQueryHandler {
+    -db: IAppDbContext
+    -time: TimeProvider
+    +Handle(query): Task<ShellScheduleDto>
+  }
+  class Settings {
+    +CollectionIntervalHours: int
+  }
+  class Source {
+    +Health: SourceHealth
+  }
+}
+
+AppShell *-- "6" NavItem
+AppShell ..> ScheduleStore : reads
+AppShell ..> Sidebar : composes
+AppShell ..> SkipLink : composes
+Sidebar ..> Brand : projects
+Sidebar ..> NavLink : projects
+Sidebar ..> Avatar : projects
+SessionStore ..> SessionApi : SESSION_API
+AppShell ..> SessionStore : reads person
+ScheduleStore ..> OverviewApi : OVERVIEW_API
+ScheduleStore ..> formatCountdown
+ScheduleStore ..> formatTorontoTime
+SessionApi ..> MeDto
+OverviewApi ..> ShellScheduleDto
+AdminOverviewController ..> GetShellScheduleQuery : sends
+GetShellScheduleQueryHandler ..> GetShellScheduleQuery : handles
+GetShellScheduleQueryHandler --> Settings : reads interval
+GetShellScheduleQueryHandler --> Source : counts failing
+@enduml

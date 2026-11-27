@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage settings
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(guard, "unsavedChangesGuard", "CanDeactivateFn", "Confirms leaving while dirty")
+  Component(page, "SettingsPage", "Routed standalone component", "Five settings sections, save bar, Account")
+  Component(store, "SettingsStore", "Signal store on the page's providers", "Saved, draft, dirty, errors, save state")
+  Component(dialog, "AddKeywordDialog", "CDK Dialog", "Adds one topic, exclusion or focus area")
+  Component(lib, "Components library", "settings-section, segmented, range, switch, chip, save-bar, alert", "Inputs and outputs only")
+  Component(domain, "settingsValidation and scheduleLine", "Pure functions", "Ranges, messages, cron and next run")
+  Component(client, "HttpSettingsApi", "SETTINGS_API implementation", "Typed HTTP client")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminSettingsController", "ASP.NET Core controller, StaffPolicy", "GET and PUT /admin/v1/settings")
+  Component(geth, "GetSettingsQueryHandler", "MediatR handler", "Reads settings and version")
+  Component(val, "UpdateSettingsCommandValidator", "FluentValidation", "400 validation_failed per field")
+  Component(updh, "UpdateSettingsCommandHandler", "MediatR handler", "Version check, regions, audit, save")
+  Component(entity, "Settings", "Domain entity", "Values and concurrency version")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Settings, regions, audit entries")
+
+Rel(staff, page, "Edits, adds chips, saves")
+Rel(guard, store, "Reads dirty")
+Rel(page, store, "Reads signals, sends intents")
+Rel(page, dialog, "Opens with list kind and values")
+Rel(page, lib, "Composes")
+Rel(store, domain, "Validates and formats with")
+Rel(dialog, domain, "Checks duplicates with")
+Rel(store, client, "Calls through SETTINGS_API")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, geth, "Sends GetSettingsQuery")
+Rel(ctrl, updh, "Sends UpdateSettingsCommand")
+Rel(val, updh, "Validates before")
+Rel(updh, entity, "Applies values")
+Rel(geth, db, "Reads", "IAppDbContext")
+Rel(updh, db, "Saves in one unit of work", "IAppDbContext")
+@enduml

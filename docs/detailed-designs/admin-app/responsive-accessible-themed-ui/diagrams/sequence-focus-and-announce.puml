@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Remove focused content and announce a status
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Routed screen" as screen
+  participant "domain: nextFocusAfterRemoval" as rules
+  participant "Screen store" as store
+  participant "StatusAnnouncer" as announcer
+  participant "CDK LiveAnnouncer" as live
+end box
+actor -> screen : Activate "Remove running" on a focused chip
+screen -> store : Remove value
+screen -> rules : nextFocusAfterRemoval(index, count)
+rules --> screen : Next chip, else previous, else "Add"
+screen --> actor : Focus on the neighbour, never the document body (L2-091 criterion 5)
+store -> store : Run progress changes: 38 of 64 sources checked
+store -> announcer : announce("38 of 64 sources checked")
+announcer -> announcer : Skip if equal to the last message
+announcer -> live : announce(message, polite)
+live --> actor : Announced once per change (L2-092 criterion 6)
+@enduml

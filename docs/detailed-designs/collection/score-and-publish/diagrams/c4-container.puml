@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Score and publish
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+
+Rel(staff, spa, "Edits Settings; reviews articles", "HTTPS")
+Rel(spa, api, "PUT /admin/v1/settings; reads articles", "JSON/HTTPS")
+Rel(api, db, "Saves settings; reads scores and status", "EF Core")
+Rel(worker, db, "Reads a settings snapshot; stores score, status and threshold", "EF Core")
+Rel(product, api, "Reads published records", "JSON/HTTPS")
+@enduml

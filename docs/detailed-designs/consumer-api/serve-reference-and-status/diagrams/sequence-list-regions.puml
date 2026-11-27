@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — List regions
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "RegionsController" as controller
+  participant "EtagFilter" as etag
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListRegionsQueryHandler" as handler
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/regions
+auth -> auth : Authenticate Bearer key (any valid key)
+auth -> controller : Authenticated client
+controller -> handler : Send ListRegionsQuery
+handler -> served : Apply L2-030 count of served articles only
+served --> handler : Filtered article query
+handler -> ctx : Regions ordered by rank (L2-018: Toronto first, global last), at most 100
+ctx -> db : One query with grouped counts
+db --> ctx : Regions with counts
+ctx --> handler : RegionDto rows (slug, name, time_zone, article_count)
+handler --> controller : ListDto
+controller --> etag : 200 result
+etag --> product : 200 JSON list with ETag
+@enduml

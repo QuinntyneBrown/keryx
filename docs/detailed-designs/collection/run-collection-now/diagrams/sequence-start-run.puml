@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Run collection now: start a run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "OverviewPage / RunsPage" as page
+  participant "ScheduleStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "StartRunCommandHandler" as handler
+  participant "RunLease" as lease
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as scheduler
+end box
+actor -> page : Press "Run now"
+page -> store : runNow()
+store -> store : Set starting; ignore further presses (L2-047 one request)
+page --> actor : Button busy (aria-busy, disabled) "Collecting…"
+store -> client : startRun()
+client -> controller : POST /admin/v1/runs
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send StartRunCommand
+handler -> db : Load RunLease(collection)
+db --> handler : lease with no active run
+handler -> lease : TryClaim(run id) (L2-006 at most one run)
+handler -> db : Insert Run(trigger manual, outcome running); save lease with Version check
+db --> handler : committed
+handler --> controller : StartRunResultDto(id)
+controller --> client : 202 { id }
+client --> store : StartRunResult
+store -> client : getRun(id)
+client --> store : RunDto(outcome running, sources_total 64)
+store -> notifier : Info "Collection started" / "Checking 64 sources. This usually takes about 4 minutes."
+store --> page : activeRun set
+page --> actor : Show running state without a reload
+scheduler -> db : Execution loop picks up the pending manual run
+@enduml

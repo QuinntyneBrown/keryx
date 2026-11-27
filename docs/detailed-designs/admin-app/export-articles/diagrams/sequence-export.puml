@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Export articles as CSV
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+  participant "ArticleCsvResult" as result
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ExportArticlesQueryHandler" as handler
+  participant "CsvCell" as cell
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+alt list is in its error state
+  page --> actor : "Export CSV" disabled (L2-054)
+else list loaded
+  actor -> page : Press "Export CSV"
+  page -> store : export()
+  store -> notifier : Info "Export started", "articles-<YYYY-MM-DD>.csv will download when it’s ready — 18,432 rows."
+  store -> client : exportCsv(status, q, region, category)
+  client -> controller : GET /admin/v1/articles/export?status=…&q=…&region=…&category=…
+  controller -> controller : Authenticate and apply StaffPolicy
+  controller -> handler : Send ExportArticlesQuery
+  handler -> db : Count matching articles
+  db --> handler : Count
+  alt count above 50,000
+    handler --> controller : ExportTooLargeException
+    controller --> client : 400 code export_too_large
+    client --> store : Error code
+    store -> notifier : Ask staff to narrow the filters (copy <TO SUPPLY>)
+  else within the bound
+    handler --> controller : IAsyncEnumerable of matching rows
+    controller -> result : Stream as text/csv, attachment articles-<YYYY-MM-DD>.csv
+    result -> result : Header id,title,organization,category,region,relevance,status,published_at,collected_at,url
+    loop each row read from the database
+      result -> db : Read next row
+      db --> result : Row
+      result -> cell : Escape each value
+      cell --> result : Quoted per RFC 4180; leading = + - @ tab CR prefixed with ' (L2-054)
+      result -> result : Write and flush
+    end
+    result --> client : 200 streamed body
+    client --> store : Blob
+    store -> store : URL.createObjectURL, click a download link
+    store -> store : URL.revokeObjectURL once the download has started (L2-054)
+    store --> actor : Browser downloads articles-<YYYY-MM-DD>.csv
+  end
+end
+note over store : Leaving Articles aborts an export in flight and revokes any object URL (L2-089)
+@enduml

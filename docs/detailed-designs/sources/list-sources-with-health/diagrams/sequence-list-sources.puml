@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Open Sources
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "SourcesStore" as store
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetSourcesQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Navigate to /sources?kind&page
+page -> store : load() with kind and page from the URL
+store -> client : listSources(kind, page, page_size 12)
+opt no response within 300 ms
+  store --> page : state loading
+  page --> actor : Skeleton rows, main aria-busy="true" (L2-066)
+end
+client -> controller : GET /admin/v1/sources
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send GetSourcesQuery
+handler -> db : Active sources, filter by kind, order failing, needs_look, healthy, then name (L2-062)
+handler -> db : Count all, failing, needs_look; articles first seen in 30 days per source
+db --> handler : Page and counts
+handler --> controller : SourcePageDto
+controller --> client : 200 {items, total, page, page_size, counts}
+alt request failed
+  client --> store : Error with trace_id
+  store --> page : state error
+  page --> actor : "Sources didn't load", Reference, Try again, Go to overview; Add source stays (L2-073)
+else no source exists
+  client --> store : total 0, all 0
+  store --> page : state empty
+  page --> actor : "No sources yet.", "Add the first source", "Add a source"
+else sources
+  client --> store : Page of rows
+  store --> page : state ready
+  page -> page : sourceHealthLabel, formatSourceAddress, Toronto time for last fetched
+  page --> actor : "64 sources across the GTA · 2 failing · 1 need a look", 12 rows, "Showing 1–12 of 64 sources, failing first."
+end
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Add a source
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "AddSourceDialog" as dialog
+  participant "HttpSourcesApi" as client
+  participant "SourcesStore" as store
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "CreateSourceCommandHandler" as handler
+  participant "Source" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Add source"
+page -> dialog : Open CDK Dialog, focus URL, RSS chosen (L2-064)
+actor -> dialog : Enter valid entries, press "Add source"
+dialog -> dialog : Set busy, disable Close, Cancel, Escape and backdrop
+dialog -> client : createSource {kind, address, organization_name, region}
+client -> controller : POST /admin/v1/sources (exactly one request)
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send CreateSourceCommand
+handler -> handler : Normalize address to CanonicalUrl (L2-001)
+handler -> db : Find active source with same kind and address
+alt exists
+  db --> handler : Match
+  handler --> controller : SourceExistsException
+  controller --> client : 409 source_exists
+  client --> dialog : Error code
+  dialog --> actor : URL field says the source is already in the list, nothing added
+else new
+  db --> handler : None
+  handler -> entity : Source.Create(kind, address, organization, region, now)
+  entity --> handler : Source with health healthy, never fetched
+  handler -> db : Save source and AuditEntry in one unit of work (L2-085)
+  alt save fails
+    db --> handler : Error
+    handler --> controller : Exception
+    controller --> client : 500 ProblemDetails with trace_id
+    client --> dialog : Failure
+    dialog --> actor : Alert "Keryx couldn’t add the source", Reference req_..., entries kept
+  else saved
+    db --> handler : Committed
+    handler --> controller : SourceDto
+    controller --> client : 201 with id and source
+    client --> dialog : Created source
+    dialog -> store : Add the row
+    dialog -> page : Close, focus returns to "Add source"
+    alt last test found nothing relevant
+      dialog -> notifier : Warning "Source added, but nothing looked relevant"
+    else
+      dialog -> notifier : Success "Source added", checked on the next run at <next run>
+    end
+  end
+end
+@enduml

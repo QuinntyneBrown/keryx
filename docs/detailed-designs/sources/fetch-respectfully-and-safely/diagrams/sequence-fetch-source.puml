@@ -1,0 +1,83 @@
+@startuml
+title UML sequence behaviour — Fetch one source respectfully
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "FetchStage" as stage
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ISourceFetcher" as contract
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "HttpSourceFetcher" as fetcher
+  participant "RobotsTxtPolicy" as robots
+  participant "HostRateLimiter" as limiter
+  participant "SafeAddressResolver" as resolver
+  participant "UserAgentHandler" as ua
+  participant "InstagramClient / EventbriteClient" as platform
+end box
+participant "Source host" as host
+
+stage -> contract : FetchAsync(kind, address, ETag, Last-Modified, timeout from Settings)
+alt kind is instagram or eventbrite
+  contract -> platform : Fetch through official API
+  alt no credentials configured
+    platform --> stage : Failure refused, nothing scraped (L2-021)
+  else credentials configured
+    platform -> host : Official API call, credentials to platform host only (L2-084)
+    host --> platform : API response
+    platform --> stage : Bounded result
+  end
+else rss or website (NewsSearchClient takes the same path for news_query)
+  contract -> fetcher : FetchAsync
+  fetcher -> resolver : Resolve host and check every address (L2-024)
+  alt loopback, private, link-local, unique-local, multicast or metadata
+    resolver --> fetcher : Unsafe
+    fetcher --> stage : Failure unsafe_address, no request sent
+  else public address
+    resolver --> fetcher : Checked address
+    fetcher -> robots : CheckAsync(path)
+    robots -> robots : Use cached robots.txt if fetched under 24 h ago (L2-021)
+    opt cache missing or stale
+      robots -> host : GET /robots.txt through the same safe path
+      host --> robots : robots.txt or error
+    end
+    alt robots.txt 5xx or timeout
+      robots --> fetcher : Unavailable
+      fetcher --> stage : Site not fetched in this run
+    else path disallowed for Keryx or *
+      robots --> fetcher : Disallowed
+      fetcher --> stage : Failure blocked_by_robots, no request to the path
+    else allowed
+      robots --> fetcher : Allowed with Crawl-delay
+      fetcher -> limiter : AcquireAsync(host, Crawl-delay capped at 30 s)
+      limiter -> limiter : Wait for host slot, at most 8 hosts, 1 in flight per host (L2-022)
+      limiter -> limiter : Delay on TimeProvider until spacing of 1 s or Crawl-delay passes
+      limiter --> fetcher : Slot
+      fetcher -> ua : GET with If-None-Match / If-Modified-Since when known (L2-022)
+      ua -> ua : Set User-Agent Keryx/version (+contact URL) (L2-021)
+      ua -> host : Connect only to the checked address, timeout armed (L2-024)
+      alt 304 Not Modified
+        host --> fetcher : 304
+        fetcher --> stage : Success with no items
+      else 200
+        host --> fetcher : Response headers and body stream
+        fetcher --> stage : Bounded content (see read-and-parse)
+      end
+      fetcher -> limiter : Release slot
+    end
+  end
+end
+@enduml

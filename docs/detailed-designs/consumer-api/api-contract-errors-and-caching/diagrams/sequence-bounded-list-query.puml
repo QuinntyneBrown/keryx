@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Bounded list query at any page depth
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "OrganizationsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListOrganizationsQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DataProtectionCursorCodec" as codec
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+participant "OpenTelemetry" as otel
+product -> controller : GET /v1/organizations?cursor=<page 500>&limit=100&unknown=x
+controller -> controller : Apply L2-025 unknown parameter ignored
+controller -> handler : Send ListOrganizationsQuery
+handler -> codec : Decode cursor
+codec --> handler : Last (name, id)
+handler -> ctx : Apply L2-086 seek WHERE (name, id) > (last) ORDER BY name, id; take 101; select returned columns only
+ctx -> db : One parameterized statement, index seek, no OFFSET
+db --> ctx : At most 101 rows
+ctx --> handler : Rows with article_count from the same statement
+handler --> controller : PageDto with at most 100 items (L2-031)
+controller --> product : 200 page; compressed when over 1 KB
+controller -> otel : Apply L2-094 duration by route template and client id
+@enduml

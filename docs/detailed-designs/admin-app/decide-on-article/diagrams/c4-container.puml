@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Decide on an article
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Presses Publish, Hide from API or Undo", "HTTPS")
+Rel(spa, api, "Sends publish, hide and revert", "JSON/HTTPS, /admin/v1")
+Rel(api, db, "Changes status and writes audit", "EF Core")
+Rel(worker, db, "Re-collects without overriding staff decisions", "EF Core")
+Rel(product, api, "Reads published articles only", "JSON/HTTPS, /v1")
+@enduml

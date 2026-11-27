@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — An admin request on its way in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "Admin page" as page
+  participant "Http…Api" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "HTTPS redirection and HSTS" as https
+  participant "SecurityHeadersMiddleware" as hdr
+  participant "AdminCorsPolicy" as cors
+  participant "AdminRequestLimits" as lim
+  participant "Admin…Controller" as ctrl
+  participant "NoStoreFilter" as nostore
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as vb
+  participant "…Handler" as h
+end box
+actor -> page : Act on a screen
+page -> client : Build typed request
+client -> https : Request
+alt plain HTTP in a deployed environment
+  https --> client : Redirect to HTTPS (L2-082)
+else HTTPS
+  https -> hdr : Continue
+  hdr -> cors : Add nosniff, Referrer-Policy, frame-ancestors
+  cors -> lim : Origin is the admin origin
+  alt body larger than 64 KB
+    lim --> client : 413 (L2-083)
+  else within limit
+    lim -> ctrl : Authenticate, authorize staff, check antiforgery
+    ctrl -> vb : Send command bound from request record
+    vb -> h : Validators passed
+    h --> vb : Result
+    vb --> ctrl : Result
+    ctrl -> nostore : Result
+    nostore --> client : 200 with Cache-Control: no-store and HSTS max-age 365 days
+  end
+end
+client --> page : Feature result
+page --> actor : Present outcome
+@enduml

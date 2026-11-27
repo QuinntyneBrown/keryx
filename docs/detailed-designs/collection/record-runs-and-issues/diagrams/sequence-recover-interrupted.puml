@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Record runs and issues: recover a run interrupted by a stop
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as host
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RecoverInterruptedRunsCommandHandler" as handler
+  participant "Run" as run
+  participant "RunLease" as lease
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+host -> handler : At start, before any loop: Send RecoverInterruptedRunsCommand(collection)
+handler -> db : Find runs of worker collection with outcome running and execution started
+db --> handler : run left by the stopped process
+handler -> run : Fail(reason interrupted, now) (L2-019)
+handler -> lease : Release
+handler -> db : Save in one unit of work
+handler --> host : recovered count
+host -> host : Start schedule and execution loops
+@enduml

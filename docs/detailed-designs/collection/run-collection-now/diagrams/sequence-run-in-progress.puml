@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Run collection now: a run is already in progress
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "OverviewPage / RunsPage" as page
+  participant "ScheduleStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "StartRunCommandHandler" as handler
+  participant "RunLease" as lease
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Run now"
+page -> store : runNow()
+store -> client : startRun()
+client -> controller : POST /admin/v1/runs
+controller -> handler : Send StartRunCommand
+handler -> db : Load RunLease(collection)
+alt lease names an active run
+  db --> handler : ActiveRunId run_2419
+  handler --> controller : throw RunInProgressException(run_2419)
+else two requests race for an idle lease
+  handler -> lease : TryClaim(run id)
+  handler -> db : Save lease with Version check
+  db --> handler : DbUpdateConcurrencyException (other request won)
+  handler -> db : Reload RunLease
+  db --> handler : ActiveRunId of the winning run
+  handler --> controller : throw RunInProgressException(winning run id) (L2-006 exactly one run)
+end
+controller --> client : 409 ProblemDetails code run_in_progress, run_id
+client --> store : ApiError(code run_in_progress, runId)
+store -> store : activeRun = that run; show no error (L2-047)
+store --> page : running state of that run
+page --> actor : Show "Collecting…" and the running run
+@enduml

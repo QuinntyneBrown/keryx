@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Serve events
+
+System_Ext(product, "Consuming product", "Reads the consumer API")
+Container_Boundary(api, "Keryx API") {
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "Authenticates the Bearer key; events:read policy applies")
+  Component(ctrl, "EventsController", "ASP.NET Core controller", "GET /v1/events and GET /v1/events/{id}")
+  Component(validator, "ListEventsQueryValidator", "FluentValidation validator", "Bounds limit; checks from, to, region, org and cursor")
+  Component(listh, "ListEventsQueryHandler", "MediatR handler", "Keyset page of served events by starts_at ascending")
+  Component(geth, "GetEventQueryHandler", "MediatR handler", "One served event")
+  Component(served, "ServedRecordFilters", "Application query helper", "ServedEvents follows the linked article's status")
+  Component(codec, "DataProtectionCursorCodec", "ICursorCodec implementation", "Protects and reads opaque cursors")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext, IAppDbContext", "No-tracking projections")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Events, articles, organizations")
+
+Rel(product, auth, "GET /v1/events[?…]", "HTTPS, Bearer")
+Rel(auth, ctrl, "Authenticated client")
+Rel(ctrl, listh, "Sends ListEventsQuery")
+Rel(ctrl, geth, "Sends GetEventQuery")
+Rel(validator, listh, "Validates before")
+Rel(listh, served, "Applies")
+Rel(geth, served, "Applies")
+Rel(listh, codec, "Decodes and issues cursors")
+Rel(listh, ctx, "Queries")
+Rel(geth, ctx, "Queries")
+Rel(ctx, db, "SQL", "EF Core")
+@enduml

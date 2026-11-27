@@ -1,0 +1,180 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Staff sign-in and session
+
+package "frontend/projects/admin" {
+  class staffGuard <<function>> {
+    +canMatch(route, segments): Observable<boolean | UrlTree>
+  }
+  class sessionInterceptor <<function>> {
+    +intercept(request, next): Observable<HttpEvent>
+  }
+  class SessionStore {
+    +me: Signal<MeDto | null>
+    +antiforgeryToken: Signal<string | null>
+    +loadState: Signal<LoadState>
+    +load(): Observable<LoadResult>
+    +signOut(): Observable<void>
+    +clear(): void
+  }
+  class SignInPage {
+    +state: Signal<SignInState>
+    +returnPath: Signal<string>
+    +signIn(): void
+  }
+  enum SignInState {
+    default
+    busy
+    error
+    session_expired
+    signed_out
+  }
+  class ForbiddenPage {
+    +signInWithDifferentAccount(): void
+  }
+  class NotFoundPage
+}
+
+package "frontend/projects/domain" {
+  class safeReturnPath <<function>> {
+    +safeReturnPath(value: string | null): string
+  }
+}
+
+package "frontend/projects/api" {
+  interface SessionApi {
+    +getMe(): Observable<MeDto>
+    +getAntiforgeryToken(): Observable<string>
+    +signInUrl(returnPath: string, options?): string
+    +signOut(): Observable<void>
+  }
+  class HttpSessionApi
+  class MeDto {
+    +name: string
+    +initials: string
+    +role: string
+  }
+}
+
+package "Keryx.Api" {
+  class AuthController {
+    +SignIn(return: string): IActionResult
+    +SignOut(): Task<IActionResult>
+    +Me(): Task<MeDto>
+    +Antiforgery(): AntiforgeryTokenDto
+  }
+  class StaffPolicy
+  class NoStoreFilter
+}
+
+package "Keryx.Application" {
+  class PrepareSignInCommand {
+    +string? ReturnPath
+  }
+  class RecordStaffSignInCommand {
+    +string SubjectId
+    +string Name
+    +string Role
+  }
+  class ValidateStaffSessionCommand {
+    +string SessionId
+  }
+  class SignOutCommand {
+    +string SessionId
+  }
+  class GetCurrentStaffQuery {
+    +string SubjectId
+  }
+  class PrepareSignInCommandHandler
+  class RecordStaffSignInCommandHandler
+  class ValidateStaffSessionCommandHandler
+  class SignOutCommandHandler
+  class GetCurrentStaffQueryHandler
+  class ReturnPathPolicy <<static>> {
+    +Safe(value: string?): string
+  }
+  class SessionOptions {
+    +int IdleMinutes = 60
+    +int AbsoluteHours = 12
+  }
+  class SessionExpiredException
+  abstract class KeryxException {
+    +string Code
+  }
+  interface IAppDbContext {
+    +DbSet<StaffSession> StaffSessions
+    +DbSet<StaffMember> StaffMembers
+  }
+}
+
+package "Keryx.Domain" {
+  class StaffSession {
+    +string Id
+    +string SubjectId
+    +DateTimeOffset CreatedAt
+    +DateTimeOffset LastSeenAt
+    +byte[] ProtectedTicket
+    +IsExpired(now, idle: TimeSpan, absolute: TimeSpan): bool
+    +Touch(now: DateTimeOffset): void
+  }
+  class StaffMember {
+    +string SubjectId
+    +string Name
+    +string Role
+  }
+  class StaffName <<static>> {
+    +Initials(name: string): string
+  }
+}
+
+package "Keryx.Infrastructure" {
+  class StaffSessionTicketStore {
+    +StoreAsync(ticket): Task<string>
+    +RetrieveAsync(key): Task<AuthenticationTicket>
+    +RemoveAsync(key): Task
+  }
+}
+
+staffGuard --> SessionStore
+sessionInterceptor --> SessionStore
+SessionStore --> SessionApi
+SessionStore --> "0..1" MeDto
+SignInPage --> SignInState
+SignInPage ..> safeReturnPath
+SignInPage ..> SessionApi : signInUrl
+ForbiddenPage ..> SessionStore : signOut
+HttpSessionApi ..|> SessionApi
+HttpSessionApi ..> AuthController : HTTPS
+AuthController ..> PrepareSignInCommand : sends
+AuthController ..> SignOutCommand : sends
+AuthController ..> GetCurrentStaffQuery : sends
+PrepareSignInCommandHandler ..> PrepareSignInCommand : handles
+PrepareSignInCommandHandler ..> ReturnPathPolicy
+ValidateStaffSessionCommandHandler ..> ValidateStaffSessionCommand : handles
+ValidateStaffSessionCommandHandler ..> StaffSession : IsExpired / Touch
+ValidateStaffSessionCommandHandler ..> SessionOptions
+ValidateStaffSessionCommandHandler ..> SessionExpiredException : raises
+RecordStaffSignInCommandHandler ..> RecordStaffSignInCommand : handles
+RecordStaffSignInCommandHandler ..> StaffMember : creates or updates
+GetCurrentStaffQueryHandler ..> GetCurrentStaffQuery : handles
+GetCurrentStaffQueryHandler ..> StaffMember : reads
+GetCurrentStaffQueryHandler ..> StaffName
+SignOutCommandHandler ..> SignOutCommand : handles
+SignOutCommandHandler ..> StaffSession : deletes
+KeryxException <|-- SessionExpiredException
+IAppDbContext --> "*" StaffSession
+IAppDbContext --> "*" StaffMember
+StaffSessionTicketStore --> IAppDbContext
+StaffSession "*" --> "1" StaffMember : subject
+@enduml

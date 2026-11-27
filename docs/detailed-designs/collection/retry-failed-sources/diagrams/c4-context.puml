@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Retry failed sources
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Retries a run's failed sources from its detail", "HTTPS")
+Rel(keryx, sources, "Fetches only the failed sources again", "HTTPS")
+@enduml

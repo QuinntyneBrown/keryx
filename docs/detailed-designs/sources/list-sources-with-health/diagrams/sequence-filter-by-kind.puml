@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Filter Sources by kind
+'SKIN
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "FilterChip" as chip
+  participant "SourcesPage" as page
+  participant "Router" as router
+  participant "SourcesStore" as store
+  participant "HttpSourcesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as controller
+end box
+
+actor -> chip : Choose "Eventbrite"
+chip --> page : pressedChange
+page -> router : Set ?kind=eventbrite and drop page (L2-062)
+router --> store : Query params changed
+store -> client : listSources(eventbrite, page 1)
+client -> controller : GET /admin/v1/sources?kind=eventbrite&page=1
+controller --> client : 200 page and counts across all kinds
+client --> store : Result
+alt no source of that kind
+  store --> page : state noResults
+  page --> actor : "No Eventbrite sources", "Show all types", "Add source"
+  actor -> page : "Show all types"
+  page -> router : Clear kind
+else rows
+  store --> page : state ready
+  page --> actor : Chip aria-pressed="true", rows of that kind from page 1
+end
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Store records
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(store, "StoreStage", "Pipeline stage", "Turns classified items into records")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(artf, "ArticleFactory", "Domain service", "Bounds title, summary, tags; one category")
+  Component(evf, "EventFactory", "Domain service", "Start in UTC with zone; drops bad end time")
+  Component(orgr, "OrganizationResolver", "Application service", "Finds by L2-010 match or creates")
+  Component(regr, "RegionResolver", "Application service", "Place to region, else source region")
+  Component(sync, "FocusAreaRegionSync", "Application service", "Creates regions for new focus areas")
+  Component(rq, "GetRegionsQueryHandler", "MediatR handler", "Regions ordered by rank")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(rc, "RegionsController", "ASP.NET Core controller", "GET /v1/regions")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Articles, events, organizations, regions")
+
+Rel(store, artf, "Builds article with")
+Rel(store, evf, "Builds event with")
+Rel(store, orgr, "Resolves organization with")
+Rel(store, regr, "Resolves region with")
+Rel(store, db, "Saves records", "IAppDbContext")
+Rel(orgr, db, "Reads and creates organizations", "IAppDbContext")
+Rel(sync, db, "Creates regions", "IAppDbContext")
+Rel(rc, rq, "Sends GetRegionsQuery")
+Rel(rq, db, "Reads regions", "IAppDbContext")
+@enduml

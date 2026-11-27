@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Export articles
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(staff, spa, "Presses Export CSV", "HTTPS")
+Rel(spa, api, "Requests the CSV for the current filters", "HTTPS, text/csv, /admin/v1")
+Rel(api, db, "Counts, then streams matching rows", "EF Core")
+@enduml

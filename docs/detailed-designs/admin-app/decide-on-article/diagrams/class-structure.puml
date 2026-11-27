@@ -1,0 +1,122 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Decide on an article
+
+enum ArticleStatus {
+  published
+  needs_review
+  hidden
+}
+enum DecidedBy {
+  staff
+  <TO SUPPLY> rule value
+}
+package "frontend/projects/admin" {
+  class ArticlesStore <<injectable route>> {
+    +decisionInFlight: Signal<boolean>
+    +publish(id: string): void
+    +hide(id: string): void
+    -undo(id: string, previous: ArticleStatus): void
+    -applyDecision(result: ArticleDecisionDto): void
+    -refreshCounts(): void
+  }
+}
+package "frontend/projects/components" {
+  class DetailPanel <<component>> {
+    +busy: input<boolean>
+    +publish: output<void>
+    +hide: output<void>
+  }
+}
+package "frontend/projects/api" {
+  interface ArticlesApi {
+    +publish(id: string): Observable<ArticleDecisionDto>
+    +hide(id: string): Observable<ArticleDecisionDto>
+    +revert(id: string, previousStatus: ArticleStatus): Observable<ArticleDecisionDto>
+  }
+  interface Notifier {
+    +notify(notification: NotificationRequest): NotificationRef
+  }
+  class ArticleDecisionDto {
+    +id: string
+    +status: ArticleStatus
+    +decided_by: DecidedBy
+    +previous_status: ArticleStatus
+  }
+}
+package "backend/src" {
+  class AdminArticlesController {
+    +Publish(id): Task<ArticleDecisionDto>
+    +Hide(id): Task<ArticleDecisionDto>
+    +Revert(id, body): Task<ArticleDecisionDto>
+  }
+  class PublishArticleCommand {
+    +PublicId ArticleId
+  }
+  class HideArticleCommand {
+    +PublicId ArticleId
+  }
+  class RevertArticleDecisionCommand {
+    +PublicId ArticleId
+    +ArticleStatus PreviousStatus
+  }
+  class RevertArticleDecisionCommandValidator
+  class PublishArticleCommandHandler {
+    -db: IAppDbContext
+    -time: TimeProvider
+    +Handle(command): Task<ArticleDecisionDto>
+  }
+  class HideArticleCommandHandler
+  class RevertArticleDecisionCommandHandler
+  class Article {
+    +PublicId Id
+    +ArticleStatus Status
+    +DecidedBy? DecidedBy
+    +ArticleStatus? PreviousStatus
+    +DecidedBy? PreviousDecidedBy
+    +DateTimeOffset? DecidedAt
+    +Publish(at): bool
+    +Hide(at): bool
+    +RevertTo(previous, at): bool
+  }
+  class AuditEntry {
+    +string SubjectId
+    +string Action
+    +string TargetId
+    +DateTimeOffset At
+  }
+  class ArticleNotFoundException {
+    +Code = "article_not_found"
+  }
+}
+
+DetailPanel ..> ArticlesStore : outputs via ArticlesPage
+ArticlesStore ..> ArticlesApi : ARTICLES_API
+ArticlesStore ..> Notifier : NOTIFIER
+ArticlesApi ..> ArticleDecisionDto
+AdminArticlesController ..> PublishArticleCommand : sends
+AdminArticlesController ..> HideArticleCommand : sends
+AdminArticlesController ..> RevertArticleDecisionCommand : sends
+RevertArticleDecisionCommandValidator ..> RevertArticleDecisionCommand : validates
+PublishArticleCommandHandler ..> PublishArticleCommand : handles
+HideArticleCommandHandler ..> HideArticleCommand : handles
+RevertArticleDecisionCommandHandler ..> RevertArticleDecisionCommand : handles
+PublishArticleCommandHandler --> Article : loads / mutates
+HideArticleCommandHandler --> Article : loads / mutates
+RevertArticleDecisionCommandHandler --> Article : loads / mutates
+PublishArticleCommandHandler ..> AuditEntry : adds
+PublishArticleCommandHandler ..> ArticleNotFoundException : throws
+Article --> ArticleStatus
+Article --> DecidedBy
+@enduml

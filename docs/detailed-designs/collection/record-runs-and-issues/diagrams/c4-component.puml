@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record runs and issues
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(hosts, "CollectionScheduler, RetentionWorker, AlertDigestWorker", "BackgroundService", "Independent loops; each sends RecoverInterruptedRunsCommand at start")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(behavior, "RunRecordingBehavior", "MediatR pipeline behaviour", "Records start, finish and unhandled failure of every worker run")
+  Component(recover, "RecoverInterruptedRunsCommandHandler", "MediatR handler", "Fails runs left running with reason interrupted")
+  Component(tracker, "IssueTracker", "Domain service", "Opens, continues, closes issues; counts consecutive runs")
+  Component(sanitizer, "IssueDetailSanitizer", "Domain service", "Bounds detail to 300 characters; removes secrets and internal addresses")
+  Component(getRun, "GetRunQueryHandler", "MediatR handler", "Run record as numbers")
+  Component(getIssues, "GetIssuesQueryHandler", "MediatR handler", "Paged issues, errors first, longest-running first")
+  Component(mute, "MuteIssueCommandHandler / UnmuteIssueCommandHandler", "MediatR handlers", "Mute state")
+  Component(run, "Run / RunIssue / IssueOccurrence", "Domain entities", "Run record and its issues")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(runsCtrl, "AdminRunsController", "ASP.NET Core controller", "GET /admin/v1/runs/{id}")
+  Component(issuesCtrl, "AdminIssuesController", "ASP.NET Core controller", "GET /admin/v1/issues; POST mute and unmute")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Runs, stage results, issues, occurrences")
+
+Rel(hosts, behavior, "Run commands pass through")
+Rel(hosts, recover, "Sends at start")
+Rel(behavior, run, "Start, Finish, Fail(correlation id)")
+Rel(tracker, run, "Updates issues")
+Rel(tracker, sanitizer, "Sanitizes detail")
+Rel(runsCtrl, getRun, "Sends GetRunQuery")
+Rel(issuesCtrl, getIssues, "Sends GetIssuesQuery")
+Rel(issuesCtrl, mute, "Sends MuteIssueCommand / UnmuteIssueCommand")
+Rel(behavior, db, "Saves", "EF Core")
+Rel(getRun, db, "Reads", "EF Core")
+Rel(getIssues, db, "Reads with keyed order and paging", "EF Core")
+Rel(mute, db, "Saves", "EF Core")
+@enduml

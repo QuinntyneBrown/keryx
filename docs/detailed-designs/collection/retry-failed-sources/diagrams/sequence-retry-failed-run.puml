@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Retry failed sources: retry of a failed run starts a new run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RetryFailedSourcesCommandHandler" as handler
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+
+actor -> page : Press "Retry failed sources" on a failed run
+page -> store : retryFailedSources()
+store -> client : retryFailedSources(id)
+client -> controller : POST /admin/v1/runs/{id}/retry
+controller -> handler : Send RetryFailedSourcesCommand
+handler -> db : Load run and RunLease
+db --> handler : outcome failed at a stage, lease free
+handler -> run : StartManual(new run id) (L2-008 a failed run starts a new manual run)
+handler -> db : Save new run and claimed lease
+handler --> controller : StartRunResultDto(new run id)
+controller --> client : 202 { id: new run id }
+client --> store : new run id
+store --> page : Select the new run; show its running state
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Review articles
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+
+Rel(staff, keryx, "Browses, searches and opens collected articles in", "HTTPS")
+Rel(keryx, sources, "Collects articles from", "HTTPS")
+Rel(staff, sources, "Opens an article's original link at", "HTTPS, new tab")
+@enduml

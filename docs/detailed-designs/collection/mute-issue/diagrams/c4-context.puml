@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Mute an issue
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Ext(idp, "Identity provider", "OpenID Connect sign-in for staff")
+System_Ext(mail, "Mail service", "Sends operational alerts and digests")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+
+Rel(staff, keryx, "Mutes an issue and may undo it", "HTTPS")
+Rel(staff, idp, "Signs in through")
+Rel(keryx, mail, "Sends no alert for a muted issue through", "SMTP")
+@enduml

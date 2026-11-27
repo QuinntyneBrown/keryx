@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Record runs and issues: record a worker run however it ends
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionScheduler" as host
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RunRecordingBehavior" as behavior
+  participant "RunCollectionCommandHandler" as handler
+  participant "Run" as run
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+host -> behavior : Send RunCollectionCommand (IWorkerRunCommand)
+behavior -> db : Load or create Run (worker collection, trigger, started_at from TimeProvider)
+behavior -> handler : next()
+alt handler completes
+  handler -> run : Stage results, counts, sources_checked as sources finish (L2-019)
+  handler --> behavior : result
+  behavior -> run : Finish(now): finished_at, duration_ms, outcome
+else handler throws an unhandled exception
+  handler --> behavior : exception
+  behavior -> run : Fail("generic reason", correlation id = trace id) (L2-019)
+  behavior -> behavior : Log the exception type and trace id only; swallow so the loop continues
+end
+behavior -> db : Save run in one unit of work
+behavior --> host : done
+host -> host : Wait for the next wake time; the next scheduled run still starts
+@enduml

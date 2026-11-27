@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Publish a held article
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "DetailPanel" as panel
+  participant "ArticlesStore" as store
+  participant "ArticlesApi" as client
+  participant "Notifier" as notifier
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "PublishArticleCommandHandler" as handler
+  participant "Article" as entity
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> panel : Press "Publish"
+panel -> store : publish output via ArticlesPage
+alt decision already in flight
+  store --> panel : Ignore; no second request (L2-052)
+else none in flight
+  store -> store : decisionInFlight = true
+  store --> panel : busy; both buttons inert
+  store -> client : publish(art_18429)
+  client -> controller : POST /admin/v1/articles/art_18429/publish with anti-forgery token
+  controller -> controller : Authenticate, StaffPolicy, anti-forgery (L2-040)
+  controller -> handler : Send PublishArticleCommand
+  handler -> db : Load article
+  alt article not found
+    handler --> controller : ArticleNotFoundException
+    controller --> client : 404 code article_not_found (L2-014)
+  else found
+    db --> handler : Article needs_review, decided_by null
+    handler -> entity : Publish(now from TimeProvider)
+    alt already published
+      entity --> handler : false; nothing changes (idempotent)
+    else changed
+      entity --> handler : true; status published, decided_by staff, previous kept (L2-014)
+      handler -> db : Save article and AuditEntry(subject, publish, art_18429, now) in one unit of work (L2-085)
+      db --> handler : Committed
+    end
+    handler --> controller : ArticleDecisionDto
+    controller --> client : 200 id, status, decided_by, previous_status
+  end
+  alt success
+    client --> store : Decision
+    store -> store : Update row and panel badge "Published"
+    store -> client : counts()
+    client --> store : Needs review 5, Published 17,912 (L2-049)
+    store -> notifier : Success "Article published", "“<title>” is now served by the API." with Undo
+    notifier --> actor : Notification; title rendered as text (L2-075)
+  else failure
+    client --> store : Error code
+    store -> store : Nothing changes on screen
+    store -> notifier : Danger "Keryx couldn’t publish the article", "Nothing changed — it is still waiting in Needs review." with "Try again"
+    notifier --> actor : role="alert" notification
+  end
+  store -> store : decisionInFlight = false
+end
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Edit and discard settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsStore" as store
+  participant "domain: scheduleLine, thresholdHelp" as domain
+end box
+actor -> page : Choose "3 hours" under "Run every"
+page -> store : update(interval_hours = 3)
+store -> domain : scheduleLine(3, now)
+domain --> store : "cron: 0 */3 * * * · next 12:00 PM"
+store -> store : dirty = draft differs from saved
+store --> page : draft, dirty = true
+page --> actor : "3 hours" alone aria-pressed; save bar "You have unsaved changes." (L2-070, L2-071)
+actor -> page : Move the threshold slider to 0.65 with arrow keys
+page -> store : update(publish_threshold = 0.65)
+store -> domain : thresholdHelp(0.65)
+domain --> store : "Scores from 0.45 to 0.65 wait in Needs review. Below 0.45 are hidden."
+store --> page : draft and help text
+page --> actor : Output reads "0.65"
+alt staff press "Discard"
+  actor -> page : Press "Discard"
+  page -> store : discard()
+  store -> store : draft = saved; errors cleared
+  store --> page : dirty = false
+  page --> actor : Every field at its saved value; save bar goes (L2-071 criterion 2)
+else staff restore each value by hand
+  actor -> page : Choose "6 hours" and move the slider back to 0.60
+  page -> store : update(...)
+  store -> store : dirty = false when every value equals the saved one
+  store --> page : dirty = false
+  page --> actor : Save bar goes (L2-071 criterion 1)
+end
+@enduml

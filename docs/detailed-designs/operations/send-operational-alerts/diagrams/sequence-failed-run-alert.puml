@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — A whole run fails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionPipeline" as pipe
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RaiseRunAlertsHandler" as raise
+  participant "AlertComposer" as comp
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SmtpMailSender" as smtp
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+pipe -> db : Save run with outcome failed and failed stage
+pipe -> raise : Publish RunFinishedNotification(run id)
+raise -> db : Read settings and run
+db --> raise : AlertOnRunFailure, alert address, run
+alt When a whole run fails is on
+  raise -> comp : RunFailed(run, failed stage)
+  comp --> raise : Plain text naming run, stage and a generic reason; no stack trace (L2-077)
+  raise -> smtp : SendAsync(message)
+  smtp -> mail : SMTP over TLS
+  mail --> smtp : Accepted
+  raise -> db : Save AlertRecord run_failed, sent
+else switch off
+  raise -> raise : Send nothing
+end
+@enduml

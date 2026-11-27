@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Follow a running run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "DestroyRef" as destroy
+  participant "HttpRunsApi" as client
+  participant "CollectionWatcher" as watcher
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetRunQueryHandler" as geth
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Open Runs while run_2419 is in progress
+page --> actor : run_2419 first as "Running"; "Run now" is a disabled "Collecting…" (L2-058)
+store -> destroy : Register poll release (takeUntilDestroyed)
+store -> watcher : follow(run_2419) pauses the watcher poll for this run
+loop while outcome is running, at most every 3 s (L2-058 criterion 2)
+  store -> client : getRun(run_2419)
+  client -> controller : GET /admin/v1/runs/run_2419
+  controller -> geth : Send GetRunQuery
+  geth -> db : Read run, stages and progress
+  db --> geth : Run in progress
+  geth --> controller : RunDto(outcome = running, sources_checked, sources_total)
+  controller --> client : 200 RunDto
+  client --> store : RunDto
+  store -> store : Replace previous progress; hold only the latest (L2-089)
+  store --> page : Stages done, running or not run; counts advance
+  page --> actor : Progress announced once per change through a live region (L2-092)
+end
+alt the run ends
+  store -> store : Stop polling
+  store -> watcher : observe(final RunDto)
+  watcher -> watcher : Notify once per run (L2-076)
+  store --> page : Final outcome
+  page --> actor : Final outcome without a reload (L2-058 criterion 3)
+else staff leave the screen
+  actor -> page : Navigate elsewhere
+  page -> destroy : Component destroyed
+  destroy -> store : Release poll timer and subscription
+  store -> watcher : unfollow(run_2419) resumes the watcher poll
+  store -> client : Unsubscribe aborts the in-flight request
+end
+@enduml

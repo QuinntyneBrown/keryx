@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View run history
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System_Boundary(keryx, "Keryx") {
+  Container(spa, "Keryx Admin", "Angular, zoneless, standalone", "Staff-only admin app")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Scheduled collection, retention and alert digest")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+System_Ext(sources, "Sources", "Feeds, web pages, Instagram, Eventbrite, news search")
+
+Rel(staff, spa, "Opens Runs", "HTTPS")
+Rel(spa, api, "GET /admin/v1/runs and /admin/v1/runs/{id}", "JSON/HTTPS")
+Rel(api, db, "Reads runs, stage results and issues", "EF Core")
+Rel(worker, db, "Records runs, stage results and issues", "EF Core")
+Rel(worker, sources, "Fetches", "HTTPS")
+@enduml

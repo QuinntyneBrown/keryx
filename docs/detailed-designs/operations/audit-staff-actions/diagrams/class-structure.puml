@@ -1,0 +1,75 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Audit staff actions
+
+interface IAuditableCommand {
+  +AuditAction Action
+  +string TargetId
+  +IReadOnlyList<string> ChangedFields
+}
+class PublishArticleCommand {
+  +string ArticleId
+}
+class SaveSettingsCommand {
+  +int Version
+  +SettingsValues Values
+}
+class "AuditBehavior<TRequest, TResponse>" as AB {
+  -IAppDbContext db
+  -ICurrentStaff staff
+  -TimeProvider time
+  +Handle(request: TRequest, next, ct): Task<TResponse>
+}
+interface ICurrentStaff {
+  +string SubjectId
+}
+class HttpContextCurrentStaff
+class AuditEntry {
+  +Guid Id
+  +string SubjectId
+  +AuditAction Action
+  +string TargetId
+  +IReadOnlyList<string> ChangedFields
+  +DateTimeOffset OccurredAt
+}
+enum AuditAction {
+  article_published
+  article_hidden
+  source_added
+  source_edited
+  source_removed
+  api_key_created
+  api_key_revoked
+  issue_muted
+  run_started
+  run_retried
+  settings_saved
+}
+class SettingsDiff {
+  +ChangedFields(saved: Settings, submitted: SettingsValues): IReadOnlyList<string>
+}
+class AccessRefusalMetrics {
+  -Counter<long> refused
+  +Record(status: int, reason: string, routeTemplate: string): void
+}
+
+PublishArticleCommand ..|> IAuditableCommand
+SaveSettingsCommand ..|> IAuditableCommand
+AB ..> IAuditableCommand : wraps
+AB ..> ICurrentStaff : reads
+AB ..> AuditEntry : creates
+AuditEntry --> AuditAction
+HttpContextCurrentStaff ..|> ICurrentStaff
+SaveSettingsCommand ..> SettingsDiff : changed fields from
+@enduml

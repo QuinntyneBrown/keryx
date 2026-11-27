@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Serve articles
+
+System_Ext(product, "Consuming product", "Reads the consumer API")
+Container_Boundary(api, "Keryx API") {
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core authentication handler", "Authenticates the Bearer key; articles:read policy applies")
+  Component(ctrl, "ArticlesController", "ASP.NET Core controller", "GET /v1/articles and GET /v1/articles/{id}")
+  Component(etag, "EtagFilter", "ASP.NET Core result filter", "ETag, Cache-Control and 304")
+  Component(mapper, "ProblemDetailsMapper", "IExceptionHandler", "Maps KeryxException codes to ProblemDetails")
+  Component(validator, "ListArticlesQueryValidator", "FluentValidation validator", "Bounds limit; checks region, category, org, since and cursor")
+  Component(listh, "ListArticlesQueryHandler", "MediatR handler", "Keyset page of served articles, newest first")
+  Component(geth, "GetArticleQueryHandler", "MediatR handler", "One served article with tags and sources")
+  Component(served, "ServedRecordFilters", "Application query helper", "Defines which articles, events and organizations are served")
+  Component(codec, "DataProtectionCursorCodec", "ICursorCodec implementation", "Protects and reads opaque cursors")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext, IAppDbContext", "No-tracking projections")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Articles, organizations, provenance")
+
+Rel(product, auth, "GET /v1/articles[?…]", "HTTPS, Bearer")
+Rel(auth, ctrl, "Authenticated client")
+Rel(ctrl, listh, "Sends ListArticlesQuery")
+Rel(ctrl, geth, "Sends GetArticleQuery")
+Rel(validator, listh, "Validates before")
+Rel(listh, served, "Applies")
+Rel(geth, served, "Applies")
+Rel(listh, codec, "Decodes and issues cursors")
+Rel(listh, ctx, "Queries")
+Rel(geth, ctx, "Queries")
+Rel(ctx, db, "SQL", "EF Core")
+Rel(etag, ctrl, "Wraps successful results of")
+Rel(mapper, ctrl, "Handles exceptions from")
+@enduml

@@ -1,0 +1,134 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Store records
+
+class Article {
+  +PublicId Id
+  +ArticleTitle? Title
+  +ArticleSummary Summary
+  +CanonicalUrl Url
+  +Category Category
+  +TagSet Tags
+  +DateTimeOffset? PublishedAt
+  +DateTimeOffset CollectedAt
+  +RelevanceScore Score
+  +ArticleStatus Status
+}
+class ArticleTitle {
+  +string Value
+  +{static} From(raw: string?): ArticleTitle?
+}
+class ArticleSummary {
+  +string Value
+  +{static} From(summary: string?, body: string?): ArticleSummary
+}
+class TagSet {
+  +IReadOnlyList<string> Tags
+  +{static} From(raw: IEnumerable<string>): TagSet
+}
+enum Category {
+  events
+  races_challenges
+  gyms_studios
+  ministry_programs
+  nutrition
+  faith_wellness
+}
+class Event {
+  +PublicId Id
+  +string Title
+  +EventTime Start
+  +DateTimeOffset? EndsAt
+  +string PlaceName
+  +CanonicalUrl Url
+  +RelevanceScore Score
+  +ArticleStatus Status
+  +IsServable(): bool
+}
+class EventTime {
+  +DateTimeOffset StartsAtUtc
+  +string TimeZone
+  +{static} FromZoned(time: DateTimeOffset, zone: string): EventTime
+  +{static} FromLocal(local: DateTime, zone: string): EventTime
+}
+class Organization {
+  +PublicId Id
+  +string Name
+  +string NormalizedName
+  +OrganizationKind Kind
+  +Uri? WebsiteUrl
+}
+enum OrganizationKind {
+  church
+  ministry
+  gym
+  club
+  network
+  business
+  other
+}
+class Region {
+  +string Slug
+  +string Name
+  +string TimeZone
+  +int Rank
+  +{static} FromFocusArea(name: string): Region
+}
+class Provenance {
+  +string SourceId
+  +Uri Url
+  +DateTimeOffset FirstSeenAt
+  +DateTimeOffset LastSeenAt
+}
+class ArticleFactory {
+  +Create(item: ParsedItem, c: Classification, source: Source): Article
+}
+class EventFactory {
+  +Create(item: ParsedItem, region: Region, article: Article?): Event
+}
+class OrganizationResolver {
+  +ResolveOrCreate(name: string, region: Region): Task<Organization>
+}
+class RegionResolver {
+  +Resolve(place: string?, source: Source): Task<Region>
+}
+class GetRegionsQueryHandler {
+  +Handle(q: GetRegionsQuery): Task<IReadOnlyList<RegionDto>>
+}
+class RegionDto {
+  +string slug
+  +string name
+  +string time_zone
+}
+
+Article *-- ArticleTitle
+Article *-- ArticleSummary
+Article *-- TagSet
+Article --> Category
+Article "*" --> "0..1" Organization
+Article "*" --> "1" Region
+Article "1" *-- "1..*" Provenance
+Event *-- EventTime
+Event "*" --> "0..1" Article : linked article
+Event "*" --> "1" Organization
+Event "*" --> "1" Region
+Event "1" *-- "1..*" Provenance
+Organization --> OrganizationKind
+Organization "*" --> "1" Region
+ArticleFactory ..> Article : creates
+EventFactory ..> Event : creates
+OrganizationResolver ..> Organization : finds or creates
+RegionResolver ..> Region : resolves
+GetRegionsQueryHandler ..> RegionDto : returns
+@enduml

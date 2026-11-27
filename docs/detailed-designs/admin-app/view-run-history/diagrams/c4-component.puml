@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View run history
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+Container_Boundary(spa, "Keryx Admin") {
+  Component(page, "RunsPage", "Routed standalone component", "Reads ?run= and ?problems=, composes list and detail")
+  Component(store, "RunsStore", "Signal store on the page's providers", "Loads 14 runs, selected detail, polls a running run")
+  Component(detail, "RunDetail", "Presentation composite", "Card, stats, timeline and issues as text")
+  Component(lib, "Components library", "run-item, segmented, timeline, stat, badge, empty, skeleton", "Inputs and outputs only")
+  Component(domain, "domain helpers", "Pure functions", "Outcome and stage labels, Toronto times, durations")
+  Component(client, "HttpRunsApi", "RUNS_API implementation", "Typed HTTP client")
+  Component(watcher, "CollectionWatcher", "Shell schedule state", "Raises L2-076 notification once per run")
+}
+Container_Boundary(api, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller, StaffPolicy", "GET /admin/v1/runs and /admin/v1/runs/{id}")
+  Component(listh, "ListRunsQueryHandler", "MediatR handler", "One page of runs, newest first, problems filter")
+  Component(geth, "GetRunQueryHandler", "MediatR handler", "One run with stages and issues")
+  Component(mapper, "ProblemDetailsMapper", "Middleware", "ProblemDetails with code and trace id")
+}
+ContainerDb(db, "Keryx database", "EF Core relational store", "Runs, stage results, issues")
+
+Rel(staff, page, "Opens, filters, selects")
+Rel(page, store, "Reads signals, sends intents")
+Rel(page, detail, "Binds selected run")
+Rel(detail, lib, "Composes")
+Rel(page, lib, "Composes")
+Rel(store, domain, "Formats with")
+Rel(store, client, "Calls through RUNS_API")
+Rel(store, watcher, "Reports the end of a run")
+Rel(client, ctrl, "Calls", "JSON/HTTPS")
+Rel(ctrl, listh, "Sends ListRunsQuery")
+Rel(ctrl, geth, "Sends GetRunQuery")
+Rel(ctrl, mapper, "Errors mapped by")
+Rel(listh, db, "Reads", "IAppDbContext")
+Rel(geth, db, "Reads", "IAppDbContext")
+@enduml

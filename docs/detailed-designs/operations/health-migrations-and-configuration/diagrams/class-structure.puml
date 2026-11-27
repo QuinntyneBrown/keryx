@@ -1,0 +1,77 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Health, migrations and configuration
+
+interface IHealthCheck {
+  +CheckHealthAsync(context, ct): Task<HealthCheckResult>
+}
+class DatabaseReadinessCheck {
+  -KeryxDbContext db
+  +CheckHealthAsync(context, ct): Task<HealthCheckResult>
+  -ExpectedSchemaVersion(): string
+}
+class MinimalHealthResponseWriter {
+  +{static} WriteAsync(http: HttpContext, report: HealthReport): Task
+}
+class SchemaStatusLogger {
+  +StartAsync(ct): Task
+}
+class WorkerReadinessGate {
+  -TimeProvider time
+  +WaitUntilReadyAsync(ct): Task
+}
+class MigrateCommand {
+  +ExecuteAsync(ct): Task<int>
+}
+class SeedCommand {
+  +ExecuteAsync(ct): Task<int>
+}
+class SeedDataCommand
+class SeedDataCommandHandler {
+  +Handle(c: SeedDataCommand, ct): Task
+  -UpsertRegions(): Task
+  -UpsertCategories(): Task
+  -EnsureSettings(): Task
+  -UpsertNewsQuerySources(): Task
+}
+class DatabaseOptions {
+  +[Required] string ConnectionString
+}
+class IdentityProviderOptions {
+  +[Required] string Authority
+  +[Required] string ClientId
+  +string StaffClaim
+}
+class AdminOptions {
+  +[Required] string Origin
+}
+class FetchOptions {
+  +[Required] string ContactUrl
+}
+class SessionOptions {
+  +int IdleMinutes = 60
+  +int LifetimeHours = 12
+}
+class RateLimitOptions {
+  +int RequestsPerMinute = 600
+  +int AnonymousPerMinute = 60
+}
+
+DatabaseReadinessCheck ..|> IHealthCheck
+SchemaStatusLogger ..> DatabaseReadinessCheck : runs
+WorkerReadinessGate ..> DatabaseReadinessCheck : runs
+MinimalHealthResponseWriter ..> DatabaseReadinessCheck : reports status of
+SeedCommand ..> SeedDataCommand : sends
+SeedDataCommandHandler ..> SeedDataCommand : handles
+@enduml

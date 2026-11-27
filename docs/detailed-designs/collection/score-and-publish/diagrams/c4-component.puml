@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Score and publish
+
+Container_Boundary(worker, "Keryx Worker") {
+  Component(classify, "ClassifyStage", "Stage", "Scores each item and sets its status; counts relevant, held, off_topic")
+  Component(publish, "PublishStage", "Stage", "Applies status, leaving staff decisions untouched")
+}
+Container_Boundary(app, "Keryx Application and Domain") {
+  Component(scorer, "RelevanceScorer", "IRelevanceScorer", "Deterministic score from topics, exclusions and geography")
+  Component(score, "RelevanceScore", "Value object", "0.00 to 1.00, two decimals, half away from zero")
+  Component(policy, "PublicationPolicy", "Domain service", "Status from score, threshold T and review floor 0.45")
+  Component(snapshot, "SettingsSnapshot", "Value object", "Settings in force at run start")
+}
+Container_Boundary(spa, "Keryx Admin") {
+  Component(helper, "publicationStatusFor", "domain library", "Same rule and case table in the frontend")
+}
+ComponentDb(db, "Keryx database", "EF Core relational store", "Settings, articles with score, status, status_reason, threshold")
+
+Rel(classify, snapshot, "Reads")
+Rel(classify, scorer, "Score(item, snapshot)")
+Rel(scorer, score, "Returns")
+Rel(classify, policy, "Classify(score, T)")
+Rel(classify, publish, "Streams classified items via later stages")
+Rel(publish, db, "Writes status unless decided_by is staff", "EF Core")
+Rel(helper, policy, "Shares the inline case table with")
+@enduml

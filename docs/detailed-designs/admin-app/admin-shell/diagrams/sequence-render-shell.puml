@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Render the admin shell
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "app.routes.ts" as router
+  participant "AppShell" as page
+  participant "SessionStore" as session
+  participant "ScheduleStore" as store
+  participant "SessionApi / OverviewApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AuthController" as auth
+  participant "AdminOverviewController" as controller
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetShellScheduleQueryHandler" as handler
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> router : Open any admin route
+router -> page : loadComponent AppShell (L2-088 lazy chunk)
+page -> session : Read me, loaded once per session
+session -> client : getMe()
+client -> auth : GET /admin/v1/me
+auth --> client : name, initials, role (L2-039)
+client --> session : MeDto
+page -> store : load() once per session
+store -> client : getSchedule()
+client -> controller : GET /admin/v1/overview/schedule
+controller -> controller : Authenticate and apply StaffPolicy
+controller -> handler : Send GetShellScheduleQuery
+handler -> db : Read Settings, last scheduled Run, Source health
+db --> handler : Interval, runs, failing sources
+handler -> handler : Compute next_run_at from TimeProvider (L2-005)
+handler --> controller : ShellScheduleDto
+controller --> client : next_run_at, interval_hours, time_zone, failing_sources
+client --> store : Typed results
+store -> store : Set signals; format "12:00 PM", "in 2h 14m" (L2-042)
+store --> page : Signals change
+page -> page : Render brand link "Keryx, go to overview" (L2-097)
+page -> page : Mark current NavLink aria-current="page"
+alt failing_sources > 0
+  page -> page : Runs NavLink badge "2", name "2 failing sources" (L2-042)
+else none failing
+  page -> page : No badge
+end
+page -> router : router-outlet loads the screen chunk on demand (L2-088)
+router --> page : Screen component
+page --> actor : Shell with sidebar from 1024 px, top bar below
+@enduml

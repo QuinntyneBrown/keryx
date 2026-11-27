@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Health probes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Platform probe" as probe
+box "Backend — Keryx API application" #D1FADF
+  participant "/health/live" as live
+  participant "/health/ready" as ready
+  participant "MinimalHealthResponseWriter" as writer
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "DatabaseReadinessCheck" as check
+  database "Keryx database" as db
+end box
+probe -> live : GET /health/live (no credential)
+live --> probe : 200, database not touched (L2-095)
+probe -> ready : GET /health/ready (no credential)
+ready -> check : CheckHealthAsync
+check -> db : CanConnect
+alt reachable
+  db --> check : true
+  check -> db : Last applied migration
+  db --> check : Migration id
+  alt equals the build's expected schema version
+    check --> ready : Healthy
+    ready -> writer : Write
+    writer --> probe : 200 status word only
+  else behind or ahead
+    check --> ready : Unhealthy
+    ready -> writer : Write
+    writer --> probe : 503 status word only; no version, host or error
+  end
+else unreachable
+  db --> check : Failure
+  check --> ready : Unhealthy
+  ready -> writer : Write
+  writer --> probe : 503 status word only
+end
+@enduml

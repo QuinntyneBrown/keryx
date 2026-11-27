@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — API contract, errors and caching
+
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
+System_Boundary(keryx, "Keryx") {
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API /v1 and admin API /admin/v1")
+  Container(cli, "Keryx CLI", ".NET console", "Migrations and seed data")
+  ContainerDb(db, "Keryx database", "EF Core relational store", "Sources, records, runs, clients, settings, audit")
+}
+Rel(product, api, "GET /v1/…, If-None-Match, Accept-Encoding", "JSON/HTTPS")
+Rel(api, db, "Keyset queries served by indexes", "EF Core")
+Rel(cli, db, "Applies migrations that create the indexes", "EF Core")
+Rel(api, otel, "Traces and metrics", "OTLP")
+@enduml

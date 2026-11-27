@@ -1,0 +1,84 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Export articles
+
+package "frontend/projects/admin" {
+  class ArticlesStore <<injectable route>> {
+    +exportDisabled: Signal<boolean>
+    +exportInFlight: Signal<boolean>
+    +export(): void
+    -save(blob: Blob, fileName: string): void
+  }
+}
+package "frontend/projects/domain" {
+  class exportFileName <<function>> {
+    +exportFileName(now: Date): string
+  }
+}
+package "frontend/projects/api" {
+  interface ArticlesApi {
+    +exportCsv(query: ArticleQuery): Observable<Blob>
+  }
+  interface Notifier {
+    +notify(request): NotificationRef
+  }
+}
+package "backend/src" {
+  class AdminArticlesController {
+    +Export(query): Task<IActionResult>
+  }
+  class ExportArticlesQuery {
+    +ArticleStatus? Status
+    +string? Q
+    +string? Region
+    +string? Category
+  }
+  class ExportArticlesQueryHandler {
+    +MaxRows = 50000
+    +Handle(query): Task<IAsyncEnumerable<ArticleExportRowDto>>
+  }
+  class ArticleExportRowDto {
+    +string Id
+    +string? Title
+    +string? Organization
+    +string Category
+    +string Region
+    +decimal Relevance
+    +string Status
+    +DateTimeOffset? PublishedAt
+    +DateTimeOffset CollectedAt
+    +string Url
+  }
+  class ExportTooLargeException {
+    +Code = "export_too_large"
+  }
+  class CsvCell <<static>> {
+    +Escape(value: string?): string
+  }
+  class ArticleCsvResult {
+    +ExecuteResultAsync(context): Task
+  }
+}
+
+ArticlesStore ..> ArticlesApi : ARTICLES_API
+ArticlesStore ..> Notifier : NOTIFIER
+ArticlesStore ..> exportFileName
+AdminArticlesController ..> ExportArticlesQuery : sends
+ExportArticlesQueryHandler ..> ExportArticlesQuery : handles
+ExportArticlesQueryHandler ..> ExportTooLargeException : throws
+ExportArticlesQueryHandler ..> ArticleExportRowDto : yields
+AdminArticlesController ..> ArticleCsvResult : returns
+ArticleCsvResult ..> CsvCell : escapes with
+ArticleCsvResult ..> ArticleExportRowDto : writes
+@enduml

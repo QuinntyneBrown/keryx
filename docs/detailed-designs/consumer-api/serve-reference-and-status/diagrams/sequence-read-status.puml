@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Read collection status
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Consuming product" as product
+box "Backend — Keryx API application" #D1FADF
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "StatusController" as controller
+  participant "EtagFilter" as etag
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetStatusQueryHandler" as handler
+  participant "TimeProvider" as clock
+  participant "Collection schedule (L2-005)" as sched
+  participant "ServedRecordFilters" as served
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "KeryxDbContext" as ctx
+  database "Keryx database" as db
+end box
+product -> auth : GET /v1/status
+auth -> auth : Authenticate Bearer key (any valid key)
+auth -> controller : Authenticated client
+controller -> handler : Send GetStatusQuery
+handler -> ctx : Latest collection run by started_at; interval setting
+ctx -> db : One query each, projected columns
+db --> ctx : Run (started_at, outcome or running) and interval
+ctx --> handler : Run snapshot and interval
+alt no collection run yet
+  handler -> handler : last_run_at null, status TO SUPPLY
+else latest run in progress
+  handler -> handler : status running, last_run_at its start
+else latest run finished
+  handler -> handler : Apply L2-030 status from outcome; last_run_at is its start (failed included)
+end
+handler -> clock : GetUtcNow()
+clock --> handler : now
+handler -> sched : Next run time after now for interval (America/Toronto aligned)
+sched --> handler : next_run_at in UTC
+handler -> served : Count served articles
+served --> handler : Filtered query
+handler -> ctx : Count
+ctx -> db : One count query
+db --> ctx : articles_total
+ctx --> handler : articles_total
+handler --> controller : StatusDto (no source, issue or error detail)
+controller --> etag : 200 result
+etag --> product : 200 JSON status with ETag
+@enduml

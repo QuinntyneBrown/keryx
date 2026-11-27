@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Record an audit entry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Keryx Admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesApi" as client
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as ctrl
+  participant "HttpContextCurrentStaff" as cur
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AuditBehavior" as beh
+  participant "PublishArticleCommandHandler" as h
+  participant "AuditEntry" as entry
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+actor -> page : Publish a held article
+page -> client : Build typed request
+client -> ctrl : POST publish for art_…
+ctrl -> beh : Send PublishArticleCommand
+beh -> h : Call handler
+alt handler succeeds
+  h --> beh : Status changed (pending in unit of work)
+  beh -> cur : SubjectId
+  cur --> beh : sub claim
+  beh -> entry : New(subject id, article_published, art_…, now) (L2-085)
+  beh -> db : Save change and audit entry in one unit of work
+  db --> beh : Commit result
+  beh --> ctrl : Result
+  ctrl --> client : 200
+else handler fails
+  h --> beh : Exception
+  beh --> ctrl : Exception; no entry written
+  ctrl --> client : ProblemDetails
+end
+client --> page : Feature result
+page --> actor : Present outcome
+@enduml

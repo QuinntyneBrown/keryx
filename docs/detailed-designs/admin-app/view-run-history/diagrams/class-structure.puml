@@ -1,0 +1,173 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View run history
+
+package "frontend/projects/api" {
+  interface RunsApi {
+    +listRuns(query: ListRunsRequest): Observable<Page<RunSummaryDto>>
+    +getRun(id: string): Observable<RunDto>
+  }
+  class ListRunsRequest {
+    +worker: 'collection'
+    +problems: boolean
+    +page: number
+    +page_size: number
+  }
+  class RunSummaryDto {
+    +id: string
+    +trigger: 'schedule' | 'manual'
+    +started_at: string
+    +finished_at: string | null
+    +duration_ms: number
+    +outcome: RunOutcome
+    +added: number
+    +sources_failed: number
+  }
+  class RunDto {
+    +worker: string
+    +added: number
+    +duplicates: number
+    +sources_ok: number
+    +sources_failed: number
+    +sources_checked: number
+    +sources_total: number
+    +stages: StageResultDto[]
+    +issues: RunIssueDto[]
+  }
+  class StageResultDto {
+    +stage: StageName
+    +status: StageStatus
+    +duration_ms: number | null
+    +reason: string | null
+  }
+  class RunIssueDto {
+    +id: string
+    +severity: 'error' | 'warning'
+    +kind: string
+    +subject_type: 'source' | 'stage'
+    +subject_name: string
+    +detail: string
+    +consecutive_runs: number
+    +since: string
+    +muted: boolean
+  }
+}
+
+package "frontend/projects/admin" {
+  class RunsPage {
+    -store: RunsStore
+    +selectRun(id: string): void
+    +chooseTab(problems: boolean): void
+  }
+  class RunsStore {
+    +runs: Signal<RunSummaryDto[]>
+    +selected: Signal<RunDto | null>
+    +listStatus: Signal<PageStatus>
+    +detailStatus: Signal<PageStatus>
+    +problems: Signal<boolean>
+    +open(runId: string | null, problems: boolean): void
+    +select(runId: string): void
+    +retryDetail(): void
+    -pollWhileRunning(id: string): void
+  }
+  class RunDetail <<presentation>> {
+    +run: InputSignal<RunDto>
+    +now: InputSignal<Date>
+    +muteIssue: OutputEmitterRef<string>
+    +editSource: OutputEmitterRef<string>
+    +retryFailed: OutputEmitterRef<void>
+  }
+  class CollectionWatcher {
+    +follow(runId: string): void
+    +unfollow(runId: string): void
+    +observe(run: RunDto): void
+  }
+}
+
+package "frontend/projects/domain" {
+  class RunFormatting <<functions>> {
+    +runOutcomeLabel(outcome): string
+    +stageStatusLabel(status): string
+    +formatRunStart(startedAt, now): string
+    +formatRunDuration(ms): string
+    +formatStageDuration(ms): string
+    +issueStreakLabel(runs): string
+    +hasProblems(run): boolean
+  }
+}
+
+package "backend/src" {
+  class AdminRunsController {
+    +List(query: ListRunsQuery): Task<IActionResult>
+    +Get(id: string): Task<IActionResult>
+  }
+  class ListRunsQuery {
+    +Worker: string
+    +Problems: bool
+    +Page: int
+    +PageSize: int
+  }
+  class ListRunsQueryValidator
+  class ListRunsQueryHandler {
+    +Handle(query: ListRunsQuery): Task<PageDto<RunSummaryDto>>
+  }
+  class GetRunQuery {
+    +Id: PublicId
+  }
+  class GetRunQueryHandler {
+    +Handle(query: GetRunQuery): Task<RunDto>
+  }
+  interface IAppDbContext {
+    +Runs: DbSet<Run>
+  }
+  class Run {
+    +Id: PublicId
+    +Trigger: RunTrigger
+    +StartedAt: DateTimeOffset
+    +FinishedAt: DateTimeOffset?
+    +Outcome: RunOutcome
+  }
+  class StageResult {
+    +Stage: StageName
+    +Status: StageStatus
+    +Duration: TimeSpan?
+  }
+  class RunIssue {
+    +Severity: string
+    +Kind: string
+    +Detail: string
+    +ConsecutiveRuns: int
+    +Muted: bool
+  }
+}
+
+RunsPage *-- RunsStore : provides
+RunsPage ..> RunDetail : composes
+RunsStore ..> RunsApi : RUNS_API
+RunsStore ..> CollectionWatcher : reports end
+RunsStore ..> RunFormatting : uses
+RunsApi ..> ListRunsRequest
+RunsApi ..> RunSummaryDto
+RunsApi ..> RunDto
+RunDto "1" *-- "6" StageResultDto
+RunDto "1" *-- "*" RunIssueDto
+AdminRunsController ..> ListRunsQuery : sends
+AdminRunsController ..> GetRunQuery : sends
+ListRunsQueryHandler ..> ListRunsQuery : handles
+ListRunsQueryValidator ..> ListRunsQuery : validates
+GetRunQueryHandler ..> GetRunQuery : handles
+ListRunsQueryHandler --> IAppDbContext
+GetRunQueryHandler --> IAppDbContext
+IAppDbContext --> Run
+Run "1" *-- "6" StageResult
+Run "1" *-- "*" RunIssue
+@enduml

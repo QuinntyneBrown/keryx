@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Report API usage
+
+Person(staff, "Staff member", "Curates collection through the admin app")
+System(keryx, "Keryx", "Christian and fitness news aggregator")
+System_Ext(product, "Consuming product", "Christian Fitness and other products that read the API")
+
+Rel(product, keryx, "Calls the consumer API; each call is counted", "HTTPS/JSON")
+Rel(staff, keryx, "Reads traffic, latency, error rate and per-client usage in", "HTTPS")
+@enduml
