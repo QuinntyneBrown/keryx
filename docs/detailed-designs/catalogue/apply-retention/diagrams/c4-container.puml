@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Apply retention
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(worker, "Keryx Worker", ".NET hosted services", "Runs the collection, retention and alert_digest workers")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+
+Rel(worker, db, "Deletes expired records in batches", "EF Core")
+@enduml

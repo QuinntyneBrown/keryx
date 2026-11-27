@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send the daily digest of held articles
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(worker, "Keryx Worker", ".NET hosted services", "Runs the collection, retention and alert_digest workers")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+System_Ext(mail, "Mail service", "Delivers alert and digest e-mail")
+
+Rel(worker, db, "Reads held articles and records the run", "EF Core")
+Rel(worker, mail, "Sends the digest through", "HTTPS")
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Brand and design-system conformance
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(fav, "public/favicon.ico", "Static asset", "The Keryx mark at 16 to 256 px")
+  Component(readme, "README.md logo", "Repository asset", "Shows the mark and wordmark in both GitHub themes")
+  Component(vis, "Visual sweep", "Playwright, on request", "Compares each built state with its mock")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(brand, "brand", "Library component", "Renders the mark and the wordmark as one link")
+  Component(lib, "components/src/<name>/", "Library folder per component", "One name.ts, name.html and name.scss per design-system component")
+  Component(tok, "tokens.css", "Global foundation styles", "The only place hex colours and raw durations appear")
+}
+
+Rel(staff, brand, "Activates to open Overview")
+Rel(brand, tok, "Reads volt and ink from")
+Rel(lib, tok, "Reads tokens by role from")
+Rel(brand, lib, "Is one of")
+Rel(vis, lib, "Compares built screens of")
+Rel(fav, brand, "Shares the drawing of")
+Rel(readme, brand, "Shares the drawing of")
+@enduml

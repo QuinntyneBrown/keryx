@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Remove a source
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RemoveSourceDialog" as rm
+  participant "SourcesStore" as store
+  participant "HttpSourcesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RemoveSourceCommandHandler" as rh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> rm : Confirm "Remove source"
+rm -> svc : remove(id)
+svc -> ctrl : DELETE /admin/v1/sources/{id}
+ctrl -> rh : Send RemoveSourceCommand
+rh -> db : Load source
+db --> rh : Source
+rh -> rh : Source.Remove(now); keep provenance (L2-003)
+rh -> db : Save changes in one unit of work
+db --> rh : Commit result
+rh --> ctrl : Success
+ctrl --> svc : 204
+svc --> rm : Removed
+rm --> store : Close with result
+store -> svc : Reload current page and counts
+store --> staff : Row gone, "Source removed" notification with Undo
+opt Undo within the notification lifetime
+  staff -> store : Activate "Undo"
+  store -> svc : create(same kind and address)
+  svc -> ctrl : POST /admin/v1/sources
+  ctrl --> svc : 201; items match existing records
+end
+@enduml

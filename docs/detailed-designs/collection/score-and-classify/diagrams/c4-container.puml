@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Score relevance and classify
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(admin, "Keryx admin application", "Angular", "Staff-only admin UI")
+  Container(worker, "Keryx Worker", ".NET hosted services", "Runs the collection, retention and alert_digest workers")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(staff, admin, "Reads the threshold help in Settings", "HTTPS")
+Rel(worker, db, "Reads settings and writes scores", "EF Core")
+Rel(worker, source, "Fetches items to score", "HTTPS")
+@enduml

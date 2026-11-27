@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Fetch safely and respectfully
+
+interface ISourceFetcher {
+  +FetchAsync(source: SourceDescriptor, ct: CancellationToken): Task<FetchResult>
+}
+class SafeSourceFetcher {
+  -string userAgent
+  +FetchAsync(source: SourceDescriptor, ct: CancellationToken): Task<FetchResult>
+}
+class AddressGuard {
+  +CheckAsync(uri: Uri, ct: CancellationToken): Task<Result<CheckedAddress>>
+  +CheckRedirect(from: Uri, to: Uri, hop: int): Result<CheckedAddress>
+}
+class CheckedAddress <<value object>> {
+  +Uri Uri
+  +IPAddress Address
+}
+class RobotsCache {
+  +IsAllowedAsync(uri: Uri, ct: CancellationToken): Task<RobotsDecision>
+}
+class RobotsDecision {
+  +bool Allowed
+  +bool SiteUnavailable
+  +TimeSpan? CrawlDelay
+}
+class HostRateLimiter {
+  +AcquireAsync(host: string, crawlDelay: TimeSpan?, ct: CancellationToken): Task<IDisposable>
+}
+class BackoffPolicy {
+  +DelayFor(attempt: int, retryAfter: TimeSpan?): TimeSpan
+}
+class BoundedContentReader {
+  +{static} long MaxBytes = 5 MB
+  +ReadAsync(response: HttpResponseMessage, kind: SourceKind): Task<Result<FetchedContent>>
+}
+class ItemSanitizer {
+  +Sanitize(raw: RawItem): Result<ParsedItem>
+}
+ISourceFetcher <|.. SafeSourceFetcher
+SafeSourceFetcher --> AddressGuard
+SafeSourceFetcher --> RobotsCache
+SafeSourceFetcher --> HostRateLimiter
+SafeSourceFetcher --> BackoffPolicy
+SafeSourceFetcher --> BoundedContentReader
+SafeSourceFetcher ..> ItemSanitizer
+AddressGuard --> CheckedAddress : returns
+RobotsCache --> RobotsDecision : returns
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Record a run that fails unexpectedly
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "WorkerHost" as host
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Worker request handler" as h
+  participant "RunRecorder" as rec
+  participant "IssueTracker" as trk
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+host -> rec : Start(worker, trigger)
+rec -> db : Insert Run(outcome running)
+host -> h : Send the worker's request
+alt handler completes
+  h --> host : Outcome and counts
+  host -> rec : Finish(outcome, counts)
+  rec -> trk : Apply(run, source results) (L2-020)
+  trk --> rec : Issues opened, extended or closed
+else unhandled exception
+  h --> host : Exception
+  host -> rec : Fail(generic reason, correlation id)
+end
+rec -> db : Save run, stage results and issues
+host -> host : Wait for the worker's next scheduled time
+@enduml

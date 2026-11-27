@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Add a source
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "SourcesPage", "Angular routed component", "Hosts the Sources screen and opens the dialog")
+  Component(dlg, "AddSourceDialog", "Angular CDK Dialog component", "Collects type, URL, organisation and region")
+  Component(svc, "HttpSourcesService", "Angular service", "Implements the SourcesService contract over HTTP")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(norm, "normalizeSourceAddress", "Pure function, domain library", "Validates a URL for the dialog before any request")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "Exposes /admin/v1/sources")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(val, "CreateSourceCommandValidator", "FluentValidation validator", "Checks kind, address, organization name and region")
+  Component(h, "CreateSourceCommandHandler", "MediatR handler", "Normalizes, refuses duplicates and stores the source")
+  Component(addr, "SourceAddress", "Domain value object", "Owns address normalization and equality")
+  Component(orgm, "OrganizationMatcher", "Domain service", "Finds the organization a name refers to")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Presses Add source")
+Rel(page, dlg, "Opens")
+Rel(dlg, norm, "Validates URL with")
+Rel(dlg, svc, "Submits through")
+Rel(svc, ctrl, "POST /admin/v1/sources", "JSON/HTTPS")
+Rel(ctrl, h, "Sends CreateSourceCommand")
+Rel(h, val, "Is preceded by")
+Rel(h, addr, "Normalizes with")
+Rel(h, orgm, "Resolves organization with")
+Rel(h, ctx, "Persists through IAppDbContext")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

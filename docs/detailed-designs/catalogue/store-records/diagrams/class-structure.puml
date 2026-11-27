@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Store articles, events and organizations
+
+class Article {
+  +string Id
+  +string? Title
+  +string Summary
+  +CanonicalUrl Url
+  +Category Category
+  +IReadOnlyList<string> Tags
+  +DateTimeOffset? PublishedAt
+  +DateTimeOffset CollectedAt
+  +RelevanceScore Score
+  +ArticleStatus Status
+  +DecidedBy DecidedBy
+}
+class Event {
+  +string Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +DateTimeOffset? EndsAt
+  +string TimeZone
+  +string PlaceName
+  +string Url
+  +bool IsServed(): bool
+}
+class Organization {
+  +string Id
+  +string Name
+  +OrganizationKind Kind
+  +string? WebsiteUrl
+}
+class Region {
+  +string Slug
+  +string Name
+  +string TimeZone
+  +int Rank
+}
+class ProvenanceEntry
+class ArticleFactory {
+  +Create(item: PipelineItem, source: Source): Result<Article>
+}
+class SummaryBuilder {
+  +{static} int MaxLength = 500
+  +Build(summary: string?, body: string?): string
+}
+class PersonalDataFilter {
+  +Clean(text: string): string
+}
+Article "*" --> "0..1" Organization
+Article "*" --> "1" Region
+Event "*" --> "1" Organization
+Event "*" --> "1" Region
+Event "0..1" --> "0..1" Article : linked
+Organization "*" --> "1" Region
+Article "1" *-- "1..*" ProvenanceEntry
+Event "1" *-- "1..*" ProvenanceEntry
+Organization "1" *-- "1..*" ProvenanceEntry
+ArticleFactory ..> SummaryBuilder : uses
+SummaryBuilder ..> PersonalDataFilter : uses
+ArticleFactory --> Article : creates
+@enduml

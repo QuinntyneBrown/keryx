@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Sign in staff and keep the session
+
+class SessionStore {
+  +Signal<Me | null> me
+  +Signal<SessionState> state
+  +load(): Promise<void>
+  +signOut(): Promise<void>
+}
+enum SessionState {
+  Unknown
+  SignedIn
+  SignedOut
+  Expired
+}
+class Me {
+  +string name
+  +string initials
+  +string role
+}
+interface SessionService {
+  +me(): Observable<Me>
+  +signOut(): Observable<void>
+}
+class HttpSessionService
+class SessionOptions {
+  +TimeSpan IdleTimeout = 60 min
+  +TimeSpan AbsoluteTimeout = 12 h
+}
+class SessionLifetimeEvents {
+  -TimeProvider clock
+  +ValidatePrincipal(context: CookieValidatePrincipalContext): Task
+}
+class StaffMember {
+  +string SubjectId
+  +string Name
+  +string Role
+}
+class GetCurrentStaffQueryHandler {
+  +Handle(query: GetCurrentStaffQuery): Task<MeDto>
+}
+SessionStore --> SessionState
+SessionStore --> Me
+SessionStore ..> SessionService : uses
+SessionService <|.. HttpSessionService
+SessionLifetimeEvents ..> SessionOptions : reads
+GetCurrentStaffQueryHandler --> StaffMember : reads
+@enduml

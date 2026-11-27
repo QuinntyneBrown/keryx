@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Validate an admin request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "Admin application" as app
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Transport and header middleware" as mw
+  participant "Admin controller" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ValidationBehavior" as vb
+  participant "Handler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+app -> mw : POST /admin/v1/… over HTTPS from the admin origin
+mw -> mw : CORS origin check; body at most 64 KB
+alt body over 64 KB
+  mw --> app : 413
+else accepted
+  mw -> ctrl : Bind the body to the request DTO; unknown properties ignored
+  ctrl -> vb : Send the request
+  vb -> vb : Run validators: type, length, range
+  alt validation fails
+    vb --> ctrl : ValidationProblem
+    ctrl --> app : 400 validation_failed with errors per field
+  else valid
+    vb -> h : next()
+    h -> db : Parameterized statements only
+    db --> h : Result
+    h --> ctrl : Result
+    ctrl --> mw : Response
+    mw --> app : Response with nosniff, Referrer-Policy, Cache-Control: no-store
+  end
+end
+@enduml

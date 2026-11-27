@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Send alerts after a run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RunCollectionCommandHandler" as rh
+  participant "SendRunAlertsHandler" as ah
+  participant "AlertPolicy" as pol
+  participant "AlertComposer" as cmp
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "MailServiceClient" as m
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+rh -> ah : Publish RunFinished(run id)
+ah -> db : Load run, open unmuted issues, alert settings
+db --> ah : Run, issues, AlertSettings
+ah -> pol : Due(run, settings)
+pol --> ah : Reasons: streak equals N; run failed and switch on
+loop each due alert
+  ah -> cmp : Compose(reason)
+  cmp --> ah : Plain-text Alert
+  ah -> m : SendAsync(alert address, alert)
+  m -> mail : Send with timeout
+  alt mail accepted
+    mail --> m : Accepted
+    m --> ah : Success
+  else mail service fails
+    mail --> m : Error or timeout
+    m --> ah : Failure
+    ah -> db : Add warning issue to the run; mark one retry
+  end
+end
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Send the daily digest
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "AlertDigestWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SendDailyDigestCommandHandler" as h
+  participant "AlertComposer" as cmp
+  participant "RunRecorder" as rec
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "MailServiceClient" as m
+  database "Keryx database" as db
+end box
+participant "Mail service" as mail
+w -> w : Wait on a TimeProvider timer until 08:00 America/Toronto
+w -> h : Send SendDailyDigestCommand
+h -> rec : Start(worker alert_digest)
+h -> db : Read digest switch; count and first 20 titles needing review
+db --> h : Switch, count, titles
+alt switch on and count above zero
+  h -> cmp : ComposeDigest(count, titles, link)
+  cmp --> h : Plain-text Alert
+  h -> m : SendAsync(alert address, alert)
+  m -> mail : Send with timeout
+  mail --> m : Accepted
+  m --> h : Success
+else switch off or nothing held
+  h -> h : Send nothing
+end
+h -> rec : Finish(succeeded)
+rec -> db : Save run
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse runs and a run's detail
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "RunsPage", "Angular routed component", "Composes header, tabs, run list and detail")
+  Component(det, "RunDetail", "Angular component", "Shows tiles, pipeline timeline and issues of one run")
+  Component(store, "RunsStore", "Angular signal store", "Holds the list, the selected run and their load states")
+  Component(svc, "HttpRunsService", "Angular service", "Implements the RunsService contract")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(lib, "run-item, tab, stat, timeline, issue, chip, skeleton, empty", "Components library", "Presentation components named as in the design system")
+  Component(fmt, "describeStage, formatDuration", "Pure functions, domain library", "Turn stage numbers into words")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "Exposes GET /admin/v1/runs and /runs/{id}")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(lh, "ListRunsQueryHandler", "MediatR handler", "Pages runs of one worker, optionally with problems")
+  Component(gh, "GetRunQueryHandler", "MediatR handler", "Returns one run with stages and issues")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Opens Runs")
+Rel(page, store, "Reads signals from")
+Rel(page, det, "Hosts")
+Rel(det, lib, "Composes")
+Rel(det, fmt, "Formats with")
+Rel(store, svc, "Loads through")
+Rel(svc, ctrl, "GET /admin/v1/runs", "JSON/HTTPS")
+Rel(ctrl, lh, "Sends ListRunsQuery")
+Rel(ctrl, gh, "Sends GetRunQuery")
+Rel(lh, ctx, "Reads through")
+Rel(gh, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

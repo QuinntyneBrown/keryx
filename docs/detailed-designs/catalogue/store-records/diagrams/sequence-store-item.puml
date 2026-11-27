@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Store one classified item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "StoreStage" as ss
+  participant "IndexingPolicy" as idx
+  participant "ArticleFactory" as af
+  participant "SummaryBuilder" as sum
+  participant "PersonalDataFilter" as pii
+  participant "EventFactory" as ef
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+ss -> idx : May this page be stored? (L2-080)
+alt noindex
+  idx --> ss : No; nothing is stored
+else allowed
+  idx --> ss : Yes
+  ss -> af : Create(item, source) (L2-015)
+  af -> sum : Build(summary, body), at most 500 characters
+  sum -> pii : Clean(text) (L2-081)
+  pii --> sum : Text without e-mail addresses or phone numbers
+  sum --> af : Bounded summary; body discarded
+  af --> ss : Article with region, category, tags
+  opt item has a start time and a place
+    ss -> ef : Create(item, article) (L2-016)
+    ef --> ss : Event with starts_at in UTC and time_zone (L2-018)
+  end
+  ss -> db : Write the batch in one transaction
+  db --> ss : Commit result
+end
+@enduml

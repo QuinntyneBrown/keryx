@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Export articles as CSV
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "ArticlesPage", "Angular routed component", "Offers Export CSV; disabled in the error state")
+  Component(store, "ArticlesStore", "Angular signal store", "Passes the current list state to the export")
+  Component(dl, "FileDownloader", "Angular service", "Saves a response as a file and revokes its object URL")
+  Component(svc, "HttpArticlesService", "Angular service", "Calls GET /admin/v1/articles/export")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminArticlesController", "ASP.NET Core controller", "Streams text/csv")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "ExportArticlesQueryHandler", "MediatR stream handler", "Counts, then yields matching rows")
+  Component(csv, "CsvRowWriter", "Application service", "Quotes per RFC 4180 and neutralizes formulas")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Presses Export CSV")
+Rel(page, store, "Reads list state from")
+Rel(page, svc, "Requests export through")
+Rel(page, dl, "Saves the file with")
+Rel(svc, ctrl, "GET /admin/v1/articles/export", "text/csv over HTTPS")
+Rel(ctrl, h, "Creates stream ExportArticlesQuery")
+Rel(ctrl, csv, "Writes each row with")
+Rel(h, ctx, "Streams rows through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

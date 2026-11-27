@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record runs and issues
+
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminRunsController, AdminIssuesController", "ASP.NET Core controllers", "Expose runs, issues, mute and unmute")
+}
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(host, "WorkerHost", ".NET hosted service base", "Wraps each worker run and records an unhandled failure")
+  Component(rcv, "InterruptedRunRecovery", ".NET hosted service", "Fails a run left running by a stopped process")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(rec, "RunRecorder", "Application service", "Writes the run, its stage results, source results and counts")
+  Component(trk, "IssueTracker", "Domain service", "Opens, extends and closes issues from source results")
+  Component(san, "IssueDetailSanitizer", "Domain service", "Bounds and cleans the detail text of an issue")
+  Component(qh, "GetRunQueryHandler, ListIssuesQueryHandler", "MediatR handlers", "Read one run and the paged open issues")
+  Component(mh, "MuteIssueCommandHandler", "MediatR handler", "Mutes or unmutes one issue")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(host, rec, "Records start, end and failure through")
+Rel(rcv, rec, "Fails interrupted runs through")
+Rel(rec, trk, "Derives issues with")
+Rel(trk, san, "Cleans detail with")
+Rel(rec, ctx, "Persists through")
+Rel(ctrl, qh, "Sends queries")
+Rel(ctrl, mh, "Sends MuteIssueCommand")
+Rel(qh, ctx, "Reads through")
+Rel(mh, ctx, "Persists through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

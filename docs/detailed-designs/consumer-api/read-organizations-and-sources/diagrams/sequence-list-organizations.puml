@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — List organizations
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "OrganizationsController" as oc
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListOrganizationsQueryHandler" as lo
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "Consuming product" as client
+client -> oc : GET /v1/organizations?q=gr
+oc -> oc : API key, scope sources:read, rate limit
+oc -> lo : Send ListOrganizationsQuery
+lo -> lo : Validate region, kind and q (2 to 60 characters)
+lo -> db : Organizations with a served article or event, by name, with article_count
+db --> lo : Rows
+lo --> oc : Page of OrganizationDto
+oc --> client : 200 data, next_cursor
+@enduml

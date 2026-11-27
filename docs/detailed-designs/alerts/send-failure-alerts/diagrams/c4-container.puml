@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Alert on failing sources and failed runs
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(worker, "Keryx Worker", ".NET hosted services", "Runs the collection, retention and alert_digest workers")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+System_Ext(mail, "Mail service", "Delivers alert and digest e-mail")
+
+Rel(worker, db, "Reads issues and alert settings", "EF Core")
+Rel(worker, mail, "Sends alert e-mail through", "HTTPS")
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Authenticate and authorize a request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "AnonymousAddressLimiter" as anon
+  participant "ApiKeyAuthenticationHandler" as auth
+  participant "ScopeAuthorizationHandler" as scope
+  participant "ClientRateLimiter" as lim
+  participant "V1 controller" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AuthenticateApiKeyQueryHandler" as qh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "Consuming product" as client
+client -> anon : GET /v1/events, Authorization: Bearer kx_live_…
+anon -> auth : Under 60 per minute for unkeyed traffic
+auth -> qh : Send AuthenticateApiKeyQuery
+qh -> db : Find client by key prefix
+db --> qh : Client or none
+qh -> qh : Constant-time hash comparison; revoked check
+alt no active client matches
+  qh --> auth : None
+  auth --> client : 401 invalid_api_key, WWW-Authenticate: Bearer
+else client authenticated
+  qh --> auth : ApiClientPrincipal
+  auth -> scope : Endpoint requires events:read
+  alt scope missing
+    scope --> client : 403 insufficient_scope
+  else scope held
+    scope -> lim : Count request for this client
+    alt over 600 in the minute
+      lim --> client : 429 rate_limited, Retry-After
+    else within limit
+      lim -> ctrl : Invoke endpoint
+      ctrl --> client : 200 with RateLimit headers
+    end
+  end
+end
+@enduml

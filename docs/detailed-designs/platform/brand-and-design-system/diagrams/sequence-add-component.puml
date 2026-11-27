@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — Add a screen that needs a new component
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Implementer" as dev
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "components library" as lib
+  participant "Screen in the admin application" as page
+  participant "Visual sweep" as vis
+end box
+participant "docs/mocks" as mock
+participant "docs/design-system/components" as ds
+dev -> ds : Look for the design-system component
+alt component documented
+  ds --> dev : Block name, anatomy, variants, states, tokens
+else missing
+  dev -> mock : Add the mock state first
+  dev -> ds : Add the component page
+end
+dev -> lib : Build components/src/<name>/ once: name.ts, name.html, name.scss
+lib -> lib : Inputs and outputs only; own BEM block; tokens by role
+dev -> page : Compose the library component
+dev -> vis : Run on request at 360, 768 and 1280 px, light and dark
+vis --> dev : Layout, copy, order and states match the mock
+@enduml

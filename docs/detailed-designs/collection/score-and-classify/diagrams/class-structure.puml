@@ -1,0 +1,64 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Score relevance and classify
+
+class RelevanceScore <<value object>> {
+  +decimal Value
+  +{static} From(raw: decimal): RelevanceScore
+}
+class ScoringSettings {
+  +IReadOnlyList<string> Topics
+  +IReadOnlyList<string> Exclusions
+  +IReadOnlyList<string> FocusAreas
+  +bool OntarioWide
+  +bool NationalNews
+  +decimal PublishThreshold
+}
+class RelevanceScorer {
+  +Score(item: ParsedItem, settings: ScoringSettings): RelevanceScore
+}
+class PublicationPolicy {
+  +{static} decimal ReviewFloor = 0.45
+  +Classify(score: RelevanceScore, threshold: decimal): Classification
+}
+class Classification {
+  +ArticleStatus Status
+  +StatusReason? Reason
+  +decimal Threshold
+}
+enum ArticleStatus {
+  Published
+  NeedsReview
+  Hidden
+}
+enum Category {
+  Events
+  RacesChallenges
+  GymsStudios
+  MinistryPrograms
+  Nutrition
+  FaithWellness
+}
+class CategoryClassifier {
+  +Classify(item: ParsedItem): Category
+}
+class ClassifyStage
+ClassifyStage ..> RelevanceScorer : uses
+ClassifyStage ..> PublicationPolicy : uses
+ClassifyStage ..> CategoryClassifier : uses
+RelevanceScorer ..> ScoringSettings : reads
+RelevanceScorer --> RelevanceScore : returns
+PublicationPolicy --> Classification : returns
+Classification --> ArticleStatus
+CategoryClassifier --> Category : returns
+@enduml

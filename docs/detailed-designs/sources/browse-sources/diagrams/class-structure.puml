@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Browse sources and their health
+
+enum SourceHealth {
+  Healthy
+  NeedsLook
+  Failing
+}
+class SourceFetchRecord {
+  +string SourceId
+  +string RunId
+  +bool Succeeded
+  +FetchFailureReason? Reason
+  +int ItemsHeld
+  +DateTimeOffset FetchedAt
+}
+class SourceHealthPolicy {
+  +Derive(latest: SourceFetchRecord?, consecutiveFailures: int): SourceHealthState
+}
+class SourceHealthState {
+  +SourceHealth Health
+  +FetchFailureReason? FailureReason
+  +int ConsecutiveFailures
+  +int HeldCount
+}
+class ListSourcesQuery {
+  +SourceKind? Kind
+  +int Page
+  +int PageSize
+}
+class ListSourcesQueryHandler {
+  +Handle(query: ListSourcesQuery): Task<PagedResult<SourceListItemDto>>
+}
+class "PagedResult<T>" as PagedResult {
+  +IReadOnlyList<T> Items
+  +int Total
+  +int Page
+  +int PageSize
+}
+class SourceListItemDto
+ListSourcesQueryHandler ..> ListSourcesQuery : handles
+ListSourcesQueryHandler ..> SourceHealthPolicy : uses
+ListSourcesQueryHandler --> PagedResult : returns
+PagedResult o-- SourceListItemDto
+SourceHealthPolicy ..> SourceFetchRecord : reads
+SourceHealthPolicy --> SourceHealthState : returns
+SourceHealthState --> SourceHealth
+@enduml

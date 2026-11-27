@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — View API usage and consumers
+
+class UsageBucket {
+  +string ClientId
+  +DateTimeOffset Hour
+  +int Requests
+  +int Errors
+  +int[] LatencyHistogram
+  +DateTimeOffset LastCallAt
+  +Add(statusCode: int, duration: TimeSpan, at: DateTimeOffset): void
+}
+interface IUsageRecorder {
+  +RecordAsync(clientId: string, statusCode: int, duration: TimeSpan): Task
+}
+class ApiClientListItemDto {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +IReadOnlyList<string> Scopes
+  +int Requests24h
+  +int Errors24h
+  +double ErrorRate
+  +DateTimeOffset? LastCallAt
+  +DateTimeOffset? RevokedAt
+}
+class ApiUsageDto {
+  +int Requests24h
+  +double P95LatencyMs
+  +double ErrorRate
+}
+class ListApiClientsQueryHandler {
+  +Handle(query: ListApiClientsQuery): Task<PagedResult<ApiClientListItemDto>>
+}
+class GetApiUsageQueryHandler {
+  +Handle(query: GetApiUsageQuery): Task<ApiUsageDto>
+}
+IUsageRecorder ..> UsageBucket : writes
+ListApiClientsQueryHandler ..> UsageBucket : reads
+GetApiUsageQueryHandler ..> UsageBucket : reads
+ListApiClientsQueryHandler --> ApiClientListItemDto : returns page of
+GetApiUsageQueryHandler --> ApiUsageDto : returns
+@enduml

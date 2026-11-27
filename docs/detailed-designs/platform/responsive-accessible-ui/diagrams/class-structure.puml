@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Responsive, accessible and themed UI
+
+class RouteFocus {
+  -Router router
+  -Title title
+  +start(): void
+  -onNavigationEnd(screenName: string): void
+}
+class Breakpoints <<tokens>> {
+  +sm = 640 px
+  +md = 768 px
+  +lg = 1024 px
+  +xl = 1280 px
+}
+class "nav-link" as NavLink <<component>> {
+  +input current: boolean
+  +host aria-current
+}
+class "filter-chip" as FilterChip <<component>> {
+  +input pressed: boolean
+  +host aria-pressed
+}
+class "field" as Field <<component>> {
+  +input label: string
+  +input hint: string
+  +input error: string
+  +aria-invalid
+  +aria-describedby
+}
+class "tab" as Tab <<component>> {
+  +input selected: boolean
+  +aria-selected
+  +onKeydown(ArrowLeft, ArrowRight, Home, End)
+}
+RouteFocus ..> NavLink : navigation marks current
+Field ..> Breakpoints
+Tab ..> Breakpoints
+@enduml

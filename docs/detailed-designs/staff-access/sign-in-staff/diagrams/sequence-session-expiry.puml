@@ -1,0 +1,40 @@
+@startuml
+title UML sequence behaviour — Expire a session and sign out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "Any page" as any
+  participant "sessionInterceptor" as int
+  participant "SignInPage" as page
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "CookieAuthenticationHandler" as cookie
+  participant "SessionLifetimeEvents" as life
+  participant "SessionController" as ctrl
+end box
+staff -> any : Act after 60 minutes idle
+any -> cookie : Request with the session cookie
+cookie -> life : ValidatePrincipal
+life --> cookie : Reject: idle or absolute lifetime passed
+cookie --> int : 401 session_expired
+int -> page : Show session-expired state, keep the return route
+page --> staff : "Sign in" again; nothing saved on the server is lost
+staff -> any : Later: press "Sign out" in Settings, Account
+any -> ctrl : POST sign-out with anti-forgery token
+ctrl -> cookie : Sign out; end the session
+cookie --> any : Cookie cleared
+any -> page : Show signed-out state
+@enduml

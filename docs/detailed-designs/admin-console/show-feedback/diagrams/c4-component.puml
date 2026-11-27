@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Page states, dialogs and notifications
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(ds, "DialogService", "Angular service over CDK Dialog", "Opens each dialog with one shared configuration")
+  Component(dref, "BusyDialogRef", "Angular class", "Blocks closing while a request is in flight")
+  Component(ns, "NotificationStore", "Angular signal store, application-wide", "Holds at most three notifications and their timers")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(ls, "createLoadState", "Pure helper, domain library", "Models idle, loading, slow, loaded, empty and failed")
+  Component(err, "messageForCode", "Pure function, domain library", "Chooses the application's own copy from an error code")
+  Component(pe, "skeleton, empty, page-error", "Components library", "Render the shared page states")
+  Component(tr, "toast-region, toast", "Components library", "Render the notifications")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(api, "ProblemDetails responses", "ASP.NET Core", "Carry code and trace_id for each error")
+}
+
+Rel(staff, pe, "Sees page states in")
+Rel(ls, pe, "Selects the state of")
+Rel(err, pe, "Supplies copy to")
+Rel(api, err, "Supplies code and trace_id to")
+Rel(staff, ds, "Opens dialogs through")
+Rel(ds, dref, "Returns")
+Rel(staff, tr, "Reads and dismisses")
+Rel(ns, tr, "Feeds")
+@enduml

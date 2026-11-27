@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Search the article list
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "ArticlesStore" as store
+  participant "HttpArticlesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListAdminArticlesQueryHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Type "pickleball"
+page -> store : setState(q)
+store -> store : Wait 300 ms; abort any pending request
+store -> store : buildArticlesQuery(state); write the URL query, page 1
+store -> svc : list(query, AbortSignal)
+svc -> ctrl : GET /admin/v1/articles?q=pickleball&page=1&page_size=10
+ctrl -> h : Send ListAdminArticlesQuery
+h -> h : Validate page bounds; take first 100 characters of q
+h -> db : Parameterized search, one page, totals and status counts
+db --> h : Rows and counts
+h --> ctrl : ArticlesPageResult
+ctrl --> svc : 200
+svc --> store : Page
+alt matches
+  page --> staff : Rows, "Showing 1–10 of …", tab counts
+else no match
+  page --> staff : "No articles match “pickleball”" with "Clear search"
+end
+@enduml

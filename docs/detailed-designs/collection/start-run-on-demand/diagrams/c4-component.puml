@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Start a run on demand
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(btn, "RunNowButton", "Angular component", "Sends one start request and shows its busy state")
+  Component(rs, "RunStatusStore", "Angular signal store", "Holds the current run for the shell, Overview and Runs")
+  Component(svc, "HttpRunsService", "Angular service", "Implements the RunsService contract")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "Exposes POST /admin/v1/runs")
+}
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(w, "CollectionWorker", ".NET BackgroundService", "Claims a requested run and executes it")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "StartManualRunCommandHandler", "MediatR handler", "Creates the run record or reports the running one")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, btn, "Presses Run now")
+Rel(btn, svc, "Starts a run through")
+Rel(btn, rs, "Reports the running run to")
+Rel(svc, ctrl, "POST /admin/v1/runs", "JSON/HTTPS")
+Rel(ctrl, h, "Sends StartManualRunCommand")
+Rel(h, ctx, "Inserts the run through IAppDbContext")
+Rel(w, ctx, "Claims the requested run through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Test-fetch a source
+
+enum FetchFailureReason {
+  NotFound
+  Timeout
+  BlockedByRobots
+  Refused
+  InvalidContent
+  UnsafeAddress
+}
+class TestSourceQuery {
+  +string? SourceId
+  +SourceKind? Kind
+  +string? Address
+}
+class SourceTestResult {
+  +bool Reachable
+  +FetchFailureReason? Reason
+  +int ItemsFound
+  +int ItemsRelevant
+}
+interface ISourceFetcher {
+  +FetchAsync(source: SourceDescriptor, ct: CancellationToken): Task<FetchResult>
+}
+class FetchResult {
+  +bool Succeeded
+  +FetchFailureReason? Reason
+  +IReadOnlyList<ParsedItem> Items
+}
+class TestSourceQueryHandler {
+  +Handle(query: TestSourceQuery): Task<Result<SourceTestResult>>
+}
+class SafeSourceFetcher
+class RelevanceScorer {
+  +Score(item: ParsedItem, settings: Settings): decimal
+}
+TestSourceQueryHandler ..> TestSourceQuery : handles
+TestSourceQueryHandler ..> ISourceFetcher : uses
+TestSourceQueryHandler ..> RelevanceScorer : uses
+TestSourceQueryHandler --> SourceTestResult : returns
+ISourceFetcher <|.. SafeSourceFetcher
+ISourceFetcher ..> FetchResult
+FetchResult --> FetchFailureReason
+SourceTestResult --> FetchFailureReason
+@enduml

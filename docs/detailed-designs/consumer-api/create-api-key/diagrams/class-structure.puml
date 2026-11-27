@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Create an API key
+
+class ApiKey <<value object>> {
+  +string Value
+  +string Prefix
+}
+class ApiKeyGenerator {
+  +Generate(environment: KeyEnvironment): ApiKey
+}
+enum KeyEnvironment {
+  Live
+  Test
+}
+class ApiKeyHasher {
+  +Hash(key: string): byte[]
+}
+class ApiClient {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +byte[] KeyHash
+  +IReadOnlySet<ApiScope> Scopes
+  +{static} Create(name: string, scopes: IReadOnlySet<ApiScope>, key: ApiKey, hash: byte[], now: DateTimeOffset): ApiClient
+}
+class CreateApiClientCommand {
+  +string Name
+  +IReadOnlyList<string> Scopes
+}
+class CreateApiClientCommandHandler {
+  +Handle(command: CreateApiClientCommand): Task<Result<CreatedApiClientDto>>
+}
+class CreatedApiClientDto {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +string Key
+}
+CreateApiClientCommandHandler ..> CreateApiClientCommand : handles
+CreateApiClientCommandHandler ..> ApiKeyGenerator : uses
+CreateApiClientCommandHandler ..> ApiKeyHasher : uses
+CreateApiClientCommandHandler --> ApiClient : creates
+CreateApiClientCommandHandler --> CreatedApiClientDto : returns
+ApiKeyGenerator --> ApiKey : returns
+ApiKeyGenerator ..> KeyEnvironment
+@enduml

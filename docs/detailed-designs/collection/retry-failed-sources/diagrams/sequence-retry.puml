@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Retry failed sources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RunDetail" as det
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as ctrl
+end box
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RetryRunCommandHandler" as h
+  participant "RunCollectionCommandHandler" as rh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> det : Press "Retry failed sources"
+det -> svc : retry(run id)
+svc -> ctrl : POST /admin/v1/runs/{id}/retry
+ctrl -> h : Send RetryRunCommand
+h -> db : Load run; find a run in progress
+db --> h : Run, none in progress
+alt another run in progress
+  h --> ctrl : run_in_progress (409)
+else outcome failed at a stage
+  h -> db : Insert a new manual run (L2-008)
+  h --> ctrl : RetryRunResult(new run id)
+else finished with failed sources
+  h -> db : Run.RequestRetry
+  h --> ctrl : RetryRunResult(same run id)
+end
+ctrl --> svc : 202 or ProblemDetails
+svc --> det : Result
+det --> staff : "Retrying 2 failed sources" notification (L2-059)
+w -> db : Claim the retry
+w -> rh : Send RunCollectionCommand(run id, failed source ids)
+rh -> rh : Fetch only those sources; run remaining stages
+rh -> db : Run.ApplyRetry; close recovered issues
+det -> svc : Poll run progress
+svc --> det : Updated run
+det --> staff : "1 of 2 sources recovered" or "Both sources failed again"
+@enduml

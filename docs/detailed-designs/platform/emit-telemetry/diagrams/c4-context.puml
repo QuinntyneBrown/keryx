@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Emit telemetry without private data
+
+Person(operator, "Operator", "Deploys and runs Keryx")
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+System_Ext(otel, "Telemetry collector", "Receives OTLP traces, metrics and logs")
+
+Rel(operator, keryx, "Observes Keryx through telemetry from")
+Rel(keryx, otel, "Exports telemetry to")
+@enduml

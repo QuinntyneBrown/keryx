@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Answer a conditional GET
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "API-key authentication" as auth
+  participant "V1 controller" as ctrl
+  participant "ETagFilter" as etag
+  participant "ProblemDetailsExceptionHandler" as exc
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Query handler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "Consuming product" as client
+client -> auth : GET /v1/… with If-None-Match
+auth -> ctrl : Authenticated client
+ctrl -> h : Send one query
+h -> db : Bounded, indexed read (L2-086)
+alt read succeeds
+  db --> h : Rows
+  h --> ctrl : Result
+  ctrl -> etag : Result body
+  alt tag equals If-None-Match
+    etag --> client : 304, no body
+  else changed
+    etag --> client : 200, ETag, Cache-Control: private, max-age=60
+  end
+else unhandled exception
+  h --> exc : Exception
+  exc --> client : 500 problem+json, code internal_error, trace_id (L2-031)
+end
+@enduml

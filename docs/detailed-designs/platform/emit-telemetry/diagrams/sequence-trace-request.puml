@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Trace a request and reference its error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "ASP.NET Core pipeline" as ctrl
+  participant "ProblemDetailsExceptionHandler" as tid
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Handler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "RedactionProcessor" as red
+end box
+participant "Caller" as client
+participant "Telemetry collector" as otel
+client -> ctrl : GET /v1/articles/art_18429?utm=…
+ctrl -> ctrl : Start span: method, route template /v1/articles/{id}
+ctrl -> h : Send the query
+alt handler succeeds
+  h --> ctrl : Result
+  ctrl --> client : 200
+else unhandled exception
+  h --> tid : Exception
+  tid -> tid : Read the current trace id
+  tid --> client : 500 internal_error with trace_id
+end
+ctrl -> red : Span ends with status and duration
+red -> red : Remove query string, headers, cookies, bodies
+red -> otel : Export the span over OTLP, when an endpoint is configured
+@enduml

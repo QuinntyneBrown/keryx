@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Lazy loading and memory in the admin application
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(cfg, "app.config.ts", "Angular application config", "Composition root: zoneless, router, HTTP client and token bindings")
+  Component(routes, "app.routes", "Angular route table", "One loadComponent per screen")
+  Component(scr, "Routed screen component", "Angular standalone component, OnPush", "Provides its own store in providers")
+  Component(st, "Screen-scoped store", "Angular signal store", "Holds one page and aborts requests on destroy")
+  Component(glob, "SessionStore, NotificationStore, ScheduleStore, RunStatusStore", "Application-wide stores", "The only state that outlives a screen")
+  Component(defer, "@defer blocks", "Angular template feature", "Load the run chart, the example panel and the detail panel when needed")
+  Component(bud, "angular.json budgets", "Build configuration", "Fail the build beyond the size limits")
+  Component(font, "Self-hosted fonts", "woff2 with font-display: swap", "Serve Geist and Geist Mono from the application's origin")
+}
+
+Rel(staff, routes, "Navigates through")
+Rel(cfg, routes, "Provides")
+Rel(cfg, glob, "Provides")
+Rel(routes, scr, "Lazy-loads")
+Rel(scr, st, "Provides and destroys")
+Rel(scr, defer, "Wraps heavy content in")
+Rel(scr, glob, "Injects")
+Rel(bud, cfg, "Bounds the bundle of")
+Rel(cfg, font, "Preloads used faces of")
+@enduml

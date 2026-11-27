@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Emit telemetry without private data
+
+Person(operator, "Operator", "Deploys and runs Keryx")
+Container_Boundary(api_b, "Keryx API") {
+  Component(apim, "ApiMetrics", "OpenTelemetry meter", "Records request count, duration and errors per route template and client id")
+  Component(tid, "ProblemDetailsExceptionHandler", "ASP.NET Core IExceptionHandler", "Writes the trace id into each error body")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(src, "CollectionTelemetry", "ActivitySource and Meter", "Emits run, stage and source-fetch spans and run metrics")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(reg, "AddKeryxTelemetry", ".NET service registration", "Configures tracing, metrics and logging with OTLP export")
+  Component(red, "RedactionProcessor", "OpenTelemetry processor", "Removes forbidden attributes before export")
+  Component(log, "Structured logging", "Microsoft.Extensions.Logging", "Writes structured log lines with message templates")
+}
+System_Ext(otel, "Telemetry collector", "Receives OTLP traces, metrics and logs")
+
+Rel(reg, red, "Installs")
+Rel(reg, log, "Configures")
+Rel(src, red, "Emits spans through")
+Rel(apim, red, "Emits metrics beside spans through")
+Rel(tid, red, "Reads the current trace id beside")
+Rel(red, otel, "Exports redacted telemetry", "OTLP")
+Rel(operator, reg, "Sets the endpoint of")
+@enduml

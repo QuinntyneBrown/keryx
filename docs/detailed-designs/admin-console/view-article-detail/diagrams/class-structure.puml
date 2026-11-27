@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — View an article's detail
+
+class AdminArticleRow {
+  +string id
+  +string | null title
+  +string | null organization
+  +string collected_at
+  +string category
+  +string region
+  +number score
+  +ArticleStatus status
+}
+class AdminArticleDetail {
+  +string summary
+  +string url
+  +string | null published_at
+  +string[] tags
+  +string source
+  +Provenance[] provenance
+  +string | null status_reason
+  +number | null threshold
+  +string decided_by
+}
+class Provenance {
+  +string source_id
+  +string source_name
+  +string url
+  +string first_seen_at
+  +string last_seen_at
+}
+class ArticleActions {
+  +boolean canPublish
+  +boolean canHide
+}
+class ArticleDetail {
+  +input article: AdminArticleDetail
+  +output publish
+  +output hide
+  +output closed
+}
+AdminArticleRow <|-- AdminArticleDetail
+AdminArticleDetail "1" *-- "1..*" Provenance
+ArticleDetail --> AdminArticleDetail
+ArticleActions <.. AdminArticleDetail : actionsFor
+@enduml

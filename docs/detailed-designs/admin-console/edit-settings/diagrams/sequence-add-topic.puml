@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Add a topic
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "AddKeywordDialog" as dlg
+  participant "SettingsFormStore" as store
+end box
+staff -> page : Activate "Add" under Topics
+page -> dlg : Open CDK Dialog "Add a topic" with the current topics
+staff -> dlg : Enter a value, press "Add topic"
+dlg -> dlg : Trim; compare ignoring case; check 2 to 40 characters
+alt already a topic
+  dlg --> staff : "“running” is already a topic. Enter a different word or phrase."
+else new value
+  dlg --> page : Close with the value
+  page -> store : patch(topics + value)
+  store --> page : dirty; chip marked new
+  page --> staff : Focus returns to "Add"
+end
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Secure transport, input and secrets
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Person(operator, "Operator", "Deploys and runs Keryx")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(csp, "Content-Security-Policy", "Static host header", "Restricts scripts, styles, fonts and connections to two origins")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(https, "HttpsRedirection and HSTS", "ASP.NET Core middleware", "Redirects HTTP and sends Strict-Transport-Security")
+  Component(hdr, "SecurityHeadersMiddleware", "ASP.NET Core middleware", "Adds nosniff, Referrer-Policy and no-store")
+  Component(cors, "CorsPolicies", "ASP.NET Core CORS", "Allows the admin origin on /admin/v1 and GET without credentials on /v1")
+  Component(size, "RequestSizeLimit", "ASP.NET Core filter", "Refuses admin bodies over 64 KB with 413")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(vb, "ValidationBehavior", "MediatR pipeline behaviour", "Runs each request's validator before its handler")
+  Component(dto, "Request DTOs", "C# records", "Expose only the fields an endpoint accepts")
+  Component(ids, "PublicId", "Domain value object", "Parses an id from a path or reports not found")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(opt, "Options binding", ".NET configuration", "Reads secrets from the environment or a secret store")
+  Component(dp, "DataProtection key store", "ASP.NET Core Data Protection", "Shares and persists the keys that protect session cookies")
+}
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(staff, csp, "Loads the admin application under")
+Rel(client, https, "Calls over HTTPS", "HTTPS")
+Rel(https, cors, "1 Passes to")
+Rel(cors, hdr, "2 Passes to")
+Rel(hdr, size, "3 Passes to")
+Rel(size, dto, "4 Binds to")
+Rel(dto, vb, "5 Is validated by")
+Rel(vb, ids, "Parses ids with")
+Rel(operator, opt, "Supplies secrets to")
+Rel(opt, dp, "Configures")
+@enduml

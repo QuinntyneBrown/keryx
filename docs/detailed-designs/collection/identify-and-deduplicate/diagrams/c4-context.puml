@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Identify and deduplicate records
+
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(keryx, source, "Collects published items from")
+@enduml

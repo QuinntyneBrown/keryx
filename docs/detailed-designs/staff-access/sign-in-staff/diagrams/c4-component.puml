@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Sign in staff and keep the session
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(guard, "sessionGuard", "Angular functional route guard", "Sends an unsigned visitor to Sign in with the return route")
+  Component(page, "SignInPage", "Angular routed component", "Shows default, busy, error, session-expired and signed-out states")
+  Component(ss, "SessionStore", "Angular signal store, application-wide", "Holds name, initials and role of the signed-in person")
+  Component(int, "sessionInterceptor", "Angular HTTP interceptor", "Turns session_expired into the session-expired screen")
+  Component(svc, "HttpSessionService", "Angular service", "Implements the SessionService contract")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "SessionController", "ASP.NET Core controller", "Exposes sign-in, callback, sign-out and /admin/v1/me")
+  Component(oidc, "OpenIdConnectHandler", "ASP.NET Core authentication handler", "Runs the code flow with state, nonce and PKCE")
+  Component(cookie, "CookieAuthenticationHandler", "ASP.NET Core authentication handler", "Issues and validates the session cookie")
+  Component(life, "SessionLifetimeEvents", "Cookie authentication events", "Enforces idle and absolute lifetimes on TimeProvider")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(mh, "GetCurrentStaffQueryHandler", "MediatR handler", "Returns name, initials and role")
+}
+System_Ext(idp, "Identity provider", "OpenID Connect provider of the organization")
+
+Rel(staff, page, "Presses Sign in")
+Rel(guard, ss, "Reads session from")
+Rel(guard, page, "Redirects to")
+Rel(ss, svc, "Loads /me through")
+Rel(int, page, "Shows session-expired state of")
+Rel(page, ctrl, "Navigates to sign-in endpoint", "HTTPS")
+Rel(svc, ctrl, "GET /admin/v1/me", "JSON/HTTPS")
+Rel(ctrl, oidc, "Challenges through")
+Rel(oidc, idp, "Authorization code flow with PKCE", "OpenID Connect")
+Rel(oidc, cookie, "Signs the person in through")
+Rel(cookie, life, "Validates lifetime with")
+Rel(ctrl, mh, "Sends GetCurrentStaffQuery")
+@enduml

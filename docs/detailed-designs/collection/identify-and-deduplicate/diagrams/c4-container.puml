@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Identify and deduplicate records
+
+System_Boundary(keryx, "Keryx") {
+  Container(worker, "Keryx Worker", ".NET hosted services", "Runs the collection, retention and alert_digest workers")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(worker, db, "Reads and writes", "EF Core")
+Rel(worker, source, "Fetches", "HTTPS")
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Score relevance and classify
+
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "SettingsPage", "Angular routed component", "Explains the bands beside the threshold slider")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(fn, "statusForScore", "Pure function, domain library", "Frontend twin of PublicationPolicy")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(cs, "ClassifyStage", "Pipeline stage", "Scores each item and assigns its initial status")
+  Component(sc, "RelevanceScorer", "Domain service", "Computes the score from topics, exclusions and geography")
+  Component(pol, "PublicationPolicy", "Domain service", "Maps a score and a threshold to a status")
+  Component(cat, "CategoryClassifier", "Domain service", "Assigns exactly one of the six categories")
+  Component(set, "ISettingsReader", "Application contract", "Reads the Settings in force for the run")
+}
+
+Rel(cs, set, "Reads Settings through")
+Rel(cs, sc, "Scores with")
+Rel(cs, pol, "Classifies with")
+Rel(cs, cat, "Categorizes with")
+Rel(page, fn, "Explains bands with")
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read categories, regions and status
+
+Container_Boundary(api_b, "Keryx API") {
+  Component(rc, "ReferenceController", "ASP.NET Core controller", "Exposes /v1/categories and /v1/regions")
+  Component(sc, "StatusController", "ASP.NET Core controller", "Exposes /v1/status")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(ch, "ListCategoriesQueryHandler", "MediatR handler", "Returns each category with its article count")
+  Component(rh, "ListRegionsQueryHandler", "MediatR handler", "Returns the ranked regions with article counts")
+  Component(sh, "GetStatusQueryHandler", "MediatR handler", "Returns last run, next run and published total")
+  Component(sched, "CollectionSchedule", "Domain value object", "Computes next_run_at")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(client, rc, "GET /v1/categories, /v1/regions", "JSON/HTTPS")
+Rel(client, sc, "GET /v1/status", "JSON/HTTPS")
+Rel(rc, ch, "Sends ListCategoriesQuery")
+Rel(rc, rh, "Sends ListRegionsQuery")
+Rel(sc, sh, "Sends GetStatusQuery")
+Rel(sh, sched, "Asks next slot from")
+Rel(ch, ctx, "Reads through")
+Rel(rh, ctx, "Reads through")
+Rel(sh, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

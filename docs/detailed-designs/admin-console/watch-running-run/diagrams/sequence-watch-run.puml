@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Watch a run to its end
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunStatusStore" as rs
+  participant "NotificationStore" as ns
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as ctrl
+end box
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetCurrentRunQueryHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+w -> db : Write progress as sources and stages finish
+loop every 3 seconds or more while outcome is running
+  rs -> svc : current()
+  svc -> ctrl : GET /admin/v1/runs/current
+  ctrl -> h : Send GetCurrentRunQuery
+  h -> db : Read the running run
+  db --> h : Progress
+  h --> ctrl : CurrentRunDto
+  ctrl --> svc : 200
+  svc --> rs : Latest progress replaces the previous
+  rs --> page : Signals updated
+  page --> staff : "Running", stages, "38 of 64 sources checked", "Collecting…"
+end
+w -> db : Save final outcome
+rs -> svc : current()
+svc --> rs : outcome completed_with_issues
+rs -> rs : Stop polling; not yet reported for this run id
+rs -> ns : warning "Collection finished with 2 failing sources", action "View run"
+ns --> staff : Notification, once per run
+page --> staff : Final outcome without a reload
+@enduml

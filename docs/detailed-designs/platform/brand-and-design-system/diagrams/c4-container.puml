@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Brand and design-system conformance
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(admin, "Keryx admin application", "Angular", "Staff-only admin UI")
+}
+
+Rel(staff, admin, "Sees the Keryx brand in", "HTTPS")
+@enduml

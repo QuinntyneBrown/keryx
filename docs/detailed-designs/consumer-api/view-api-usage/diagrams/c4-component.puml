@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View API usage and consumers
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "ApiPage", "Angular routed component", "Composes tiles, consumers table and endpoint examples")
+  Component(store, "ApiClientsStore", "Angular signal store", "Holds one page of clients and the usage totals")
+  Component(ex, "EndpointExamples", "Angular deferred component", "Shows a curl request and a sample response per endpoint")
+  Component(svc, "HttpApiClientsService", "Angular service", "Calls /admin/v1/api-clients and /admin/v1/api-usage")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminApiClientsController", "ASP.NET Core controller", "Exposes the clients list and the usage totals")
+  Component(mw, "UsageRecordingMiddleware", "ASP.NET Core middleware", "Counts each /v1 response for its client")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(rec, "IUsageRecorder", "Application contract", "Adds a request to the current hour's bucket")
+  Component(lh, "ListApiClientsQueryHandler", "MediatR handler", "Returns clients with their 24-hour usage")
+  Component(uh, "GetApiUsageQueryHandler", "MediatR handler", "Returns totals for the whole consumer API")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(staff, page, "Opens API")
+Rel(page, store, "Reads signals from")
+Rel(page, ex, "Defers")
+Rel(store, svc, "Loads through")
+Rel(svc, ctrl, "GET api-clients, api-usage", "JSON/HTTPS")
+Rel(ctrl, lh, "Sends ListApiClientsQuery")
+Rel(ctrl, uh, "Sends GetApiUsageQuery")
+Rel(client, mw, "Calls /v1", "JSON/HTTPS")
+Rel(mw, rec, "Records through")
+Rel(lh, ctx, "Reads through")
+Rel(uh, ctx, "Reads through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

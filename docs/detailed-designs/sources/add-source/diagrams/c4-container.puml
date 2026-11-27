@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Add a source
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(admin, "Keryx admin application", "Angular", "Staff-only admin UI")
+  Container(api, "Keryx API", "ASP.NET Core", "Consumer API under /v1 and admin endpoints under /admin/v1")
+  ContainerDb(db, "Keryx database", "Relational database, EF Core", "Records, provenance, runs, settings and API clients")
+}
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(staff, admin, "Uses", "HTTPS")
+Rel(admin, api, "Calls /admin/v1", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, source, "Fetches", "HTTPS")
+@enduml

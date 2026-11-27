@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Secure transport, input and secrets
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Person(operator, "Operator", "Deploys and runs Keryx")
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(staff, keryx, "Curates the collection using")
+Rel(client, keryx, "Reads published records from")
+Rel(operator, keryx, "Supplies secrets and origins to")
+@enduml

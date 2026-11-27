@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Authenticate, scope and rate-limit API clients
+
+Container_Boundary(api_b, "Keryx API") {
+  Component(anon, "AnonymousAddressLimiter", "ASP.NET Core rate limiter", "Limits requests with no valid key per address")
+  Component(auth, "ApiKeyAuthenticationHandler", "ASP.NET Core AuthenticationHandler", "Authenticates the Bearer key as an API client")
+  Component(scope, "ScopeAuthorizationHandler", "ASP.NET Core AuthorizationHandler", "Requires the scope an endpoint names")
+  Component(lim, "ClientRateLimiter", "ASP.NET Core rate limiter", "Limits each client per minute and writes RateLimit headers")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(qh, "AuthenticateApiKeyQueryHandler", "MediatR handler", "Finds the active client for a presented key")
+  Component(hash, "ApiKeyHasher", "Domain service", "Hashes a key and compares hashes in constant time")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(client, anon, "Sends Authorization: Bearer key", "HTTPS")
+Rel(anon, auth, "1 Passes to")
+Rel(auth, qh, "Sends AuthenticateApiKeyQuery")
+Rel(qh, hash, "Hashes and compares with")
+Rel(qh, ctx, "Reads the client through")
+Rel(auth, scope, "2 Passes the client to")
+Rel(scope, lim, "3 Passes to")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

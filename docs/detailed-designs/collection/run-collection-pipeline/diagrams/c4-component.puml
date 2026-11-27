@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run the collection pipeline
+
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(rh, "RunCollectionCommandHandler", "MediatR handler", "Drives the six stages in order for one run")
+  Component(fs, "FetchStage", "Pipeline stage", "Fetches each active source with retry and isolation")
+  Component(ps, "ParseStage", "Pipeline stage", "Turns fetched content into bounded parsed items")
+  Component(cs, "ClassifyStage", "Pipeline stage", "Scores each item and sets its status")
+  Component(ds, "DeduplicateStage", "Pipeline stage", "Matches each item to an existing record")
+  Component(ss, "StoreStage", "Pipeline stage", "Writes records and provenance in batches")
+  Component(pubs, "PublishStage", "Pipeline stage", "Makes the stored results of the run visible to the API")
+  Component(rec, "RunRecorder", "Application service", "Records stage results, source results and counts")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(fetch, "SafeSourceFetcher", "Infrastructure source client", "Implements ISourceFetcher")
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(rh, fs, "1 Runs")
+Rel(rh, ps, "2 Runs")
+Rel(rh, cs, "3 Runs")
+Rel(rh, ds, "4 Runs")
+Rel(rh, ss, "5 Runs")
+Rel(rh, pubs, "6 Runs")
+Rel(rh, rec, "Reports stage results to")
+Rel(fs, fetch, "Fetches through ISourceFetcher")
+Rel(fetch, source, "Fetches", "HTTPS")
+Rel(ss, ctx, "Writes batches through")
+Rel(pubs, ctx, "Marks results served through")
+Rel(rec, ctx, "Persists through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Mute an issue and undo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RunDetail" as det
+  participant "RunsStore" as store
+  participant "NotificationStore" as ns
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminIssuesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "MuteIssueCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> det : Press "Mute" on an issue
+det -> store : mute(issue)
+store -> svc : muteIssue(id)
+svc -> ctrl : POST /admin/v1/issues/{id}/mute
+ctrl -> h : Send MuteIssueCommand(muted true)
+h -> db : Load, Issue.Mute(), save
+h --> ctrl : IssueDto muted
+alt success
+  ctrl --> svc : 200
+  svc --> store : Muted issue
+  store -> ns : success "Issue muted" with Undo
+  store --> staff : Issue marked muted; badge and open count reloaded
+  opt Undo
+    staff -> ns : Activate "Undo"
+    ns -> store : unmute(issue)
+    store -> svc : unmuteIssue(id)
+    svc -> ctrl : POST /admin/v1/issues/{id}/unmute
+    ctrl --> svc : 200, issue open again
+  end
+else request fails
+  ctrl --> svc : ProblemDetails
+  store -> ns : danger with "Try again"; issue unchanged
+end
+@enduml

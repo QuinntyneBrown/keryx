@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Mute an issue from the admin application
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(det, "RunDetail", "Angular component", "Offers Mute on each open issue")
+  Component(store, "RunsStore", "Angular signal store", "Sends the mute and updates the issue")
+  Component(ns, "NotificationStore", "Angular signal store, application-wide", "Shows Issue muted with Undo")
+  Component(sched, "ScheduleStore", "Angular signal store, application-wide", "Reloads the failing-source count for the badge")
+  Component(svc, "HttpRunsService", "Angular service", "Calls mute and unmute")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminIssuesController", "ASP.NET Core controller", "Exposes POST /admin/v1/issues/{id}/mute and /unmute")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "MuteIssueCommandHandler", "MediatR handler", "Mutes or unmutes one issue")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, det, "Presses Mute")
+Rel(det, store, "Emits the action to")
+Rel(store, svc, "Mutes through")
+Rel(store, ns, "Reports outcome to")
+Rel(store, sched, "Asks to reload")
+Rel(svc, ctrl, "POST /admin/v1/issues/{id}/mute", "JSON/HTTPS")
+Rel(ctrl, h, "Sends MuteIssueCommand")
+Rel(h, ctx, "Persists through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

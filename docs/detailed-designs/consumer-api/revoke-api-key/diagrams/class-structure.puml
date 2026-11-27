@@ -1,0 +1,40 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Revoke an API key
+
+class ApiClient {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +DateTimeOffset? RevokedAt
+  +bool IsActive
+  +Revoke(now: DateTimeOffset): void
+}
+class RevokeApiClientCommand {
+  +string ClientId
+}
+class RevokeApiClientCommandHandler {
+  -TimeProvider clock
+  +Handle(command: RevokeApiClientCommand): Task<Result<ApiClientDto>>
+}
+class ApiClientDto {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +IReadOnlyList<string> Scopes
+  +DateTimeOffset? RevokedAt
+}
+RevokeApiClientCommandHandler ..> RevokeApiClientCommand : handles
+RevokeApiClientCommandHandler --> ApiClient : loads / mutates
+RevokeApiClientCommandHandler --> ApiClientDto : returns
+@enduml

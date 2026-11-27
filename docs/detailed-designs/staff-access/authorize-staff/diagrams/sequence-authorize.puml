@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Authorize an admin request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in person" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "sessionInterceptor" as int
+  participant "ForbiddenPage" as fp
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "FallbackPolicy" as fb
+  participant "StaffPolicy" as sp
+  participant "AntiforgeryFilter" as af
+  participant "Admin controller" as ctrl
+end box
+staff -> int : Any admin action
+int -> fb : Request with cookie and anti-forgery header
+alt no valid session
+  fb --> int : 401
+  int --> staff : Sign in screen
+else authenticated
+  fb -> sp : Evaluate the staff role claim
+  alt claim absent
+    sp --> int : 403 not_staff
+    int -> fp : Navigate
+    fp --> staff : "This account can’t open Keryx admin"
+  else staff
+    sp -> af : State-changing request?
+    alt token missing or invalid
+      af --> int : 400 antiforgery_failed
+    else token valid or GET
+      af -> ctrl : Invoke endpoint
+      ctrl --> int : Response, Cache-Control: no-store
+    end
+  end
+end
+@enduml

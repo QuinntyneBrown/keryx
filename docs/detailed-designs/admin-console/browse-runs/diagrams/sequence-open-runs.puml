@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Open Runs and select a run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RunsPage" as page
+  participant "RunsStore" as store
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Run query handlers" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Open Runs
+page -> store : Read ?run and ?problems from the URL
+store -> svc : list(worker collection, page_size 14)
+svc -> ctrl : GET /admin/v1/runs
+ctrl -> h : Send ListRunsQuery
+h -> db : Newest 14 collection runs
+db --> h : Rows
+h --> ctrl : Paged result
+ctrl --> svc : 200
+svc --> store : Runs
+store -> store : Select the run in the URL, else the newest
+store -> svc : get(run id)
+svc -> ctrl : GET /admin/v1/runs/run_2418
+ctrl -> h : Send GetRunQuery
+alt detail loads
+  h --> ctrl : RunDetailDto with stages and issues
+  ctrl --> svc : 200
+  page --> staff : List, tiles, Pipeline, Issues in this run (L2-057)
+else detail fails
+  ctrl --> svc : ProblemDetails
+  page --> staff : List usable; inline error with "Try again"
+end
+@enduml

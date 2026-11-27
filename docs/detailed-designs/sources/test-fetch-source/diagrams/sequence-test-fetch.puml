@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Test-fetch a source
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "AddSourceDialog" as dlg
+  participant "HttpSourcesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "TestSourceQueryHandler" as h
+  participant "RelevanceScorer" as score
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SafeSourceFetcher" as client
+end box
+participant "Publishing source" as src
+staff -> dlg : Leave the URL field with a valid URL
+dlg -> svc : test(kind, address)
+svc -> ctrl : POST /admin/v1/sources/test
+ctrl -> h : Send TestSourceQuery
+h -> client : FetchAsync (ISourceFetcher)
+client -> client : Check address, robots, rate limit (L2-021 to L2-024)
+alt address answers
+  client -> src : GET with timeout
+  src --> client : Content
+  client --> h : Parsed items
+  h -> score : Score each item
+  score --> h : Scores
+  h --> ctrl : items_found, items_relevant
+else failure or timeout
+  client --> h : Failure reason
+  h --> ctrl : reachable false, reason
+end
+ctrl --> svc : 200 SourceTestResult
+svc --> dlg : Result
+dlg --> staff : "Test fetch found 6 event pages — 5 look relevant." (polite)
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Audit staff actions
+
+interface IAuditedCommand {
+  +string AuditAction
+  +string AuditTargetId
+  +IReadOnlyList<string> ChangedFields
+}
+class AuditEntry {
+  +long Id
+  +string SubjectId
+  +string Action
+  +string TargetId
+  +DateTimeOffset At
+  +IReadOnlyList<string> ChangedFields
+}
+class "AuditBehavior<TRequest, TResponse>" as AuditBehavior {
+  -ICurrentStaff staff
+  -TimeProvider clock
+  +Handle(request: TRequest, next: RequestHandlerDelegate<TResponse>): Task<TResponse>
+}
+interface ICurrentStaff {
+  +string SubjectId
+}
+class HttpCurrentStaff
+class DecideArticleCommand
+class UpdateSettingsCommand
+IAuditedCommand <|.. DecideArticleCommand
+IAuditedCommand <|.. UpdateSettingsCommand
+ICurrentStaff <|.. HttpCurrentStaff
+AuditBehavior ..> IAuditedCommand : reads
+AuditBehavior ..> ICurrentStaff : reads
+AuditBehavior --> AuditEntry : creates
+@enduml

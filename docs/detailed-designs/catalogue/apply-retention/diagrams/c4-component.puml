@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Apply retention
+
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(w, "RetentionWorker", ".NET BackgroundService", "Fires once a day and sends one request")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "ApplyRetentionCommandHandler", "MediatR handler", "Deletes expired records in dependency order")
+  Component(pol, "RetentionPolicy", "Domain service", "Computes the cut-off times from Settings and the clock")
+  Component(rec, "RunRecorder", "Application service", "Records the run with worker retention")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(w, h, "Sends ApplyRetentionCommand")
+Rel(h, pol, "Asks cut-offs from")
+Rel(h, ctx, "Deletes in batches through")
+Rel(h, rec, "Reports counts to")
+Rel(rec, ctx, "Persists the run through")
+Rel(ctx, db, "Reads and deletes", "EF Core")
+@enduml

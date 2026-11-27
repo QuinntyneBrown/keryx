@@ -1,0 +1,43 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Secure transport, input and secrets
+
+class "ValidationBehavior<TRequest, TResponse>" as ValidationBehavior {
+  -IEnumerable<IValidator<TRequest>> validators
+  +Handle(request: TRequest, next: RequestHandlerDelegate<TResponse>): Task<TResponse>
+}
+interface "IValidator<T>" as IValidator {
+  +Validate(instance: T): ValidationResult
+}
+class ValidationProblem {
+  +string Code = "validation_failed"
+  +IDictionary<string, string[]> Errors
+}
+class PublicId <<value object>> {
+  +string Prefix
+  +long Number
+  +{static} TryParse(raw: string, prefix: string): PublicId?
+  +ToString(): string
+}
+class SecurityHeadersMiddleware {
+  +InvokeAsync(context: HttpContext, next: RequestDelegate): Task
+}
+class SecretsOptions {
+  +string DatabaseConnection
+  +string MailCredential
+  +string InstagramCredential
+  +string EventbriteCredential
+}
+ValidationBehavior o-- IValidator
+ValidationBehavior --> ValidationProblem : returns on failure
+@enduml

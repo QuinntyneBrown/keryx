@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Read events
+
+class ListEventsQuery {
+  +DateTimeOffset? From
+  +DateTimeOffset? To
+  +string? Region
+  +string? Org
+  +string? Limit
+  +string? Cursor
+}
+class ListEventsQueryHandler {
+  -TimeProvider clock
+  +Handle(query: ListEventsQuery): Task<Result<CursorPage<EventDto>>>
+}
+class GetEventQueryHandler {
+  +Handle(query: GetEventQuery): Task<Result<EventDto>>
+}
+class EventDto {
+  +string Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +DateTimeOffset? EndsAt
+  +string TimeZone
+  +string PlaceName
+  +string Region
+  +OrganizationRefDto Organization
+  +string Url
+  +string? ArticleId
+}
+class ServedEvents <<specification>> {
+  +Apply(query: IQueryable<Event>): IQueryable<Event>
+}
+ListEventsQueryHandler ..> ListEventsQuery : handles
+ListEventsQueryHandler ..> ServedEvents : uses
+GetEventQueryHandler ..> ServedEvents : uses
+ListEventsQueryHandler --> EventDto : returns page of
+GetEventQueryHandler --> EventDto : returns
+@enduml

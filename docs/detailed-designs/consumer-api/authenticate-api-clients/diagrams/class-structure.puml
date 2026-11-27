@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Authenticate, scope and rate-limit API clients
+
+class ApiClient {
+  +string Id
+  +string Name
+  +string KeyPrefix
+  +byte[] KeyHash
+  +IReadOnlySet<ApiScope> Scopes
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset? RevokedAt
+  +bool IsActive
+  +HasScope(scope: ApiScope): bool
+}
+enum ApiScope {
+  ArticlesRead
+  EventsRead
+  SourcesRead
+}
+class ApiKeyHasher {
+  +Hash(key: string): byte[]
+  +FixedTimeEquals(a: byte[], b: byte[]): bool
+}
+class AuthenticateApiKeyQuery {
+  +string PresentedKey
+}
+class AuthenticateApiKeyQueryHandler {
+  +Handle(query: AuthenticateApiKeyQuery): Task<ApiClientPrincipal?>
+}
+class ApiClientPrincipal {
+  +string ClientId
+  +IReadOnlySet<ApiScope> Scopes
+}
+class ApiKeyAuthenticationHandler {
+  #HandleAuthenticateAsync(): Task<AuthenticateResult>
+}
+ApiClient --> ApiScope
+ApiKeyAuthenticationHandler ..> AuthenticateApiKeyQuery : sends
+AuthenticateApiKeyQueryHandler ..> AuthenticateApiKeyQuery : handles
+AuthenticateApiKeyQueryHandler ..> ApiKeyHasher : uses
+AuthenticateApiKeyQueryHandler --> ApiClient : reads
+AuthenticateApiKeyQueryHandler --> ApiClientPrincipal : returns
+@enduml

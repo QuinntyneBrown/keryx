@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Emit telemetry without private data
+
+class TelemetryOptions {
+  +Uri? OtlpEndpoint
+  +string ServiceName
+}
+class CollectionTelemetry {
+  +{static} ActivitySource Source
+  +Histogram<double> RunDuration
+  +Counter<long> ItemsAdded
+  +Counter<long> ItemsUpdated
+  +Counter<long> ItemsUnchanged
+  +Counter<long> SourcesFailed
+  +Histogram<double> FetchLatency
+  +StartRun(runId: string): Activity?
+  +StartStage(stage: StageName): Activity?
+  +StartFetch(sourceId: string): Activity?
+}
+class ApiMetrics {
+  +Counter<long> Requests
+  +Histogram<double> Duration
+  +Counter<long> Errors
+  +Record(routeTemplate: string, clientId: string, status: int, duration: TimeSpan): void
+}
+class RedactionProcessor {
+  -{static} string[] ForbiddenKeys
+  +OnEnd(activity: Activity): void
+}
+class ProblemDetailsExceptionHandler
+ProblemDetailsExceptionHandler ..> CollectionTelemetry : shares trace context
+RedactionProcessor ..> TelemetryOptions
+@enduml

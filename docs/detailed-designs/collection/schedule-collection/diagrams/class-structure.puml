@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Schedule collection
+
+class CollectionSchedule <<value object>> {
+  +int IntervalHours
+  +TimeZoneInfo Zone
+  +{static} Create(intervalHours: int): Result<CollectionSchedule>
+  +NextSlotAfter(utcNow: DateTimeOffset): DateTimeOffset
+  +Cron(): string
+}
+class CollectionWorker {
+  -TimeProvider clock
+  #ExecuteAsync(ct: CancellationToken): Task
+}
+class StartScheduledRunCommand {
+  +DateTimeOffset Slot
+}
+class StartScheduledRunCommandHandler {
+  +Handle(command: StartScheduledRunCommand): Task<Result>
+}
+class Run {
+  +string Id
+  +RunTrigger Trigger
+  +RunOutcome Outcome
+  +AddIssue(kind: IssueKind, detail: string): void
+}
+enum RunTrigger {
+  Schedule
+  Manual
+}
+abstract class TimeProvider
+CollectionWorker --> CollectionSchedule : asks
+CollectionWorker ..> TimeProvider : reads
+CollectionWorker ..> StartScheduledRunCommand : sends
+StartScheduledRunCommandHandler ..> StartScheduledRunCommand : handles
+StartScheduledRunCommandHandler --> Run : creates or adds issue
+Run --> RunTrigger
+@enduml

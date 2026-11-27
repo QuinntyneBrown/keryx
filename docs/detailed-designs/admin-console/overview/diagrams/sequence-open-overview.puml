@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Open Overview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "OverviewPage" as page
+  participant "OverviewStore" as store
+  participant "HttpOverviewService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminOverviewController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "Overview query handlers" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Open Overview
+page -> store : Create resources
+store -> svc : summary(), chart(), latestArticles(7), openIssues(5) in parallel
+svc -> ctrl : GET /admin/v1/overview/summary and three more
+ctrl -> h : Send one query per request
+h -> db : Bounded reads
+db --> h : Rows
+h --> ctrl : DTOs with numbers
+opt first response takes longer than 300 ms
+  page --> staff : Skeletons, main region aria-busy
+end
+alt each request succeeds
+  ctrl --> svc : 200 × 4
+  svc --> store : Values
+  page --> staff : Status card (L2-043), chart (L2-044), lists (L2-045)
+else latest articles fails only
+  ctrl --> svc : ProblemDetails for one request
+  page --> staff : "Latest articles didn't load" with "Try again"; rest usable
+else each request fails
+  page --> staff : Page error state with "Try again" (L2-046)
+end
+@enduml

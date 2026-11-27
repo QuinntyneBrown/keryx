@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Export the current list
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "ArticlesPage" as page
+  participant "HttpArticlesService" as svc
+  participant "FileDownloader" as dl
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ExportArticlesQueryHandler" as h
+  participant "CsvRowWriter" as csv
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Press "Export CSV"
+page --> staff : "Export started" notification with the row count
+page -> svc : export(current tab, search, filters)
+svc -> ctrl : GET /admin/v1/articles/export?status=…&q=…
+ctrl -> h : Create stream for ExportArticlesQuery
+h -> db : Count matching rows
+db --> h : Count
+alt more than 50,000 rows
+  h --> ctrl : export_too_large
+  ctrl --> svc : 400 ProblemDetails
+  page --> staff : Notification asks to narrow the filters
+else within the bound
+  loop each row from a forward-only read
+    h -> db : Next rows
+    db --> h : Row
+    h --> ctrl : ArticleExportRow
+    ctrl -> csv : Write(row): quote, neutralize formulas
+    csv --> ctrl : CSV line
+    ctrl --> svc : Chunk
+  end
+  svc --> page : Blob
+  page -> dl : save(blob, articles-YYYY-MM-DD.csv)
+  dl -> dl : Create object URL, start download, revoke URL
+  dl --> staff : File downloads
+end
+@enduml

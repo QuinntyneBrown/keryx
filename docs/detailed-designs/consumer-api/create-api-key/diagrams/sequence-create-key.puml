@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Create a key and reveal it once
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "NewApiKeyDialog" as dlg
+  participant "HttpApiClientsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiClientsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "CreateApiClientCommandHandler" as h
+  participant "ApiKeyGenerator" as gen
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Press "New API key"
+page -> dlg : Open CDK Dialog
+staff -> dlg : Enter product name, choose scopes, press "Create key"
+dlg -> dlg : Validate name and scope group
+dlg -> svc : create(name, scopes)
+svc -> ctrl : POST /admin/v1/api-clients
+ctrl -> h : Send CreateApiClientCommand
+h -> db : Find active client with this name
+alt name taken
+  h --> ctrl : client_name_taken (409)
+  ctrl --> svc : ProblemDetails
+  svc --> dlg : Error code
+  dlg --> staff : Name field says a key with that name exists
+else name free
+  h -> gen : Generate(environment)
+  gen --> h : ApiKey kx_live_… (L2-035)
+  h -> h : SHA-256 hash, 12-character prefix
+  h -> db : Save ApiClient with hash and prefix only
+  h --> ctrl : CreatedApiClientDto with full key
+  ctrl --> svc : 201
+  svc --> dlg : Created client and key
+  dlg --> page : Close with result
+  page --> staff : Callout with the key and "Copy"; client first with "New" badge
+  staff -> page : Leave or reload the screen
+  page -> page : Destroy store; key gone from memory and DOM
+end
+@enduml

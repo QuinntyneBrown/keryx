@@ -1,0 +1,46 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Retry failed sources
+
+class RetryRunCommand {
+  +string RunId
+}
+class RetryRunCommandHandler {
+  +Handle(command: RetryRunCommand): Task<Result<RetryRunResult>>
+}
+class RetryRunResult {
+  +string RunId
+  +bool NewRun
+}
+class Run {
+  +string Id
+  +RunOutcome Outcome
+  +int SourcesOk
+  +int SourcesFailed
+  +IReadOnlyList<Issue> Issues
+  +FailedSourceIds(): IReadOnlyList<string>
+  +RequestRetry(now: DateTimeOffset): void
+  +ApplyRetry(recovered: IReadOnlyList<string>, stillFailing: IReadOnlyList<string>): void
+}
+class Issue {
+  +string Id
+  +IssueKind Kind
+  +string? SourceId
+  +IssueState State
+  +Close(now: DateTimeOffset): void
+}
+RetryRunCommandHandler ..> RetryRunCommand : handles
+RetryRunCommandHandler --> Run : loads / mutates
+RetryRunCommandHandler --> RetryRunResult : returns
+Run "1" *-- "*" Issue
+@enduml

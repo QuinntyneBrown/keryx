@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Show, pause and dismiss a notification
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "A screen store" as store
+  participant "NotificationStore" as ns
+  participant "toast-region" as tr
+end box
+store -> ns : push(success, "Source added", …)
+ns -> ns : Drop the oldest when three are visible
+ns -> ns : Start an 8-second timer (not for danger)
+ns --> tr : visible updated
+tr --> staff : Toast at the bottom, role status, announced politely
+staff -> tr : Hover or focus the toast
+tr -> ns : pause(id)
+staff -> tr : Leave the toast
+tr -> ns : resume(id)
+alt action activated ("Undo")
+  staff -> tr : Activate the action
+  tr -> ns : Run the action; dismiss(id)
+else lifetime ends
+  ns -> ns : Timer fires; dismiss(id); the action stands
+else "Dismiss" pressed
+  staff -> tr : Press "Dismiss"
+  tr -> ns : dismiss(id); release the timer
+end
+ns --> tr : visible updated; focus returns to where it was
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Alert on failing sources and failed runs
+
+class AlertSettings {
+  +string Email
+  +int FailureStreak
+  +bool AlertOnSourceFailure
+  +bool AlertOnRunFailure
+  +bool DailyDigest
+}
+enum AlertKind {
+  SourceFailing
+  RunFailed
+}
+class Alert <<value object>> {
+  +AlertKind Kind
+  +string Subject
+  +string Body
+}
+class AlertPolicy {
+  +Due(run: Run, settings: AlertSettings): IReadOnlyList<AlertReason>
+}
+class AlertComposer {
+  +Compose(reason: AlertReason): Alert
+}
+interface IAlertMailer {
+  +SendAsync(to: string, alert: Alert, ct: CancellationToken): Task<Result>
+}
+class MailServiceClient
+class SendRunAlertsHandler {
+  +Handle(notification: RunFinished): Task
+}
+SendRunAlertsHandler ..> AlertPolicy : uses
+SendRunAlertsHandler ..> AlertComposer : uses
+SendRunAlertsHandler ..> IAlertMailer : uses
+IAlertMailer <|.. MailServiceClient
+AlertPolicy ..> AlertSettings : reads
+AlertComposer --> Alert : returns
+Alert --> AlertKind
+@enduml

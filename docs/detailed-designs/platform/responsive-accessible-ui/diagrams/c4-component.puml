@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Responsive, accessible and themed UI
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(rf, "RouteFocus", "Angular service", "Moves focus to the h1 and sets the document title on navigation")
+  Component(ann, "LiveAnnouncer", "Angular CDK a11y service", "Announces status changes once per change")
+  Component(ax, "Accessibility and responsive sweeps", "Playwright with axe-core, on request", "Scan each mock state in both themes and each viewport")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(tok, "tokens.css", "Global foundation styles", "Design tokens for both themes, breakpoints and motion")
+  Component(util, "from-lg, until-lg, visually-hidden, truncate", "Global utility classes", "Responsive visibility and screen-reader text")
+  Component(comp, "Library components", "Angular components, emulated encapsulation", "Carry state as ARIA attributes and style through them")
+  Component(kb, "tab, segmented, switch, slider, menu", "Composite widgets", "Follow their WAI-ARIA keyboard patterns")
+}
+
+Rel(staff, comp, "Operates by touch and keyboard")
+Rel(comp, tok, "Reads tokens by role from")
+Rel(comp, util, "Uses")
+Rel(kb, comp, "Are")
+Rel(staff, rf, "Is placed on each new screen by")
+Rel(comp, ann, "Announce changes through")
+Rel(ax, comp, "Scans")
+@enduml

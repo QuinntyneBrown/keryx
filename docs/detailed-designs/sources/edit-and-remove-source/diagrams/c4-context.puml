@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Edit and remove a source
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(staff, keryx, "Curates the collection using")
+Rel(keryx, source, "Collects published items from")
+@enduml

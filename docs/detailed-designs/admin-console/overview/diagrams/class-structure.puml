@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Overview
+
+class OverviewStore {
+  +Resource<OverviewSummary> summary
+  +Resource<RunChartPoint[]> chart
+  +Resource<ArticleRow[]> latestArticles
+  +Resource<IssueCard[]> openIssues
+  +retry(part: OverviewPart): void
+}
+enum OverviewPart {
+  Summary
+  Chart
+  LatestArticles
+  OpenIssues
+}
+class OverviewSummary {
+  +RunSummary run
+  +string next_run_at
+  +number articles_total
+}
+class RunSummary {
+  +string id
+  +RunOutcome outcome
+  +string started_at
+  +number duration_ms
+  +number added
+  +number sources_ok
+  +number sources_total
+  +number sources_checked
+}
+class RunDescription {
+  +string heading
+  +string title
+  +string meta
+  +string icon
+}
+class RunChartPoint {
+  +string run_id
+  +string started_at
+  +RunOutcome outcome
+  +number added
+}
+OverviewStore --> OverviewSummary
+OverviewStore --> RunChartPoint
+OverviewStore --> OverviewPart
+OverviewSummary *-- RunSummary
+RunDescription <.. RunSummary : describeRun
+@enduml

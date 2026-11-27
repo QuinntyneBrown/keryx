@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Show and advance the next collection
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "Shell" as shell
+  participant "ScheduleStore" as sched
+  participant "HttpShellService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminShellController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetShellQueryHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> shell : Open the admin application
+shell -> sched : load()
+sched -> svc : get()
+svc -> ctrl : GET /admin/v1/shell
+ctrl -> h : Send GetShellQuery
+h -> db : Settings interval; count failing sources
+db --> h : Values
+h --> ctrl : ShellDto
+ctrl --> svc : 200
+svc --> sched : next_run_at, failing_sources
+sched --> shell : "12:00 PM · in 2h 14m", Runs badge "2"
+loop each minute
+  sched -> sched : tick(): recompute countdown, no request
+  sched --> shell : "in 2h 13m"
+end
+sched -> sched : next_run_at has passed
+sched -> svc : get()
+@enduml

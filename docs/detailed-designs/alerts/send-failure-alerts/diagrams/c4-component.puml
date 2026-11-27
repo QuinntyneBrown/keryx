@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Alert on failing sources and failed runs
+
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(rh, "RunCollectionCommandHandler", "MediatR handler", "Publishes RunFinished when a run ends")
+  Component(ah, "SendRunAlertsHandler", "MediatR notification handler", "Sends the alerts a finished run makes due")
+  Component(pol, "AlertPolicy", "Domain service", "Decides which alerts a run makes due")
+  Component(cmp, "AlertComposer", "Application service", "Composes plain-text alert bodies")
+  Component(c, "IAlertMailer", "Application contract", "Sends one plain-text e-mail")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(m, "MailServiceClient", "Infrastructure client", "Implements IAlertMailer over the mail service")
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(mail, "Mail service", "Delivers alert and digest e-mail")
+
+Rel(rh, ah, "Publishes RunFinished to")
+Rel(ah, pol, "Asks what is due")
+Rel(ah, cmp, "Composes with")
+Rel(ah, c, "Sends through")
+Rel(m, c, "Implements")
+Rel(m, mail, "Sends e-mail", "HTTPS")
+Rel(ah, ctx, "Reads issues and settings through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

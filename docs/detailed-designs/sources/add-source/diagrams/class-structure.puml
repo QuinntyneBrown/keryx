@@ -1,0 +1,70 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Add a source
+
+enum SourceKind {
+  Rss
+  Website
+  Instagram
+  Eventbrite
+  NewsQuery
+}
+class SourceAddress <<value object>> {
+  +string Value
+  +string Normalized
+  +{static} TryCreate(kind: SourceKind, raw: string): Result<SourceAddress>
+  +Equals(other: SourceAddress): bool
+}
+class Source {
+  +string Id
+  +SourceKind Kind
+  +SourceAddress Address
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset? LastFetchedAt
+  +DateTimeOffset? LastSucceededAt
+  +DateTimeOffset? RemovedAt
+}
+class Organization {
+  +string Id
+  +string Name
+  +OrganizationKind Kind
+  +string? WebsiteUrl
+}
+class Region {
+  +string Slug
+  +string Name
+  +string TimeZone
+  +int Rank
+}
+class CreateSourceCommand {
+  +SourceKind Kind
+  +string Address
+  +string OrganizationName
+  +string RegionSlug
+}
+class CreateSourceCommandHandler {
+  +Handle(command: CreateSourceCommand): Task<Result<SourceDto>>
+}
+class OrganizationMatcher {
+  +Normalize(name: string): string
+  +FindOrCreate(name: string, region: Region): Organization
+}
+CreateSourceCommandHandler ..> CreateSourceCommand : handles
+CreateSourceCommandHandler ..> OrganizationMatcher : uses
+CreateSourceCommandHandler --> Source : creates
+Source *-- SourceAddress
+Source --> SourceKind
+Source "*" --> "1" Organization
+Source "*" --> "1" Region
+Organization "*" --> "1" Region
+@enduml

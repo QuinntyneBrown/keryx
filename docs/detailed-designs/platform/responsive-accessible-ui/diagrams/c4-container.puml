@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Responsive, accessible and themed UI
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System_Boundary(keryx, "Keryx") {
+  Container(admin, "Keryx admin application", "Angular", "Staff-only admin UI")
+}
+
+Rel(staff, admin, "Uses by touch, keyboard and assistive technology", "HTTPS")
+@enduml

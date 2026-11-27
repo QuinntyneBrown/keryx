@@ -1,0 +1,53 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Brand and design-system conformance
+
+abstract class "LibraryComponent" as LibraryComponent <<convention>> {
+  +selector: one shared prefix
+  +templateUrl: name.html
+  +styleUrl: name.scss
+  +encapsulation: Emulated
+  +changeDetection: OnPush
+  +inputs only
+  +outputs only
+}
+class Brand <<component>> {
+  +input href: string
+  +block: brand
+}
+class Badge <<component>> {
+  +input variant: neutral | success | warning | danger | info
+  +input label: string
+  +block: badge
+}
+class StatusCard <<component>> {
+  +input heading: string
+  +input title: string
+  +input meta: string
+  +input tone: BadgeVariant
+  +block: status-card
+}
+class Tokens <<tokens.css>> {
+  +color roles
+  +space scale
+  +radius scale
+  +duration scale
+  +z-index scale
+}
+LibraryComponent <|-- Brand
+LibraryComponent <|-- Badge
+LibraryComponent <|-- StatusCard
+Brand ..> Tokens : reads by role
+Badge ..> Tokens : reads by role
+StatusCard ..> Tokens : reads by role
+@enduml

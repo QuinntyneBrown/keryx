@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Export articles as CSV
+
+class ExportArticlesQuery {
+  +string? Status
+  +string? Q
+  +string? Region
+  +string? Category
+}
+class ExportArticlesQueryHandler {
+  +{static} int MaxRows = 50000
+  +Handle(query: ExportArticlesQuery, ct: CancellationToken): IAsyncEnumerable<ArticleExportRow>
+}
+class ArticleExportRow {
+  +string Id
+  +string? Title
+  +string? Organization
+  +string Category
+  +string Region
+  +decimal Relevance
+  +string Status
+  +DateTimeOffset? PublishedAt
+  +DateTimeOffset CollectedAt
+  +string Url
+}
+class CsvRowWriter {
+  +{static} string Header
+  +Write(row: ArticleExportRow): string
+  -Neutralize(value: string): string
+  -Quote(value: string): string
+}
+class FileDownloader {
+  +save(blob: Blob, fileName: string): void
+}
+ExportArticlesQueryHandler ..> ExportArticlesQuery : handles
+ExportArticlesQueryHandler --> ArticleExportRow : yields
+CsvRowWriter ..> ArticleExportRow : formats
+@enduml

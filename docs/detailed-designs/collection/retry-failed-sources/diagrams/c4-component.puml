@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Retry failed sources
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(det, "RunDetail", "Angular component", "Shows one run and the retry action")
+  Component(store, "RunsStore", "Angular signal store", "Holds the run list, the selected run and its progress")
+  Component(svc, "HttpRunsService", "Angular service", "Calls POST /admin/v1/runs/{id}/retry")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "Exposes the retry endpoint")
+}
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(w, "CollectionWorker", ".NET BackgroundService", "Claims the retry and executes it")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "RetryRunCommandHandler", "MediatR handler", "Requests a retry of the failed sources or a new run")
+  Component(rh, "RunCollectionCommandHandler", "MediatR handler", "Runs the pipeline for the named sources")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, det, "Presses Retry failed sources")
+Rel(det, store, "Reads the run from")
+Rel(det, svc, "Retries through")
+Rel(svc, ctrl, "POST /admin/v1/runs/{id}/retry", "JSON/HTTPS")
+Rel(ctrl, h, "Sends RetryRunCommand")
+Rel(h, ctx, "Records the retry through")
+Rel(w, ctx, "Claims the retry through")
+Rel(w, rh, "Sends RunCollectionCommand with source ids")
+Rel(rh, ctx, "Updates the same run through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

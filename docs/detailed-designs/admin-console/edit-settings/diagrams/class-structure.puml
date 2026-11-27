@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Edit and save settings
+
+class SettingsValues {
+  +number interval_hours
+  +number timeout_seconds
+  +string[] topics
+  +string[] exclusions
+  +number publish_threshold
+  +string[] focus_areas
+  +boolean ontario_wide
+  +boolean national_news
+  +boolean merge_duplicates
+  +number retention_months
+  +string alert_email
+  +number failure_streak
+  +boolean alert_on_run_failure
+  +boolean daily_digest
+}
+class SettingsFormStore {
+  +Signal<SettingsValues> saved
+  +Signal<SettingsValues> draft
+  +Signal<number> version
+  +Signal<boolean> dirty
+  +Signal<FieldError[]> errors
+  +Signal<SaveState> save
+  +patch(change: Partial<SettingsValues>): void
+  +discard(): void
+  +submit(): Promise<void>
+}
+class FieldError {
+  +string field
+  +string message
+}
+enum SaveState {
+  Idle
+  Submitting
+  Saved
+  Failed
+  Conflict
+}
+class Settings {
+  +int Version
+  +Update(values: SettingsValues, expectedVersion: int): Result
+}
+class UpdateSettingsCommandHandler {
+  +Handle(command: UpdateSettingsCommand): Task<Result<SettingsDto>>
+}
+SettingsFormStore --> SettingsValues
+SettingsFormStore --> FieldError
+SettingsFormStore --> SaveState
+FieldError <.. SettingsValues : validateSettings
+UpdateSettingsCommandHandler --> Settings : loads / mutates
+@enduml

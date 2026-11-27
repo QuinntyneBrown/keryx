@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Identify and deduplicate records
+
+class CanonicalUrl <<value object>> {
+  +string Value
+  +{static} TryCreate(raw: string): Result<CanonicalUrl>
+}
+class RecordIdentity <<value object>> {
+  +string SourceId
+  +string? SourceKey
+  +CanonicalUrl? Url
+  +{static} For(item: ParsedItem, source: Source): Result<RecordIdentity>
+}
+class HeadlineSimilarity {
+  +{static} decimal Threshold = 0.90
+  +Normalize(headline: string): string
+  +Score(a: string, b: string): decimal
+}
+enum MatchKind {
+  New
+  Same
+  Merge
+}
+class MatchDecision {
+  +MatchKind Kind
+  +string? RecordId
+}
+class DeduplicateStage {
+  +RunAsync(context: RunContext, items: IAsyncEnumerable<PipelineItem>): IAsyncEnumerable<PipelineItem>
+}
+class Article {
+  +string Id
+  +CanonicalUrl Url
+  +DateTimeOffset CollectedAt
+  +ApplyChanges(item: ParsedItem): bool
+  +Seen(source: Source, url: string, at: DateTimeOffset): void
+}
+class ProvenanceEntry {
+  +string SourceId
+  +string SourceName
+  +string Url
+  +DateTimeOffset FirstSeenAt
+  +DateTimeOffset LastSeenAt
+}
+RecordIdentity --> CanonicalUrl
+DeduplicateStage ..> RecordIdentity : builds
+DeduplicateStage ..> HeadlineSimilarity : uses
+DeduplicateStage --> MatchDecision : assigns
+MatchDecision --> MatchKind
+Article "1" *-- "1..*" ProvenanceEntry
+Article --> CanonicalUrl
+@enduml

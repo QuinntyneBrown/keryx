@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Apply retention
+
+class RetentionWorker {
+  -TimeProvider clock
+  #ExecuteAsync(ct: CancellationToken): Task
+}
+class ApplyRetentionCommand
+class ApplyRetentionCommandHandler {
+  +{static} int BatchSize = 1000
+  +Handle(command: ApplyRetentionCommand): Task<RetentionResult>
+}
+class RetentionPolicy {
+  +Cutoffs(retentionMonths: int, utcNow: DateTimeOffset): RetentionCutoffs
+}
+class RetentionCutoffs <<value object>> {
+  +DateTimeOffset Records
+  +DateTimeOffset Usage
+}
+class RetentionResult {
+  +int Articles
+  +int Events
+  +int Organizations
+  +int Runs
+  +int AuditEntries
+  +int UsageRows
+}
+RetentionWorker ..> ApplyRetentionCommand : sends
+ApplyRetentionCommandHandler ..> ApplyRetentionCommand : handles
+ApplyRetentionCommandHandler ..> RetentionPolicy : uses
+RetentionPolicy --> RetentionCutoffs : returns
+ApplyRetentionCommandHandler --> RetentionResult : returns
+@enduml

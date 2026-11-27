@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Fetch safely and respectfully
+
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(san, "ItemSanitizer", "Domain service", "Strips markup and control characters and rejects unsafe links")
+  Component(c, "ISourceFetcher", "Application contract", "Fetches one source and returns items or a failure reason")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(f, "SafeSourceFetcher", "Infrastructure source client", "Implements ISourceFetcher by applying each policy in order")
+  Component(guard, "AddressGuard", "Infrastructure service", "Resolves the host, refuses unsafe addresses and pins the connection")
+  Component(robots, "RobotsCache", "Infrastructure service", "Fetches, caches for 24 hours and evaluates robots.txt")
+  Component(lim, "HostRateLimiter", "Infrastructure service", "Keeps 1 request in flight and 1 second between requests per host")
+  Component(retry, "BackoffPolicy", "Infrastructure service", "Honours Retry-After and backs off exponentially")
+  Component(read, "BoundedContentReader", "Infrastructure service", "Stops reading at 5 MB and checks the content type")
+  Component(parse, "FeedParser, HtmlParser, PlatformApiClient", "Infrastructure parsers", "Turn content into at most 200 bounded items")
+}
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(f, c, "Implements")
+Rel(f, guard, "1 Checks address with")
+Rel(f, robots, "2 Checks robots with")
+Rel(f, lim, "3 Waits on")
+Rel(f, retry, "Retries under")
+Rel(f, read, "4 Reads through")
+Rel(f, parse, "5 Parses with")
+Rel(parse, san, "Bounds each item with")
+Rel(f, source, "Sends identified, timed request", "HTTPS")
+Rel(robots, source, "Fetches robots.txt", "HTTPS")
+@enduml

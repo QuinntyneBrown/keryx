@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit and save settings
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "SettingsPage", "Angular routed component", "Composes the five sections, the save bar and the error summary")
+  Component(store, "SettingsFormStore", "Angular signal store", "Holds saved and edited values and derives dirty and errors")
+  Component(dlg, "AddKeywordDialog", "Angular CDK Dialog component", "Adds one topic, exclusion or focus area")
+  Component(guard, "unsavedChangesGuard", "Angular canDeactivate guard", "Asks to confirm leaving a dirty form")
+  Component(svc, "HttpSettingsService", "Angular service", "Implements the SettingsService contract")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(rules, "validateSettings", "Pure function, domain library", "Applies each range and uniqueness rule")
+  Component(lib, "settings-section, segmented, input, switch, chip, alert", "Components library", "Presentation components named as in the design system")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminSettingsController", "ASP.NET Core controller", "Exposes GET and PUT /admin/v1/settings")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "UpdateSettingsCommandHandler", "MediatR handler", "Validates, checks the version and saves")
+  Component(val, "UpdateSettingsCommandValidator", "FluentValidation validator", "Applies the same ranges on the server")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Edits Settings")
+Rel(page, store, "Binds fields to")
+Rel(page, lib, "Composes")
+Rel(page, dlg, "Opens from an Add chip")
+Rel(guard, store, "Reads dirty from")
+Rel(store, rules, "Validates with")
+Rel(store, svc, "Loads and saves through")
+Rel(svc, ctrl, "GET, PUT /admin/v1/settings", "JSON/HTTPS")
+Rel(ctrl, h, "Sends UpdateSettingsCommand")
+Rel(h, val, "Is validated by")
+Rel(h, ctx, "Persists through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

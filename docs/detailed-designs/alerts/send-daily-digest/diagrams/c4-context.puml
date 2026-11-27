@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send the daily digest of held articles
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+System_Ext(mail, "Mail service", "Delivers alert and digest e-mail")
+
+Rel(staff, keryx, "Switches the daily digest on in")
+Rel(keryx, mail, "Sends e-mail through")
+@enduml

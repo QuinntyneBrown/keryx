@@ -1,0 +1,47 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Read categories, regions and status
+
+class CategoryDto {
+  +string Slug
+  +string Name
+  +int ArticleCount
+}
+class RegionDto {
+  +string Slug
+  +string Name
+  +string TimeZone
+  +int ArticleCount
+}
+class StatusDto {
+  +DateTimeOffset? LastRunAt
+  +string Status
+  +DateTimeOffset NextRunAt
+  +int ArticlesTotal
+}
+class ListCategoriesQueryHandler {
+  +Handle(query: ListCategoriesQuery): Task<IReadOnlyList<CategoryDto>>
+}
+class ListRegionsQueryHandler {
+  +Handle(query: ListRegionsQuery): Task<IReadOnlyList<RegionDto>>
+}
+class GetStatusQueryHandler {
+  -TimeProvider clock
+  +Handle(query: GetStatusQuery): Task<StatusDto>
+}
+class CollectionSchedule
+ListCategoriesQueryHandler --> CategoryDto : returns
+ListRegionsQueryHandler --> RegionDto : returns
+GetStatusQueryHandler --> StatusDto : returns
+GetStatusQueryHandler ..> CollectionSchedule : uses
+@enduml

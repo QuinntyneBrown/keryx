@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Authorize staff on every endpoint
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(int, "sessionInterceptor", "Angular HTTP interceptor", "Routes not_staff to Access denied and attaches the anti-forgery header")
+  Component(fp, "ForbiddenPage", "Angular routed component", "Shows Access denied with no navigation")
+  Component(nf, "NotFoundPage", "Angular routed component", "Shows Not found with a link to Overview")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(fb, "FallbackPolicy", "ASP.NET Core authorization policy", "Requires authentication on every endpoint by default")
+  Component(sp, "StaffPolicy", "ASP.NET Core authorization policy", "Requires the staff role claim on /admin/v1")
+  Component(res, "ProblemDetailsAuthorizationResultHandler", "IAuthorizationMiddlewareResultHandler", "Answers 401 and 403 as ProblemDetails with a code")
+  Component(af, "AntiforgeryFilter", "ASP.NET Core filter", "Requires a token on state-changing admin requests")
+}
+
+Rel(staff, int, "Sends admin requests through")
+Rel(int, fb, "Calls any endpoint", "JSON/HTTPS")
+Rel(fb, sp, "Then applies on /admin/v1")
+Rel(sp, af, "Then applies on state changes")
+Rel(fb, res, "Reports refusals through")
+Rel(sp, res, "Reports refusals through")
+Rel(int, fp, "Routes not_staff to")
+Rel(staff, nf, "Opens an unknown route")
+@enduml

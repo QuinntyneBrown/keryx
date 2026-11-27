@@ -1,0 +1,39 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Authorize staff on every endpoint
+
+class StaffRequirement <<IAuthorizationRequirement>>
+class StaffRequirementHandler {
+  -StaffClaimOptions options
+  #HandleRequirementAsync(context, requirement: StaffRequirement): Task
+}
+class StaffClaimOptions {
+  +string ClaimType
+  +string ClaimValue
+}
+class ProblemDetailsAuthorizationResultHandler {
+  +HandleAsync(next, context, policy, result): Task
+}
+enum AuthErrorCode {
+  not_staff
+  session_expired
+  antiforgery_failed
+}
+class AntiforgeryFilter {
+  +OnAuthorizationAsync(context): Task
+}
+StaffRequirementHandler ..> StaffRequirement : handles
+StaffRequirementHandler ..> StaffClaimOptions : reads
+ProblemDetailsAuthorizationResultHandler --> AuthErrorCode : writes
+AntiforgeryFilter --> AuthErrorCode : writes
+@enduml

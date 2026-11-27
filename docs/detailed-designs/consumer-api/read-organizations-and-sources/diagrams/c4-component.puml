@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read organizations and sources
+
+Container_Boundary(api_b, "Keryx API") {
+  Component(oc, "OrganizationsController", "ASP.NET Core controller", "Exposes /v1/organizations and /v1/organizations/{id}")
+  Component(sc, "SourcesController", "ASP.NET Core controller", "Exposes /v1/sources")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(lo, "ListOrganizationsQueryHandler", "MediatR handler", "Lists organizations with served content")
+  Component(go, "GetOrganizationQueryHandler", "MediatR handler", "Reads one listed organization")
+  Component(ls, "ListPublicSourcesQueryHandler", "MediatR handler", "Lists active sources with four public fields")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(client, oc, "GET /v1/organizations", "JSON/HTTPS")
+Rel(client, sc, "GET /v1/sources", "JSON/HTTPS")
+Rel(oc, lo, "Sends ListOrganizationsQuery")
+Rel(oc, go, "Sends GetOrganizationQuery")
+Rel(sc, ls, "Sends ListPublicSourcesQuery")
+Rel(lo, ctx, "Reads through")
+Rel(go, ctx, "Reads through")
+Rel(ls, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

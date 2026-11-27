@@ -1,0 +1,64 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Browse runs and a run's detail
+
+class RunsStore {
+  +Signal<RunsFilter> filter
+  +Signal<string | null> selectedId
+  +Resource<RunListItem[]> list
+  +Resource<RunDetail> detail
+  +select(id: string): void
+}
+class RunsFilter {
+  +boolean problems
+}
+class RunListItem {
+  +string id
+  +RunOutcome outcome
+  +RunTrigger trigger
+  +string started_at
+  +number duration_ms
+  +number added
+  +number sources_failed
+}
+class RunDetail {
+  +string worker
+  +string | null finished_at
+  +RunCounts counts
+  +StageResult[] stages
+  +Issue[] issues
+}
+class StageResult {
+  +string stage
+  +StageStatus status
+  +number duration_ms
+  +Record<string, number> summary
+  +string | null reason
+}
+class Issue {
+  +string id
+  +string severity
+  +string kind
+  +string subject
+  +string detail
+  +number consecutive_runs
+  +string since
+  +boolean muted
+}
+RunsStore --> RunsFilter
+RunsStore --> RunListItem
+RunsStore --> RunDetail
+RunListItem <|-- RunDetail
+RunDetail "1" *-- "6" StageResult
+RunDetail "1" *-- "*" Issue
+@enduml

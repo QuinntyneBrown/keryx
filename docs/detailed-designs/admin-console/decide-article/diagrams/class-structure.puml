@@ -1,0 +1,53 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Publish, hide and undo an article decision
+
+class Article {
+  +string Id
+  +ArticleStatus Status
+  +DecidedBy DecidedBy
+  +ArticleStatus? PreviousStatus
+  +DecidedBy? PreviousDecidedBy
+  +Publish(): bool
+  +Hide(): bool
+  +Revert(previous: ArticleStatus): bool
+  +ApplyCollectedStatus(status: ArticleStatus): void
+}
+enum ArticleStatus {
+  Published
+  NeedsReview
+  Hidden
+}
+enum DecidedBy {
+  Rule
+  Staff
+}
+enum Decision {
+  Publish
+  Hide
+  Revert
+}
+class DecideArticleCommand {
+  +string ArticleId
+  +Decision Decision
+  +ArticleStatus? PreviousStatus
+}
+class DecideArticleCommandHandler {
+  +Handle(command: DecideArticleCommand): Task<Result<AdminArticleDetailDto>>
+}
+Article --> ArticleStatus
+Article --> DecidedBy
+DecideArticleCommand --> Decision
+DecideArticleCommandHandler ..> DecideArticleCommand : handles
+DecideArticleCommandHandler --> Article : loads / mutates
+@enduml

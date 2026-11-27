@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Identify, deduplicate and store one item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "DeduplicateStage" as ds
+  participant "RecordIdentity" as key
+  participant "HeadlineSimilarity" as sim
+  participant "StoreStage" as ss
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+ds -> key : For(item, source) (L2-009)
+key --> ds : Identity, or rejected when no URL and no key
+ds -> db : Find record by identity or canonical URL
+db --> ds : Record or none
+alt identity or URL match from the same source
+  ds -> ss : Decision same
+  ss -> ss : Article.ApplyChanges(item)
+  ss -> db : Update (updated) or move last_seen_at only (unchanged)
+else same canonical URL from another source
+  ds -> ss : Decision merge (duplicates)
+  ss -> db : Add ProvenanceEntry for the second source (L2-010)
+else no match and merging on
+  ds -> db : Load same-organization articles of the last 14 days
+  db --> ds : Candidates
+  ds -> sim : Score(headline, candidate)
+  sim --> ds : Similarity
+  alt similarity at least 0.90
+    ds -> ss : Decision merge
+    ss -> db : Add ProvenanceEntry
+  else below 0.90
+    ds -> ss : Decision new
+    ss -> db : Insert record with new public id and provenance (L2-011)
+  end
+end
+@enduml

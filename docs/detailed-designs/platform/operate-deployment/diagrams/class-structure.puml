@@ -1,0 +1,43 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Health, migrations, seed data and configuration
+
+interface IHealthCheck {
+  +CheckHealthAsync(context: HealthCheckContext, ct: CancellationToken): Task<HealthCheckResult>
+}
+class LivenessCheck
+class SchemaReadinessCheck {
+  -ExpectedSchema expected
+}
+class ExpectedSchema <<value object>> {
+  +string LastMigrationId
+}
+class ReadinessGate {
+  +WaitUntilReadyAsync(ct: CancellationToken): Task
+  +bool IsReady
+}
+class MigrateCommand {
+  +ExecuteAsync(): Task<int>
+}
+class SeedCommand {
+  +ExecuteAsync(): Task<int>
+}
+class SeedCommandHandler {
+  +Handle(command: SeedData): Task<SeedResult>
+}
+IHealthCheck <|.. LivenessCheck
+IHealthCheck <|.. SchemaReadinessCheck
+SchemaReadinessCheck --> ExpectedSchema
+ReadinessGate ..> SchemaReadinessCheck : uses
+SeedCommand ..> SeedCommandHandler : sends to
+@enduml

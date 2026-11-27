@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Browse sources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "SourcesPage" as page
+  participant "SourcesStore" as store
+  participant "HttpSourcesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListSourcesQueryHandler" as h
+  participant "SourceHealthPolicy" as hp
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Open Sources
+page -> store : load(kind from URL, page 1)
+store -> svc : list(kind, page, page_size 12)
+svc -> ctrl : GET /admin/v1/sources
+ctrl -> h : Send ListSourcesQuery
+h -> db : Read one page, failing first, with latest fetch record
+db --> h : Rows and totals
+h -> hp : Derive health per row (L2-004)
+hp --> h : SourceHealthState
+h --> ctrl : PagedResult
+ctrl --> svc : 200 or ProblemDetails
+alt list loaded
+  svc --> store : Page of sources
+  store --> page : Signals updated
+  page --> staff : Table "Sources, failing first" (L2-062)
+else request failed
+  svc --> store : Error code and trace id
+  page --> staff : Page error state, "Add source" still available (L2-066)
+end
+staff -> page : Choose the "RSS" chip
+page -> store : load(kind rss, page 1); URL updated
+@enduml

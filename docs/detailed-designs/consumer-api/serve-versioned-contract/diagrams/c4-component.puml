@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Serve a versioned, bounded contract
+
+Container_Boundary(api_b, "Keryx API") {
+  Component(base, "V1Controller", "ASP.NET Core controller base", "Routes under /v1 and applies the API-key scheme")
+  Component(exc, "ProblemDetailsExceptionHandler", "ASP.NET Core IExceptionHandler", "Maps failures to ProblemDetails with code and trace_id")
+  Component(etag, "ETagFilter", "ASP.NET Core result filter", "Adds ETag and Cache-Control and answers 304")
+  Component(oa, "OpenApiDocument", "ASP.NET Core OpenAPI", "Serves /openapi/v1.json")
+  Component(cmp, "ResponseCompression", "ASP.NET Core middleware", "Compresses bodies over 1 KB")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(page, "CursorPager", "Application service", "Seeks by key and issues signed cursors")
+  Component(lim, "PageLimit", "Value object", "Parses limit: default 20, at most 100")
+}
+System_Ext(client, "Consuming product", "Christian Fitness and other products that publish Keryx records")
+
+Rel(client, base, "Calls /v1 endpoints", "JSON/HTTPS")
+Rel(client, oa, "Reads the contract from", "HTTPS")
+Rel(base, etag, "Is wrapped by")
+Rel(base, exc, "Reports failures through")
+Rel(base, cmp, "Is wrapped by")
+Rel(base, page, "Pages lists with")
+Rel(page, lim, "Bounds pages with")
+@enduml

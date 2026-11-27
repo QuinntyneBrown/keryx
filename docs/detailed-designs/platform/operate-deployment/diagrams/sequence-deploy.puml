@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Deploy against a database behind the build
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as op
+box "Backend — Keryx API application" #D1FADF
+  participant "API host" as host
+end box
+box "Backend — Keryx CLI application" #D1FADF
+  participant "MigrateCommand" as mig
+  participant "SeedCommand" as seed
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "SeedCommandHandler" as sh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SchemaReadinessCheck" as ready
+  database "Keryx database" as db
+end box
+op -> host : Start the new build
+host -> host : ValidateOnStart: each required setting present (L2-096)
+op -> host : GET /health/ready
+host -> ready : CheckHealthAsync
+ready -> db : Read the last applied migration
+db --> ready : Older than the build expects
+ready --> host : Unhealthy
+host --> op : 503, no detail; log says migrate is to be run
+op -> mig : dotnet run --project src/Keryx.Cli -- migrate
+mig -> db : Apply pending migrations
+mig --> op : Exit 0
+op -> seed : dotnet run --project src/Keryx.Cli -- seed
+seed -> sh : Send the seed request
+sh -> db : Upsert regions, categories, settings, news query sources
+sh --> seed : Each exists exactly once
+seed --> op : Exit 0
+op -> host : GET /health/ready
+host --> op : 200
+@enduml

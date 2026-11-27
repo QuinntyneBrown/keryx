@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Mute an issue from the admin application
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+System(keryx, "Keryx", "News aggregator for everything Christian and fitness")
+
+Rel(staff, keryx, "Curates the collection using")
+@enduml

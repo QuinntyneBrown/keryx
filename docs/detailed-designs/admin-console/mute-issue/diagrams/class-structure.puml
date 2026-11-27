@@ -1,0 +1,40 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Mute an issue from the admin application
+
+interface RunsService {
+  +muteIssue(id: string): Observable<Issue>
+  +unmuteIssue(id: string): Observable<Issue>
+}
+class RunsStore {
+  +mute(issue: Issue): Promise<void>
+  +unmute(issue: Issue): Promise<void>
+}
+class Issue {
+  +string id
+  +string kind
+  +string subject
+  +string detail
+  +boolean muted
+}
+class MuteIssueCommand {
+  +string IssueId
+  +bool Muted
+}
+class MuteIssueCommandHandler {
+  +Handle(command: MuteIssueCommand): Task<Result<IssueDto>>
+}
+RunsStore ..> RunsService : uses
+RunsStore --> Issue : updates
+MuteIssueCommandHandler ..> MuteIssueCommand : handles
+@enduml

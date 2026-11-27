@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Score and classify one item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RunCollectionCommandHandler" as rh
+  participant "ClassifyStage" as cs
+  participant "ISettingsReader" as set
+  participant "RelevanceScorer" as sc
+  participant "PublicationPolicy" as pol
+  participant "RunRecorder" as rec
+end box
+rh -> cs : RunAsync(context, parsed items)
+cs -> set : Read Settings in force
+set --> cs : ScoringSettings with threshold T
+loop each parsed item
+  cs -> sc : Score(item, settings) (L2-012)
+  sc --> cs : RelevanceScore, two decimal places
+  cs -> pol : Classify(score, T) (L2-013)
+  alt score at least T
+    pol --> cs : Published (relevant)
+  else score at least 0.45
+    pol --> cs : NeedsReview, below_publish_threshold, T (held)
+  else score below 0.45
+    pol --> cs : Hidden (off_topic)
+  end
+end
+cs -> rec : Summary relevant, held, off_topic
+cs --> rh : Stream of classified items
+@enduml

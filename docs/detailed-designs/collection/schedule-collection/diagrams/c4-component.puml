@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Schedule collection
+
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(w, "CollectionWorker", ".NET BackgroundService", "Waits for the next slot and sends one request")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(sched, "CollectionSchedule", "Domain value object", "Computes the next slot from an interval and a time")
+  Component(sh, "StartScheduledRunCommandHandler", "MediatR handler", "Starts a run or records a skipped start")
+  Component(rh, "RunCollectionCommandHandler", "MediatR handler", "Executes the six pipeline stages")
+  Component(set, "ISettingsReader", "Application contract", "Reads the current Settings")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(w, sched, "Asks for the next slot")
+Rel(w, set, "Reads interval through")
+Rel(w, sh, "Sends StartScheduledRunCommand")
+Rel(sh, rh, "Starts the run through")
+Rel(sh, ctx, "Persists through IAppDbContext")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

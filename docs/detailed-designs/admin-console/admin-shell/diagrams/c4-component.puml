@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Admin shell
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(shell, "Shell", "Angular root layout component", "Renders skip link, sidebar or top bar, and the router outlet")
+  Component(routes, "app.routes", "Angular route table", "Declares each screen with loadComponent")
+  Component(sched, "ScheduleStore", "Angular signal store, application-wide", "Holds next_run_at and the failing-source count")
+  Component(ss, "SessionStore", "Angular signal store, application-wide", "Holds the signed-in person")
+  Component(svc, "HttpShellService", "Angular service", "Implements the ShellService contract")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(lib, "sidebar, nav-link, brand, avatar, badge, skip-link", "Components library", "Presentation components named as in the design system")
+  Component(cd, "formatCountdown", "Pure function, domain library", "Formats the time left as in 2h 14m")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminShellController", "ASP.NET Core controller", "Exposes GET /admin/v1/shell")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "GetShellQueryHandler", "MediatR handler", "Returns next run, interval and failing-source count")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, shell, "Navigates with")
+Rel(shell, routes, "Hosts the outlet of")
+Rel(shell, lib, "Composes")
+Rel(shell, sched, "Reads signals from")
+Rel(shell, ss, "Reads signals from")
+Rel(sched, cd, "Formats with")
+Rel(sched, svc, "Loads through")
+Rel(svc, ctrl, "GET /admin/v1/shell", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetShellQuery")
+Rel(h, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

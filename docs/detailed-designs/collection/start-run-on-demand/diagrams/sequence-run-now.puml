@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Start a run on demand
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RunNowButton" as btn
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminRunsController" as ctrl
+end box
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "StartManualRunCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> btn : Press "Run now"
+btn -> btn : Become busy; ignore further presses
+btn -> svc : start()
+svc -> ctrl : POST /admin/v1/runs
+ctrl -> h : Send StartManualRunCommand
+h -> db : Insert Run(trigger manual, outcome running)
+alt inserted
+  db --> h : Commit result
+  h --> ctrl : StartRunResult
+  ctrl --> svc : 202 with run id
+  svc --> btn : Started
+  btn --> staff : "Collection started" notification, running state
+  w -> db : Claim requested run
+  w -> w : Send RunCollectionCommand
+else a run is already running
+  db --> h : Unique constraint violation
+  h --> ctrl : run_in_progress with running run id
+  ctrl --> svc : 409 ProblemDetails
+  svc --> btn : Error code
+  btn --> staff : Running state of that run, no error
+end
+@enduml

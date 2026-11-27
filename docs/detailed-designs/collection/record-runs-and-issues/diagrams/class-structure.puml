@@ -1,0 +1,75 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Record runs and issues
+
+class Run {
+  +string Id
+  +string Worker
+  +RunTrigger Trigger
+  +DateTimeOffset StartedAt
+  +DateTimeOffset? FinishedAt
+  +long? DurationMs
+  +RunOutcome Outcome
+  +RunCounts Counts
+  +string? FailureReason
+  +Finish(outcome: RunOutcome, now: DateTimeOffset): void
+  +Fail(reason: string, now: DateTimeOffset): void
+}
+class RunCounts <<value object>> {
+  +int Added
+  +int Updated
+  +int Unchanged
+  +int Duplicates
+  +int Held
+  +int OffTopic
+  +int Rejected
+  +int SourcesOk
+  +int SourcesFailed
+}
+class Issue {
+  +string Id
+  +IssueSeverity Severity
+  +IssueKind Kind
+  +string? SourceId
+  +StageName? Stage
+  +string Detail
+  +int ConsecutiveRuns
+  +DateTimeOffset Since
+  +IssueState State
+  +bool Muted
+  +Mute(): void
+  +Unmute(): void
+  +Recur(runId: string): void
+  +Close(now: DateTimeOffset): void
+}
+enum IssueState {
+  Open
+  Closed
+}
+enum IssueSeverity {
+  Error
+  Warning
+}
+class IssueTracker {
+  +Apply(run: Run, results: IReadOnlyList<SourceFetchRecord>): void
+}
+class RunRecorder
+Run *-- RunCounts
+Run "1" *-- "6" StageResult
+Run "1" *-- "*" Issue
+Issue --> IssueState
+Issue --> IssueSeverity
+RunRecorder --> Run : writes
+RunRecorder ..> IssueTracker : uses
+IssueTracker --> Issue : opens / closes
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Change route accessibly
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "Shell" as shell
+  participant "Router" as router
+  participant "RouteFocus" as rf
+  participant "New screen" as page
+end box
+staff -> shell : Press Tab once: "Skip to content" receives focus
+staff -> shell : Activate the "Runs" link with Enter
+shell -> router : Navigate to /runs
+router -> page : Lazy-load and render
+router -> shell : Active link changes: aria-current="page" on Runs only
+router -> rf : NavigationEnd
+rf -> page : Focus the h1
+rf -> rf : Set the document title "Runs · Keryx"
+page --> staff : Screen reader announces the heading; focus indicator visible
+@enduml

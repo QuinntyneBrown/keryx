@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Watch a running run and report its outcome
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(rs, "RunStatusStore", "Angular signal store, application-wide", "Polls the current run and detects its end")
+  Component(page, "RunsPage, OverviewPage", "Angular routed components", "Render the running state from the store")
+  Component(ns, "NotificationStore", "Angular signal store, application-wide", "Shows the outcome notification")
+  Component(svc, "HttpRunsService", "Angular service", "Calls GET /admin/v1/runs/current")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(msg, "runOutcomeNotification", "Pure function, domain library", "Maps a finished run to a notification")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminRunsController", "ASP.NET Core controller", "Exposes the current-run endpoint")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "GetCurrentRunQueryHandler", "MediatR handler", "Returns the running run or the latest finished one")
+  Component(rec, "RunRecorder", "Application service", "Writes progress as sources and stages finish")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Watches")
+Rel(page, rs, "Reads signals from")
+Rel(rs, svc, "Polls through")
+Rel(rs, msg, "Builds the notification with")
+Rel(rs, ns, "Pushes the outcome to")
+Rel(svc, ctrl, "GET /admin/v1/runs/current", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetCurrentRunQuery")
+Rel(h, ctx, "Reads progress through")
+Rel(rec, ctx, "Writes progress through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

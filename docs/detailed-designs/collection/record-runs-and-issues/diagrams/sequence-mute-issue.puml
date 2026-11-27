@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Mute and unmute an issue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "HttpRunsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminIssuesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "MuteIssueCommandHandler" as mh
+  participant "Issue" as issue
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+svc -> ctrl : POST /admin/v1/issues/{id}/mute
+ctrl -> ctrl : Staff policy and anti-forgery token
+ctrl -> mh : Send MuteIssueCommand(id, muted true)
+mh -> db : Load issue
+db --> mh : Issue
+mh -> issue : Mute() (L2-020)
+issue --> mh : Muted, still listed on its run
+mh -> db : Save changes
+mh --> ctrl : IssueDto
+ctrl --> svc : 200
+svc -> ctrl : POST /admin/v1/issues/{id}/unmute
+ctrl -> mh : Send MuteIssueCommand(id, muted false)
+mh -> issue : Unmute()
+mh -> db : Save changes
+ctrl --> svc : 200, issue open again
+@enduml

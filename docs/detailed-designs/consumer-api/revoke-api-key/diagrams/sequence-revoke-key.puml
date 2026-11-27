@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Revoke a key
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "RevokeApiKeyDialog" as dlg
+  participant "HttpApiClientsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiClientsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RevokeApiClientCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "Consuming product" as client
+staff -> dlg : Confirm "Revoke key"
+dlg -> dlg : Busy; ignore Close, Cancel, Escape, backdrop (L2-069)
+dlg -> svc : revoke(client id)
+svc -> ctrl : POST /admin/v1/api-clients/{id}/revoke
+ctrl -> h : Send RevokeApiClientCommand
+h -> db : Load client
+alt unknown id
+  db --> h : None
+  h --> ctrl : client_not_found (404)
+else found
+  db --> h : ApiClient
+  h -> h : ApiClient.Revoke(now); no change when already revoked
+  h -> db : Save changes
+  h --> ctrl : ApiClientDto
+end
+ctrl --> svc : 200 or ProblemDetails
+svc --> dlg : Result
+dlg --> staff : Row "Revoked", "Key revoked" warning with "New API key"
+client -> ctrl : Next request with the revoked key
+ctrl --> client : 401 invalid_api_key
+@enduml

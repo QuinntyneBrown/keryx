@@ -1,0 +1,56 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Edit and remove a source
+
+class Source {
+  +string Id
+  +SourceAddress Address
+  +DateTimeOffset? RemovedAt
+  +bool IsActive
+  +ChangeAddress(address: SourceAddress): void
+  +MoveTo(organization: Organization, region: Region): void
+  +Remove(now: DateTimeOffset): void
+}
+class ProvenanceEntry {
+  +string SourceId
+  +string SourceName
+  +string Url
+  +DateTimeOffset FirstSeenAt
+  +DateTimeOffset LastSeenAt
+}
+class UpdateSourceCommand {
+  +string SourceId
+  +string Address
+  +string OrganizationName
+  +string RegionSlug
+}
+class RemoveSourceCommand {
+  +string SourceId
+}
+class UpdateSourceCommandHandler {
+  +Handle(command: UpdateSourceCommand): Task<Result<UpdateSourceResult>>
+}
+class RemoveSourceCommandHandler {
+  +Handle(command: RemoveSourceCommand): Task<Result>
+}
+class UpdateSourceResult {
+  +SourceDto Source
+  +SourceTestResult Test
+}
+UpdateSourceCommandHandler ..> UpdateSourceCommand : handles
+RemoveSourceCommandHandler ..> RemoveSourceCommand : handles
+UpdateSourceCommandHandler --> Source : loads / mutates
+RemoveSourceCommandHandler --> Source : loads / mutates
+UpdateSourceCommandHandler --> UpdateSourceResult : returns
+ProvenanceEntry "*" --> "1" Source : names
+@enduml

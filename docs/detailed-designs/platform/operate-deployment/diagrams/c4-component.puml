@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Health, migrations, seed data and configuration
+
+Person(operator, "Operator", "Deploys and runs Keryx")
+Container_Boundary(api_b, "Keryx API") {
+  Component(live, "LivenessCheck", "ASP.NET Core health check", "Answers /health/live without the database")
+}
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(gate, "ReadinessGate", ".NET hosted service", "Keeps workers from running against a database that is not ready")
+  Component(stop, "WorkerHost", ".NET hosted service base", "Cancels the current fetch and records an interrupted run on shutdown")
+}
+Container_Boundary(cli_b, "Keryx CLI") {
+  Component(mig, "MigrateCommand", "CLI command", "Applies pending EF Core migrations")
+  Component(seed, "SeedCommand", "CLI command", "Sends one idempotent seed request")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(sh, "SeedCommandHandler", "MediatR handler", "Upserts regions, categories, settings and news query sources")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ready, "SchemaReadinessCheck", "ASP.NET Core health check", "Compares the database schema with the build")
+  Component(opt, "ValidateOnStart options", ".NET options validation", "Stops startup when a required setting is missing")
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(operator, mig, "Runs migrate")
+Rel(operator, seed, "Runs seed")
+Rel(seed, sh, "Sends SeedCommand")
+Rel(sh, ctx, "Upserts through")
+Rel(mig, ctx, "Migrates through")
+Rel(operator, live, "Probes")
+Rel(operator, ready, "Probes")
+Rel(ready, ctx, "Reads schema version through")
+Rel(gate, ready, "Waits on")
+Rel(gate, stop, "Releases")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Read published articles
+
+class ListArticlesQuery {
+  +string? Region
+  +string? Category
+  +string? Org
+  +DateTimeOffset? Since
+  +string? Limit
+  +string? Cursor
+}
+class GetArticleQuery {
+  +string Id
+}
+class ListArticlesQueryHandler {
+  +Handle(query: ListArticlesQuery): Task<Result<CursorPage<ArticleSummaryDto>>>
+}
+class GetArticleQueryHandler {
+  +Handle(query: GetArticleQuery): Task<Result<ArticleDetailDto>>
+}
+class ArticleSummaryDto {
+  +string Id
+  +string Title
+  +OrganizationRefDto? Organization
+  +string Category
+  +string Region
+  +DateTimeOffset PublishedAt
+  +string Url
+  +string Summary
+}
+class ArticleDetailDto {
+  +IReadOnlyList<string> Tags
+  +DateTimeOffset CollectedAt
+  +string? Event
+  +IReadOnlyList<SourceRefDto> Sources
+}
+class ServedArticles <<specification>> {
+  +Apply(query: IQueryable<Article>): IQueryable<Article>
+}
+ArticleSummaryDto <|-- ArticleDetailDto
+ListArticlesQueryHandler ..> ListArticlesQuery : handles
+GetArticleQueryHandler ..> GetArticleQuery : handles
+ListArticlesQueryHandler ..> ServedArticles : uses
+GetArticleQueryHandler ..> ServedArticles : uses
+ListArticlesQueryHandler --> ArticleSummaryDto : returns page of
+GetArticleQueryHandler --> ArticleDetailDto : returns
+@enduml

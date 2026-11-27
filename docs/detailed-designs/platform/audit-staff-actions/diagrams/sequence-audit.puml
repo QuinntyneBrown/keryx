@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Audit a successful staff action
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "Admin controller" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "AuditBehavior" as ab
+  participant "Command handler" as h
+  participant "ICurrentStaff" as cu
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+ctrl -> ab : Send an audited command
+ab -> h : next()
+h -> db : Load and mutate the target
+alt command succeeds
+  h --> ab : Success
+  ab -> cu : SubjectId
+  cu --> ab : Provider subject id
+  ab -> db : Add AuditEntry(subject, action, target, now)
+  ab -> db : Commit the unit of work
+  ab --> ctrl : Result
+else command refused or fails
+  h --> ab : Failure
+  ab --> ctrl : Failure; no audit entry
+end
+@enduml

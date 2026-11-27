@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Fetch one source safely
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "FetchStage" as fs
+  participant "ItemSanitizer" as san
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SafeSourceFetcher" as f
+  participant "AddressGuard" as guard
+  participant "RobotsCache" as robots
+  participant "HostRateLimiter" as lim
+  participant "BoundedContentReader" as read
+  participant "Parser" as parse
+end box
+participant "Publishing source" as src
+fs -> f : FetchAsync(source, timeout from Settings)
+f -> guard : CheckAsync(uri) (L2-024)
+alt unsafe address
+  guard --> f : unsafe_address
+  f --> fs : Failed, no request sent
+else safe
+  guard --> f : CheckedAddress (pinned)
+  f -> robots : IsAllowedAsync(uri) (L2-021)
+  alt disallowed or robots.txt unavailable
+    robots --> f : Not allowed
+    f --> fs : blocked_by_robots, or site skipped for this run
+  else allowed
+    robots --> f : Allowed, crawl delay
+    f -> lim : AcquireAsync(host) (L2-022)
+    lim --> f : Slot
+    f -> src : Conditional GET, User-Agent names Keryx
+    alt 304 Not Modified
+      src --> f : 304
+      f --> fs : Succeeded, no items
+    else 200
+      src --> f : Response
+      f -> read : ReadAsync, stop at 5 MB (L2-023)
+      read --> f : Content or invalid_content
+      f -> parse : Parse, DTD prohibited, 200 newest items
+      parse -> san : Sanitize each item
+      san --> parse : ParsedItem or rejected
+      parse --> f : Items
+      f --> fs : Succeeded with items
+    else 429 or 503
+      src --> f : Retry-After
+      f -> f : BackoffPolicy delay on TimeProvider, then retry
+    end
+  end
+end
+@enduml

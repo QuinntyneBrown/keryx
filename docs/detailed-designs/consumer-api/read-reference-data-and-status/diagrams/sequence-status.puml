@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — Read collection status
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx API application" #D1FADF
+  participant "StatusController" as sc
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "GetStatusQueryHandler" as sh
+  participant "CollectionSchedule" as sched
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+participant "Consuming product" as client
+client -> sc : GET /v1/status
+sc -> sc : Any valid API key, rate limit
+sc -> sh : Send GetStatusQuery
+sh -> db : Latest collection run; count of published articles
+db --> sh : Run start, outcome, total
+sh -> sched : NextSlotAfter(now)
+sched --> sh : next_run_at
+sh --> sc : StatusDto
+sc --> client : 200 last_run_at, status, next_run_at, articles_total
+@enduml

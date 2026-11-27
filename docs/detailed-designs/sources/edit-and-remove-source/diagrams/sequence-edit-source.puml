@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Edit a source
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "EditSourceDialog" as edit
+  participant "HttpSourcesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSourcesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "UpdateSourceCommandHandler" as uh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SafeSourceFetcher" as fetch
+  database "Keryx database" as db
+end box
+staff -> edit : Change the URL and press "Save source"
+edit -> svc : update(id, changes)
+svc -> ctrl : PUT /admin/v1/sources/{id}
+ctrl -> uh : Send UpdateSourceCommand
+uh -> db : Load source
+db --> uh : Source or none
+alt unknown id
+  uh --> ctrl : source_not_found (404)
+else equals another source
+  uh --> ctrl : source_exists (409)
+else valid change
+  uh -> db : Save change (L2-003, applies from the next run)
+  db --> uh : Commit result
+  uh -> fetch : Test-fetch the new address once
+  fetch --> uh : SourceTestResult
+  uh --> ctrl : UpdateSourceResult
+end
+ctrl --> svc : 200 or ProblemDetails
+svc --> edit : Result or error code
+edit --> staff : Close with saved values, or keep entries and show the alert
+@enduml

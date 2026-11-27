@@ -1,0 +1,41 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Overview
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "OverviewPage", "Angular routed component", "Composes the four parts and their states")
+  Component(store, "OverviewStore", "Angular signal store", "Holds one resource per part")
+  Component(rs, "RunStatusStore", "Angular signal store, application-wide", "Holds the current run and its progress")
+  Component(svc, "HttpOverviewService", "Angular service", "Implements the OverviewService contract")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(lib, "status-card, stat, meter, run-chart, list, issue-card, skeleton, empty", "Components library", "Presentation components named as in the design system")
+  Component(fmt, "describeRun, formatRelativeAge", "Pure functions, domain library", "Turn run numbers and times into the card's words")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminOverviewController", "ASP.NET Core controller", "Exposes summary, chart, latest articles and open issues")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "GetOverviewSummaryQueryHandler", "MediatR handler", "Returns the last or current run and the totals")
+  Component(ch, "GetRunChartQueryHandler", "MediatR handler", "Returns the last 14 collection runs")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Opens Overview")
+Rel(page, store, "Reads signals from")
+Rel(page, rs, "Reads run progress from")
+Rel(page, lib, "Composes")
+Rel(page, fmt, "Formats with")
+Rel(store, svc, "Loads each part through")
+Rel(svc, ctrl, "GET /admin/v1/overview/…", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetOverviewSummaryQuery")
+Rel(ctrl, ch, "Sends GetRunChartQuery")
+Rel(h, ctx, "Reads through")
+Rel(ch, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

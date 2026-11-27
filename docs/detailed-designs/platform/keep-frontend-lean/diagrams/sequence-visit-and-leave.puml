@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Visit and leave a screen
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "Router" as router
+  participant "ArticlesPage" as scr
+  participant "ArticlesStore" as st
+  participant "HttpArticlesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "Keryx API" as api
+end box
+staff -> router : Navigate to Articles
+router -> router : loadComponent: fetch the Articles chunk
+router -> scr : Create the component
+scr -> st : Create the store from the component's providers
+st -> svc : list(query, AbortSignal)
+svc -> api : GET /admin/v1/articles
+api --> svc : One page
+svc --> st : Replace the held page
+scr --> staff : Table rendered
+staff -> scr : Activate a row
+scr -> scr : @defer loads the detail panel chunk
+staff -> router : Navigate to Runs
+router -> scr : Destroy the component
+scr -> st : DestroyRef fires
+st -> st : Abort in-flight requests; release timers, listeners, subscriptions
+st -> svc : Signal aborted
+@enduml

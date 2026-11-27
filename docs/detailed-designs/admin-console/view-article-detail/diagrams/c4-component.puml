@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View an article's detail
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "ArticlesPage", "Angular routed component", "Opens and closes the panel and restores focus")
+  Component(panel, "ArticleDetail", "Angular deferred component", "Composes the detail-panel for one article")
+  Component(store, "ArticlesStore", "Angular signal store", "Holds the selected article id from the URL")
+  Component(svc, "HttpArticlesService", "Angular service", "Calls GET /admin/v1/articles/{id}")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(lib, "detail-panel, badge, tag, alert", "Components library", "Presentation components named as in the design system")
+  Component(safe, "safeHttpUrl, formatAge", "Pure functions, domain library", "Accept only http(s) links and format ages")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminArticlesController", "ASP.NET Core controller", "Exposes GET /admin/v1/articles/{id}")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "GetAdminArticleQueryHandler", "MediatR handler", "Returns one article with provenance and status reason")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Activates a row")
+Rel(page, store, "Selects the article in")
+Rel(page, panel, "Defers and opens")
+Rel(panel, lib, "Composes")
+Rel(panel, safe, "Guards link and formats with")
+Rel(panel, svc, "Loads through")
+Rel(svc, ctrl, "GET /admin/v1/articles/{id}", "JSON/HTTPS")
+Rel(ctrl, h, "Sends GetAdminArticleQuery")
+Rel(h, ctx, "Reads through")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

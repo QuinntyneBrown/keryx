@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Apply retention
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "RetentionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ApplyRetentionCommandHandler" as h
+  participant "RetentionPolicy" as pol
+  participant "RunRecorder" as rec
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+w -> w : Wait on a TimeProvider timer until the daily time
+w -> h : Send ApplyRetentionCommand
+h -> rec : Start(worker retention)
+h -> pol : Cutoffs(months from Settings, now)
+pol --> h : RetentionCutoffs
+loop until no article is older than the cut-off
+  h -> db : Delete at most 1,000 articles with provenance
+  db --> h : Rows deleted
+end
+h -> db : Delete events linked only to deleted articles
+h -> db : Delete organizations with no article, event or source
+h -> db : Delete runs, stage results, issues and audit entries past the cut-off
+h -> db : Delete usage counts older than 30 days (L2-037)
+h -> rec : Finish(succeeded, RetentionResult)
+rec -> db : Save run
+h --> w : Done
+@enduml

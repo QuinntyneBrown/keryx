@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — View usage and consumers
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "ApiPage" as page
+  participant "ApiClientsStore" as store
+  participant "HttpApiClientsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminApiClientsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "ListApiClientsQueryHandler" as lh
+  participant "GetApiUsageQueryHandler" as uh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Open API
+page -> store : load()
+store -> svc : listClients(page 1) and getUsage() in parallel
+svc -> ctrl : GET /admin/v1/api-clients
+ctrl -> lh : Send ListApiClientsQuery
+lh -> db : Clients with buckets of the last 24 hours
+db --> lh : Rows
+lh --> ctrl : PagedResult
+ctrl --> svc : 200
+svc -> ctrl : GET /admin/v1/api-usage
+ctrl -> uh : Send GetApiUsageQuery
+uh -> db : Sum buckets of the last 24 hours
+alt usage read succeeds
+  db --> uh : Totals
+  uh --> ctrl : ApiUsageDto
+  ctrl --> svc : 200
+  svc --> store : Clients and totals
+  page --> staff : Tiles 52,826 · 84 ms · 0.05% and the consumers table
+else usage read fails
+  ctrl --> svc : ProblemDetails
+  svc --> store : Clients, usage error
+  page --> staff : Tiles show an inline error with "Try again"; table usable
+end
+@enduml

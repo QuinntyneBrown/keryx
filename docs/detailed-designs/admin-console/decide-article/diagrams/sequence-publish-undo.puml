@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Publish a held article and undo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "ArticleDetail" as panel
+  participant "ArticlesStore" as store
+  participant "NotificationStore" as ns
+  participant "HttpArticlesService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminArticlesController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "DecideArticleCommandHandler" as h
+  participant "Article" as a
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> panel : Press "Publish"
+panel -> store : publish(id)
+store -> store : Mark busy; ignore further action presses
+store -> svc : publish(id)
+svc -> ctrl : POST /admin/v1/articles/{id}/publish
+ctrl -> h : Send DecideArticleCommand(Publish)
+h -> db : Load article
+db --> h : Article
+h -> a : Publish()
+a --> h : Status published, DecidedBy staff
+h -> db : Save changes and audit entry
+h --> ctrl : AdminArticleDetailDto
+ctrl --> svc : 200
+alt success
+  svc --> store : Updated article
+  store -> ns : success "Article published" with Undo
+  store --> staff : Badge "Published"; Needs review −1, Published +1
+  opt Undo within 8 seconds
+    staff -> ns : Activate "Undo"
+    ns -> store : revert(id, needs_review)
+    store -> svc : revert(id, previous status)
+    svc -> ctrl : POST /admin/v1/articles/{id}/revert
+    ctrl -> h : Send DecideArticleCommand(Revert)
+    h -> a : Revert(NeedsReview)
+    h -> db : Save changes
+    store --> staff : Previous badge and counts
+  end
+else request fails
+  svc --> store : Error
+  store -> ns : danger "Keryx couldn’t publish the article" with Try again
+end
+@enduml

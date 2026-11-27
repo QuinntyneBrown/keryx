@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Start a scheduled run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "CollectionSchedule" as sched
+  participant "StartScheduledRunCommandHandler" as sh
+  participant "RunCollectionCommandHandler" as rh
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+w -> sched : NextSlotAfter(TimeProvider.GetUtcNow())
+sched --> w : 12:00 America/Toronto as UTC
+w -> w : Wait on a TimeProvider timer
+w -> sh : Send StartScheduledRunCommand(slot)
+sh -> db : Find collection run in progress
+db --> sh : Run or none
+alt no run in progress
+  sh -> db : Insert Run(trigger schedule, outcome running)
+  sh -> rh : Send RunCollectionCommand(run id)
+  rh --> sh : Outcome
+else run in progress
+  sh -> db : Add run_skipped issue to the running run
+end
+sh --> w : Done
+w -> sched : NextSlotAfter(now)
+@enduml

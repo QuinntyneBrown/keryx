@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Read organizations and sources
+
+class ListOrganizationsQuery {
+  +string? Region
+  +string? Kind
+  +string? Q
+  +string? Limit
+  +string? Cursor
+}
+class ListOrganizationsQueryHandler {
+  +Handle(query: ListOrganizationsQuery): Task<Result<CursorPage<OrganizationDto>>>
+}
+class GetOrganizationQueryHandler {
+  +Handle(query: GetOrganizationQuery): Task<Result<OrganizationDto>>
+}
+class ListPublicSourcesQueryHandler {
+  +Handle(query: ListPublicSourcesQuery): Task<Result<CursorPage<PublicSourceDto>>>
+}
+class OrganizationDto {
+  +string Id
+  +string Name
+  +string Kind
+  +string Region
+  +string? WebsiteUrl
+  +int ArticleCount
+}
+class PublicSourceDto {
+  +string Name
+  +string Kind
+  +string Organization
+  +string Region
+}
+ListOrganizationsQueryHandler ..> ListOrganizationsQuery : handles
+ListOrganizationsQueryHandler --> OrganizationDto : returns page of
+GetOrganizationQueryHandler --> OrganizationDto : returns
+ListPublicSourcesQueryHandler --> PublicSourceDto : returns page of
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Revoke an API key
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "ApiPage", "Angular routed component", "Shows the consumers table with a Revoke button per active client")
+  Component(dlg, "RevokeApiKeyDialog", "Angular CDK Dialog component", "Confirms revocation; focus starts on Cancel")
+  Component(svc, "HttpApiClientsService", "Angular service", "Calls the revoke endpoint")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminApiClientsController", "ASP.NET Core controller", "Exposes POST /admin/v1/api-clients/{id}/revoke")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "RevokeApiClientCommandHandler", "MediatR handler", "Sets revoked_at once")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Presses Revoke")
+Rel(page, dlg, "Opens")
+Rel(dlg, svc, "Submits through")
+Rel(svc, ctrl, "POST …/revoke", "JSON/HTTPS")
+Rel(ctrl, h, "Sends RevokeApiClientCommand")
+Rel(h, ctx, "Persists through IAppDbContext")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

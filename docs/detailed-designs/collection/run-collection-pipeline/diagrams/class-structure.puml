@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Run the collection pipeline
+
+interface IPipelineStage {
+  +StageName Name
+  +RunAsync(context: RunContext, items: IAsyncEnumerable<PipelineItem>): IAsyncEnumerable<PipelineItem>
+}
+enum StageName {
+  Fetch
+  Parse
+  Classify
+  Deduplicate
+  Store
+  Publish
+}
+enum StageStatus {
+  NotRun
+  Running
+  Done
+  DoneWithWarnings
+  Failed
+}
+class StageResult {
+  +StageName Stage
+  +StageStatus Status
+  +long DurationMs
+  +IReadOnlyDictionary<string, int> Summary
+}
+class RunContext {
+  +string RunId
+  +Settings Settings
+  +IReadOnlyList<Source> Sources
+  +CancellationToken Cancellation
+}
+class RunCollectionCommandHandler {
+  +Handle(command: RunCollectionCommand): Task<RunOutcome>
+}
+class RunRecorder {
+  +StageStarted(stage: StageName): void
+  +StageFinished(result: StageResult): void
+  +SourceFinished(sourceId: string, result: FetchResult): void
+}
+class FetchStage
+class ParseStage
+class ClassifyStage
+class DeduplicateStage
+class StoreStage
+class PublishStage
+IPipelineStage <|.. FetchStage
+IPipelineStage <|.. ParseStage
+IPipelineStage <|.. ClassifyStage
+IPipelineStage <|.. DeduplicateStage
+IPipelineStage <|.. StoreStage
+IPipelineStage <|.. PublishStage
+RunCollectionCommandHandler o-- "6" IPipelineStage : ordered
+RunCollectionCommandHandler ..> RunRecorder : reports
+RunCollectionCommandHandler ..> RunContext : creates
+RunRecorder --> StageResult : records
+StageResult --> StageStatus
+StageResult --> StageName
+@enduml

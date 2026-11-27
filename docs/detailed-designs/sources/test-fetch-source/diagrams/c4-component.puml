@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Test-fetch a source
+
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(dlg, "AddSourceDialog", "Angular CDK Dialog component", "Starts a test when the URL field loses focus")
+  Component(menu, "SourceRowMenu", "Angular CDK Menu host", "Offers Test fetch now for one source")
+  Component(svc, "HttpSourcesService", "Angular service", "Calls the test endpoints")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "Exposes /sources/test and /sources/{id}/test")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "TestSourceQueryHandler", "MediatR handler", "Fetches once, scores the items and counts them")
+  Component(fetch, "ISourceFetcher", "Application contract", "Fetches one source and returns parsed items or a failure reason")
+  Component(score, "RelevanceScorer", "Domain service", "Scores each item from Settings")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(client, "SafeSourceFetcher", "Infrastructure source client", "Applies robots, rate limit, timeout and address rules")
+}
+System_Ext(source, "Publishing source", "Feed, web page, platform API or news query of an organization")
+
+Rel(dlg, svc, "Tests address through")
+Rel(menu, svc, "Tests source through")
+Rel(svc, ctrl, "POST /admin/v1/sources/test", "JSON/HTTPS")
+Rel(ctrl, h, "Sends TestSourceQuery")
+Rel(h, fetch, "Fetches once through")
+Rel(h, score, "Scores items with")
+Rel(client, fetch, "Implements")
+Rel(client, source, "Fetches", "HTTPS")
+@enduml

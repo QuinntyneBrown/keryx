@@ -1,0 +1,58 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Browse, search and filter articles
+
+class ArticlesListState {
+  +ArticleStatus | null status
+  +string q
+  +string | null region
+  +string | null category
+  +number page
+}
+class ArticlesQuery {
+  +string? status
+  +string? q
+  +string? region
+  +string? category
+  +number page
+  +number page_size
+}
+class ArticlesPageResult {
+  +AdminArticleRow[] items
+  +number total
+  +number page
+  +number page_size
+  +StatusCounts counts
+}
+class StatusCounts {
+  +number all
+  +number needs_review
+  +number published
+  +number hidden
+}
+class ArticlesStore {
+  +Signal<ArticlesListState> state
+  +Signal<ArticlesPageResult | null> page
+  +Signal<LoadState> load
+  +setState(patch: Partial<ArticlesListState>): void
+  +clearSearch(): void
+}
+interface ArticlesService {
+  +list(query: ArticlesQuery, signal: AbortSignal): Observable<ArticlesPageResult>
+}
+ArticlesStore --> ArticlesListState
+ArticlesStore --> ArticlesPageResult
+ArticlesStore ..> ArticlesService : uses
+ArticlesQuery <.. ArticlesListState : buildArticlesQuery
+ArticlesPageResult *-- StatusCounts
+@enduml

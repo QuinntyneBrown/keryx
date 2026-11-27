@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Serve a versioned, bounded contract
+
+class PageLimit <<value object>> {
+  +{static} int Default = 20
+  +{static} int Max = 100
+  +int Value
+  +{static} TryParse(raw: string?): Result<PageLimit>
+}
+class Cursor <<value object>> {
+  +string SortKey
+  +string Id
+  +{static} TryDecode(token: string): Result<Cursor>
+  +Encode(): string
+}
+class "CursorPage<T>" as CursorPage {
+  +IReadOnlyList<T> Data
+  +string? NextCursor
+}
+class CursorPager {
+  +PageAsync<T>(query: IQueryable<T>, limit: PageLimit, cursor: Cursor?): Task<CursorPage<T>>
+}
+class ApiProblem {
+  +string Type
+  +string Title
+  +int Status
+  +string Code
+  +string TraceId
+}
+class ProblemDetailsExceptionHandler {
+  +TryHandleAsync(context: HttpContext, exception: Exception): ValueTask<bool>
+}
+class ETagFilter {
+  +OnResultExecutionAsync(context, next): Task
+}
+CursorPager ..> PageLimit
+CursorPager ..> Cursor
+CursorPager --> CursorPage : returns
+ProblemDetailsExceptionHandler --> ApiProblem : writes
+@enduml

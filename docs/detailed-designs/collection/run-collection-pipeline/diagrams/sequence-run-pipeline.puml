@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Run the collection pipeline
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Keryx Worker application" #D1FADF
+  participant "CollectionWorker" as w
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "RunCollectionCommandHandler" as rh
+  participant "FetchStage" as fs
+  participant "Parse, Classify, Deduplicate stages" as mid
+  participant "StoreStage" as ss
+  participant "PublishStage" as pubs
+  participant "RunRecorder" as rec
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "SafeSourceFetcher" as fetch
+  database "Keryx database" as db
+end box
+participant "Publishing sources" as src
+w -> rh : Send RunCollectionCommand(run id)
+rh -> fs : RunAsync
+loop each active source, at most 8 hosts at a time
+  fs -> fetch : FetchAsync with per-source timeout
+  fetch -> src : GET
+  alt source answers
+    src --> fetch : Content
+    fetch --> fs : Fetched content
+  else failure or timeout
+    fs -> fs : Retry up to 3 attempts with increasing delay (L2-008)
+    fs -> rec : SourceFinished(failed, reason)
+  end
+end
+fs --> rh : Stream of fetched content
+rh -> rec : StageFinished(fetch: done or done_with_warnings)
+rh -> mid : RunAsync in order
+mid --> rh : Stream of scored, matched items
+rh -> ss : RunAsync
+ss -> db : Write records and provenance, one transaction per batch
+alt store succeeds
+  db --> ss : Commit results
+  rh -> pubs : RunAsync
+  pubs -> db : Mark the run's results served
+  rh -> rec : Outcome succeeded or completed_with_issues
+else database unreachable
+  db --> ss : Failure
+  rh -> rec : store failed, publish not_run, outcome failed (L2-007)
+end
+rec -> db : Save run, stage results and issues
+rh --> w : Outcome
+@enduml

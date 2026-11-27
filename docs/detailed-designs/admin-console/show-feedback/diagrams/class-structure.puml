@@ -1,0 +1,68 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Page states, dialogs and notifications
+
+enum LoadPhase {
+  idle
+  loading
+  slow
+  loaded
+  empty
+  failed
+}
+class LoadState {
+  +LoadPhase phase
+  +string | null errorCode
+  +string | null reference
+}
+class Notification {
+  +string id
+  +NotificationKind kind
+  +string title
+  +string body
+  +NotificationAction | null action
+}
+class NotificationAction {
+  +string label
+  +run(): Promise<void>
+}
+enum NotificationKind {
+  info
+  success
+  warning
+  danger
+}
+class NotificationStore {
+  +{static} number MaxVisible = 3
+  +{static} number LifetimeMs = 8000
+  +Signal<Notification[]> visible
+  +push(request: NotificationRequest): string
+  +dismiss(id: string): void
+  +pause(id: string): void
+  +resume(id: string): void
+}
+class DialogService {
+  +open<T, R>(component: Type<T>, data: unknown): BusyDialogRef<R>
+  +closeAll(): void
+}
+class BusyDialogRef<R> {
+  +Signal<boolean> busy
+  +close(result?: R): void
+  +setBusy(value: boolean): void
+}
+LoadState --> LoadPhase
+NotificationStore "1" o-- "0..3" Notification
+Notification --> NotificationKind
+Notification --> NotificationAction
+DialogService --> BusyDialogRef : returns
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Watch a running run and report its outcome
+
+class RunStatusStore {
+  +Signal<CurrentRun | null> current
+  +Signal<boolean> isRunning
+  -string | null lastReportedRunId
+  +{static} number MinPollMs = 3000
+  +start(): void
+  +refresh(): Promise<void>
+  -onFinished(run: CurrentRun): void
+}
+class CurrentRun {
+  +string id
+  +RunOutcome outcome
+  +string started_at
+  +string | null finished_at
+  +number sources_checked
+  +number sources_total
+  +StageResult[] stages
+  +RunCounts counts
+  +string[] failing_source_names
+}
+class NotificationRequest {
+  +NotificationKind kind
+  +string title
+  +string body
+  +NotificationAction | null action
+}
+enum NotificationKind {
+  info
+  success
+  warning
+  danger
+}
+RunStatusStore --> CurrentRun
+NotificationRequest <.. CurrentRun : runOutcomeNotification
+NotificationRequest --> NotificationKind
+RunStatusStore ..> NotificationRequest : pushes
+@enduml

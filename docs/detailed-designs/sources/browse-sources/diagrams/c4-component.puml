@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse sources and their health
+
+Person(staff, "Staff member", "Signed-in person who passes the staff policy")
+Container_Boundary(admin_b, "Keryx admin application") {
+  Component(page, "SourcesPage", "Angular routed component", "Composes header, filter chips, table and pagination")
+  Component(store, "SourcesStore", "Angular signal store", "Holds one page of sources, the filter and load state")
+  Component(menu, "SourceRowMenu", "Angular CDK Menu host", "Opens the four row actions in one overlay")
+  Component(svc, "HttpSourcesService", "Angular service", "Calls GET /admin/v1/sources")
+}
+Container_Boundary(lib_b, "Frontend libraries (components, domain, api)") {
+  Component(lib, "table, health, filter-chip, pagination, skeleton, empty", "Components library", "Presentation components named as in the design system")
+  Component(fmt, "formatSourceHealth", "Pure function, domain library", "Turns health numbers into badge words")
+}
+Container_Boundary(api_b, "Keryx API") {
+  Component(ctrl, "AdminSourcesController", "ASP.NET Core controller", "Exposes the paged list")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "ListSourcesQueryHandler", "MediatR handler", "Orders failing first, filters by kind and pages")
+  Component(hp, "SourceHealthPolicy", "Domain service", "Derives health from the latest fetch record")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(staff, page, "Opens Sources")
+Rel(page, store, "Reads signals from")
+Rel(page, lib, "Composes")
+Rel(page, menu, "Opens per row")
+Rel(page, fmt, "Formats health with")
+Rel(store, svc, "Loads through")
+Rel(svc, ctrl, "GET /admin/v1/sources", "JSON/HTTPS")
+Rel(ctrl, h, "Sends ListSourcesQuery")
+Rel(h, hp, "Derives health with")
+Rel(h, ctx, "Queries through IAppDbContext")
+Rel(ctx, db, "Reads", "EF Core")
+@enduml

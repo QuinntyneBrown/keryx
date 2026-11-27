@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Save settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SettingsFormStore" as store
+  participant "HttpSettingsService" as svc
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "AdminSettingsController" as ctrl
+end box
+box "Backend — Keryx Application and Domain" #ECFDF3
+  participant "UpdateSettingsCommandHandler" as h
+end box
+box "Backend — Keryx Infrastructure" #FFF4E5
+  database "Keryx database" as db
+end box
+staff -> page : Change a value
+page -> store : patch(change)
+store --> page : dirty; bar "You have unsaved changes."
+staff -> page : Press "Save changes"
+page -> store : submit()
+store -> store : validateSettings(draft)
+alt invalid
+  store --> page : errors
+  page --> staff : Summary "Fix 2 fields to save your changes", focus on summary
+else valid
+  store -> svc : update(draft, version)
+  svc -> ctrl : PUT /admin/v1/settings
+  ctrl -> h : Send UpdateSettingsCommand
+  h -> h : Validate ranges
+  h -> db : Load Settings
+  db --> h : Settings with stored version
+  alt version differs
+    h --> ctrl : settings_changed (409)
+    ctrl --> svc : ProblemDetails
+    page --> staff : Told to reload; entries still on screen
+  else version matches
+    h -> db : Save, raise version, write audit entry
+    h --> ctrl : SettingsDto
+    ctrl --> svc : 200
+    svc --> store : Saved values and new version
+    page --> staff : Bar confirms the save for 8 seconds
+  end
+end
+@enduml

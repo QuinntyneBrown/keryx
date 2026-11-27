@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Admin shell
+
+class ScheduleStore {
+  +Signal<Date | null> nextRunAt
+  +Signal<number> intervalHours
+  +Signal<number> failingSources
+  +Signal<string> countdown
+  +load(): Promise<void>
+  -tick(): void
+}
+interface ShellService {
+  +get(): Observable<ShellDto>
+}
+class HttpShellService
+class ShellDto {
+  +string next_run_at
+  +string time_zone
+  +number interval_hours
+  +number failing_sources
+}
+class Shell {
+  +navItems: NavItem[]
+}
+class NavItem {
+  +string label
+  +string path
+  +string icon
+}
+class GetShellQueryHandler {
+  +Handle(query: GetShellQuery): Task<ShellDto>
+}
+Shell --> ScheduleStore : reads
+Shell "1" *-- "6" NavItem
+ScheduleStore ..> ShellService : uses
+ShellService <|.. HttpShellService
+ShellService ..> ShellDto
+GetShellQueryHandler --> ShellDto : returns
+@enduml

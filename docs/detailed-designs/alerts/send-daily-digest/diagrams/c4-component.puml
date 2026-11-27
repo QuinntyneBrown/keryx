@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send the daily digest of held articles
+
+Container_Boundary(wk_b, "Keryx Worker") {
+  Component(w, "AlertDigestWorker", ".NET BackgroundService", "Fires at 08:00 Toronto time and sends one request")
+}
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(h, "SendDailyDigestCommandHandler", "MediatR handler", "Sends the digest when it is on and articles are held")
+  Component(cmp, "AlertComposer", "Application service", "Composes the plain-text digest")
+  Component(c, "IAlertMailer", "Application contract", "Sends one plain-text e-mail")
+  Component(rec, "RunRecorder", "Application service", "Records the run with worker alert_digest")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(m, "MailServiceClient", "Infrastructure client", "Implements IAlertMailer")
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+System_Ext(mail, "Mail service", "Delivers alert and digest e-mail")
+
+Rel(w, h, "Sends SendDailyDigestCommand")
+Rel(h, ctx, "Reads held articles through")
+Rel(h, cmp, "Composes with")
+Rel(h, c, "Sends through")
+Rel(m, c, "Implements")
+Rel(m, mail, "Sends e-mail", "HTTPS")
+Rel(h, rec, "Reports to")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Sign in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as staff
+box "Frontend — Keryx admin application" #E0F2FE
+  participant "sessionGuard" as guard
+  participant "SignInPage" as page
+end box
+box "Backend — Keryx API application" #D1FADF
+  participant "SessionController" as ctrl
+  participant "OpenIdConnectHandler" as oidc
+  participant "CookieAuthenticationHandler" as cookie
+end box
+participant "Identity provider" as idp
+staff -> guard : Open /articles with no session
+guard -> page : Redirect to Sign in, return route /articles
+staff -> page : Press "Sign in"
+page -> ctrl : Navigate to the sign-in endpoint with the return route
+ctrl -> oidc : Challenge
+oidc --> staff : Redirect with state, nonce and PKCE challenge
+staff -> idp : Authenticate
+idp --> oidc : Callback with code and state
+alt provider error or state mismatch
+  oidc --> page : Redirect to the error state; no session
+  page --> staff : Generic message and reference
+else code valid
+  oidc -> idp : Redeem code with PKCE verifier
+  idp --> oidc : ID token
+  oidc -> cookie : Sign in principal
+  cookie --> staff : Set-Cookie HttpOnly, Secure, SameSite=Lax; redirect to /articles
+end
+@enduml

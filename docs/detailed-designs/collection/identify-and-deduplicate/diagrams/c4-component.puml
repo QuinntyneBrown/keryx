@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Identify and deduplicate records
+
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(ds, "DeduplicateStage", "Pipeline stage", "Assigns each item a match decision")
+  Component(key, "RecordIdentity", "Domain value object", "Builds the identity of an item from source key or canonical URL")
+  Component(url, "CanonicalUrl", "Domain value object", "Normalizes a URL and strips tracking parameters")
+  Component(sim, "HeadlineSimilarity", "Domain service", "Scores two normalized headlines from 0 to 1")
+  Component(em, "EventMatcher", "Domain service", "Matches events by organization, start time and place")
+  Component(om, "OrganizationMatcher", "Domain service", "Matches organizations by normalized name")
+  Component(ss, "StoreStage", "Pipeline stage", "Applies each decision and maintains provenance")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(ds, key, "Builds identity with")
+Rel(key, url, "Normalizes with")
+Rel(ds, sim, "Compares headlines with")
+Rel(ds, em, "Matches events with")
+Rel(ds, om, "Matches organizations with")
+Rel(ds, ctx, "Looks up candidates through")
+Rel(ds, ss, "Passes decisions to")
+Rel(ss, ctx, "Writes records and provenance through")
+Rel(ctx, db, "Reads and writes", "EF Core")
+@enduml

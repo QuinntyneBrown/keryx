@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Store articles, events and organizations
+
+Container_Boundary(app_b, "Keryx Application and Domain") {
+  Component(ss, "StoreStage", "Pipeline stage", "Builds and persists records from classified items")
+  Component(af, "ArticleFactory", "Domain service", "Builds an Article within its bounds")
+  Component(ef, "EventFactory", "Domain service", "Builds an Event with UTC start time and zone")
+  Component(sum, "SummaryBuilder", "Domain service", "Produces a summary of at most 500 characters")
+  Component(pii, "PersonalDataFilter", "Domain service", "Removes e-mail addresses and phone numbers from text")
+  Component(reg, "RegionResolver", "Domain service", "Resolves a place to a region, else the source's region")
+  Component(idx, "IndexingPolicy", "Domain service", "Refuses content a source asks not to be indexed")
+}
+Container_Boundary(inf_b, "Keryx Infrastructure") {
+  Component(ctx, "AppDbContext", "EF Core DbContext", "Implements IAppDbContext")
+}
+ContainerDb(db, "Keryx database", "Relational database, EF Core", "Persists Keryx state")
+
+Rel(ss, idx, "Checks noindex with")
+Rel(ss, af, "Builds articles with")
+Rel(ss, ef, "Builds events with")
+Rel(af, sum, "Bounds summary with")
+Rel(sum, pii, "Removes contact details with")
+Rel(af, reg, "Resolves region with")
+Rel(ef, reg, "Resolves region and zone with")
+Rel(ss, ctx, "Persists through IAppDbContext")
+Rel(ctx, db, "Writes", "EF Core")
+@enduml

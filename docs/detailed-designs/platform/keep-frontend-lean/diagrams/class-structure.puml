@@ -1,0 +1,46 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Lazy loading and memory in the admin application
+
+abstract class ScreenStore<TState> {
+  #WritableSignal<TState> state
+  #AbortController abort
+  #DestroyRef destroyRef
+  +Signal<TState> view
+  #request<T>(call: (signal: AbortSignal) => Observable<T>): Promise<T>
+  -release(): void
+}
+class ArticlesStore
+class RunsStore
+class SourcesStore
+class "OverviewStore" as OverviewStore
+class ApiClientsStore
+class SettingsFormStore
+class Route {
+  +string path
+  +loadComponent(): Promise<Type<unknown>>
+  +canActivate: CanActivateFn[]
+}
+class "RoutedScreen" as RoutedScreen <<component>> {
+  +providers: [ScreenStore]
+  +changeDetection: OnPush
+}
+ScreenStore <|-- ArticlesStore
+ScreenStore <|-- RunsStore
+ScreenStore <|-- SourcesStore
+ScreenStore <|-- OverviewStore
+ScreenStore <|-- ApiClientsStore
+ScreenStore <|-- SettingsFormStore
+Route --> RoutedScreen : lazy-loads
+RoutedScreen *-- ScreenStore : provides
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+hide empty members
+title Class structure — Start a run on demand
+
+class StartManualRunCommand
+class StartManualRunCommandHandler {
+  +Handle(command: StartManualRunCommand): Task<Result<StartRunResult>>
+}
+class StartRunResult {
+  +string Id
+}
+class Run {
+  +string Id
+  +string Worker
+  +RunTrigger Trigger
+  +RunOutcome Outcome
+  +DateTimeOffset StartedAt
+  +{static} Start(worker: string, trigger: RunTrigger, now: DateTimeOffset): Run
+}
+enum RunOutcome {
+  Running
+  Succeeded
+  CompletedWithIssues
+  Failed
+}
+class RunInProgressError {
+  +string Code = "run_in_progress"
+  +string RunningRunId
+}
+StartManualRunCommandHandler ..> StartManualRunCommand : handles
+StartManualRunCommandHandler --> Run : creates
+StartManualRunCommandHandler --> StartRunResult : returns
+StartManualRunCommandHandler ..> RunInProgressError : returns on conflict
+Run --> RunOutcome
+@enduml
