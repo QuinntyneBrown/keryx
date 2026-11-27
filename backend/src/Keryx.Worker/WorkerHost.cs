@@ -24,6 +24,9 @@ public static class WorkerHost
         builder.Services.AddSingleton<WorkerReadinessGate>();
         builder.Services.AddHostedService(provider => provider.GetRequiredService<WorkerReadinessGate>());
 
+        // Each worker is its own hosted service with its own loop, so one failing stops no other.
+        builder.Services.AddHostedService<CollectionScheduler>();
+
         configure?.Invoke(builder);
         return builder.Build();
     }

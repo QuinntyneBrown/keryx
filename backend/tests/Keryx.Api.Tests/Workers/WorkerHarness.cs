@@ -46,7 +46,7 @@ public sealed class WorkerHarness : IAsyncDisposable
         });
     }
 
-    public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 27, 15, 0, 0, TimeSpan.Zero));
+    public SignallingTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 27, 15, 0, 0, TimeSpan.Zero));
 
     public CapturedLogs Logs { get; } = new();
 
