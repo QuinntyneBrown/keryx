@@ -1,0 +1,57 @@
+// The run chart (docs/design-system/components/run-chart.html).
+@use 'sass:math';
+
+:host {
+  display: block;
+}
+
+.run-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1-5);
+  height: var(--size-chart);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.run-chart__bar {
+  flex: 1;
+  min-height: var(--space-1);
+  border-radius: var(--radius-xs);
+  background: var(--color-border-inverse);
+}
+
+// A bar's height is its `data-value`, one rule per whole percent: an attribute binding, where the
+// design system's `--value` would need a style binding, whose first use pulls Angular's styling
+// instructions into the initial bundle (see the meter).
+@for $value from 0 through 100 {
+  .run-chart__bar[data-value='#{$value}'] {
+    height: math.percentage(math.div($value, 100));
+  }
+}
+
+.run-chart__bar[data-status='warning'] {
+  background: var(--color-warning-solid);
+}
+
+.run-chart__bar[data-status='failed'] {
+  height: var(--space-1);
+  background: var(--color-danger-solid);
+}
+
+.run-chart__bar[data-status='running'] {
+  background: var(--color-brand);
+  animation: pulse var(--duration-deliberate) var(--ease-standard) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: var(--opacity-disabled);
+  }
+}

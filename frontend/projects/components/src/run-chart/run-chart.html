@@ -1,0 +1,12 @@
+<ol class="run-chart">
+  @for (bar of bars(); track bar.id) {
+    <li
+      class="run-chart__bar"
+      [attr.data-status]="bar.status"
+      [attr.data-value]="bar.value"
+      [attr.title]="bar.title"
+    >
+      <span class="visually-hidden">{{ bar.label }}</span>
+    </li>
+  }
+</ol>

@@ -43,3 +43,4 @@ export { Dl, type DlItem } from './dl/dl';
 export { Skeleton } from './skeleton/skeleton';
 export { Stats, type StatItem } from './stats/stats';
 export { StatusCard, type StatusTone } from './status-card/status-card';
+export { RunChart, type RunChartBar } from './run-chart/run-chart';

@@ -11,6 +11,11 @@
       [reference]="shown.reference"
       [tone]="shown.tone"
       [stats]="shown.stats"
-    />
+      historyCaption="New articles per run · last 14 runs"
+    >
+      @if (bars(); as shownBars) {
+        <kx-run-chart [bars]="shownBars" />
+      }
+    </kx-status-card>
   }
 </kx-page-body>

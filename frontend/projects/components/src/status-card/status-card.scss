@@ -86,9 +86,19 @@
   border-top: var(--border-width-hairline) solid var(--color-border-default);
 }
 
+.status-card__history {
+  padding: var(--space-4) var(--space-5);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  background: var(--color-bg-surface-sunken);
+}
+
 @include bp.from(768) {
   .status-card__main {
     padding: var(--space-6);
+  }
+
+  .status-card__history {
+    padding-inline: var(--space-6);
   }
 
   .status-card__headline {

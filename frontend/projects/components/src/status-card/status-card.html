@@ -15,5 +15,10 @@
     </div>
     <kx-stats class="status-card__stats" [items]="stats()" />
   </div>
-  <ng-content />
+  @if (historyCaption(); as caption) {
+    <div class="status-card__history">
+      <p class="text-caption">{{ caption }}</p>
+      <ng-content />
+    </div>
+  }
 </section>

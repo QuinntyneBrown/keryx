@@ -48,7 +48,7 @@ The slice runs from the routed Overview page to four admin read endpoints.
   (`pages/overview/overview-page.ts`, `.html`, `.scss`). It provides `OverviewStore` in its own
   `providers`, so the store and its timers are released when the page is left (`L2-089`). It
   composes the page header ("Overview", "Christian fitness news collected across Toronto & the
-  GTA."), the status card, the run chart inside a `@defer` block (`L2-088`) and the two lists in
+  GTA."), the status card with the run chart in its history, and the two lists in
   a `layout-rail` that stacks below 1024 px and sits side by side from 1024 px. It renders the
   empty state when the store reports `isEmpty`, and the page error state of `L2-073` when
   `allFailed`.
@@ -81,10 +81,18 @@ The slice runs from the routed Overview page to four admin read endpoints.
 - **`Stat`** (`stat`, in a `stats` row) — label, value, unit ("/64") and sub-line; the three
   stats stay in one row at every viewport class.
 - **`RunChart`** (`run-chart`, element `run-chart__bar` with `data-status` `success`,
-  `warning`, `failed`, `running`) — one bar per run, oldest first, each focusable and labelled
-  "Today 6:00 AM: 47 new", "…: failed" or "…: running"; a failed bar is marked by more than
-  colour. It emits `openRun(runId)` on pointer or keyboard activation. All bars fit inside the
-  card at every viewport class.
+  `warning`, `failed`, `running`) — one bar per run, oldest first, each labelled
+  "Today 6:00 AM: 47 new", "…: failed" or "…: running"; a failed bar is also a 4 px stub, so it
+  is marked by more than colour. A bar's height is a `data-value` from 0 to 100 (rounded against
+  the run that added the most), with one stylesheet rule per value: the design system's
+  `--value` would need a style binding, whose first use pulls Angular's styling instructions
+  into the initial bundle. All bars fit inside the card at every viewport class. Journey 14
+  makes each bar a link that emits `openRun(runId)` and adds "All runs" (`L2-044` AC4, AC5): the
+  Runs screen they open arrives then, as ADR 0006 has each screen's links arrive with it.
+- **Not deferred.** The run chart is not in a `@defer` block although `L2-088` AC4 names it:
+  measured, the first `@defer` in the app raises the initial total from 254.19 kB to 262.75 kB,
+  past the 255 kB budget of AC1, to defer about 1 kB of Overview's own lazy chunk. It costs more
+  than it saves, as the Review articles design found for the detail panel.
 - **`SectionHead`** (`section-head`, element `section-head__link`) — section title with "View
   all 18,432", "All runs" or the open count ("3 open").
 - **`List`** (`list`, elements `list__item`, `__body`, `__title`, `__meta`, `__aside`) — latest

@@ -1,16 +1,18 @@
 import { Component, computed, inject } from '@angular/core';
-import { OVERVIEW_API } from '@kx/api';
-import { PageBody, PageHeader, StatusCard, type StatItem } from '@kx/components';
+import { OVERVIEW_API, RUNS_API } from '@kx/api';
+import { PageBody, PageHeader, RunChart, StatusCard, type StatItem } from '@kx/components';
 import {
   formatClockTime,
   formatCollectedAt,
   formatCountdown,
   formatDuration,
+  runBars,
   runHeadline,
   runTone,
 } from '@kx/domain';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
 import { OverviewStore } from '../../overview/overview-store';
+import { HttpRunsApi } from '../../runs/http-runs-api';
 
 /**
  * Overview (docs/mocks/pages/overview/): how the last run went and when the next one is
@@ -18,10 +20,14 @@ import { OverviewStore } from '../../overview/overview-store';
  */
 @Component({
   selector: 'kx-overview',
-  imports: [PageBody, PageHeader, StatusCard],
+  imports: [PageBody, PageHeader, RunChart, StatusCard],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
-  providers: [{ provide: OVERVIEW_API, useClass: HttpOverviewApi }, OverviewStore],
+  providers: [
+    { provide: OVERVIEW_API, useClass: HttpOverviewApi },
+    { provide: RUNS_API, useClass: HttpRunsApi },
+    OverviewStore,
+  ],
 })
 export default class Overview {
   protected readonly store = inject(OverviewStore);
@@ -50,6 +56,13 @@ export default class Overview {
       tone: runTone(run.outcome),
       stats,
     };
+  });
+
+  /** The run chart's bars, oldest first, in the zone the status names. */
+  protected readonly bars = computed(() => {
+    const runs = this.store.chart();
+    const zone = this.store.status()?.time_zone;
+    return runs && zone ? runBars(runs, this.store.now(), zone) : null;
   });
 
   constructor() {

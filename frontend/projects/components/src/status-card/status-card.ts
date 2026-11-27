@@ -7,7 +7,7 @@ export type StatusTone = 'success' | 'warning' | 'danger' | 'info';
 /**
  * How the last or current run is going (docs/design-system/components/status-card.html): an icon
  * and a headline that says the outcome in words, a meta line with the run's id kept whole, and
- * the stats. Content after the stats (progress, history) is projected below.
+ * the stats. The history, a caption with the content projected below it, comes last.
  */
 @Component({
   selector: 'kx-status-card',
@@ -23,6 +23,8 @@ export class StatusCard {
   readonly reference = input<string | null>(null);
   readonly tone = input<StatusTone>('info');
   readonly stats = input<readonly StatItem[]>([]);
+  /** What the history below the stats plots; with none, the history is not drawn. */
+  readonly historyCaption = input<string | null>(null);
 
   protected readonly iconClasses = computed(
     () => `status-card__icon status-card__icon--${this.tone()}`,

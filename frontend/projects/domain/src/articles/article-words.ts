@@ -132,6 +132,19 @@ const DAY_KEY = (zone: string) =>
  * "Yesterday, 6:01 PM", otherwise "Mon, Mar 9, 6:02 PM", with the year when it is not this one.
  */
 export function formatCollectedAt(at: string | Date, now: Date, timeZone: string): string {
+  const { day, time } = dayAndTime(at, now, timeZone);
+  return `${day}, ${time}`;
+}
+
+/**
+ * The day and the time of day of a moment, in a time zone, as Keryx says them: day "Today",
+ * "Yesterday", otherwise "Mon, Mar 9", with the year when it is not this one; time "6:03 AM".
+ */
+export function dayAndTime(
+  at: string | Date,
+  now: Date,
+  timeZone: string,
+): { day: string; time: string } {
   const when = new Date(at);
   const days = DAY_KEY(timeZone);
   const time = new Intl.DateTimeFormat('en-US', {
@@ -141,9 +154,9 @@ export function formatCollectedAt(at: string | Date, now: Date, timeZone: string
   }).format(when);
   const day = days.format(when);
   const today = days.format(now);
-  if (day === today) return `Today, ${time}`;
+  if (day === today) return { day: 'Today', time };
   const yesterday = days.format(new Date(Date.parse(`${today}T12:00:00Z`) - 24 * 60 * 60 * 1000));
-  if (day === yesterday) return `Yesterday, ${time}`;
+  if (day === yesterday) return { day: 'Yesterday', time };
   const sameYear = day.slice(0, 4) === today.slice(0, 4);
   const date = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -152,7 +165,7 @@ export function formatCollectedAt(at: string | Date, now: Date, timeZone: string
     day: 'numeric',
     ...(sameYear ? {} : { year: 'numeric' }),
   }).format(when);
-  return `${date}, ${time}`;
+  return { day: date, time };
 }
 
 /**

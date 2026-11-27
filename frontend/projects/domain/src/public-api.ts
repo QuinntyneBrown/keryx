@@ -76,3 +76,4 @@ export {
   type RunOutcome,
   type RunSummaryView,
 } from './overview/run-words';
+export { runBars, type RunBar, type RunPoint } from './overview/run-bars';
