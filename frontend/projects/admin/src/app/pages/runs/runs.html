@@ -1,0 +1,8 @@
+<kx-page-header title="Runs" [description]="description()" />
+<kx-page-body>
+  <kx-rail start>
+    <section aria-label="Run history">
+      <kx-list [runs]="runs()" (navigate)="navigate($event)" />
+    </section>
+  </kx-rail>
+</kx-page-body>

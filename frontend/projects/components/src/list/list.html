@@ -5,6 +5,28 @@
       <kx-skeleton class="list__aside--loading" />
     </li>
   }
+  @for (run of runs(); track run.id) {
+    <li>
+      <a
+        class="list__item list__item--interactive run-item"
+        [href]="run.href"
+        [attr.aria-current]="run.current ? 'true' : null"
+        (click)="follow($event, run.href)"
+      >
+        <span class="run-item__icon" [attr.data-tone]="run.tone"
+          ><kx-icon [name]="run.tone" size="sm"
+        /></span>
+        <span class="list__body">
+          <span class="visually-hidden">{{ run.word }}:&ngsp;</span>
+          <span class="list__title">{{ run.title }}</span>
+          <span class="list__meta">{{ run.meta }}</span>
+        </span>
+        @if (run.flag; as flag) {
+          <span class="run-item__flag">{{ flag }}</span>
+        }
+      </a>
+    </li>
+  }
   @for (entry of entries(); track entry.id) {
     <li class="list__item">
       <div class="list__body">

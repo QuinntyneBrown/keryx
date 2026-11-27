@@ -28,9 +28,18 @@ export interface OverviewStatus {
   time_zone: string;
 }
 
-/** Overview's reads (L2-043–L2-046). */
+/** The shell's schedule: the next collection, the interval, the zone and the failing sources. */
+export interface ShellSchedule {
+  next_run_at: string;
+  interval_hours: number;
+  time_zone: string;
+  failing_sources: number;
+}
+
+/** Overview's reads (L2-043–L2-046) and the shell's schedule (L2-042). */
 export interface OverviewApi {
   status(signal: AbortSignal): Promise<OverviewStatus>;
+  schedule(signal: AbortSignal): Promise<ShellSchedule>;
 }
 
 export const OVERVIEW_API = new InjectionToken<OverviewApi>('Keryx overview');

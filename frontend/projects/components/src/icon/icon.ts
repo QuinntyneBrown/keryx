@@ -20,6 +20,7 @@ export type IconName =
   | 'copy'
   | 'articles'
   | 'overview'
+  | 'runs'
   | 'arrow-right'
   | 'inbox'
   | 'chevron-left'

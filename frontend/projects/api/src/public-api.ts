@@ -41,6 +41,7 @@ export {
   type OverviewApi,
   type OverviewRun,
   type OverviewStatus,
+  type ShellSchedule,
   type RunOutcome,
 } from './overview/overview-api';
 export {

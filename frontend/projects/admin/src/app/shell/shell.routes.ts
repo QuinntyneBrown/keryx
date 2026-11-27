@@ -1,4 +1,7 @@
 import type { Routes } from '@angular/router';
+import { OVERVIEW_API } from '@kx/api';
+import { HttpOverviewApi } from '../overview/http-overview-api';
+import { ScheduleStore } from '../schedule/schedule-store';
 import AppShell from './app-shell';
 
 /**
@@ -9,6 +12,7 @@ export default [
   {
     path: '',
     component: AppShell,
+    providers: [{ provide: OVERVIEW_API, useClass: HttpOverviewApi }, ScheduleStore],
     children: [
       {
         path: '',
@@ -20,6 +24,11 @@ export default [
         path: 'articles',
         title: 'Articles · Keryx',
         loadComponent: () => import('../pages/articles/articles'),
+      },
+      {
+        path: 'runs',
+        title: 'Runs · Keryx',
+        loadComponent: () => import('../pages/runs/runs'),
       },
       {
         path: 'sources',

@@ -49,12 +49,12 @@ export function runTone(outcome: RunOutcome): 'success' | 'warning' | 'danger' |
   }
 }
 
-/** A run's length: "4m 12s", or "1h 2m" from an hour. */
+/** A run's length: "4m 12s" and "4m 03s", or "1h 2m" from an hour. */
 export function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   if (minutes >= 60) return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-  return `${minutes}m ${seconds % 60}s`;
+  return `${minutes}m ${String(seconds % 60).padStart(2, '0')}s`;
 }
 
 /** A time of day in a zone: "12:00 PM". */

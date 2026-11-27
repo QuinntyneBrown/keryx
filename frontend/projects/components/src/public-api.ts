@@ -45,7 +45,7 @@ export { Stats, type StatItem } from './stats/stats';
 export { StatusCard, type StatusTone } from './status-card/status-card';
 export { RunChart, type RunChartBar } from './run-chart/run-chart';
 export { IssueCard } from './issue-card/issue-card';
-export { List, type ListEntry } from './list/list';
+export { List, type ListEntry, type RunListItem } from './list/list';
 export { SectionHead } from './section-head/section-head';
 export { Rail } from './stack/rail';
 export { Stack } from './stack/stack';

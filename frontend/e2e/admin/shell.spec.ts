@@ -28,12 +28,12 @@ test.describe('Admin shell', () => {
       await expect(shell.tag).toHaveText('Admin');
       await expect(shell.headings).toHaveCount(1);
       await expect(shell.headings).toHaveText('Overview');
-      // ADR 0006: each screen's link arrives with the screen; Runs comes with journey 14.
       await expect(shell.navigation).toHaveCount(1);
       await expect(shell.navigation).toHaveAccessibleName('Primary');
       await expect(shell.navigation.getByRole('link')).toHaveText([
         'Overview',
         'Articles',
+        'Runs',
         'Sources',
         'API',
         'Settings',

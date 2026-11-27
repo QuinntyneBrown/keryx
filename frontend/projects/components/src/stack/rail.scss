@@ -16,4 +16,8 @@
   .layout-rail {
     grid-template-columns: minmax(0, 1fr) var(--layout-rail-width);
   }
+
+  .layout-rail--start {
+    grid-template-columns: var(--layout-rail-width) minmax(0, 1fr);
+  }
 }

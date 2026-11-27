@@ -117,6 +117,22 @@ returned 404", "Timed out after 30s") is served or derived from `kind` by a doma
 `<TO SUPPLY>`. The name of the staff member who started a manual run, shown in the running
 header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
 
+**How it is built** (journey 14)
+
+- The header line comes from `ScheduleStore`, which is provided on the shell's route with the
+  `OVERVIEW_API` it reads, as the session's stores are (ADR 0005), rather than in `root`: the
+  app binds nothing in `app.config.ts` that the sign-in screen does not need. It reads
+  `GET /admin/v1/overview/schedule` the first time a screen asks and keeps it for the visit; when
+  it fails, the header leaves the line out and the list is still shown, its times in Toronto's
+  zone. Asking again when the next collection time passes (`L2-042` AC6) arrives with the shell's
+  own schedule footer.
+- "Run now" and its disabled "Collecting…" (`L2-058` AC4) arrive with journey 15, "Staff starts a
+  collection now", as does following a run live (`L2-058` AC2, AC3); "Retry failed sources" and
+  "Mute" arrive with journeys 16 and 20, which give them behaviour.
+- `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two
+  digits ("4m 03s") as both mocks show; `formatRunStart` is the Articles design's
+  `formatCollectedAt`, which reads the same.
+
 **Screen states**
 
 - **Loading** — when the first response takes longer than 300 ms, skeletons of the list and
