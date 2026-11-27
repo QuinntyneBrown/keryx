@@ -19,6 +19,8 @@ committed.
 | `Keryx__Oidc__ClientId` | Client registered with the provider for authorization code flow with PKCE. Register the absolute API callback URL ending in `/admin/v1/auth/callback`. | Required. | No | API |
 | `Keryx__Oidc__StaffClaim` | Value required in the signed identity provider token’s `roles` claim to authorize staff operations. | `KeryxStaff` | No | API |
 | `Keryx__Oidc__ClientSecret` | Confidential client credential when required by the provider. | Unset. | Yes | API |
+| `Keryx__RateLimits__ClientPermitsPerMinute` | Requests a product's API client may send to `/v1` in a minute; the next is `429` with `Retry-After`. Each API instance counts on its own, so n instances allow up to n times this. Positive integer. | 600 | No | API |
+| `Keryx__RateLimits__UnauthenticatedPermitsPerMinute` | Requests with no valid API key one address may send to `/v1` in a minute. The address is the connection's: behind a proxy, configure forwarded headers for it, or every caller shares the proxy's address. Positive integer. | 60 | No | API |
 | `Keryx__Fetch__UserAgentContactUrl` | An `https` page saying what Keryx's collector is and how to reach its operator. Every request to a source names it in its `User-Agent`, as `Keryx/<version> (+<url>)`. | Required. | No | API, worker |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Where traces, metrics and logs are sent: the address of an OpenTelemetry (OTLP) collector, for example `http://collector:4317`. | Unset: nothing is exported, and the process runs the same. | No | API, worker |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | How they are sent: `grpc` or `http/protobuf`. | `grpc` | No | API, worker |

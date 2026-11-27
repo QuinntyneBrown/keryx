@@ -84,6 +84,10 @@ public static class ApiHost
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
         builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationMiddlewareResultHandler, ApiAuthorizationResultHandler>();
         builder.Services.AddSingleton<Keryx.Application.Consumer.ICursorCodec, DataProtectionCursorCodec>();
+        builder.Services.AddOptions<RateLimitOptions>().BindConfiguration("Keryx:RateLimits")
+            .Validate(limits => limits.ClientPermitsPerMinute > 0 && limits.UnauthenticatedPermitsPerMinute > 0,
+                "Rate limits must be positive.").ValidateOnStart();
+        builder.Services.AddSingleton<ClientRateLimiter>();
 
         var app = builder.Build();
         app.Use(async (context, next) =>
@@ -115,6 +119,7 @@ public static class ApiHost
 
             await next(context).ConfigureAwait(false);
         });
+        app.UseMiddleware<ClientRateLimiter>();
         app.UseAuthorization();
         app.Use(AdminAntiforgery.ValidateAsync);
         app.MapGet("/admin/v1/auth/antiforgery", AdminAntiforgery.Issue).RequireAuthorization();

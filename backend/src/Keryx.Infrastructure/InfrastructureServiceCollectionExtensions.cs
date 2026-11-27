@@ -34,6 +34,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IHostResolver, DnsHostResolver>();
         services.AddSingleton<IFeedParser, FeedParser>();
         services.AddSingleton<Keryx.Application.Clients.IApiKeyGenerator, Clients.ApiKeyGenerator>();
+        services.AddSingleton<Keryx.Application.Clients.IRateWindowStore, Clients.InMemoryRateWindowStore>();
         services.AddScoped<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;

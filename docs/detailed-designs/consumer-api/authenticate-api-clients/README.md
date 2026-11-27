@@ -103,12 +103,20 @@ relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the
 - **`IRateWindowStore`** (`Keryx.Application`) and **`InMemoryRateWindowStore`**
   (`Keryx.Infrastructure`) — keep one `RateWindow` per client id and one per address, evicting
   windows that have passed. The address is held in memory only, for the length of its window,
-  and is never stored or logged. Whether the windows shall be shared across API instances is
-  `<TO SUPPLY>`; an in-memory store limits each instance on its own.
+  and is never stored or logged. The windows are held per API instance, in memory: a deployment
+  of n instances allows a client up to n times its limit, which is stated in `tools/deploy/`.
+  Passed windows are swept at most once a minute, so memory holds only the last minute's callers.
+- **`ClientRateLimiter`** (`Keryx.Api`) — middleware on `/v1` after authentication's route
+  matching. An address whose unauthenticated window is full is refused before any key is looked
+  up; otherwise the request is authenticated once and charged to its client's window, or, with
+  no valid key, to its address. A refusal writes `429` `rate_limited` with `Retry-After`; a
+  successful response carries `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`.
 - **`RateLimitOptions`** — `ClientPermitsPerMinute` (default 600) and
   `UnauthenticatedPermitsPerMinute` (60), bound from configuration and documented in
-  `tools/deploy/` (L2-096). The configuration key names are `<TO SUPPLY>`. How the client address
-  is read behind a proxy (forwarded-header trust) is `<TO SUPPLY>`.
+  `tools/deploy/` (L2-096) as `Keryx__RateLimits__ClientPermitsPerMinute` and
+  `Keryx__RateLimits__UnauthenticatedPermitsPerMinute`; a value that is not positive stops the
+  API at start. The address is the connection's: no forwarded header is trusted by default, so a
+  deployment behind a proxy configures ASP.NET Core's forwarded headers for its known proxies.
 - **`ProblemDetailsMapper`** (`Keryx.Api`) — maps `KeryxException` subclasses to ProblemDetails
   with their `code` and the trace id. This feature adds `InvalidApiKeyException`
   (`invalid_api_key`, `401`), `InsufficientScopeException` (`insufficient_scope`, `403`) and
