@@ -16,7 +16,11 @@ export type IconName =
   | 'search'
   | 'close'
   | 'key'
-  | 'copy';
+  | 'copy'
+  | 'articles'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'external';
 
 @Component({ selector: 'kx-icon', templateUrl: './icon.html', styleUrl: './icon.scss' })
 export class Icon {

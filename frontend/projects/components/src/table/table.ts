@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, input, type TemplateRef } from '@angular/core';
+import { Component, ElementRef, inject, input, type TemplateRef } from '@angular/core';
 
 /** A column of a `kx-table`. */
 export interface TableColumn {
@@ -35,6 +35,8 @@ export interface TableColumn {
   styleUrl: './table.scss',
 })
 export class Table {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /** Says what the rows are and their order: "Sources, failing first". */
   readonly caption = input.required<string>();
   readonly columns = input.required<readonly TableColumn[]>();
@@ -50,6 +52,11 @@ export class Table {
    * initial bundle (ADR 0008).
    */
   readonly cells = input.required<Readonly<Record<string, TemplateRef<{ $implicit: unknown }>>>>();
+
+  /** Moves focus to the caption, as after a new page loads, so reading starts at the table. */
+  focusCaption(): void {
+    this.host.nativeElement.querySelector<HTMLElement>('caption')?.focus();
+  }
 
   protected rowClass(row: unknown): string | null {
     const modifier = this.rowModifier()(row);

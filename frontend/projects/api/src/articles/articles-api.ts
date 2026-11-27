@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import type { Region } from '../sources/sources-api';
 
 /** An article's status as the admin API serves it. */
 export type ArticleStatus = 'published' | 'needs_review' | 'hidden';
@@ -69,6 +70,8 @@ export interface ArticlesApi {
   counts(signal: AbortSignal): Promise<ArticleCounts>;
   /** One article; an unknown id rejects with code `article_not_found`. */
   get(id: string, signal: AbortSignal): Promise<ArticleDetail>;
+  /** The regions in rank order, which name each row's region and fill the Region filter. */
+  regions(signal: AbortSignal): Promise<Region[]>;
 }
 
 export const ARTICLES_API = new InjectionToken<ArticlesApi>('Keryx articles');

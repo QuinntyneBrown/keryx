@@ -12,7 +12,7 @@
 | 8 | Product reads articles | Consuming product lists and reads published articles with its key | 6 | 100 |
 | 9 | Product reads events and organizations | Consuming product lists events, organizations and sources | 4 | 100 |
 | 10 | Product reads reference data and status | Consuming product reads categories, regions and collection freshness | 2 | 100 |
-| 11 | Staff reviews articles | Staff search, filter and open articles with provenance | 4 | 30 |
+| 11 | Staff reviews articles | Staff search, filter and open articles with provenance | 4 | 45 |
 | 12 | Staff publishes or hides an article | Staff overrule the score, with Undo | 2 | 0 |
 | 13 | Staff checks the Overview | Staff see last run, new articles, issues and next run | 4 | 0 |
 | 14 | Staff reviews run history | Staff inspect each run's stages, counts and issues | 4 | 0 |

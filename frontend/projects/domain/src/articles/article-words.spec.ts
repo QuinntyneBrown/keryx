@@ -1,5 +1,9 @@
 import {
+  ARTICLE_CATEGORIES,
   articleStatusLabel,
+  categoryName,
+  formatCount,
+  pageRange,
   articleStatusTone,
   formatRelativeAge,
   formatRelevance,
@@ -77,5 +81,43 @@ describe('safeHttpUrl', () => {
     ['', null],
   ])('allows %s as %s', (url, expected) => {
     expect(safeHttpUrl(url)).toBe(expected);
+  });
+});
+
+describe('pageRange', () => {
+  // An en dash, thousands separators and the noun at the end (pagination: Content).
+  it.each([
+    [1, 10, 18432, 'Showing 1–10 of 18,432 articles'],
+    [2, 10, 18432, 'Showing 11–20 of 18,432 articles'],
+    [3, 10, 23, 'Showing 21–23 of 23 articles'],
+    [1, 10, 1, 'Showing 1–1 of 1 article'],
+    [1, 10, 0, 'Showing 0 articles'],
+    [5, 10, 23, 'Showing 0 of 23 articles'],
+  ])('page %i of %i with %i reads %s', (page, size, total, expected) => {
+    expect(pageRange(page, size, total)).toBe(expected);
+  });
+});
+
+describe('formatCount', () => {
+  it.each([
+    [0, '0'],
+    [515, '515'],
+    [18432, '18,432'],
+  ])('shows %i as %s', (count, expected) => {
+    expect(formatCount(count)).toBe(expected);
+  });
+});
+
+describe('categoryName', () => {
+  it('names each category in the order of L2-015, and an unknown slug as itself', () => {
+    expect(ARTICLE_CATEGORIES.map((category) => categoryName(category))).toEqual([
+      'Events',
+      'Races & Challenges',
+      'Gyms & Studios',
+      'Ministry Programs',
+      'Nutrition',
+      'Faith & Wellness',
+    ]);
+    expect(categoryName('pilates')).toBe('pilates');
   });
 });

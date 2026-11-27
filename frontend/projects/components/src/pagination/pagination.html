@@ -1,0 +1,11 @@
+<div class="table-footer">
+  <p role="status">{{ range() }}</p>
+  <nav class="pagination" aria-label="Pagination">
+    <kx-btn small [disabled]="!hasPrevious()" (activated)="step.emit(-1)"
+      ><kx-icon name="chevron-left" size="sm" />Previous</kx-btn
+    >
+    <kx-btn small [disabled]="!hasNext()" (activated)="step.emit(1)"
+      >Next<kx-icon name="chevron-right" size="sm"
+    /></kx-btn>
+  </nav>
+</div>

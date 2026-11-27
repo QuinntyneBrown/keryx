@@ -56,3 +56,45 @@ export function safeHttpUrl(url: string): string | null {
     return null;
   }
 }
+
+/** A count with thousands separators ("18,432"). */
+export function formatCount(count: number): string {
+  return counts.format(count);
+}
+
+/**
+ * The range a page shows: "Showing 11–20 of 18,432 articles". An empty list, or a page past
+ * the end, says how many there are.
+ */
+export function pageRange(page: number, pageSize: number, total: number): string {
+  const noun = total === 1 ? 'article' : 'articles';
+  if (total === 0) return 'Showing 0 articles';
+  const first = (page - 1) * pageSize + 1;
+  if (first > total) return `Showing 0 of ${formatCount(total)} ${noun}`;
+  const last = Math.min(page * pageSize, total);
+  return `Showing ${formatCount(first)}–${formatCount(last)} of ${formatCount(total)} ${noun}`;
+}
+
+/** The six categories' slugs, in the order of L2-015. */
+export const ARTICLE_CATEGORIES = [
+  'events',
+  'races-challenges',
+  'gyms-studios',
+  'ministry-programs',
+  'nutrition',
+  'faith-wellness',
+] as const;
+
+const CATEGORY_NAMES: Record<string, string> = {
+  events: 'Events',
+  'races-challenges': 'Races & Challenges',
+  'gyms-studios': 'Gyms & Studios',
+  'ministry-programs': 'Ministry Programs',
+  nutrition: 'Nutrition',
+  'faith-wellness': 'Faith & Wellness',
+};
+
+/** A category's name; a slug Keryx does not know shows as itself. */
+export function categoryName(slug: string): string {
+  return Object.hasOwn(CATEGORY_NAMES, slug) ? CATEGORY_NAMES[slug] : slug;
+}

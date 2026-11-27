@@ -1,0 +1,21 @@
+// The table footer and its pager (docs/design-system/components/pagination.html).
+:host {
+  display: block;
+}
+
+.table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  color: var(--color-fg-subtle);
+  font: var(--text-caption);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

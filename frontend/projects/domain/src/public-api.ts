@@ -26,8 +26,12 @@ export {
   type PublicationStatus,
 } from './articles/publication-status';
 export {
+  ARTICLE_CATEGORIES,
   articleStatusLabel,
   articleStatusTone,
+  categoryName,
+  formatCount,
+  pageRange,
   formatRelativeAge,
   formatRelevance,
   organizationLabel,

@@ -1,7 +1,7 @@
 <div class="table-wrap">
   <table class="table">
     <!-- prettier-ignore -->
-    <caption class="visually-hidden">{{ caption() }}</caption>
+    <caption class="visually-hidden" tabindex="-1">{{ caption() }}</caption>
     <thead>
       <tr>
         @for (column of columns(); track column.key) {

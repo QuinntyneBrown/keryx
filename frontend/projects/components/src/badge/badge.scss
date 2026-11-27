@@ -20,28 +20,52 @@
   border-color: transparent;
   background: var(--color-success-bg);
   color: var(--color-success-fg);
+  --badge-dot: var(--color-success-solid);
 }
 
 .badge--warning {
   border-color: transparent;
   background: var(--color-warning-bg);
   color: var(--color-warning-fg);
+  --badge-dot: var(--color-warning-solid);
 }
 
 .badge--danger {
   border-color: transparent;
   background: var(--color-danger-bg);
   color: var(--color-danger-fg);
+  --badge-dot: var(--color-danger-solid);
 }
 
 .badge--info {
   border-color: transparent;
   background: var(--color-info-bg);
   color: var(--color-info-fg);
+  --badge-dot: var(--color-info-solid);
 }
 
 .badge--brand {
   border-color: transparent;
   background: var(--color-brand-subtle);
   color: var(--color-fg-brand);
+}
+
+.badge--dot::before {
+  content: '';
+  width: var(--size-dot);
+  height: var(--size-dot);
+  border-radius: var(--radius-full);
+  background: var(--badge-dot, var(--color-fg-subtle));
+}
+
+.badge--count {
+  padding-inline: var(--space-1-5);
+  border-color: transparent;
+  background: var(--color-bg-subtle-hover);
+  font-weight: var(--font-weight-regular);
+  font-variant-numeric: tabular-nums;
+}
+
+.badge--count.badge--warning {
+  background: var(--color-warning-bg);
 }

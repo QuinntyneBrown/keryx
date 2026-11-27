@@ -1,0 +1,59 @@
+<kx-page-header
+  title="Articles"
+  description="Everything Keryx has collected. Only published articles are served by the API."
+/>
+<kx-page-body>
+  <kx-tabs
+    label="Article status"
+    panelId="articles-panel"
+    [tabs]="tabs()"
+    [selected]="tabId()"
+    (selectedChange)="chooseTab($event)"
+  />
+  <div
+    class="articles__panel"
+    id="articles-panel"
+    role="tabpanel"
+    [attr.aria-labelledby]="'tab-' + tabId()"
+  >
+    @if (store.page(); as page) {
+      <kx-table
+        #table
+        caption="Articles, newest first"
+        [columns]="columns"
+        [rows]="rows()"
+        [rowKey]="rowKey"
+        [cells]="{
+          article: articleCell,
+          category: categoryCell,
+          region: regionCell,
+          relevance: relevanceCell,
+          status: statusCell,
+        }"
+      >
+        <ng-template #articleCell let-row>
+          <span class="articles__title table__title" dir="auto">{{ row.title }}</span>
+          <span class="articles__sub table__sub">{{ row.sub }}</span>
+          <span class="articles__stacked table__stacked until-lg"
+            ><kx-badge dot [tone]="row.tone ?? 'neutral'">{{ row.status }}</kx-badge
+            ><span class="text-caption">{{ row.place }}</span></span
+          >
+        </ng-template>
+        <ng-template #categoryCell let-row>{{ row.category }}</ng-template>
+        <ng-template #regionCell let-row>{{ row.region }}</ng-template>
+        <ng-template #relevanceCell let-row>
+          <kx-meter [value]="row.item.relevance" [text]="row.relevance" [tone]="row.tone" />
+        </ng-template>
+        <ng-template #statusCell let-row>
+          <kx-badge dot [tone]="row.tone ?? 'neutral'">{{ row.status }}</kx-badge>
+        </ng-template>
+      </kx-table>
+      <kx-pagination
+        [range]="range()"
+        [hasPrevious]="page.page > 1"
+        [hasNext]="hasNext()"
+        (step)="step($event, table)"
+      />
+    }
+  </div>
+</kx-page-body>
