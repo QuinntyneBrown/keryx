@@ -11,6 +11,16 @@ namespace Keryx.Api.Runs;
 [Authorize(Policy = "Staff")]
 public sealed class AdminRunsController(ISender sender) : ControllerBase
 {
+    /// <summary>A page of a worker's runs, newest first; <c>problems=true</c> keeps those that failed or completed with issues.</summary>
+    [HttpGet]
+    public Task<RunPageDto> List(
+        [FromQuery] string? worker,
+        [FromQuery] string? problems,
+        [FromQuery] string? page,
+        [FromQuery(Name = "page_size")] string? pageSize,
+        CancellationToken cancellationToken) =>
+        sender.Send(new ListRuns(worker, problems, page, pageSize), cancellationToken);
+
     [HttpGet("{id}")]
     public Task<RunDto> Get(string id, CancellationToken cancellationToken) => sender.Send(new GetRun(id), cancellationToken);
 }
