@@ -51,7 +51,7 @@ checks anything itself.
 - **`RecoverInterruptedRunsCommand`** and its handler — each worker sends it once at start,
   before any new run. It records every run of that worker still `running` with execution started
   as `failed` with reason `interrupted`, and releases the worker's `RunLease`.
-- **`RunIssue`** — domain entity with `PublicId` (prefix `<TO SUPPLY>`), `Severity` (`error`,
+- **`RunIssue`** — domain entity with `PublicId` (prefix `iss`), `Severity` (`error`,
   `warning`), `Kind` (`source_not_found`, `source_timeout`, `source_blocked`, `source_invalid`,
   `items_held`, `stage_failed`, `run_skipped`), `SourceId` or `Stage`, `Detail`,
   `ConsecutiveRuns`, `Since` and `State` (`open`, `muted`, `closed`). `Mute`, `Unmute` and

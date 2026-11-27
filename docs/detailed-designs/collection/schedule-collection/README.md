@@ -42,7 +42,7 @@ layers. All time is read from `TimeProvider`; no code reads `DateTime.Now`.
   trigger `schedule`, or, when the lease already names an active run, adds a `run_skipped` issue
   to that run. It marks the slot handled in the same unit of work, so a slot never starts two
   runs. It returns `ScheduleTickResult` with `NextWakeAt`, the earlier of the next slot and now
-  plus a re-check bound (`<TO SUPPLY>` seconds), so an interval saved in Settings takes effect
+  plus a re-check bound of 60 seconds, so an interval saved in Settings takes effect
   at the next slot of the new interval.
 - **`CollectionSchedule`** — pure domain service in `Keryx.Domain`. It converts now to
   `America/Toronto` with `TimeZoneInfo`, finds local midnight, and lists slots at each whole
@@ -61,7 +61,10 @@ layers. All time is read from `TimeProvider`; no code reads `DateTime.Now`.
 - **`Run`** and **`RunIssue`** — domain types owned by
   [record-runs-and-issues](../record-runs-and-issues/README.md). `Run.StartScheduled` creates a
   run with trigger `schedule`; `Run.RecordSkippedStart` adds an issue of kind `run_skipped`
-  whose severity is `<TO SUPPLY>` (the specification names the kind only).
+  whose severity is `warning`: nothing is lost, and the next slot runs. The issue concerns the
+  worker (`subject_type` `worker`, `subject_id` `collection`), and it is closed when a
+  scheduled run next starts. A worker with no lease yet counts the current slot as handled, so
+  a worker started between slots waits for the next one.
 - **`GetNextRunQuery`** and **`GetNextRunQueryHandler`** — read the interval and return
   `NextRunDto` with `next_run_at` (UTC, ISO 8601) and `time_zone` (`America/Toronto`). At
   09:46 Toronto time with a 6-hour interval, `next_run_at` is 12:00 the same day; after the

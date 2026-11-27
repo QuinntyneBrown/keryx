@@ -25,5 +25,11 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Collection.Run> Runs { get; }
 
+    DbSet<Keryx.Domain.Collection.RunLease> RunLeases { get; }
+
+    DbSet<Keryx.Domain.Collection.RunIssue> RunIssues { get; }
+
+    DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

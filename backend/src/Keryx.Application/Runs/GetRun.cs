@@ -73,7 +73,28 @@ internal sealed class GetRunHandler(IAppDbContext db) : IRequestHandler<GetRun, 
         var run = await db.Runs.AsNoTracking()
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new RunNotFoundException();
-        return RunDto.From(run, []);
+        var occurrences = await db.IssueOccurrences.AsNoTracking()
+            .Where(occurrence => occurrence.RunId == run.Id)
+            .OrderBy(occurrence => occurrence.Issue.Severity).ThenBy(occurrence => occurrence.Issue.Since)
+            .Select(occurrence => new { occurrence.Detail, occurrence.Issue })
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var sourceIds = occurrences.Select(occurrence => occurrence.Issue.SourceId).OfType<long>().Distinct().ToList();
+        var sources = await db.Sources.AsNoTracking().Where(source => sourceIds.Contains(source.Id))
+            .ToDictionaryAsync(source => source.Id, cancellationToken).ConfigureAwait(false);
+        return RunDto.From(run, [.. occurrences.Select(occurrence => IssueOf(occurrence.Issue, occurrence.Detail, sources))]);
+    }
+
+    /// <summary>An issue as listed on a run: that run's detail, and what it concerns.</summary>
+    private static RunIssueDto IssueOf(RunIssue issue, string detail, Dictionary<long, Keryx.Domain.Sources.Source> sources)
+    {
+        var (type, id, name) = issue switch
+        {
+            { SourceId: { } sourceId } when sources.TryGetValue(sourceId, out var source) => ("source", source.PublicId, source.OrganizationName),
+            { Stage: { } stage } => ("stage", RunWords.Stage(stage), (string?)null),
+            _ => ("worker", RunWords.Worker(issue.Worker), null),
+        };
+        return new RunIssueDto(issue.PublicId, RunWords.Severity(issue.Severity), RunWords.Kind(issue.Kind), type, id, name, detail,
+            issue.ConsecutiveRuns, issue.Since, issue.State == IssueState.Muted);
     }
 }
 

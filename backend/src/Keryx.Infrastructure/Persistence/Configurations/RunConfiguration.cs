@@ -47,3 +47,51 @@ internal sealed class RunConfiguration : IEntityTypeConfiguration<Run>
         builder.Navigation(run => run.Stages).HasField("_stages");
     }
 }
+
+/// <summary>One lease per worker; its version is the concurrency token that lets one claim win.</summary>
+internal sealed class RunLeaseConfiguration : IEntityTypeConfiguration<RunLease>
+{
+    public void Configure(EntityTypeBuilder<RunLease> builder)
+    {
+        builder.ToTable("RunLeases");
+        builder.HasKey(lease => lease.Worker);
+        builder.Property(lease => lease.Worker).HasConversion(worker => RunWords.Worker(worker), word => RunWords.WorkerOf(word)).HasMaxLength(16);
+        builder.Property(lease => lease.ActiveRunId).HasMaxLength(SourceConfiguration.PublicIdLength);
+        builder.Property(lease => lease.Version).IsConcurrencyToken();
+    }
+}
+
+/// <summary>Issues and the runs they occurred in.</summary>
+internal sealed class RunIssueConfiguration : IEntityTypeConfiguration<RunIssue>
+{
+    public void Configure(EntityTypeBuilder<RunIssue> builder)
+    {
+        builder.ToTable("RunIssues");
+        builder.HasKey(issue => issue.Id);
+        builder.Property(issue => issue.PublicId).HasMaxLength(SourceConfiguration.PublicIdLength);
+        builder.HasIndex(issue => issue.PublicId).IsUnique();
+        builder.Property(issue => issue.Worker).HasConversion(worker => RunWords.Worker(worker), word => RunWords.WorkerOf(word)).HasMaxLength(16);
+        builder.Property(issue => issue.Severity).HasConversion(value => RunWords.Severity(value), word => RunWords.SeverityOf(word)).HasMaxLength(8);
+        builder.Property(issue => issue.Kind).HasConversion(value => RunWords.Kind(value), word => RunWords.KindOf(word)).HasMaxLength(24);
+        builder.Property(issue => issue.State).HasConversion(value => RunWords.State(value), word => RunWords.StateOf(word)).HasMaxLength(8);
+        builder.Property(issue => issue.Stage).HasConversion(
+            value => value == null ? null : RunWords.Stage(value.Value),
+            word => word == null ? null : RunWords.StageOf(word)).HasMaxLength(16);
+        builder.Property(issue => issue.Detail).HasMaxLength(300);
+        builder.HasOne<Keryx.Domain.Sources.Source>().WithMany().HasForeignKey(issue => issue.SourceId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(issue => new { issue.State, issue.Severity, issue.Since });
+    }
+}
+
+internal sealed class IssueOccurrenceConfiguration : IEntityTypeConfiguration<IssueOccurrence>
+{
+    public void Configure(EntityTypeBuilder<IssueOccurrence> builder)
+    {
+        builder.ToTable("IssueOccurrences");
+        builder.HasKey(occurrence => occurrence.Id);
+        builder.Property(occurrence => occurrence.Detail).HasMaxLength(300);
+        builder.HasOne(occurrence => occurrence.Issue).WithMany().HasForeignKey(occurrence => occurrence.IssueId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(occurrence => occurrence.Run).WithMany().HasForeignKey(occurrence => occurrence.RunId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(occurrence => new { occurrence.RunId, occurrence.IssueId }).IsUnique();
+    }
+}

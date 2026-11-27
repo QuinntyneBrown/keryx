@@ -45,4 +45,26 @@ public static class RunWords
     };
 
     public static StageStatus StatusOf(string word) => Enum.GetValues<StageStatus>().Single(value => Status(value) == word);
+
+    public static string Severity(IssueSeverity severity) => severity == IssueSeverity.Error ? "error" : "warning";
+
+    public static IssueSeverity SeverityOf(string word) => word == "error" ? IssueSeverity.Error : IssueSeverity.Warning;
+
+    public static string Kind(IssueKind kind) => kind switch
+    {
+        IssueKind.SourceNotFound => "source_not_found",
+        IssueKind.SourceTimeout => "source_timeout",
+        IssueKind.SourceBlocked => "source_blocked",
+        IssueKind.SourceInvalid => "source_invalid",
+        IssueKind.ItemsHeld => "items_held",
+        IssueKind.StageFailed => "stage_failed",
+        IssueKind.RunSkipped => "run_skipped",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+    };
+
+    public static IssueKind KindOf(string word) => Enum.GetValues<IssueKind>().Single(value => Kind(value) == word);
+
+    public static string State(IssueState state) => state.ToString().ToLowerInvariant();
+
+    public static IssueState StateOf(string word) => Enum.GetValues<IssueState>().Single(value => State(value) == word);
 }

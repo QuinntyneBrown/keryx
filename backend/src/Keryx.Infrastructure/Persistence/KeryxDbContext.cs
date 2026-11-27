@@ -26,6 +26,12 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Keryx.Domain.Collection.Run> Runs => Set<Keryx.Domain.Collection.Run>();
 
+    public DbSet<Keryx.Domain.Collection.RunLease> RunLeases => Set<Keryx.Domain.Collection.RunLease>();
+
+    public DbSet<Keryx.Domain.Collection.RunIssue> RunIssues => Set<Keryx.Domain.Collection.RunIssue>();
+
+    public DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences => Set<Keryx.Domain.Collection.IssueOccurrence>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

@@ -29,6 +29,12 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
     public DbSet<Keryx.Domain.Collection.Run> Runs => inner.Runs;
 
+    public DbSet<Keryx.Domain.Collection.RunLease> RunLeases => inner.RunLeases;
+
+    public DbSet<Keryx.Domain.Collection.RunIssue> RunIssues => inner.RunIssues;
+
+    public DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences => inner.IssueOccurrences;
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         fault.Armed && inner.ChangeTracker.Entries<Source>().Any(entry => entry.State == EntityState.Added)
             ? throw new DbUpdateException("duplicate key value violates unique constraint")

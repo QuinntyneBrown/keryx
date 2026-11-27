@@ -22,6 +22,38 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Keryx.Domain.Collection.IssueOccurrence", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<long>("IssueId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("RunId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssueId");
+
+                    b.HasIndex("RunId", "IssueId")
+                        .IsUnique();
+
+                    b.ToTable("IssueOccurrences", (string)null);
+                });
+
             modelBuilder.Entity("Keryx.Domain.Collection.Run", b =>
                 {
                     b.Property<long>("Id")
@@ -84,6 +116,91 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasIndex("Worker", "StartedAt");
 
                     b.ToTable("Runs", (string)null);
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Collection.RunIssue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ConsecutiveRuns")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("Since")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("SourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Stage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Worker")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("State", "Severity", "Since");
+
+                    b.ToTable("RunIssues", (string)null);
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Collection.RunLease", b =>
+                {
+                    b.Property<string>("Worker")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("ActiveRunId")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset>("LastScheduledSlotAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Worker");
+
+                    b.ToTable("RunLeases", (string)null);
                 });
 
             modelBuilder.Entity("Keryx.Domain.Reference.Category", b =>
@@ -311,6 +428,25 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.ToTable("StaffSessions");
                 });
 
+            modelBuilder.Entity("Keryx.Domain.Collection.IssueOccurrence", b =>
+                {
+                    b.HasOne("Keryx.Domain.Collection.RunIssue", "Issue")
+                        .WithMany()
+                        .HasForeignKey("IssueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Keryx.Domain.Collection.Run", "Run")
+                        .WithMany()
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Issue");
+
+                    b.Navigation("Run");
+                });
+
             modelBuilder.Entity("Keryx.Domain.Collection.Run", b =>
                 {
                     b.OwnsOne("Keryx.Domain.Collection.RunCounts", "Counts", b1 =>
@@ -391,6 +527,14 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Stages");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Collection.RunIssue", b =>
+                {
+                    b.HasOne("Keryx.Domain.Sources.Source", null)
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Keryx.Domain.Sources.Source", b =>
