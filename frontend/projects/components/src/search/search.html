@@ -1,0 +1,12 @@
+<div class="search">
+  <kx-icon class="search__icon" name="search" />
+  <label class="visually-hidden" [for]="controlId()">{{ label() }}</label>
+  <kx-input
+    class="search__field"
+    type="search"
+    iconStart
+    [controlId]="controlId()"
+    [placeholder]="placeholder()"
+    [(value)]="value"
+  />
+</div>

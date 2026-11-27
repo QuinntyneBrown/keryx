@@ -1,5 +1,5 @@
 <select
-  class="select"
+  [attr.class]="auto() ? 'select select--auto' : 'select'"
   [id]="controlId()"
   [attr.aria-invalid]="invalid() ? 'true' : null"
   [attr.aria-describedby]="describedBy() ?? null"

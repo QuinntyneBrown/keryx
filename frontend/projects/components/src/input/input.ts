@@ -28,6 +28,10 @@ export class Input {
   /** The id of the text that describes it: its error. */
   readonly describedBy = input<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
+  /** Shown while it is empty; it says what may be entered and is never its label. */
+  readonly placeholder = input<string>();
+  /** Room at the start for an icon drawn over it, as in a search field. */
+  readonly iconStart = input(false, { transform: booleanAttribute });
   /** Focus left the input. */
   readonly left = output<void>();
 

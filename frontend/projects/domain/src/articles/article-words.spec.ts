@@ -3,6 +3,7 @@ import {
   articleStatusLabel,
   categoryName,
   formatCount,
+  noResultsWords,
   pageRange,
   articleStatusTone,
   formatRelativeAge,
@@ -119,5 +120,40 @@ describe('categoryName', () => {
       'Faith & Wellness',
     ]);
     expect(categoryName('pilates')).toBe('pilates');
+  });
+});
+
+describe('noResultsWords', () => {
+  // L2-050 AC4; without a search the filters alone matched nothing (design: no-results).
+  it.each([
+    [
+      'pickleball',
+      18432,
+      {
+        title: 'No articles match “pickleball”',
+        text: 'Try a different word, or clear the search to see all 18,432 articles.',
+        action: 'Clear search',
+      },
+    ],
+    [
+      '',
+      6,
+      {
+        title: 'No articles match these filters',
+        text: 'Try another region or category, or clear the filters to see all 6 articles.',
+        action: 'Clear filters',
+      },
+    ],
+    [
+      '  run  ',
+      1,
+      {
+        title: 'No articles match “run”',
+        text: 'Try a different word, or clear the search to see all 1 article.',
+        action: 'Clear search',
+      },
+    ],
+  ])('words %j with %i in the tab', (q, total, expected) => {
+    expect(noResultsWords(q, total)).toEqual(expected);
   });
 });

@@ -23,6 +23,8 @@ export class Select {
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly describedBy = input<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
+  /** As wide as its longest option, as a filter in a toolbar; otherwise it fills its field. */
+  readonly auto = input(false, { transform: booleanAttribute });
 
   focus(): void {
     this.host.nativeElement.querySelector('select')?.focus();

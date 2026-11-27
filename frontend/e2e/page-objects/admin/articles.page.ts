@@ -20,6 +20,13 @@ export class ArticlesPage {
   readonly pagination: Locator;
   readonly previous: Locator;
   readonly next: Locator;
+  readonly search: Locator;
+  readonly region: Locator;
+  readonly category: Locator;
+  readonly empty: Locator;
+  readonly emptyTitle: Locator;
+  readonly emptyText: Locator;
+  readonly clearSearch: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -39,6 +46,14 @@ export class ArticlesPage {
     this.pagination = page.locator('main nav.pagination');
     this.previous = this.pagination.locator('.btn', { hasText: 'Previous' });
     this.next = this.pagination.locator('.btn', { hasText: 'Next' });
+    const toolbar = page.locator('main .toolbar');
+    this.search = toolbar.locator('.search input[type="search"]');
+    this.region = toolbar.locator('select#filter-region');
+    this.category = toolbar.locator('select#filter-category');
+    this.empty = this.panel.locator('.empty');
+    this.emptyTitle = this.empty.locator('.empty__title');
+    this.emptyText = this.empty.locator('.empty__text');
+    this.clearSearch = this.empty.locator('.empty__actions .btn');
   }
 
   async open(query = ''): Promise<void> {

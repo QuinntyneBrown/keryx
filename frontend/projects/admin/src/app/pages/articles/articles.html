@@ -10,13 +10,46 @@
     [selected]="tabId()"
     (selectedChange)="chooseTab($event)"
   />
+  <kx-toolbar class="articles__toolbar">
+    <kx-search
+      #search
+      controlId="article-search"
+      label="Search articles"
+      placeholder="Search titles, organisations, places"
+      [value]="query().q"
+      (valueChange)="typed($event)"
+    />
+    <label class="visually-hidden" for="filter-region">Region</label>
+    <kx-select
+      auto
+      controlId="filter-region"
+      placeholder="All regions"
+      [options]="regionOptions()"
+      [value]="query().region ?? ''"
+      (valueChange)="filter({ region: $event })"
+    />
+    <label class="visually-hidden" for="filter-category">Category</label>
+    <kx-select
+      auto
+      controlId="filter-category"
+      placeholder="All categories"
+      [options]="categoryOptions"
+      [value]="query().category ?? ''"
+      (valueChange)="filter({ category: $event })"
+    />
+  </kx-toolbar>
   <div
     class="articles__panel"
     id="articles-panel"
     role="tabpanel"
     [attr.aria-labelledby]="'tab-' + tabId()"
   >
-    @if (store.page(); as page) {
+    @if (noResults(); as words) {
+      <kx-empty card compact [title]="words.title" [text]="words.text">
+        <kx-icon slot="icon" name="search" size="lg" />
+        <kx-btn slot="actions" (activated)="clear(search)">{{ words.action }}</kx-btn>
+      </kx-empty>
+    } @else if (store.page(); as page) {
       <kx-table
         #table
         caption="Articles, newest first"

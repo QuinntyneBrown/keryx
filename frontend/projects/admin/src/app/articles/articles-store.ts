@@ -6,7 +6,7 @@ import {
   type ArticlePage,
   type Region,
 } from '@kx/api';
-import { searchTerm, type ArticleQuery } from '@kx/domain';
+import { searchPause, searchTerm, type ArticleQuery } from '@kx/domain';
 
 /** The page size the Articles screen asks for (L2-048). */
 export const ARTICLES_PAGE_SIZE = 10;
@@ -20,6 +20,7 @@ export const ARTICLES_PAGE_SIZE = 10;
 export class ArticlesStore {
   private readonly api = inject(ARTICLES_API);
   private controller: AbortController | null = null;
+  private readonly pause = searchPause();
 
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
   readonly page = signal<ArticlePage | null>(null);
@@ -28,7 +29,15 @@ export class ArticlesStore {
   readonly reference = signal<string | null>(null);
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.controller?.abort());
+    inject(DestroyRef).onDestroy(() => {
+      this.controller?.abort();
+      this.pause.cancel();
+    });
+  }
+
+  /** Runs `search` once typing has paused; a key within the pause cancels the pending one. */
+  afterTypingPauses(search: () => void): void {
+    this.pause.run(search);
   }
 
   /** Loads the page the query names; resolves true once it is shown. */

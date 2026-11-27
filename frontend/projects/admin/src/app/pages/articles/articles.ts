@@ -3,16 +3,24 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ARTICLES_API, type ArticleRow, type ArticleStatus } from '@kx/api';
 import {
   Badge,
+  Btn,
+  Empty,
+  Icon,
   Meter,
   PageBody,
   PageHeader,
   Pagination,
+  Search,
+  Select,
   Table,
   Tabs,
+  Toolbar,
+  type SelectOption,
   type TabItem,
   type TableColumn,
 } from '@kx/components';
 import {
+  ARTICLE_CATEGORIES,
   articleQueryFromParams,
   articleQueryToParams,
   articleStatusLabel,
@@ -22,8 +30,10 @@ import {
   formatCount,
   formatRelativeAge,
   formatRelevance,
+  noResultsWords,
   organizationLabel,
   pageRange,
+  searchTerm,
   titleLabel,
   type ArticleParams,
   type ArticleQuery,
@@ -48,7 +58,21 @@ const PARAMS = ['status', 'q', 'region', 'category', 'page', 'article'] as const
  */
 @Component({
   selector: 'kx-articles',
-  imports: [Badge, Meter, PageBody, PageHeader, Pagination, Table, Tabs],
+  imports: [
+    Badge,
+    Btn,
+    Empty,
+    Icon,
+    Meter,
+    PageBody,
+    PageHeader,
+    Pagination,
+    Search,
+    Select,
+    Table,
+    Tabs,
+    Toolbar,
+  ],
   providers: [{ provide: ARTICLES_API, useClass: HttpArticlesApi }, ArticlesStore],
   templateUrl: './articles.html',
   styleUrl: './articles.scss',
@@ -68,6 +92,26 @@ export default class Articles {
     { key: 'relevance', label: 'Relevance', wide: true },
     { key: 'status', label: 'Status', wide: true },
   ];
+
+  protected readonly regionOptions = computed<SelectOption[]>(() =>
+    this.store.regions().map((region) => ({ value: region.slug, label: region.name })),
+  );
+
+  protected readonly categoryOptions: SelectOption[] = ARTICLE_CATEGORIES.map((slug) => ({
+    value: slug,
+    label: categoryName(slug),
+  }));
+
+  /** The no-results words, when a search or a filter matched nothing (L2-050 AC4). */
+  protected readonly noResults = computed(() => {
+    const page = this.store.page();
+    const query = this.query();
+    const narrowed = !!(searchTerm(query.q) || query.region || query.category);
+    if (!page || page.total > 0 || !narrowed) return null;
+    const counts = this.store.counts();
+    const total = counts ? counts[query.status ?? 'all'] : 0;
+    return noResultsWords(searchTerm(query.q) ?? '', total);
+  });
 
   protected readonly tabId = computed(() => TAB_IDS[this.query().status ?? 'all']);
 
@@ -138,6 +182,28 @@ export default class Articles {
     );
     const chosen = !status || status === 'all' ? null : status;
     if (chosen !== this.query().status) this.change({ status: chosen });
+  }
+
+  /** The field changed: search once typing pauses, unless the term to send is the same. */
+  protected typed(text: string): void {
+    this.store.afterTypingPauses(() => {
+      const term = searchTerm(text) ?? '';
+      if (term !== (searchTerm(this.query().q) ?? '')) this.change({ q: term });
+    });
+  }
+
+  protected filter(change: { region?: string; category?: string }): void {
+    this.change(
+      'region' in change
+        ? { region: change.region || null }
+        : { category: change.category || null },
+    );
+  }
+
+  /** Clears the search and the filters, keeping the tab, and returns focus to the field. */
+  protected clear(search: Search): void {
+    this.change({ q: '', region: null, category: null });
+    search.focus();
   }
 
   protected step(direction: -1 | 1, table: Table): void {

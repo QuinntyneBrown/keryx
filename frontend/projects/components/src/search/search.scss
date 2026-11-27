@@ -1,0 +1,27 @@
+// The search field (docs/design-system/components/search.html).
+:host {
+  display: flex;
+  flex: 1 1 var(--layout-search-basis);
+  min-width: 0;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  translate: 0 -50%;
+  color: var(--color-fg-subtle);
+  pointer-events: none;
+}
+
+.search__field {
+  flex: 1;
+  min-width: 0;
+}

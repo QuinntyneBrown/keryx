@@ -44,3 +44,11 @@
   background-color: var(--color-bg-subtle);
   color: var(--color-fg-muted);
 }
+
+:host(:has(.select--auto)) {
+  display: inline-block;
+}
+
+.select--auto {
+  width: auto;
+}

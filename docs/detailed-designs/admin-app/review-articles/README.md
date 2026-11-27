@@ -47,7 +47,11 @@ The slice runs from the routed Articles page to three admin read endpoints.
   (`L2-088`). With the panel open, `app__main--split` places it beside the table from 1024 px;
   below 1024 px the panel covers the screen with a Close button. It moves focus to the table
   caption after a page change, returns focus to the opener row when the panel closes and to the
-  search field after "Clear search".
+  search field after "Clear search". "Clear search" clears the search, the region and the
+  category and keeps the status tab, so its "all N articles" is that tab's total. When filters
+  without a search match nothing, the same state reads "No articles match these filters",
+  "Try another region or category, or clear the filters to see all N articles." and "Clear
+  filters" (no mock shows this case; the words follow the search case).
 - **`ArticlesStore`** — screen store held in signals. It derives `ArticleQuery` from the URL and
   writes every change back with `router.navigate` (merged query parameters), so Back restores
   the previous list. It debounces search for 300 ms and cancels the previous request with

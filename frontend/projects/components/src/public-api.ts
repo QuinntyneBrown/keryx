@@ -36,3 +36,5 @@ export { CheckList } from './check/check-list';
 export { Meter } from './meter/meter';
 export { Tabs, type TabItem } from './tabs/tabs';
 export { Pagination } from './pagination/pagination';
+export { Search } from './search/search';
+export { Toolbar } from './search/toolbar';

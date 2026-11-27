@@ -98,3 +98,23 @@ const CATEGORY_NAMES: Record<string, string> = {
 export function categoryName(slug: string): string {
   return Object.hasOwn(CATEGORY_NAMES, slug) ? CATEGORY_NAMES[slug] : slug;
 }
+
+/** The no-results state: the search as typed, or the filters when there is no search. */
+export function noResultsWords(
+  q: string,
+  total: number,
+): { title: string; text: string; action: string } {
+  const all = `all ${formatCount(total)} ${total === 1 ? 'article' : 'articles'}`;
+  const term = q.trim();
+  return term
+    ? {
+        title: `No articles match “${term}”`,
+        text: `Try a different word, or clear the search to see ${all}.`,
+        action: 'Clear search',
+      }
+    : {
+        title: 'No articles match these filters',
+        text: `Try another region or category, or clear the filters to see ${all}.`,
+        action: 'Clear filters',
+      };
+}

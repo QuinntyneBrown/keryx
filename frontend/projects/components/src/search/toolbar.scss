@@ -1,0 +1,11 @@
+// The toolbar (docs/design-system/components/search.html).
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
