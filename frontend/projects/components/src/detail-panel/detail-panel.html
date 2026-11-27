@@ -26,4 +26,28 @@
     </div>
     <ng-content />
   </div>
+  @if (actions().length) {
+    <div class="detail-panel__foot">
+      @for (action of actions(); track action) {
+        @if (action === 'publish') {
+          <kx-btn
+            grow
+            variant="primary"
+            [busy]="busy() === 'publish'"
+            [disabled]="busy() !== null"
+            (activated)="publish.emit()"
+            ><kx-icon slot="icon" name="eye" size="sm" />Publish</kx-btn
+          >
+        } @else {
+          <kx-btn
+            grow
+            [busy]="busy() === 'hide'"
+            [disabled]="busy() !== null"
+            (activated)="hide.emit()"
+            ><kx-icon slot="icon" name="eye-off" size="sm" />Hide from API</kx-btn
+          >
+        }
+      }
+    </div>
+  }
 </aside>

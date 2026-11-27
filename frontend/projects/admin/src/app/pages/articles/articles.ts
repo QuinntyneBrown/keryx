@@ -9,7 +9,13 @@ import {
 } from '@angular/core';
 import type { DialogRef } from '@angular/cdk/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ARTICLES_API, NOTIFIER, type ArticleRow, type ArticleStatus } from '@kx/api';
+import {
+  ARTICLES_API,
+  NOTIFIER,
+  type ArticleDecision,
+  type ArticleRow,
+  type ArticleStatus,
+} from '@kx/api';
 import {
   Badge,
   Btn,
@@ -350,9 +356,46 @@ export default class Articles {
       height: '100%',
       backdropClass: 'kx-backdrop',
     });
-    ref.componentRef?.setInput('shown', view);
     ref.componentInstance?.closed.subscribe(() => this.closePanel());
+    ref.componentInstance?.publish.subscribe(() => void this.decide('publish'));
+    ref.componentInstance?.hide.subscribe(() => void this.decide('hide'));
     this.dialog = { ref, id: view.id };
+    this.pushDialog();
+  }
+
+  /**
+   * Publishes the open article and reports it with Undo (L2-052 AC1). The store ignores a second
+   * press while one is in flight (AC5).
+   */
+  protected async decide(kind: 'publish' | 'hide'): Promise<void> {
+    const shown = this.panel()[0];
+    if (!shown) return;
+    const pending = this.store.decide(kind);
+    this.pushDialog();
+    const decision = await pending;
+    this.pushDialog();
+    if (!decision || kind !== 'publish') return;
+    this.notifier.notify({
+      tone: 'success',
+      title: 'Article published',
+      text: `“${shown.title}” is now served by the API.`,
+      action: { label: 'Undo', run: () => void this.undo(decision) },
+    });
+  }
+
+  /** Returns the article to the status the decision replaced (L2-052 AC2). */
+  private async undo(decision: ArticleDecision): Promise<void> {
+    await this.store.undo(decision);
+    this.pushDialog();
+  }
+
+  /** The dialog's panel takes its inputs from here, as the inline panel does from the template. */
+  private pushDialog(): void {
+    const ref = this.dialog?.ref.componentRef;
+    const view = this.panel()[0];
+    if (!ref || view?.id !== this.dialog?.id) return;
+    ref.setInput('shown', view);
+    ref.setInput('busy', this.store.decisionInFlight());
   }
 
   /** Closes the dialog by its ref, before any navigation, without changing the URL. */

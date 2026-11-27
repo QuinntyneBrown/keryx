@@ -20,7 +20,9 @@ export type IconName =
   | 'articles'
   | 'chevron-left'
   | 'chevron-right'
-  | 'external';
+  | 'external'
+  | 'eye'
+  | 'eye-off';
 
 @Component({ selector: 'kx-icon', templateUrl: './icon.html', styleUrl: './icon.scss' })
 export class Icon {

@@ -3,6 +3,7 @@ import {
   ApiProblem,
   ARTICLES_API,
   type ArticleCounts,
+  type ArticleDecision,
   type ArticleDetail,
   type ArticlePage,
   type Region,
@@ -22,6 +23,7 @@ export class ArticlesStore {
   private readonly api = inject(ARTICLES_API);
   private controller: AbortController | null = null;
   private detailController: AbortController | null = null;
+  private readonly decisions = new AbortController();
   private readonly pause = searchPause();
   private readonly skeleton = skeletonDelay();
 
@@ -34,11 +36,14 @@ export class ArticlesStore {
   readonly slow = signal(false);
   /** The open article, or null while none is open or it is loading. */
   readonly detail = signal<ArticleDetail | null>(null);
+  /** The decision being sent: while one is, another is ignored (L2-052 AC5). */
+  readonly decisionInFlight = signal<'publish' | 'hide' | null>(null);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       this.controller?.abort();
       this.detailController?.abort();
+      this.decisions.abort();
       this.pause.cancel();
       this.skeleton.cancel();
     });
@@ -47,6 +52,79 @@ export class ArticlesStore {
   /** Runs `search` once typing has paused; a key within the pause cancels the pending one. */
   afterTypingPauses(search: () => void): void {
     this.pause.run(search);
+  }
+
+  /**
+   * Publishes or hides the open article. Resolves the decision once the article, its row and the
+   * status totals show it; null when another decision is in flight or the screen has gone; and
+   * rejects when the request fails, with nothing changed.
+   */
+  async decide(kind: 'publish' | 'hide'): Promise<ArticleDecision | null> {
+    const article = this.detail();
+    if (!article || this.decisionInFlight()) return null;
+    this.decisionInFlight.set(kind);
+    const { signal } = this.decisions;
+    try {
+      const decision = await this.api[kind](article.id, signal);
+      if (signal.aborted) return null;
+      this.apply(decision);
+      await this.refreshCounts(signal);
+      return decision;
+    } finally {
+      this.decisionInFlight.set(null);
+    }
+  }
+
+  /**
+   * Undoes a decision (L2-052 AC2): the article returns to the status it replaced, and is read
+   * again for the reason its status carries. Resolves false when the screen has gone; rejects when
+   * the request fails.
+   */
+  async undo(decision: ArticleDecision): Promise<boolean> {
+    if (!decision.previous_status) return false;
+    const { signal } = this.decisions;
+    const reverted = await this.api.revert(decision.id, decision.previous_status, signal);
+    if (signal.aborted) return false;
+    this.apply(reverted);
+    await Promise.all([this.reread(reverted.id, signal), this.refreshCounts(signal)]);
+    return true;
+  }
+
+  private async reread(id: string, signal: AbortSignal): Promise<void> {
+    if (this.detail()?.id !== id) return;
+    try {
+      const detail = await this.api.get(id, signal);
+      if (!signal.aborted && this.detail()?.id === id) this.detail.set(detail);
+    } catch {
+      // The status shown is the server's; only the reason waits for the next open.
+    }
+  }
+
+  /** Shows a decision's status on the open article and its row. */
+  private apply(decision: ArticleDecision): void {
+    const detail = this.detail();
+    if (detail?.id === decision.id) {
+      this.detail.set({ ...detail, status: decision.status, decided_by: decision.decided_by });
+    }
+    const page = this.page();
+    if (page?.items.some((row) => row.id === decision.id)) {
+      this.page.set({
+        ...page,
+        items: page.items.map((row) =>
+          row.id === decision.id ? { ...row, status: decision.status } : row,
+        ),
+      });
+    }
+  }
+
+  /** Reads the status totals again; the tabs keep the last ones when the read fails. */
+  private async refreshCounts(signal: AbortSignal): Promise<void> {
+    try {
+      const counts = await this.api.counts(signal);
+      if (!signal.aborted) this.counts.set(counts);
+    } catch {
+      // The decision stands; the totals catch up on the next load.
+    }
   }
 
   private settle(): void {

@@ -49,6 +49,9 @@ export class ArticlesPage {
   readonly stateReference: Locator;
   readonly stateActions: Locator;
   readonly toastAction: Locator;
+  readonly panelActions: Locator;
+  readonly publish: Locator;
+  readonly hide: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -97,6 +100,9 @@ export class ArticlesPage {
     this.stateReference = page.locator('main .empty__ref');
     this.stateActions = page.locator('main .empty__actions .btn');
     this.toastAction = this.toast.locator('.toast__action');
+    this.panelActions = this.detail.locator('.detail-panel__foot .btn');
+    this.publish = this.panelActions.filter({ hasText: 'Publish' });
+    this.hide = this.panelActions.filter({ hasText: 'Hide from API' });
   }
 
   async open(query = ''): Promise<void> {
@@ -139,5 +145,13 @@ export class ArticlesPage {
 
   query(): URLSearchParams {
     return new URL(this.page.url()).searchParams;
+  }
+
+  /** Clicks a panel action twice in one task, faster than the screen can disable it. */
+  async doubleActivate(action: Locator): Promise<void> {
+    await action.evaluate((button: HTMLElement) => {
+      button.click();
+      button.click();
+    });
   }
 }

@@ -11,7 +11,6 @@
   z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   background: var(--color-bg-surface);
   animation: slide-in var(--duration-base) var(--ease-enter);
 }
@@ -54,8 +53,18 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
   gap: var(--space-6);
   padding: var(--space-5);
+}
+
+// One or two growing buttons above a hairline; it stays in view while the body scrolls.
+.detail-panel__foot {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
 }
 
 .detail-panel__title {

@@ -1,6 +1,14 @@
-import { booleanAttribute, Component, input, output } from '@angular/core';
+import { booleanAttribute, Component, computed, input, output } from '@angular/core';
 import type { ArticleDetail } from '@kx/api';
-import { Alert, Badge, DetailPanel, Dl, Meter, type DlItem } from '@kx/components';
+import {
+  Alert,
+  Badge,
+  DetailPanel,
+  Dl,
+  Meter,
+  type DetailAction,
+  type DlItem,
+} from '@kx/components';
 
 /** One article as the panel shows it: its words worked out by the Articles screen. */
 export interface ArticlePanelView {
@@ -36,6 +44,18 @@ export class ArticlePanel {
   readonly shown = input.required<ArticlePanelView>();
   readonly focusOnOpen = input(false, { transform: booleanAttribute });
   readonly closed = output<void>();
+  /** The decision in flight, whose button shows busy. */
+  readonly busy = input<DetailAction | null>(null);
+  readonly publish = output<void>();
+  readonly hide = output<void>();
+
+  /** The foot follows the status: a held article offers both, the others the one that changes it. */
+  protected readonly actions = computed<DetailAction[]>(() => {
+    const status = this.shown().detail.status;
+    if (status === 'published') return ['hide'];
+    if (status === 'hidden') return ['publish'];
+    return ['publish', 'hide'];
+  });
 
   protected readonly facts: DlItem[] = [
     { key: 'organization', term: 'Organisation' },

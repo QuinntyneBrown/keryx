@@ -27,6 +27,7 @@ export {
 export {
   ARTICLES_API,
   type ArticleCounts,
+  type ArticleDecision,
   type ArticleDetail,
   type ArticleListQuery,
   type ArticlePage,

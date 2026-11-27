@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import {
   type ArticleCounts,
+  type ArticleDecision,
   type ArticleDetail,
   type ArticleListQuery,
   type ArticlePage,
   type ArticlesApi,
+  type ArticleStatus,
   type Region,
 } from '@kx/api';
+import { antiforgeryToken } from '../session/antiforgery';
 import { readJson } from '../session/read-json';
 
 /** The admin articles over fetch, with the staff session's cookie (ADR 0005). */
@@ -34,5 +37,37 @@ export class HttpArticlesApi implements ArticlesApi {
 
   async regions(signal: AbortSignal): Promise<Region[]> {
     return (await readJson<{ items: Region[] }>('/admin/v1/regions', signal)).items;
+  }
+
+  publish(id: string, signal: AbortSignal): Promise<ArticleDecision> {
+    return this.decide(id, 'publish', null, signal);
+  }
+
+  hide(id: string, signal: AbortSignal): Promise<ArticleDecision> {
+    return this.decide(id, 'hide', null, signal);
+  }
+
+  revert(id: string, previousStatus: ArticleStatus, signal: AbortSignal): Promise<ArticleDecision> {
+    return this.decide(id, 'revert', { previous_status: previousStatus }, signal);
+  }
+
+  private async decide(
+    id: string,
+    decision: 'publish' | 'hide' | 'revert',
+    body: object | null,
+    signal: AbortSignal,
+  ): Promise<ArticleDecision> {
+    return readJson<ArticleDecision>(
+      `/admin/v1/articles/${encodeURIComponent(id)}/${decision}`,
+      signal,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': await antiforgeryToken(signal),
+        },
+        body: JSON.stringify(body ?? {}),
+      },
+    );
   }
 }

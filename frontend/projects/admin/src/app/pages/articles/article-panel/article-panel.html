@@ -7,7 +7,11 @@
   [summary]="shown().detail.summary"
   [url]="shown().url"
   [focusOnOpen]="focusOnOpen()"
+  [actions]="actions()"
+  [busy]="busy()"
   (closed)="closed.emit()"
+  (publish)="publish.emit()"
+  (hide)="hide.emit()"
 >
   <kx-dl
     [items]="facts"

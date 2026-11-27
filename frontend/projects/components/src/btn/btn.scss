@@ -86,6 +86,12 @@
 .btn--grow {
   flex: 1;
 }
+
+// A growing button shares its row: the host takes the share and the button fills it.
+:host:has(> .btn--grow) {
+  display: flex;
+  flex: 1;
+}
 .btn[aria-busy='true'] {
   pointer-events: none;
 }
