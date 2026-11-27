@@ -109,6 +109,78 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.ToTable("Articles", (string)null);
                 });
 
+            modelBuilder.Entity("Keryx.Domain.Catalogue.EventRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("LinkedArticleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("OrganizationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PlaceKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PlaceName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("RegionSlug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("Score")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedArticleId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RegionSlug");
+
+                    b.HasIndex("OrganizationId", "StartsAtUtc");
+
+                    b.ToTable("Events", (string)null);
+                });
+
             modelBuilder.Entity("Keryx.Domain.Catalogue.Organization", b =>
                 {
                     b.Property<long>("Id")
@@ -174,6 +246,25 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Category")
                         .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("EventEndsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventPlace")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("EventSignature")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTimeOffset?>("EventStartsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventTimeZone")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
@@ -718,6 +809,78 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("SourceId")
                                 .OnDelete(DeleteBehavior.SetNull);
                         });
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("Provenance");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.EventRecord", b =>
+                {
+                    b.HasOne("Keryx.Domain.Catalogue.Article", "LinkedArticle")
+                        .WithMany()
+                        .HasForeignKey("LinkedArticleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Keryx.Domain.Catalogue.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Keryx.Domain.Reference.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionSlug")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("Keryx.Domain.Catalogue.Provenance", "Provenance", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bigint");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<long>("Id"));
+
+                            b1.Property<long>("EventId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<DateTimeOffset>("FirstSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTimeOffset>("LastSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<long?>("SourceId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("SourceName")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)");
+
+                            b1.Property<string>("Url")
+                                .IsRequired()
+                                .HasMaxLength(2048)
+                                .HasColumnType("character varying(2048)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("EventId");
+
+                            b1.HasIndex("SourceId");
+
+                            b1.ToTable("EventProvenance", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("EventId");
+
+                            b1.HasOne("Keryx.Domain.Sources.Source", null)
+                                .WithMany()
+                                .HasForeignKey("SourceId")
+                                .OnDelete(DeleteBehavior.SetNull);
+                        });
+
+                    b.Navigation("LinkedArticle");
 
                     b.Navigation("Organization");
 

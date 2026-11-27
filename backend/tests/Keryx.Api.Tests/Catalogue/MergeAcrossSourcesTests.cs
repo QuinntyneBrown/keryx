@@ -84,10 +84,11 @@ public sealed class MergeAcrossSourcesTests
         Assert.Equal((1, 1), (one.GetProperty("added").GetInt32(), one.GetProperty("duplicates").GetInt32()));
         var two = await ReadRunAsync(client, second);
         Assert.Equal((0, 0, 0, 2), (two.GetProperty("added").GetInt32(), two.GetProperty("updated").GetInt32(), two.GetProperty("duplicates").GetInt32(), two.GetProperty("unchanged").GetInt32()));
+        // Sources are read in the order they answer, so either item may be the one the other merges into.
         var article = Assert.Single(await ReadArticlesAsync(factory, client));
-        Assert.Equal(Story.Link, article.GetProperty("url").GetString());
-        Assert.Equal(["https://redeemedrun.ca/news/spring-5k", "https://news.redeemedrun.ca/p/88"],
-            article.GetProperty("provenance").EnumerateArray().Select(entry => entry.GetProperty("url").GetString()));
+        string[] links = ["https://news.redeemedrun.ca/p/88", "https://redeemedrun.ca/news/spring-5k"];
+        Assert.Contains(article.GetProperty("url").GetString(), links);
+        Assert.Equal(links, article.GetProperty("provenance").EnumerateArray().Select(entry => entry.GetProperty("url").GetString()).Order(StringComparer.Ordinal));
     }
 
     [Fact]

@@ -40,6 +40,7 @@ public sealed class ArticleIngestion(IAppDbContext db)
         ArgumentNullException.ThrowIfNull(items);
         ArgumentNullException.ThrowIfNull(counts);
         var seenHere = new HashSet<string>(StringComparer.Ordinal);
+        string? zone = null;
         foreach (var (item, score, status) in items)
         {
             if (ItemUrl.Canonical(item.Link.OriginalString) is not { } url)
@@ -55,9 +56,30 @@ public sealed class ArticleIngestion(IAppDbContext db)
                 continue;
             }
 
-            var facts = FactsOf(item, url, source, score, status);
+            // An item is also an event when it publishes a readable start and a place; a local time takes the region's zone (L2-018).
+            (EventTime Start, EventTime? End, string Place)? itemEvent = null;
+            if (item.Event is { Place.Length: > 0 } published)
+            {
+                zone ??= await db.Regions.Where(region => region.Slug == source.RegionSlug).Select(region => region.TimeZone)
+                    .SingleAsync(cancellationToken).ConfigureAwait(false);
+                if (EventTime.From(published.Start, zone) is { } start)
+                {
+                    itemEvent = (start, EventTime.From(published.End, zone), ContactDetailScrubber.Scrub(published.Place));
+                }
+            }
+
+            var facts = FactsOf(item, url, source, score, status) with
+            {
+                EventSignature = itemEvent is { } known ? $"{known.Start.StartsAtUtc:O}|{known.End?.StartsAtUtc:O}|{known.Place}" : string.Empty,
+            };
             var (action, target) = await MatchAsync(run, source, facts, merge, counts, cancellationToken).ConfigureAwait(false);
-            db.StagedArticles.Add(StagedArticle.Of(run.Id, action, target, source.Id, source.OrganizationName, facts));
+            var row = StagedArticle.Of(run.Id, action, target, source.Id, source.OrganizationName, facts);
+            if (itemEvent is { } found)
+            {
+                row.WithEvent(found.Start, found.End, found.Place);
+            }
+
+            db.StagedArticles.Add(row);
         }
     }
 
@@ -157,6 +179,7 @@ public sealed class ArticlePublication(IAppDbContext db)
         var articles = await db.Articles.Where(article => urls.Contains(article.Url))
             .ToDictionaryAsync(article => article.Url, StringComparer.Ordinal, cancellationToken).ConfigureAwait(false);
         var organizations = await OrganizationsAsync(run, staged, cancellationToken).ConfigureAwait(false);
+        var events = new List<EventRecord>();
         foreach (var row in staged)
         {
             if (!articles.TryGetValue(row.TargetUrl ?? row.Url, out var article))
@@ -174,11 +197,52 @@ public sealed class ArticlePublication(IAppDbContext db)
 
                 article.Seen(row.SourceId, row.SourceName, row.Url, run.StartedAt);
             }
+
+            if (row.EventFacts is { } facts)
+            {
+                await PublishEventAsync(run, row, facts, article, organizations.GetValueOrDefault(row.SourceId), events, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         db.StagedArticles.RemoveRange(staged);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return staged.Count(row => row.Action != StagedAction.Seen);
+    }
+
+    /// <summary>
+    /// An item's event: the event already linked to its article (the same item collected again),
+    /// else an event of the same organization within an hour at the same place (L2-010 AC4), else
+    /// a new event linked to the article.
+    /// </summary>
+    private async Task PublishEventAsync(
+        Run run, StagedArticle row, EventFacts facts, Article article, Organization? organization, List<EventRecord> created, CancellationToken cancellationToken)
+    {
+        var item = article.Id == 0 ? null : await db.Events.FirstOrDefaultAsync(candidate => candidate.LinkedArticleId == article.Id, cancellationToken).ConfigureAwait(false);
+        if (item is not null && row.TargetUrl is null && row.Action != StagedAction.Seen)
+        {
+            item.Apply(facts);
+        }
+
+        if (item is null && organization is not null)
+        {
+            var from = facts.Start.StartsAtUtc - EventMatch.Window;
+            var to = facts.Start.StartsAtUtc + EventMatch.Window;
+            var nearby = organization.Id == 0 ? [] : await db.Events
+                .Where(candidate => candidate.OrganizationId == organization.Id && candidate.StartsAtUtc >= from && candidate.StartsAtUtc <= to)
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
+            item = nearby.Concat(created.Where(candidate => candidate.Organization == organization))
+                .FirstOrDefault(candidate => EventMatch.Same(candidate.StartsAtUtc, candidate.PlaceName, facts.Start.StartsAtUtc, facts.PlaceName));
+        }
+
+        if (item is null)
+        {
+            item = EventRecord.From(facts, organization, article, row.SourceId, row.SourceName, run.StartedAt);
+            created.Add(item);
+            db.Events.Add(item);
+            return;
+        }
+
+        item.Seen(row.SourceId, row.SourceName, row.Url, run.StartedAt);
     }
 
     /// <summary>The organization behind each source with staged items, found or created, and seen by that source.</summary>

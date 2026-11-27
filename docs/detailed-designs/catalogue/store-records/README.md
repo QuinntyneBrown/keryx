@@ -67,16 +67,24 @@ database, and out through the regions endpoint.
   does.
 - **`ArticleFactory`** — domain service that builds an `Article` from a parsed item, its
   classification and its source, applying the bounds above.
-- **`Event`** — entity with `PublicId Id` (prefix `<TO SUPPLY>`), `Title`, `EventTime Start`,
+- **`Event`** — entity `EventRecord` (analyser CA1716 refuses a type named `Event`) with
+  `PublicId Id` (prefix `evt_`, as L2-028 names it), `Title`, `EventTime Start`,
   `DateTimeOffset? EndsAt` (UTC), `PlaceName`, `Region`, `Organization`, `CanonicalUrl Url`,
   `Article? LinkedArticle`, `RelevanceScore Score`, `ArticleStatus Status` and its `Provenance`.
   `IsServable()` is true only when the linked article is `published`, or, with no linked
   article, when its own status is `published`.
 - **`EventTime`** — value object holding `StartsAtUtc` and `TimeZone` (an IANA zone id). It is
-  built from a zoned time, or from a local time plus the region's zone, converted to UTC. The
-  rule for a local time that falls in a daylight-saving gap or overlap is `<TO SUPPLY>`.
+  built from a zoned time, or from a local time plus the region's zone, converted to UTC. A local
+  time in the spring gap takes the standard offset, which moves it forward by the gap; one in the
+  autumn overlap is its first occurrence, as the collection schedule reads the clock.
 - **`EventFactory`** — domain service that builds an `Event` from a parsed item with a start
-  time and a place. It drops an end time earlier than the start and stores `EndsAt` as `null`.
+  time and a place. A feed publishes them through the RSS 1.0 event module (`ev:startdate`,
+  `ev:enddate`, `ev:location`); an item with a start and no place, or a start that cannot be
+  read, is an article only. In the publish stage an item's event is the event already linked to
+  its article, else an event of the same organization within an hour at the same place
+  (`EventMatch`, L2-010 AC4), else a new event. The event's start, end and place are part of the
+  article's fingerprint, so a source moving its event counts as an update. Events are not
+  counted separately on the run. It drops an end time earlier than the start and stores `EndsAt` as `null`.
   With no linked article it sets the status from the event's own score by the `L2-013` rule.
 - **`Organization`** — entity with `PublicId Id` (prefix `org_`), `Name` as published,
   `NormalizedName` (the `L2-010` match key), `OrganizationKind Kind`, `Region` and

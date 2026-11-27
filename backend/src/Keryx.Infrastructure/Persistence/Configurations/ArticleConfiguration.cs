@@ -104,6 +104,44 @@ internal sealed class StagedArticleConfiguration : IEntityTypeConfiguration<Stag
         builder.Property(staged => staged.Tags).HasConversion(Tags.Converter, Tags.Comparer).HasMaxLength(1300);
         builder.Property(staged => staged.Score).HasPrecision(3, 2);
         builder.Property(staged => staged.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
+        builder.Property(staged => staged.EventTimeZone).HasMaxLength(64);
+        builder.Property(staged => staged.EventPlace).HasMaxLength(200);
+        builder.Property(staged => staged.EventSignature).HasMaxLength(300);
+        builder.Ignore(staged => staged.EventFacts);
+    }
+}
+
+/// <summary>Events, each in UTC with its zone, with where they were seen.</summary>
+internal sealed class EventConfiguration : IEntityTypeConfiguration<EventRecord>
+{
+    public void Configure(EntityTypeBuilder<EventRecord> builder)
+    {
+        builder.ToTable("Events");
+        builder.HasKey(item => item.Id);
+        builder.Property(item => item.PublicId).HasMaxLength(SourceConfiguration.PublicIdLength);
+        builder.HasIndex(item => item.PublicId).IsUnique();
+        builder.Property(item => item.Title).HasMaxLength(ArticleTitle.MaxLength);
+        builder.Property(item => item.TimeZone).HasMaxLength(64);
+        builder.Property(item => item.PlaceName).HasMaxLength(200);
+        builder.Property(item => item.PlaceKey).HasMaxLength(200);
+        builder.Property(item => item.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.HasOne<Region>().WithMany().HasForeignKey(item => item.RegionSlug).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(item => item.Organization).WithMany().HasForeignKey(item => item.OrganizationId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(item => item.LinkedArticle).WithMany().HasForeignKey(item => item.LinkedArticleId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasIndex(item => new { item.OrganizationId, item.StartsAtUtc });
+        builder.Property(item => item.Score).HasPrecision(3, 2);
+        builder.Property(item => item.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
+        builder.OwnsMany(item => item.Provenance, entry =>
+        {
+            entry.ToTable("EventProvenance");
+            entry.WithOwner().HasForeignKey("EventId");
+            entry.Property<long>("Id");
+            entry.HasKey("Id");
+            entry.Property(provenance => provenance.SourceName).HasMaxLength(120);
+            entry.Property(provenance => provenance.Url).HasMaxLength(ArticleConfiguration.UrlLength);
+            entry.HasOne<Source>().WithMany().HasForeignKey(provenance => provenance.SourceId).OnDelete(DeleteBehavior.SetNull);
+        });
+        builder.Navigation(item => item.Provenance).HasField("_provenance");
     }
 }
 

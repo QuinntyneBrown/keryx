@@ -149,11 +149,14 @@ public sealed record ArticleFacts(
     decimal Score,
     PublicationStatus Status)
 {
+    /// <summary>The item's event as the source published it (start, end and place), or empty when it is no event.</summary>
+    public string EventSignature { get; init; } = string.Empty;
+
     /// <summary>
-    /// The facts a source controls. Score and status follow from them under the settings of the
-    /// run, so a settings change alone does not make every article an update.
+    /// The facts a source controls, its event included. Score and status follow from them under
+    /// the settings of the run, so a settings change alone does not make every article an update.
     /// </summary>
     public string Fingerprint => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
-        string.Join('\u001f', Title ?? string.Empty, Summary, string.Join(',', Tags),
+        string.Join('\u001f', Title ?? string.Empty, Summary, string.Join(',', Tags), EventSignature,
             PublishedAt?.ToUniversalTime().ToString("O", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty))));
 }

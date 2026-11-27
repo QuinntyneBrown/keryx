@@ -10,7 +10,10 @@ public interface IFeedParser
 }
 
 /// <summary>An item as a source published it: plain text, and a link that is http or https.</summary>
-public sealed record FeedItem(string Title, Uri Link, string Summary, DateTimeOffset? PublishedAt);
+public sealed record FeedItem(string Title, Uri Link, string Summary, DateTimeOffset? PublishedAt, ItemEvent? Event = null);
+
+/// <summary>When and where an item's event happens, as text the source published (RSS event module); bounded plain text.</summary>
+public sealed record ItemEvent(string Start, string End, string Place);
 
 /// <summary>The items kept (at most 200, newest first) and how many were rejected.</summary>
 public sealed record ParsedFeed(IReadOnlyList<FeedItem> Items, int Rejected);

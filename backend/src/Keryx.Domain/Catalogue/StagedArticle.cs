@@ -59,9 +59,37 @@ public sealed class StagedArticle
 
     public decimal Score { get; private set; }
 
+    /// <summary>When the item's event starts, in UTC; null when the item is no event (it needs a start and a place).</summary>
+    public DateTimeOffset? EventStartsAtUtc { get; private set; }
+
+    public string? EventTimeZone { get; private set; }
+
+    public DateTimeOffset? EventEndsAtUtc { get; private set; }
+
+    public string? EventPlace { get; private set; }
+
+    /// <summary>The item's event as published, part of the facts' fingerprint.</summary>
+    public string EventSignature { get; private set; } = string.Empty;
+
     public PublicationStatus Status { get; private set; }
 
-    public ArticleFacts Facts => new(Url, Title, Summary, Category, RegionSlug, Tags, PublishedAt, Score, Status);
+    public ArticleFacts Facts => new(Url, Title, Summary, Category, RegionSlug, Tags, PublishedAt, Score, Status) { EventSignature = EventSignature };
+
+    /// <summary>The item's event, when it is one.</summary>
+    public EventFacts? EventFacts => EventStartsAtUtc is { } start && EventTimeZone is { } zone && EventPlace is { } place
+        ? new EventFacts(Url, Title, new EventTime(start, zone), EventEndsAtUtc, place, RegionSlug, Score, Status)
+        : null;
+
+    /// <summary>The same row, carrying the item's event.</summary>
+    public StagedArticle WithEvent(EventTime start, EventTime? end, string place)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        EventStartsAtUtc = start.StartsAtUtc;
+        EventTimeZone = start.TimeZone;
+        EventEndsAtUtc = end?.StartsAtUtc;
+        EventPlace = place;
+        return this;
+    }
 
     public static StagedArticle Of(long runId, StagedAction action, string? targetUrl, long sourceId, string sourceName, ArticleFacts facts)
     {
@@ -83,6 +111,7 @@ public sealed class StagedArticle
             PublishedAt = facts.PublishedAt,
             Score = facts.Score,
             Status = facts.Status,
+            EventSignature = facts.EventSignature,
         };
     }
 }
