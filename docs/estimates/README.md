@@ -1,16 +1,16 @@
 # Estimates
 
 - Overall effort: 152 days
-- Complete: 11%
+- Complete: 20%
 
 | Subsystem | Effort | Complete |
 |---|---|---|
+| [sources](sources.md) | 19 days | 67% |
 | [operations](operations.md) | 21 days | 33% |
 | [admin-app](admin-app.md) | 41 days | 21% |
 | [catalogue](catalogue.md) | 12 days | 5% |
 | [consumer-api](consumer-api.md) | 30 days | 3% |
-| [sources](sources.md) | 19 days | 0% |
-| [collection](collection.md) | 29 days | 0% |
+| [collection](collection.md) | 29 days | 3% |
 
 ## Roadmap
 

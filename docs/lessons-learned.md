@@ -138,3 +138,39 @@ the expiry spec passed at once and was proved by breaking the guard's `session_e
 "Read the initial total after each new API" caught the 3.2 kB growth in the same slice it
 happened.
 
+## Journey 3: Staff adds a source
+
+**What slowed it.** The journey was four designs deep (add, test fetch, fetch respectfully,
+the list it lands in) and needed a scorer, a fetcher, a regions endpoint and the first CDK
+dialog before the screen could exist: 14 slices, against a 4-day estimate. The initial bundle
+went over budget twice, and the CDK Dialog alone pushed it past 250 kB (ADR 0009).
+
+- **A mutation that does not compile proves nothing.** The test run picks up the last binary
+  that built, so the "failing" rule is still in place. Check the build's exit status before
+  reading a mutated run's results.
+- **Two guards can hide each other.** Removing the per-hop safety check on redirects passed
+  because the robots.txt lookup refused the same host first. Prove a doubled guard by removing
+  both, then each, and say in the test which one it proves.
+- **Each new Angular feature has an initial-bundle cost, even in lazy code.** A signal
+  `contentChildren` query cost 6.6 kB and the first `@for` about 5 kB. A `cells` input of
+  `TemplateRef`s did the same job for nothing. The CDK Dialog costs about 15 kB of core and
+  RxJS that cannot be split. Bisect with `--stats-json`; a build over budget writes no stats,
+  so raise the budget for the measurement only.
+- **An input named `id` duplicates the host attribute.** `#source-url` then matched the host and
+  the control. Name it `controlId`.
+- **The CDK leaves `aria-modal` false.** Pass `ariaModal: true`, and label and describe the
+  container by the dialog's own ids.
+- **Enter submits only with a submit button.** Every `kx-btn` was `type="button"`; a `submit`
+  attribute on `btn` lets the dialog's form handle Enter and the button alike.
+- **A new call in a shared flow breaks every spec that walks it.** The test on blur made six
+  existing specs send an unanswered request. Answer it in the spec's shared helper, since later
+  registrations take precedence, and add it explicitly where a spec builds its own handlers.
+- **Prettier rewraps imports.** An edit script matching the old one-line import failed its
+  assertion and wrote nothing, as it should. Take old text from the file as it is now.
+
+**How earlier lessons worked.** "Honest red" caught two weak tests: the user-name rule passed
+its mutation until a row without a password joined the table, and the close lock was proved by
+removing `disableClose`. "Read the initial total after each new API" kept every frontend slice
+at the same 253.40 kB after the dialog. The deferred pieces are recorded where they will land:
+the next run's time in the toast (journey 4), "Edit source" on the warning toast (journey 17),
+the audit entry on create (journey 24), and the list's held and 30-day counts (journeys 5–6).
