@@ -16,17 +16,23 @@ public sealed class StaffCallbackTests(StaffProviderFactory factory) : IClassFix
     [Fact]
     public async Task Given_a_staff_identity_When_the_provider_returns_Then_the_browser_can_read_its_profile_until_idle_expiry()
     {
+        // The browser's cookies are carried by hand. A cookie container would judge each cookie's
+        // expiry by the real clock, while the API sets it by the fixture's fake clock, so the
+        // correlation cookie would vanish whenever the real time passed the fake one.
         using var browser = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost"),
             AllowAutoRedirect = false,
+            HandleCookies = false,
         });
         var ct = TestContext.Current.CancellationToken;
         using var challenge = await browser.GetAsync(new Uri("/admin/v1/auth/sign-in?return=/articles", UriKind.Relative), ct);
         var parameters = QueryHelpers.ParseQuery(challenge.Headers.Location!.Query);
         factory.Provider.Nonce = parameters["nonce"].ToString();
         var callbackPath = QueryHelpers.AddQueryString("/admin/v1/auth/callback", "state", parameters["state"].ToString());
-        using var callback = await browser.GetAsync(new Uri(callbackPath + "&code=example-code", UriKind.Relative), ct);
+        using var callbackRequest = new HttpRequestMessage(HttpMethod.Get, new Uri(callbackPath + "&code=example-code", UriKind.Relative));
+        callbackRequest.Headers.Add("Cookie", CookiesFrom(challenge));
+        using var callback = await browser.SendAsync(callbackRequest, ct);
         Assert.Equal(HttpStatusCode.Redirect, callback.StatusCode);
         Assert.Equal("/articles", callback.Headers.Location?.OriginalString);
         var cookie = Assert.Single(callback.Headers.GetValues("Set-Cookie"), value => value.StartsWith(".AspNetCore.Cookies=", StringComparison.Ordinal));
@@ -34,6 +40,7 @@ public sealed class StaffCallbackTests(StaffProviderFactory factory) : IClassFix
         Assert.Contains("secure", cookie, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("samesite=lax", cookie, StringComparison.OrdinalIgnoreCase);
         var endpoint = new Uri("/admin/v1/me", UriKind.Relative);
+        browser.DefaultRequestHeaders.Add("Cookie", CookiesFrom(callback));
         using var me = await browser.GetAsync(endpoint, ct);
         Assert.Equal(HttpStatusCode.OK, me.StatusCode);
         var profile = await me.Content.ReadFromJsonAsync<JsonElement>(ct);
@@ -44,6 +51,10 @@ public sealed class StaffCallbackTests(StaffProviderFactory factory) : IClassFix
         var problem = await expired.Content.ReadFromJsonAsync<JsonElement>(ct);
         Assert.Equal("session_expired", problem.GetProperty("code").GetString());
     }
+
+    /// <summary>The <c>name=value</c> pairs a response sets, as one <c>Cookie</c> header.</summary>
+    private static string CookiesFrom(HttpResponseMessage response) =>
+        string.Join("; ", response.Headers.GetValues("Set-Cookie").Select(cookie => cookie.Split(';', 2)[0]));
 }
 
 public sealed class StaffProviderFactory : ApiFactory
