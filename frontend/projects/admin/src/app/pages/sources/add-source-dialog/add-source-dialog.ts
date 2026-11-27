@@ -1,6 +1,12 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectorRef, Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { ApiProblem, SOURCES_API, type Region, type SourceKind } from '@kx/api';
+import {
+  ApiProblem,
+  SOURCES_API,
+  type Region,
+  type SourceKind,
+  type SourceTestResult,
+} from '@kx/api';
 import {
   Alert,
   Btn,
@@ -14,7 +20,12 @@ import {
   Input,
   Select,
 } from '@kx/components';
-import { sourceFormValidation, type SourceFormErrors } from '@kx/domain';
+import {
+  isAcceptableAddress,
+  sourceFormValidation,
+  testFetchSummary,
+  type SourceFormErrors,
+} from '@kx/domain';
 
 /** The kinds staff can add, in the order of the cards; `news_query` is seeded only. */
 const KINDS: readonly { value: SourceKind; label: string; icon: IconName }[] = [
@@ -32,7 +43,16 @@ interface Focusable {
 /** What the dialog closes with when the source was added. */
 export interface SourceAdded {
   organisation: string;
+  kind: SourceKind;
+  /** The test fetch of the address that was added, when one finished. */
+  test: SourceTestResult | null;
 }
+
+/** The hint under the fields before and between tests (docs/mocks/dialogs/add-source/). */
+type Hint =
+  | { state: 'idle' }
+  | { state: 'invalid' }
+  | { state: 'tested'; kind: SourceKind; address: string; result: SourceTestResult };
 
 /** The URL field's message for a refusal the API words by its code (L2-064 AC7, L2-024). */
 const URL_REFUSALS: Readonly<Record<string, string>> = {
@@ -85,6 +105,26 @@ export class AddSourceDialog {
       ? { url: refused.message, ...errors }
       : errors;
   });
+  private readonly hintState = signal<Hint>({ state: 'idle' });
+  /** The address and kind of the test in flight or done, so each pair is tested once. */
+  private tested: string | null = null;
+  protected readonly hint = computed(() => {
+    const hint = this.hintState();
+    if (hint.state === 'invalid') {
+      return { tone: 'neutral' as const, text: 'The test fetch runs once the URL is valid.' };
+    }
+    if (
+      hint.state === 'tested' &&
+      hint.kind === this.kind() &&
+      hint.address === this.url().trim()
+    ) {
+      return testFetchSummary(hint.kind, hint.result);
+    }
+    return {
+      tone: 'neutral' as const,
+      text: 'Paste a URL and Keryx runs a test fetch before anything is added.',
+    };
+  });
   /** A request is in flight: every control is disabled and nothing closes the dialog. */
   protected readonly busy = signal(false);
   /** The last request failed for a reason staff cannot fix in the form. */
@@ -99,6 +139,30 @@ export class AddSourceDialog {
       (regions) => this.regions.set(regions),
       () => undefined,
     );
+  }
+
+  /**
+   * The URL lost focus: a valid address is test-fetched once for its kind and the result is
+   * announced politely; an invalid one runs no test (L2-064 AC2). A failed call keeps the hint.
+   */
+  protected async testUrl(): Promise<void> {
+    const address = this.url().trim();
+    const kind = this.kind();
+    if (!isAcceptableAddress(address)) {
+      this.tested = null;
+      this.hintState.set({ state: 'invalid' });
+      return;
+    }
+    const key = `${kind} ${address}`;
+    if (this.tested === key) return;
+    this.tested = key;
+    if (this.hintState().state === 'invalid') this.hintState.set({ state: 'idle' });
+    try {
+      const result = await this.api.testAddress(kind, address, this.abort.signal);
+      if (this.tested === key) this.hintState.set({ state: 'tested', kind, address, result });
+    } catch {
+      if (this.tested === key) this.tested = null;
+    }
   }
 
   /**
@@ -140,7 +204,15 @@ export class AddSourceDialog {
         this.abort.signal,
       );
       this.ref.disableClose = false;
-      this.ref.close({ organisation: created.organization_name });
+      const hint = this.hintState();
+      this.ref.close({
+        organisation: created.organization_name,
+        kind: this.kind(),
+        test:
+          hint.state === 'tested' && hint.kind === this.kind() && hint.address === address
+            ? hint.result
+            : null,
+      });
     } catch (error) {
       if (this.abort.signal.aborted) return;
       this.ref.disableClose = false;

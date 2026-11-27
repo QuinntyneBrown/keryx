@@ -34,6 +34,7 @@
   <kx-field label="URL" for="source-url" [error]="errors().url" errorId="source-url-error">
     <kx-input
       #urlInput
+      (left)="testUrl()"
       controlId="source-url"
       type="url"
       inputmode="url"
@@ -78,9 +79,8 @@
       />
     </kx-field>
   </kx-field-grid>
-  <kx-alert tone="neutral"
-    >Paste a URL and Keryx runs a test fetch before anything is added.</kx-alert
-  >
+  @let shown = hint();
+  <kx-alert [tone]="shown.tone" announcement="status">{{ shown.text }}</kx-alert>
   <kx-btn slot="actions" variant="ghost" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
   <kx-btn slot="actions" variant="primary" submit [busy]="busy()">{{
     busy() ? 'Adding…' : 'Add source'

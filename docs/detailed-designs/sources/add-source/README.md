@@ -54,7 +54,14 @@ The feature is a vertical slice from the Add a source dialog to the database.
 - **Test on blur** — when the URL is valid and the field loses focus, the dialog calls
   `testAddress` once and shows the result in an `alert` with `role="status"`, such as "Test fetch
   found 6 event pages — 5 look relevant.". An invalid URL runs no test and the hint reads "The
-  test fetch runs once the URL is valid.". The wording for an unreachable result is `<TO SUPPLY>`.
+  test fetch runs once the URL is valid.". The domain helper `testFetchSummary` words every
+  result: none relevant is a warning ("…— none look relevant."), nothing to read is "Test fetch
+  reached the address but found nothing to read.", and each unreachable `reason` has its own
+  sentence (for example "Test fetch timed out. Check the address, or try again later."). A test
+  call that fails keeps the hint as it was. After adding, `nothingRelevantNotice` turns the
+  "Source added" toast into the warning of `notifications/source-toast/warning.html` when the
+  last test of that address found items and none relevant; its "Edit source" action arrives
+  with the edit dialog (journey 17).
 - **`sourceFormValidation`** — pure helper in the domain library with unit tests. It returns the
   messages "Enter a full URL starting with https://, like https://lifepointfit.ca/events." and
   "Enter the organisation’s name as it publishes it.", and, with no region chosen, "Choose the

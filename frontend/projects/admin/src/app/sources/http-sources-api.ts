@@ -4,7 +4,9 @@ import {
   type NewSource,
   type Region,
   type SourceDetail,
+  type SourceKind,
   type SourcePage,
+  type SourceTestResult,
   type SourceQuery,
   type SourcesApi,
 } from '@kx/api';
@@ -24,6 +26,19 @@ export class HttpSourcesApi implements SourcesApi {
 
   async regions(signal: AbortSignal): Promise<Region[]> {
     return (await this.read<{ items: Region[] }>('/admin/v1/regions', signal)).items;
+  }
+
+  async testAddress(
+    kind: SourceKind,
+    address: string,
+    signal: AbortSignal,
+  ): Promise<SourceTestResult> {
+    const token = await antiforgeryToken(signal);
+    return this.read<SourceTestResult>('/admin/v1/sources/test', signal, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
+      body: JSON.stringify({ kind, address }),
+    });
   }
 
   async create(source: NewSource, signal: AbortSignal): Promise<SourceDetail> {

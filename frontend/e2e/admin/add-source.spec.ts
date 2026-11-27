@@ -14,6 +14,14 @@ const REGIONS = [
   { slug: 'global', name: 'Global', time_zone: 'Etc/UTC' },
 ];
 
+/** The anti-forgery token and a test fetch that finds 6 items, 5 relevant (L2-064 AC2). */
+function answerTestFetch(api: ApiHandlers): void {
+  api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+  api.on('POST', '/admin/v1/sources/test', () => ({
+    json: { reachable: true, reason: null, items_found: 6, items_relevant: 5 },
+  }));
+}
+
 const EMPTY = {
   items: [],
   total: 0,
@@ -49,6 +57,7 @@ async function fill(dialog: AddSourceDialog): Promise<void> {
 }
 
 function answerSourcesScreen(api: ApiHandlers): void {
+  answerTestFetch(api);
   api.on('GET', '/admin/v1/sources', () => ({
     json: {
       items: [],
@@ -222,7 +231,7 @@ test.describe('Add a source', () => {
         return { json: lists === 1 ? EMPTY : listOf(ADDED) };
       });
       api.on('GET', '/admin/v1/regions', () => ({ json: { items: REGIONS } }));
-      api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+      answerTestFetch(api);
       const posts: { body: unknown; token?: string }[] = [];
       let answer!: () => void;
       const answered = new Promise<void>((resolve) => (answer = resolve));
@@ -289,7 +298,7 @@ test.describe('Add a source', () => {
       return { json: lists === 1 ? EMPTY : listOf(ADDED) };
     });
     api.on('GET', '/admin/v1/regions', () => ({ json: { items: REGIONS } }));
-    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    answerTestFetch(api);
     api.on('POST', '/admin/v1/sources', () => ({ status: 201, json: ADDED }));
     const sources = new SourcesPage(page);
     const dialog = new AddSourceDialog(page);
@@ -368,6 +377,73 @@ test.describe('Add a source', () => {
       await expect(dialog.root).toHaveCount(1);
     });
   }
+
+  // L2-064 AC2.
+  test('test-fetches a valid URL once when it loses focus and says what it found', async ({
+    page,
+    api,
+  }) => {
+    answerSourcesScreen(api);
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    const tests: { body: unknown; token?: string }[] = [];
+    api.on('POST', '/admin/v1/sources/test', (request) => {
+      tests.push({ body: request.postDataJSON(), token: request.headers()['x-xsrf-token'] });
+      return { json: { reachable: true, reason: null, items_found: 6, items_relevant: 5 } };
+    });
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.addSource.click();
+    await dialog.type('Website').check();
+    await dialog.url.fill('https://lifepointfit.ca/events');
+
+    await dialog.organisation.focus();
+
+    await expect(dialog.hint).toHaveText('Test fetch found 6 event pages — 5 look relevant.');
+    await expect(dialog.hint).toHaveClass(/alert--success/);
+    await expect(dialog.hint).toHaveAttribute('role', 'status');
+    await dialog.url.focus();
+    await dialog.organisation.focus();
+    expect(tests).toEqual([
+      { body: { kind: 'website', address: 'https://lifepointfit.ca/events' }, token: 'tok_1' },
+    ]);
+
+    await dialog.url.fill('lifepointfit');
+    await dialog.organisation.focus();
+    await expect(dialog.hint).toHaveText('The test fetch runs once the URL is valid.');
+    await expect(dialog.hint).toHaveClass(/alert--neutral/);
+    expect(tests).toHaveLength(1);
+  });
+
+  // L2-064 AC5 and notifications/source-toast/warning.html.
+  test('warns after adding when the test found nothing relevant', async ({ page, api }) => {
+    let lists = 0;
+    api.on('GET', '/admin/v1/sources', () => {
+      lists += 1;
+      return { json: lists === 1 ? EMPTY : listOf(ADDED) };
+    });
+    api.on('GET', '/admin/v1/regions', () => ({ json: { items: REGIONS } }));
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/sources/test', () => ({
+      json: { reachable: true, reason: null, items_found: 6, items_relevant: 0 },
+    }));
+    api.on('POST', '/admin/v1/sources', () => ({ status: 201, json: ADDED }));
+    const sources = new SourcesPage(page);
+    const dialog = new AddSourceDialog(page);
+    await sources.open();
+    await sources.addSource.click();
+    await fill(dialog);
+    await expect(dialog.hint).toHaveText('Test fetch found 6 event pages — none look relevant.');
+    await expect(dialog.hint).toHaveClass(/alert--warning/);
+
+    await dialog.submit.click();
+
+    await expect(sources.toast).toHaveClass(/toast--warning/);
+    await expect(sources.toastTitle).toHaveText('Source added, but nothing looked relevant');
+    await expect(sources.toastText).toHaveText(
+      'The test fetch for LifePoint Fitness Ministry found 6 pages and none matched your topics.',
+    );
+  });
 
   // L2-064 AC8, L2-074: a bottom sheet below 640 px.
   test('is a bottom sheet on a narrow screen', async ({ page, api }) => {

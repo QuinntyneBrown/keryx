@@ -14,6 +14,7 @@ import {
 } from '@kx/components';
 import {
   formatSourceAddress,
+  nothingRelevantNotice,
   sourceHealthLabel,
   sourceKindLabel,
   sourcesSummary,
@@ -103,12 +104,14 @@ export default class Sources {
    * even when the dialog was opened from the empty state, which the list replaces (L2-064 AC5).
    * The next run's time joins the sentence when runs are scheduled (journey 4).
    */
-  private async added({ organisation }: SourceAdded, addButton: Btn): Promise<void> {
-    this.notifier.notify({
-      tone: 'success',
-      title: 'Source added',
-      text: `${organisation} will be checked on the next run.`,
-    });
+  private async added({ organisation, kind, test }: SourceAdded, addButton: Btn): Promise<void> {
+    this.notifier.notify(
+      nothingRelevantNotice(kind, test, organisation) ?? {
+        tone: 'success',
+        title: 'Source added',
+        text: `${organisation} will be checked on the next run.`,
+      },
+    );
     await this.store.load();
     addButton.focus();
   }

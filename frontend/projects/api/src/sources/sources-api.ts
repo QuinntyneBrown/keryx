@@ -34,6 +34,18 @@ export interface SourcePage {
   needs_look_count: number;
 }
 
+/** Why a test fetch could not read an address (L2-002 AC2). */
+export type FetchFailure =
+  'not_found' | 'timeout' | 'blocked_by_robots' | 'refused' | 'invalid_content' | 'unsafe_address';
+
+/** What one test fetch found; it stores nothing (L2-002). */
+export interface SourceTestResult {
+  reachable: boolean;
+  reason: FetchFailure | null;
+  items_found: number;
+  items_relevant: number;
+}
+
 /** A region staff choose from, Toronto first (L2-018). */
 export interface Region {
   slug: string;
@@ -52,6 +64,8 @@ export interface SourcesApi {
   list(query: SourceQuery, signal: AbortSignal): Promise<SourcePage>;
   /** The regions in rank order. */
   regions(signal: AbortSignal): Promise<Region[]>;
+  /** Test-fetches an address before it is added. An unreachable one resolves, with a reason. */
+  testAddress(kind: SourceKind, address: string, signal: AbortSignal): Promise<SourceTestResult>;
   /** Adds a source; a refusal names its `code` (`source_exists`, `unsafe_address`, …). */
   create(source: NewSource, signal: AbortSignal): Promise<SourceDetail>;
 }
