@@ -7,18 +7,27 @@ import {
   PageBody,
   PageHeader,
   Rail,
+  Stack,
   Stats,
+  Timeline,
   type RunListItem,
+  type TimelineStep,
   type StatItem,
 } from '@kx/components';
 import {
   formatCollectedAt,
   formatDuration,
+  formatStageDuration,
+  PIPELINE_STAGES,
   runFailedFlag,
   runLineMeta,
   runOutcomeLabel,
   runTone,
   scheduleLine,
+  stageName,
+  stageState,
+  stageStatusLabel,
+  stageSummary,
 } from '@kx/domain';
 import { RunsStore } from '../../runs/runs-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
@@ -33,7 +42,7 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-runs',
-  imports: [Card, List, PageBody, PageHeader, Rail, Stats],
+  imports: [Card, List, PageBody, PageHeader, Rail, Stack, Stats, Timeline],
   templateUrl: './runs.html',
   styleUrl: './runs.scss',
   providers: [{ provide: RUNS_API, useClass: HttpRunsApi }, RunsStore],
@@ -93,6 +102,21 @@ export default class Runs {
       reference: run.id,
       meta: `${run.trigger === 'manual' ? 'Manual' : 'Schedule'} · took ${formatDuration(run.duration_ms ?? 0)}`,
       tiles,
+      // The six stages in the pipeline's order, whatever order they were served in (L2-057 AC2).
+      steps: PIPELINE_STAGES.flatMap((name): TimelineStep[] => {
+        const result = run.stages.find((stage) => stage.stage === name);
+        if (!result) return [];
+        return [
+          {
+            id: name,
+            state: stageState(result.status),
+            word: stageStatusLabel(result.status),
+            name: stageName(name),
+            time: formatStageDuration(result.duration_ms),
+            detail: stageSummary(name, result.counts),
+          },
+        ];
+      }),
     };
   });
 

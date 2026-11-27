@@ -81,3 +81,24 @@ export function runDetail(
     ...overrides,
   };
 }
+
+/** One stage of a run's detail. */
+export function stage(
+  name: string,
+  status: string,
+  duration_s: number,
+  counts: Record<string, number>,
+  reason: string | null = null,
+): Record<string, unknown> {
+  return { stage: name, status, duration_ms: duration_s * 1000, counts, reason };
+}
+
+/** run_2418's six stages, as the mock shows them: two failed fetches and six items held. */
+export const RUN_2418_STAGES = [
+  stage('fetch', 'done_with_warnings', 168, { sources_ok: 62, sources_failed: 2 }),
+  stage('parse', 'done', 21, { items: 189 }),
+  stage('classify', 'done_with_warnings', 38, { relevant: 53, held: 6, off_topic: 130 }),
+  stage('deduplicate', 'done', 6, { duplicates: 18, rejected: 0 }),
+  stage('store', 'done', 3, { added: 47, updated: 3, unchanged: 120 }),
+  stage('publish', 'done', 1, { published: 47 }),
+];

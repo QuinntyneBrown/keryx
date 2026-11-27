@@ -21,6 +21,8 @@ export type IconName =
   | 'articles'
   | 'overview'
   | 'runs'
+  | 'circle'
+  | 'loader'
   | 'arrow-right'
   | 'inbox'
   | 'chevron-left'

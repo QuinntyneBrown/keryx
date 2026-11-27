@@ -1,0 +1,92 @@
+// The timeline (docs/design-system/components/timeline.html).
+:host {
+  display: block;
+}
+
+.timeline {
+  margin: 0;
+  padding: var(--space-2) var(--space-5);
+  list-style: none;
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.timeline__step {
+  position: relative;
+  display: flex;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+}
+
+// The rule from one step's icon down to the next.
+.timeline__step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--space-3) + var(--icon-size-lg) + var(--space-1));
+  bottom: calc(-1 * var(--space-3));
+  left: calc(var(--icon-size-lg) / 2 - var(--border-width-hairline));
+  width: var(--border-width-hairline);
+  background: var(--color-border-default);
+}
+
+.timeline__icon {
+  position: relative;
+  flex: none;
+  margin-top: var(--space-0-5);
+  background: var(--color-bg-surface);
+  color: var(--color-border-emphasis);
+}
+
+.timeline__step[data-state='ok'] > .timeline__icon {
+  color: var(--color-success-icon);
+}
+
+.timeline__step[data-state='warn'] > .timeline__icon {
+  color: var(--color-warning-icon);
+}
+
+.timeline__step[data-state='failed'] > .timeline__icon {
+  color: var(--color-danger-icon);
+}
+
+.timeline__step[data-state='running'] > .timeline__icon {
+  color: var(--color-info-icon);
+}
+
+.timeline__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: var(--space-3);
+}
+
+.timeline__name {
+  font: var(--text-label);
+}
+
+.timeline__time {
+  font: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-subtle);
+}
+
+.timeline__detail {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.timeline__step[data-state='failed'] .timeline__detail {
+  color: var(--color-danger-fg);
+}
+
+.timeline__step[data-state='skipped'] .timeline__name {
+  color: var(--color-fg-subtle);
+}

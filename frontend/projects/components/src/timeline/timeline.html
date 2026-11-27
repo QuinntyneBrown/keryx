@@ -1,0 +1,16 @@
+<ol class="timeline">
+  @for (step of steps(); track step.id) {
+    <li class="timeline__step" [attr.data-state]="step.state">
+      <kx-icon class="timeline__icon" [name]="icon(step.state)" size="lg" />
+      <div class="timeline__body">
+        <div class="timeline__row">
+          <p class="timeline__name">
+            <span class="visually-hidden">{{ step.word }}:&ngsp;</span>{{ step.name }}
+          </p>
+          <span class="timeline__time">{{ step.time }}</span>
+        </div>
+        <p class="timeline__detail">{{ step.detail }}</p>
+      </div>
+    </li>
+  }
+</ol>

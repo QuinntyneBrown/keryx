@@ -6,15 +6,21 @@
     </section>
     @if (detail(); as shown) {
       <section aria-labelledby="run-title">
-        <kx-card
-          headingId="run-title"
-          [heading]="shown.heading"
-          [badge]="shown.badge"
-          [reference]="shown.reference"
-          [meta]="shown.meta"
-        >
-          <kx-stats four ruled [items]="shown.tiles" />
-        </kx-card>
+        <kx-stack gap="lg">
+          <kx-card
+            headingId="run-title"
+            [heading]="shown.heading"
+            [badge]="shown.badge"
+            [reference]="shown.reference"
+            [meta]="shown.meta"
+          >
+            <kx-stats four ruled [items]="shown.tiles" />
+          </kx-card>
+          <section aria-labelledby="pipeline-title">
+            <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
+            <kx-timeline [steps]="shown.steps" />
+          </section>
+        </kx-stack>
       </section>
     }
   </kx-rail>

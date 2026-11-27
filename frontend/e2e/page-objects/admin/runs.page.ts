@@ -19,6 +19,12 @@ export class RunsPage {
   readonly detailMeta: Locator;
   readonly tileLabels: Locator;
   readonly tileValues: Locator;
+  readonly pipelineHeading: Locator;
+  readonly steps: Locator;
+  readonly stepNames: Locator;
+  readonly stepWords: Locator;
+  readonly stepTimes: Locator;
+  readonly stepDetails: Locator;
 
   constructor(private readonly page: Page) {
     const main = page.locator('main');
@@ -39,6 +45,12 @@ export class RunsPage {
     this.detailMeta = this.detail.locator('.card__meta');
     this.tileLabels = this.detail.locator('.stats .stat__label');
     this.tileValues = this.detail.locator('.stats .stat__value');
+    this.pipelineHeading = this.detail.locator('#pipeline-title');
+    this.steps = this.detail.locator('ol.timeline > li.timeline__step');
+    this.stepNames = this.steps.locator('.timeline__name');
+    this.stepWords = this.stepNames.locator('.visually-hidden');
+    this.stepTimes = this.steps.locator('.timeline__time');
+    this.stepDetails = this.steps.locator('.timeline__detail');
   }
 
   /** Each run's icon tone, in list order. */
@@ -51,6 +63,11 @@ export class RunsPage {
   /** The page's address after the path: its query string. */
   search(): string {
     return new URL(this.page.url()).search;
+  }
+
+  /** Each stage's `data-state`, in order. */
+  async stepStates(): Promise<(string | null)[]> {
+    return this.steps.evaluateAll((steps) => steps.map((step) => step.getAttribute('data-state')));
   }
 
   async open(query = ''): Promise<void> {
