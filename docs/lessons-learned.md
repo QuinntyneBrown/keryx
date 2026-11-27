@@ -101,3 +101,5 @@ and running the worker's host on its own, made every schedule test deterministic
   the challenge nonce. For other API acceptance tests issue sessions through the cookie
   handler, so their cookies use the same ticket store. Advance the fixture clock to the exact
   expiry threshold; changing either comparison to strict greater-than fails its boundary case.
+- Checking the sign-out cookie alone does not verify revocation. Retain the original cookie
+  in the test client and send it again after sign-out to verify the server refuses it.
