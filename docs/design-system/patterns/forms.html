@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms — Keryx design system</title>
+<meta name="description" content="How Keryx asks for input: where forms live, how they are laid out, when they validate, and how they save.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern</p>
+      <h1>Forms</h1>
+      <p class="ds-lead">How Keryx asks for input: where forms live, how they are laid out, when they validate, and how they save.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Composes components</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Keryx has two kinds of form. <b>Short tasks</b> (add or edit a source, create a key, add a topic) are a <a href="../components/dialog.html">dialog</a> with one to four fields. <b>Settings</b> is one long page form made of <a href="../components/settings-section.html">sections</a> and saved by a <a href="../components/save-bar.html">save bar</a>. There are no inline forms: editing always opens a dialog or a screen.</p>      <ul>
+        <li>Every control sits in a <a href="../components/field.html">form field</a>: label above, help or error below.</li>
+        <li>One column. Two short related fields may share a row from 640 px.</li>
+        <li>One primary action per form.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Need</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td>One to four fields, then done</td><td>A form <a href="../components/dialog.html">dialog</a></td></tr>
+          <tr><td>Many settings saved together</td><td>The settings page with a <a href="../components/save-bar.html">save bar</a></td></tr>
+          <tr><td>One value added to a list</td><td>A single-field dialog opened from the Add <a href="../components/chip.html">chip</a></td></tr>
+          <tr><td>A destructive decision</td><td>A confirmation dialog (no fields)</td></tr>
+          <tr><td>Filtering a list</td><td>Not a form: <a href="../components/search.html">search</a>, <a href="../components/select.html">selects</a>, <a href="../components/filter-chip.html">filter chips</a> apply at once</td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Value</th><th scope="col">Control</th></tr></thead>
+        <tbody>
+          <tr><td>Free text, URL, number</td><td><a href="../components/input.html">Text field</a></td></tr>
+          <tr><td>One of 2–4, decides the form</td><td><a href="../components/choice-card.html">Choice cards</a></td></tr>
+          <tr><td>One of 2–5, a setting</td><td><a href="../components/segmented.html">Segmented control</a></td></tr>
+          <tr><td>One of many</td><td><a href="../components/select.html">Select</a></td></tr>
+          <tr><td>Several of a few</td><td><a href="../components/check.html">Checkboxes</a></td></tr>
+          <tr><td>On or off</td><td><a href="../components/switch.html">Switch</a></td></tr>
+          <tr><td>A point on a short scale</td><td><a href="../components/range.html">Slider</a></td></tr>
+          <tr><td>A curated set of terms</td><td><a href="../components/chip.html">Chips</a></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <p>A page form after a failed save: the error summary on top with focus, the field's own error beside it, and the save bar reporting the count.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><div class="ds-w"><div class="alert alert--danger" role="alert" tabindex="-1"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="alert__body"><p class="alert__title">Fix 1 field to save your changes</p><ul class="alert__list"><li><a href="#pf-timeout">Timeout per source: enter a timeout between 5 and 120 seconds.</a></li></ul></div></div><section class="settings-section" aria-labelledby="pf-s"><div><h3 class="text-h3" id="pf-s">Schedule</h3><p class="settings-section__hint">When the collector runs. Times are Toronto time.</p></div><div class="settings-section__fields"><div class="field"><label class="field__label" for="pf-timeout">Timeout per source</label><div class="input-affix"><input class="input input--short" id="pf-timeout" type="text" inputmode="numeric" value="0" aria-invalid="true" aria-describedby="pf-timeout-error"><span class="input-affix__suffix">seconds</span></div><p class="field__error" id="pf-timeout-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter a timeout between 5 and 120 seconds.</p></div><fieldset><legend>Also alert</legend><label class="switch"><input type="checkbox" role="switch" checked>When a whole run fails</label></fieldset></div></section><div class="ds-frame ds-frame--auto"><div class="save-bar" role="region" aria-label="Unsaved changes"><p class="save-bar__text save-bar__text--danger"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>1 field needs fixing before you can save.</p><div class="cluster"><button class="btn btn--ghost" type="button">Discard</button><button class="btn btn--primary" type="button">Save changes</button></div></div></div></div></div>
+        <div class="ds-example__caption"><span>Error summary → section → field error → save bar</span></div>
+      </div>
+      <ul>
+        <li><b>Order</b>: error summary (only after a failed submit), sections or fields in the order the task is done, actions last.</li>
+        <li><b>Dialog actions</b>: ghost Cancel then the primary button, right-aligned.</li>
+        <li><b>Required</b> is the default and unmarked; optional fields say “(optional)”.</li>
+        <li><b>Defaults</b>: pre-fill everything Keryx knows; pre-select the common choice.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">State</th><th scope="col">What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Pristine</td><td>Saved values. On Settings the save bar is absent.</td></tr>
+          <tr><td>Dirty</td><td>The save bar appears with Discard and Save changes. Leaving the page asks to confirm.</td></tr>
+          <tr><td>Validating</td><td>A field validates on blur, and on every change once it has an error. The source URL is also test-fetched: a status alert reports the result.</td></tr>
+          <tr><td>Invalid on submit</td><td>Summary appears and takes focus; each line links to its field; fields show their own errors; nothing is cleared.</td></tr>
+          <tr><td>Submitting</td><td>All controls and Cancel disabled; the primary button is busy with “Saving…”; a dialog ignores Escape.</td></tr>
+          <tr><td>Saved</td><td>A dialog closes and a toast confirms. Settings confirms in the save bar, with the consequence.</td></tr>
+          <tr><td>Failed</td><td>A danger alert at the top of the dialog body (or the save bar) with a reference; everything re-enabled; entries kept.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>One column below 640 px; field grids and choice grids widen from 640 px; settings sections become two columns at 768 px.</li>
+        <li>A dialog form is a bottom sheet below 640 px with its footer always visible.</li>
+        <li>The save bar is sticky at every width and wraps; the form keeps 96 px of bottom padding so the bar never covers the focused field.</li>
+        <li>Controls are 44 px tall on touch devices.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li><code>&lt;form novalidate&gt;</code> with Keryx's own messages, so wording and timing are consistent across browsers.</li>
+        <li>Every control has a visible <code>&lt;label&gt;</code>; groups use <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code>.</li>
+        <li>Errors: <code>aria-invalid="true"</code> plus <code>aria-describedby</code> to the message; the summary is <code>role="alert"</code>, focusable, and lists links to fields (WCAG 3.3.1, 3.3.3).</li>
+        <li>Enter in a text field submits; the busy state is announced through a polite status (“Saving your changes…”).</li>
+        <li>Destructive submits are confirmed; reversible changes offer Undo (WCAG 3.3.4).</li>
+        <li>Nothing entered is ever lost on error (WCAG 3.3.7).</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Labels are nouns; buttons are verbs; errors say how to fix and give an example.</li>
+        <li>Help text explains the consequence of a value, not the control.</li>
+        <li>Summary title: “Fix 2 fields to save your changes”. Each line: “Field: instruction.”</li>
+        <li>See the <a href="../foundations/content.html#errors">error formula</a>.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="pd1">URL</label><input class="input input--mono" id="pd1" type="url" value="lifepointfit" aria-invalid="true" aria-describedby="pd1-error"><p class="field__error" id="pd1-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Enter a full URL starting with https://, like https://lifepointfit.ca/events.</p></div></div><figcaption>Validate on blur, keep the entry, say how to fix it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="pd2">URL</label><input class="input input--mono" id="pd2" type="url" value="l" aria-invalid="true" aria-describedby="pd2-error"><p class="field__error" id="pd2-error"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Invalid URL.</p></div></div><figcaption>Shouting “Invalid” on the first keystroke, before the person has finished typing.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="cluster cluster--end ds-w"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button">Add source</button></div></div><figcaption>Keep Save enabled and explain on submit what is missing.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster cluster--end ds-w"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button" disabled>Add source</button></div></div><figcaption>A disabled submit button gives no hint of what is wrong and cannot be focused to find out.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Mocks this pattern was drawn from:</p>
+      <ul>
+        <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> (the page form)</li>
+        <li><a href="../../mocks/pages/settings/dirty.html">pages/settings/dirty</a> (dirty)</li>
+        <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (summary and field errors)</li>
+        <li><a href="../../mocks/pages/settings/submitting.html">pages/settings/submitting</a> (submitting)</li>
+        <li><a href="../../mocks/pages/settings/success.html">pages/settings/success</a> (saved)</li>
+        <li><a href="../../mocks/dialogs/add-source/default.html">dialogs/add-source/default</a> (a dialog form)</li>
+        <li><a href="../../mocks/dialogs/add-source/invalid.html">dialogs/add-source/invalid</a> (dialog errors)</li>
+        <li><a href="../../mocks/dialogs/add-source/tested.html">dialogs/add-source/tested</a> (async validation result)</li>
+        <li><a href="../../mocks/dialogs/add-keyword/default.html">dialogs/add-keyword/default</a> (single-field dialog)</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

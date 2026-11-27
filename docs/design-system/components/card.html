@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card — Keryx design system</title>
+<meta name="description" content="A bordered white surface that groups one subject: a run&#x27;s summary, the API&#x27;s usage, the status of the pipeline.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Containers and overlays</p>
+      <h1>Card</h1>
+      <p class="ds-lead">A bordered white surface that groups one subject: a run's summary, the API's usage, the status of the pipeline.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;section&gt;</code></span><span class="ds-pill">Block: <code>.card</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A card separates a subject from the grey page. Keryx cards are flat: a hairline edge and a 12 px radius, no shadow. Tables, lists and timelines have the same edge and radius built in, so they are not wrapped in a card.</p>
+      <ul>
+        <li><b>Default</b>: padded (<code>--space-5</code>, <code>--space-6</code> from 768 px).</li>
+        <li><b>Flush</b> (<code>.card--flush</code>): no padding and clipped corners, for cards with full-bleed parts such as the <a href="status-card.html">status card</a>.</li>
+        <li><b>Head</b>: a title row with a badge, a meta line, and an action at the far end.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><div class="ds-anatomy__stage ds-anatomy__stage--wide" data-anatomy="card"><section class="card" data-part="1"><div class="card__head" data-part="2"><div><div class="card__title-row"><h3 class="text-h3">Today, 6:00 AM</h3><span class="badge badge--dot badge--warning">Completed with issues</span></div><p class="card__meta">Scheduled · took 4m 12s · <span class="mono">run_2418</span></p></div><button class="btn" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Retry failed sources</button></div><dl class="stats stats--4 stats--ruled" data-part="3"><div class="stat"><dt class="stat__label">Fetched</dt><dd class="stat__value">189</dd></div><div class="stat"><dt class="stat__label">New</dt><dd class="stat__value">47</dd></div><div class="stat"><dt class="stat__label">Duplicates</dt><dd class="stat__value">18</dd></div><div class="stat"><dt class="stat__label">Failed sources</dt><dd class="stat__value stat__value--danger">2</dd></div></dl></section><span class="ds-callout" style="left: 96.6%; top: 101%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 7%; top: 11.8%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 7%; top: 49.3%;" aria-hidden="true">3</span></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Container</b><small><code>--color-bg-surface</code>, hairline <code>--color-border-default</code>, <code>--radius-lg</code>.</small></div></li>
+          <li><div><b>Head</b><small>Title row and meta on the left, one action on the right; wraps when narrow.</small></div></li>
+          <li><div><b>Body</b><small>Any content; here a ruled row of <a href="stat.html">stats</a>.</small></div></li>
+        </ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><section class="card"><div class="card__head"><div><div class="card__title-row"><h3 class="text-h3">Today, 6:00 AM</h3><span class="badge badge--dot badge--warning">Completed with issues</span></div><p class="card__meta">Scheduled · took 4m 12s · <span class="mono">run_2418</span></p></div><button class="btn" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Retry failed sources</button></div><dl class="stats stats--4 stats--ruled"><div class="stat"><dt class="stat__label">Fetched</dt><dd class="stat__value">189</dd></div><div class="stat"><dt class="stat__label">New</dt><dd class="stat__value">47</dd></div><div class="stat"><dt class="stat__label">Duplicates</dt><dd class="stat__value">18</dd></div><div class="stat"><dt class="stat__label">Failed sources</dt><dd class="stat__value stat__value--danger">2</dd></div></dl></section></div>
+        <div class="ds-example__caption"><span>A run summary card</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card"&gt;
+&lt;div class="card__head"&gt;
+&lt;div&gt;
+&lt;div class="card__title-row"&gt;
+&lt;h3 class="text-h3"&gt;Today, 6:00 AM&lt;/h3&gt;
+&lt;span class="badge badge--dot badge--warning"&gt;Completed with issues&lt;/span&gt;&lt;/div&gt;
+&lt;p class="card__meta"&gt;Scheduled · took 4m 12s · &lt;span class="mono"&gt;run_2418&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;button class="btn" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Retry failed sources&lt;/button&gt;&lt;/div&gt;
+&lt;dl class="stats stats--4 stats--ruled"&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Fetched&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;189&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;New&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;47&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Duplicates&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;18&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Failed sources&lt;/dt&gt;
+&lt;dd class="stat__value stat__value--danger"&gt;2&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+      <h3>Flush</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--block ds-example__canvas--canvas"><section class="card card--flush"><div class="ds-pad">Padded part</div><div class="status-card__history">Full-bleed sunken strip</div></section></div>
+        <div class="ds-example__caption"><span>Flush card with a full-bleed strip</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card card--flush"&gt;
+&lt;div class="ds-pad"&gt;Padded part&lt;/div&gt;
+&lt;div class="status-card__history"&gt;Full-bleed sunken strip&lt;/div&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size; padding grows from 20 px to 24 px at 768 px."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size; padding grows from 20 px to 24 px at 768 px.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Cards are not interactive. A clickable summary is an <a href="issue-card.html">issue card</a> or a list row.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">What the card shows</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td>Its content.</td></tr>
+          <tr><th scope="row">Loading</th><td>Skeleton lines in the same layout, <code>aria-busy="true"</code> on the region.</td></tr>
+          <tr><th scope="row">Empty / error</th><td>An <a href="empty.html">empty state</a> with <code>.empty--card</code> takes the card's place.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><section class="card"><div class="card__head"><div><div class="card__title-row"><h3 class="text-h3">Today, 6:00 AM</h3><span class="badge badge--dot badge--warning">Completed with issues</span></div><p class="card__meta">Scheduled · took 4m 12s · <span class="mono">run_2418</span></p></div><button class="btn" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Retry failed sources</button></div><dl class="stats stats--4 stats--ruled"><div class="stat"><dt class="stat__label">Fetched</dt><dd class="stat__value">189</dd></div><div class="stat"><dt class="stat__label">New</dt><dd class="stat__value">47</dd></div><div class="stat"><dt class="stat__label">Duplicates</dt><dd class="stat__value">18</dd></div><div class="stat"><dt class="stat__label">Failed sources</dt><dd class="stat__value stat__value--danger">2</dd></div></dl></section></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--flush ds-example__canvas--block ds-example__canvas--canvas"><section class="card"><div class="card__head"><div><div class="card__title-row"><h3 class="text-h3">Today, 6:00 AM</h3><span class="badge badge--dot badge--warning">Completed with issues</span></div><p class="card__meta">Scheduled · took 4m 12s · <span class="mono">run_2418</span></p></div><button class="btn" type="button"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Retry failed sources</button></div><dl class="stats stats--4 stats--ruled"><div class="stat"><dt class="stat__label">Fetched</dt><dd class="stat__value">189</dd></div><div class="stat"><dt class="stat__label">New</dt><dd class="stat__value">47</dd></div><div class="stat"><dt class="stat__label">Duplicates</dt><dd class="stat__value">18</dd></div><div class="stat"><dt class="stat__label">Failed sources</dt><dd class="stat__value stat__value--danger">2</dd></div></dl></section></div></div></div>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Cards are fluid; they fill their grid column.</li>
+        <li>Padding is 20 px below 768 px and 24 px from there.</li>
+        <li>The head wraps: the action drops under the title on a phone.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Light: white on the grey canvas. Dark: <code>--color-bg-surface</code> is one step lighter than the canvas, and the edge is ink-800, so cards read as raised without a shadow.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A <code>&lt;section&gt;</code> with <code>aria-labelledby</code> pointing at its heading, or <code>aria-label</code> when it has none.</p>
+      <h3>Keyboard</h3>
+      <div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td>—</td><td>Not focusable. It is read in document order with the content around it.</td></tr>
+      </tbody></table></div>
+      <h3>Focus</h3>
+      <p>The card takes no focus; controls inside it do.</p>
+      <h3>Labelling</h3>
+      <p>Name the region when it has a heading, so it appears in the landmarks list.</p>
+      <h3>Contrast</h3>
+      <div class="ds-pairs"><div class="ds-pair"><span>Text on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Secondary text on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Edge (decorative)</span><span class="ds-pair__ratio" data-contrast="--color-border-default|--color-bg-canvas" data-min="1"></span></div></div>
+      <h3>Motion</h3>
+      <p>Nothing animates.</p>
+      <h3>Touch</h3>
+      <p>Not interactive, so no target size applies.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>One subject per card.</li>
+        <li>The title is the thing itself (“Today, 6:00 AM”), not a label for it (“Run details”).</li>
+        <li>At most one action in the head.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="table-wrap ds-w"><table class="table"><caption class="visually-hidden">Example</caption><tbody><tr><td>A table has its own edge</td></tr></tbody></table></div></div><figcaption>Use the table's own wrapper.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="card"><div class="table-wrap"><table class="table"><caption class="visually-hidden">Example 2</caption><tbody><tr><td>A table inside a card</td></tr></tbody></table></div></div></div><figcaption>A card around a table draws two borders and two radii.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><section class="card ds-w">Flat card on the canvas</section></div><figcaption>Keep cards flat.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><section class="card ds-w ds-dont-shadow">Card with a shadow</section></div><figcaption>Shadows are for things that float above the page: menus, toasts, dialogs.</figcaption></figure>
+      </div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Surface / edge</td><td><code>--color-bg-surface</code> <code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span> <span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span> <span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-lg</code></td><td colspan="2"><span data-token="--radius-lg"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-5</code> <code>--space-6</code></td><td colspan="2"><span data-token="--space-5"></span> · <span data-token="--space-6"></span></td></tr>
+          <tr><td>Meta</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>BEM block: <code>.card</code>. The Angular component lives in <code>frontend/projects/components/src/card/</code> and keeps these class names; the e2e page objects locate by them.</p>
+      <pre><code>&lt;section class="card"&gt;
+&lt;div class="card__head"&gt;
+&lt;div&gt;
+&lt;div class="card__title-row"&gt;
+&lt;h3 class="text-h3"&gt;Today, 6:00 AM&lt;/h3&gt;
+&lt;span class="badge badge--dot badge--warning"&gt;Completed with issues&lt;/span&gt;&lt;/div&gt;
+&lt;p class="card__meta"&gt;Scheduled · took 4m 12s · &lt;span class="mono"&gt;run_2418&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;button class="btn" type="button"&gt;
+&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Retry failed sources&lt;/button&gt;&lt;/div&gt;
+&lt;dl class="stats stats--4 stats--ruled"&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Fetched&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;189&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;New&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;47&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Duplicates&lt;/dt&gt;
+&lt;dd class="stat__value"&gt;18&lt;/dd&gt;&lt;/div&gt;
+&lt;div class="stat"&gt;
+&lt;dt class="stat__label"&gt;Failed sources&lt;/dt&gt;
+&lt;dd class="stat__value stat__value--danger"&gt;2&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;&lt;/section&gt;</code></pre>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.card</code></td><td>The surface.</td></tr>
+        <tr><td><code>.card--flush</code></td><td>No padding, clipped corners.</td></tr>
+        <tr><td><code>.card__head</code></td><td>Title block and action.</td></tr>
+        <tr><td><code>.card__title-row</code> / <code>.card__meta</code></td><td>Title with badge; secondary line.</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation and mocks only: forces a pointer or focus state on a static page.</td></tr>
+      </tbody></table></div>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/runs/default.html">pages/runs/default</a> (run summary card)</li>
+        <li><a href="../../mocks/pages/api/default.html">pages/api/default</a> (usage summary card)</li>
+        <li><a href="../../mocks/pages/overview/default.html">pages/overview/default</a> (flush status card)</li>
+      </ul>
+      <p>Drift fixed during extraction: none; every mock used the kit classes as they are documented here.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

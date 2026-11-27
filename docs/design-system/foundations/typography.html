@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typography — Keryx design system</title>
+<meta name="description" content="Geist and Geist Mono, a nine-step size scale, and eighteen role shorthands that components use instead of composing type themselves.">
+<link rel="icon" href="../assets/brand/favicon.ico">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a class="brand" href="../index.html" aria-label="Keryx design system, home"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word" aria-hidden="true">keryx</span></a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Actions</summary><ul>
+      <li><a href="../components/btn.html">Button</a></li>
+      <li><a href="../components/icon-btn.html">Icon button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/segmented.html">Segmented control</a></li>
+    </ul></details>
+    <details open><summary>Inputs</summary><ul>
+      <li><a href="../components/field.html">Form field</a></li>
+      <li><a href="../components/input.html">Text field</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/search.html">Search field and toolbar</a></li>
+      <li><a href="../components/check.html">Checkbox</a></li>
+      <li><a href="../components/choice-card.html">Choice cards (radio group)</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/range.html">Slider</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/filter-chip.html">Filter chips</a></li>
+      <li><a href="../components/settings-section.html">Settings section (form layout)</a></li>
+      <li><a href="../components/save-bar.html">Save bar</a></li>
+    </ul></details>
+    <details open><summary>Navigation</summary><ul>
+      <li><a href="../components/app.html">App shell</a></li>
+      <li><a href="../components/sidebar.html">Sidebar and top bar</a></li>
+      <li><a href="../components/nav-link.html">Navigation link</a></li>
+      <li><a href="../components/brand.html">Brand lockup</a></li>
+      <li><a href="../components/page-header.html">Page header</a></li>
+      <li><a href="../components/section-head.html">Section head</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/pagination.html">Pagination and table footer</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+    </ul></details>
+    <details open><summary>Containers and overlays</summary><ul>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/detail-panel.html">Detail panel</a></li>
+      <li><a href="../components/tooltip.html">Tooltip</a></li>
+      <li><a href="../components/divider.html">Divider</a></li>
+      <li><a href="../components/stack.html">Stack, cluster, rail and split</a></li>
+    </ul></details>
+    <details open><summary>Data display</summary><ul>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/dl.html">Description list</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/tag.html">Tag</a></li>
+      <li><a href="../components/health.html">Health</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/meter.html">Meter</a></li>
+      <li><a href="../components/source.html">Source cell</a></li>
+      <li><a href="../components/status-card.html">Status card</a></li>
+      <li><a href="../components/summary-card.html">Summary card</a></li>
+      <li><a href="../components/issue-card.html">Issue card</a></li>
+      <li><a href="../components/run-chart.html">Run chart</a></li>
+      <li><a href="../components/timeline.html">Timeline</a></li>
+      <li><a href="../components/endpoint.html">Endpoint row</a></li>
+      <li><a href="../components/code-panel.html">Code panel</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/icon.html">Icon</a></li>
+    </ul></details>
+    <details open><summary>Feedback</summary><ul>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert</a></li>
+      <li><a href="../components/callout.html">Callout</a></li>
+      <li><a href="../components/progress.html">Progress bar</a></li>
+      <li><a href="../components/spinner.html">Spinner</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty.html">Empty state and system page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/tables.html">Data tables and lists</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation</p>
+      <h1>Typography</h1>
+      <p class="ds-lead">Geist and Geist Mono, a nine-step size scale, and eighteen role shorthands that components use instead of composing type themselves.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Light and dark</span><span class="ds-pill">Source: tokens/tokens.css</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#families">Families</a></li><li><a href="#scale">Scale</a></li><li><a href="#weights">Weights</a></li><li><a href="#roles">Roles</a></li><li><a href="#usage">Usage</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li></ul>
+    </header>
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Two families, both bundled and self-hosted under the SIL Open Font License, never loaded from a CDN: <b>Geist</b> for everything and <b>Geist Mono</b> for ids, URLs, keys and code. Both are variable fonts (weights 100–900) in <a href="../assets/fonts/LICENSE.txt">assets/fonts</a>.</p>      <ul>
+        <li>The admin's working size is <b>14 px</b>, a deliberate departure from the 16 px body default: it is a dense tool used on laptops. Nothing is smaller than 12 px, and 16 px is used for section titles and lead text.</li>
+        <li>Sizes are in <code>rem</code>, so they follow the user's browser font size.</li>
+        <li>Numbers that are compared use tabular figures (<code>.num</code>).</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="families"><h2><a href="#families">Families</a></h2>
+      <div class="ds-example"><div class="ds-specimen"><span class="ds-specimen__meta">--font-family-sans<br>Geist</span><span class="ds-specimen__sample" style="font: var(--text-h2)">Christian fitness news across Toronto &amp; the GTA 0123456789</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-family-mono<br>Geist Mono</span><span class="ds-specimen__sample" style="font: var(--text-code-lg)">run_2418 · art_18429 · kx_live_R8vN… 0123456789</span></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--font-family-sans</code></td><td><span class="ds-swatch-cell"><span data-token="--font-family-sans"></span></span></td><td></td></tr>
+          <tr><td><code>--font-family-mono</code></td><td><span class="ds-swatch-cell"><span data-token="--font-family-mono"></span></span></td><td></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="scale"><h2><a href="#scale">Size scale</a></h2>
+      <div class="ds-example"><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-xs</span><span class="ds-specimen__sample" style="font-size: var(--font-size-xs); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-sm</span><span class="ds-specimen__sample" style="font-size: var(--font-size-sm); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-md</span><span class="ds-specimen__sample" style="font-size: var(--font-size-md); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-lg</span><span class="ds-specimen__sample" style="font-size: var(--font-size-lg); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-xl</span><span class="ds-specimen__sample" style="font-size: var(--font-size-xl); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-2xl</span><span class="ds-specimen__sample" style="font-size: var(--font-size-2xl); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-3xl</span><span class="ds-specimen__sample" style="font-size: var(--font-size-3xl); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-4xl</span><span class="ds-specimen__sample" style="font-size: var(--font-size-4xl); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div><div class="ds-specimen"><span class="ds-specimen__meta">--font-size-5xl</span><span class="ds-specimen__sample" style="font-size: var(--font-size-5xl); line-height: var(--line-height-tight)">Keryx collects every 6 hours</span></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--font-size-xs</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-xs"></span></span></td><td>12px  captions, pills, metadata</td></tr>
+          <tr><td><code>--font-size-sm</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-sm"></span></span></td><td>14px  the admin's working size</td></tr>
+          <tr><td><code>--font-size-md</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-md"></span></span></td><td>16px  section titles, large body</td></tr>
+          <tr><td><code>--font-size-lg</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-lg"></span></span></td><td>18px  dialog and panel titles</td></tr>
+          <tr><td><code>--font-size-xl</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-xl"></span></span></td><td>20px  card headlines</td></tr>
+          <tr><td><code>--font-size-2xl</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-2xl"></span></span></td><td>24px  page titles, stats, the wordmark</td></tr>
+          <tr><td><code>--font-size-3xl</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-3xl"></span></span></td><td>30px  hero stats</td></tr>
+          <tr><td><code>--font-size-4xl</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-4xl"></span></span></td><td>36px  display</td></tr>
+          <tr><td><code>--font-size-5xl</code></td><td><span class="ds-swatch-cell"><span data-token="--font-size-5xl"></span></span></td><td>48px  brand lockups only</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="weights"><h2><a href="#weights">Weights, line heights, tracking</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas"><span style="font-weight: var(--font-weight-regular); font-size: var(--font-size-lg)">regular</span><span style="font-weight: var(--font-weight-medium); font-size: var(--font-size-lg)">medium</span><span style="font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg)">semibold</span><span style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg)">bold</span><span style="font-weight: var(--font-weight-extrabold); font-size: var(--font-size-lg)">extrabold</span></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--font-weight-regular</code></td><td><span class="ds-swatch-cell"><span data-token="--font-weight-regular"></span></span></td><td></td></tr>
+          <tr><td><code>--font-weight-medium</code></td><td><span class="ds-swatch-cell"><span data-token="--font-weight-medium"></span></span></td><td></td></tr>
+          <tr><td><code>--font-weight-semibold</code></td><td><span class="ds-swatch-cell"><span data-token="--font-weight-semibold"></span></span></td><td></td></tr>
+          <tr><td><code>--font-weight-bold</code></td><td><span class="ds-swatch-cell"><span data-token="--font-weight-bold"></span></span></td><td></td></tr>
+          <tr><td><code>--font-weight-extrabold</code></td><td><span class="ds-swatch-cell"><span data-token="--font-weight-extrabold"></span></span></td><td>the wordmark</td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--line-height-tight</code></td><td><span class="ds-swatch-cell"><span data-token="--line-height-tight"></span></span></td><td></td></tr>
+          <tr><td><code>--line-height-snug</code></td><td><span class="ds-swatch-cell"><span data-token="--line-height-snug"></span></span></td><td></td></tr>
+          <tr><td><code>--line-height-normal</code></td><td><span class="ds-swatch-cell"><span data-token="--line-height-normal"></span></span></td><td></td></tr>
+          <tr><td><code>--line-height-relaxed</code></td><td><span class="ds-swatch-cell"><span data-token="--line-height-relaxed"></span></span></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--letter-spacing-wordmark</code></td><td><span class="ds-swatch-cell"><span data-token="--letter-spacing-wordmark"></span></span></td><td></td></tr>
+          <tr><td><code>--letter-spacing-tight</code></td><td><span class="ds-swatch-cell"><span data-token="--letter-spacing-tight"></span></span></td><td></td></tr>
+          <tr><td><code>--letter-spacing-normal</code></td><td><span class="ds-swatch-cell"><span data-token="--letter-spacing-normal"></span></span></td><td></td></tr>
+          <tr><td><code>--letter-spacing-wide</code></td><td><span class="ds-swatch-cell"><span data-token="--letter-spacing-wide"></span></span></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Headings and stats use tight tracking (−0.02em); the wordmark alone uses −0.045em.</li>
+        <li>Body copy uses 1.5 line height; summaries meant for reading use 1.65.</li>
+        <li>Wide tracking (0.04em) is for the documentation's upper-case labels only; the product has no upper-case text.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="roles"><h2><a href="#roles">Role shorthands</a></h2>
+      <p>Components set type with one <code>font</code> shorthand per role. A component never composes its own size, weight and line height.</p>
+      <div class="ds-example">      <div class="ds-specimen"><span class="ds-specimen__meta">--text-display<br>36 / 1.2 bold · reserved</span><span class="ds-specimen__sample" style="font: var(--text-display)">Display</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-h1<br>24 / 1.2 semibold · page title</span><span class="ds-specimen__sample" style="font: var(--text-h1)">Articles</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-h2<br>20 / 1.35 semibold · card headline</span><span class="ds-specimen__sample" style="font: var(--text-h2)">Completed with 2 failing sources</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-h3<br>16 / 1.35 semibold · section head</span><span class="ds-specimen__sample" style="font: var(--text-h3)">Latest articles</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-h4<br>14 / 1.35 semibold</span><span class="ds-specimen__sample" style="font: var(--text-h4)">Pipeline</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-title<br>18 / 1.35 semibold · dialog and panel title</span><span class="ds-specimen__sample" style="font: var(--text-title)">Add a source</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-body-lg<br>16 / 1.5 regular</span><span class="ds-specimen__sample" style="font: var(--text-body-lg)">Lead paragraph in the documentation.</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-body<br>14 / 1.5 regular · the working size</span><span class="ds-specimen__sample" style="font: var(--text-body)">Everything Keryx has collected. Only published articles are served by the API.</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-body-sm<br>14 / 1.5 regular · alias of body</span><span class="ds-specimen__sample" style="font: var(--text-body-sm)">Table cells and controls.</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-label<br>14 / 1.5 medium · labels, buttons</span><span class="ds-specimen__sample" style="font: var(--text-label)">Product name</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-caption<br>12 / 1.5 regular</span><span class="ds-specimen__sample" style="font: var(--text-caption)">Shepherd’s 5K · Mississauga · Races & Challenges</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-overline<br>12 / 1.5 medium · badges, table heads</span><span class="ds-specimen__sample" style="font: var(--text-overline)">Needs review</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-stat-lg<br>30 / 1.2 semibold</span><span class="ds-specimen__sample" style="font: var(--text-stat-lg)">18,432</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-stat<br>24 / 1.2 semibold</span><span class="ds-specimen__sample" style="font: var(--text-stat)">52,826</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-stat-sm<br>18 / 1.35 semibold</span><span class="ds-specimen__sample" style="font: var(--text-stat-sm)">12:00 PM</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-code-lg<br>16 / 1.5 mono medium</span><span class="ds-specimen__sample" style="font: var(--text-code-lg)">https://api.keryx.ca/v1</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-code-md<br>14 / 1.5 mono</span><span class="ds-specimen__sample" style="font: var(--text-code-md)">kx_live_R8vN…</span></div>
+      <div class="ds-specimen"><span class="ds-specimen__meta">--text-code<br>12 / 1.65 mono</span><span class="ds-specimen__sample" style="font: var(--text-code)">GET /v1/articles?region=toronto</span></div>
+      </div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>--text-display</code></td><td><span class="ds-swatch-cell"><span data-token="--text-display"></span></span></td><td><code>var(--font-weight-bold) var(--font-size-4xl) / var(--line-height-tight) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-h1</code></td><td><span class="ds-swatch-cell"><span data-token="--text-h1"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-h2</code></td><td><span class="ds-swatch-cell"><span data-token="--text-h2"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-xl) / var(--line-height-snug) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-h3</code></td><td><span class="ds-swatch-cell"><span data-token="--text-h3"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-md) / var(--line-height-snug) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-h4</code></td><td><span class="ds-swatch-cell"><span data-token="--text-h4"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-sm) / var(--line-height-snug) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-title</code></td><td><span class="ds-swatch-cell"><span data-token="--text-title"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-body-lg</code></td><td><span class="ds-swatch-cell"><span data-token="--text-body-lg"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-md) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-body</code></td><td><span class="ds-swatch-cell"><span data-token="--text-body"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-body-sm</code></td><td><span class="ds-swatch-cell"><span data-token="--text-body-sm"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-caption</code></td><td><span class="ds-swatch-cell"><span data-token="--text-caption"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-label</code></td><td><span class="ds-swatch-cell"><span data-token="--text-label"></span></span></td><td><code>var(--font-weight-medium) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-overline</code></td><td><span class="ds-swatch-cell"><span data-token="--text-overline"></span></span></td><td><code>var(--font-weight-medium) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-stat</code></td><td><span class="ds-swatch-cell"><span data-token="--text-stat"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-stat-lg</code></td><td><span class="ds-swatch-cell"><span data-token="--text-stat-lg"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-3xl) / var(--line-height-tight) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-stat-sm</code></td><td><span class="ds-swatch-cell"><span data-token="--text-stat-sm"></span></span></td><td><code>var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans)</code></td></tr>
+          <tr><td><code>--text-code</code></td><td><span class="ds-swatch-cell"><span data-token="--text-code"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-xs) / var(--line-height-relaxed) var(--font-family-mono)</code></td></tr>
+          <tr><td><code>--text-code-md</code></td><td><span class="ds-swatch-cell"><span data-token="--text-code-md"></span></span></td><td><code>var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-mono)</code></td></tr>
+          <tr><td><code>--text-code-lg</code></td><td><span class="ds-swatch-cell"><span data-token="--text-code-lg"></span></span></td><td><code>var(--font-weight-medium) var(--font-size-md) / var(--line-height-normal) var(--font-family-mono)</code></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+      <ul>
+        <li>One <code>h1</code> per page (<code>--text-h1</code>), then <code>h2</code>/<code>h3</code> in order; use <code>.text-h3</code> to style a heading independently of its level.</li>
+        <li>Prose is capped at <code>--layout-measure</code> (65ch); empty-state text at 44ch.</li>
+        <li>Mono is for things people copy or match exactly. It is not for emphasis.</li>
+        <li>Sentence case everywhere; see <a href="content.html">content</a>.</li>
+        <li>Type does not scale with the viewport. The only responsive change is the status headline: 20 px, 24 px from 768 px.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>Minimum text size is 12 px (captions, badges) and it always meets 4.5:1.</li>
+        <li>Text can be resized to 200 % without loss: all sizes are rem and containers wrap.</li>
+        <li>Nothing breaks with WCAG 1.4.12 text spacing (line height 1.5, letter spacing 0.12em, word spacing 0.16em, paragraph spacing 2×): no text sits in a fixed-height box.</li>
+        <li>Aggregated titles carry <code>dir="auto"</code> so right-to-left headlines read correctly.</li>
+      </ul>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <p>Listed above: <a href="#families">families</a>, <a href="#scale">sizes</a>, <a href="#weights">weights, line heights and tracking</a>, and <a href="#roles">role shorthands</a>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Keryx design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-27</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
