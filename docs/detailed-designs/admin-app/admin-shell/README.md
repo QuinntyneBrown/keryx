@@ -121,8 +121,8 @@ one encapsulated BEM stylesheet each, selector prefix `kx-`)
 **Backend**
 
 - **`AuthController`** — `GET /admin/v1/me` returns `name`, `initials` and `role` (`L2-039`).
-- **`AdminOverviewController`** — `GET /admin/v1/overview/schedule` (path `<TO SUPPLY>`; `L2-042`
-  names no endpoint). It requires `StaffPolicy`, checks nothing and sends one
+- **`AdminOverviewController`** — `GET /admin/v1/overview/schedule` (`L2-042` names no
+  endpoint; this path sits beside Overview's status, which it complements). It requires `StaffPolicy`, checks nothing and sends one
   `GetShellScheduleQuery`. Responses carry `Cache-Control: no-store`.
 - **`GetShellScheduleQueryHandler`** — reads `Settings.CollectionIntervalHours`, the last
   scheduled `Run` and the `Source` health through `IAppDbContext`, computes `next_run_at` from

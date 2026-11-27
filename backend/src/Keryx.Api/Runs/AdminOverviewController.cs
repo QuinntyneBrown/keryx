@@ -14,4 +14,8 @@ public sealed class AdminOverviewController(ISender sender) : ControllerBase
     /// <summary>The last and current collection runs, whether any source and run exist, and the next run.</summary>
     [HttpGet("status")]
     public Task<OverviewStatusDto> Status(CancellationToken cancellationToken) => sender.Send(new GetOverviewStatus(), cancellationToken);
+
+    /// <summary>The shell's schedule: the next collection, the interval, the zone and the failing sources (L2-042).</summary>
+    [HttpGet("schedule")]
+    public Task<ShellScheduleDto> Schedule(CancellationToken cancellationToken) => sender.Send(new GetShellSchedule(), cancellationToken);
 }
