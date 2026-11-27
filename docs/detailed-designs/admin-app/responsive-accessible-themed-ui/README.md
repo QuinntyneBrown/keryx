@@ -79,7 +79,8 @@ The layout each viewport class shows is the table of `L2-090`:
 | XL | ≥ 1200 px | Sidebar | As MD | Table | Side by side |
 
 - **Global foundations** — `tokens.css` (the design system's `tokens/tokens.css`, copied
-  byte for byte to the app's `foundations/tokens/`) holds the switch points as tokens. A Sass partial `_breakpoints.scss` mirrors them as `rem` values, because a
+  byte for byte to the app's `foundations/tokens/`) holds the switch points as tokens. A Sass partial `_breakpoints.scss` in the components library
+  (`frontend/projects/components/src/`) mirrors them as `rem` values, because a
   media query cannot read a custom property; its mixins are named by switch-point width
   (`from(640)`, `until(1024)`), not by class letter, so the token `--layout-breakpoint-sm`
   (640 px) is not confused with the SM class (576 px). Layout changes are CSS media queries in

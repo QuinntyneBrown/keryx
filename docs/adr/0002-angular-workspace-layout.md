@@ -33,6 +33,12 @@ that point at each library's `src/public-api.ts`:
   `frontend/public/`.
 - The initial budget is 250 kB of uncompressed output and 8 kB for any component style
   (L2-088). The warnings sit just below (240 kB and 6 kB) so that growth is seen before it fails.
+- `outputHashing` is `bundles`: scripts and styles carry a content hash, media files do not.
+  `index.html` can then preload the one font used above the fold by a fixed address,
+  `media/Geist-Variable.woff2` (L2-088). A font file changes only with the design system.
+- The design system's switch points are mirrored for media queries in one Sass partial,
+  `projects/components/src/_breakpoints.scss` (`from(1024)`, `until(1024)`). It lives in the
+  components library because that is where layout is drawn and a library cannot import the app.
 
 This departs from the CLI default (`ng generate library` with a build step) for the reason
 above.

@@ -122,10 +122,14 @@ img, svg { max-width: 100%; display: block; }
 .brand--64 { --brand-mark-size: var(--space-16); }
 .brand--96 { --brand-mark-size: var(--space-24); }
 .brand--64, .brand--96 { gap: var(--space-4); }
+/* As a link the lockup is a control: its target is 44px tall on touch devices. */
+@media (pointer: coarse) { a.brand { min-height: var(--target-comfortable); } }
 
 /* ---------- App shell ---------------------------------------------------- */
 .app { display: flex; flex-direction: column; min-height: 100dvh; }
 .app__main { min-width: 0; flex: 1; }
+/* Focus lands on main from the skip link and on navigation: it is a region, not a control, so it shows no ring. */
+.app__main:focus { outline: none; }
 @media (min-width: 64rem) {
   .app { display: grid; grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr); }
 }

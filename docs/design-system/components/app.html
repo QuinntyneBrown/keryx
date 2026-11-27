@@ -204,7 +204,7 @@
         <tr><td><kbd>Enter</kbd> on the skip link</td><td>Moves focus to <code>#main</code>.</td></tr>
       </tbody></table></div>
       <h3>Focus</h3>
-      <p>On navigation the router moves focus to the new page's <code>h1</code> so the title is announced. In the split arrangement, opening the panel moves focus into it and closing returns focus to the row.</p>
+      <p>On navigation the router moves focus to the new page's <code>h1</code> so the title is announced. <code>&lt;main&gt;</code> has <code>tabindex="-1"</code> so the skip link can move focus there; as a region, not a control, it shows no ring. In the split arrangement, opening the panel moves focus into it and closing returns focus to the row.</p>
       <h3>Labelling</h3>
       <p>Each page has a unique <code>&lt;title&gt;</code> and one <code>h1</code>. The primary navigation is the only <code>nav</code> landmark and is labelled “Primary”.</p>
       <h3>Contrast</h3>

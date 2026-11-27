@@ -31,6 +31,9 @@ full from its design-system page, so journey 2 extends the shell instead of repl
 | `brand` | `components/src/brand/` | The mark and wordmark, one link named "Keryx, go to overview" |
 | `empty` | `components/src/empty/` | A card whose title is the page's `h1` |
 
+The sidebar is told it has no navigation (`[navigation]="false"`), so no empty landmark is
+announced; the navigation landmark of L2-092 criterion 7 arrives with the links in journey 2.
+
 The copy is a stand-in and is not a designed state: title "Keryx Admin", text "The admin screens
 are not built yet." The document title is "Admin · Keryx". Any other address redirects to `''`
 until the Not found screen exists.
