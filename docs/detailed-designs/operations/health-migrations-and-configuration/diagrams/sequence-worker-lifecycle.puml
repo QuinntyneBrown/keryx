@@ -24,19 +24,20 @@ box "Backend — Keryx Application and Domain" #ECFDF3
   participant "RecordRunFailureCommandHandler" as fail
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
-  participant "DatabaseReadinessCheck" as check
+  participant "EfSchemaVersion" as schema
   participant "HttpSourceFetcher" as fetch
   database "Keryx database" as db
 end box
-plat -> gate : Start worker host (options validated on start)
-loop until healthy
-  gate -> check : CheckHealthAsync
-  check -> db : CanConnect, last applied migration
-  alt not ready
-    check --> gate : Unhealthy
-    gate -> gate : Report not ready; run no worker (L2-095)
+plat -> gate : Start worker host (settings validated before it starts)
+loop until ready, every 30 seconds on TimeProvider
+  gate -> schema : GetAsync
+  schema -> db : CanConnect, applied migrations
+  alt behind, ahead or unreachable
+    schema --> gate : Not ready
+    gate -> gate : Log the reason once, and again only if it changes; run no worker (L2-095)
   else ready
-    check --> gate : Healthy
+    schema --> gate : Ready
+    gate -> gate : Log information: ready
   end
 end
 gate --> sched : Ready

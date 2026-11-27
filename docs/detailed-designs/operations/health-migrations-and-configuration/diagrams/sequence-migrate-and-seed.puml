@@ -16,30 +16,34 @@ skinparam package {
 }
 actor "Operator or release pipeline" as op
 box "Backend — Keryx CLI application" #D1FADF
-  participant "migrate" as mig
-  participant "seed" as seed
+  participant "KeryxCli" as cli
 end box
 box "Backend — Keryx Application and Domain" #ECFDF3
   participant "SeedDataCommandHandler" as h
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
+  participant "EfDatabaseMigrator" as mig
   database "Keryx database" as db
 end box
-op -> mig : dotnet run --project src/Keryx.Cli -- migrate
-mig -> db : Database.MigrateAsync
+op -> cli : dotnet run --project src/Keryx.Cli -- migrate
+cli -> cli : Validate the settings (a missing one: exit 2)
+cli -> mig : MigrateAsync
+mig -> db : Pending migrations
 alt pending migrations
+  mig -> db : Database.MigrateAsync
   db --> mig : Applied
 else none pending
-  db --> mig : Nothing changed
+  db --> mig : Nothing to apply
 end
-mig --> op : Exit 0 (L2-095)
-op -> seed : … -- seed
-seed -> h : Send SeedDataCommand
-h -> db : Upsert regions by slug
-h -> db : Upsert categories by slug
-h -> db : Insert Settings row only when absent
-h -> db : Upsert news query sources by seed key
-db --> h : Each exists exactly once
-h --> seed : Done
-seed --> op : Exit 0
+mig --> cli : Number applied
+cli --> op : "Migrations applied: n"; exit 0 (L2-095)
+op -> cli : … -- seed
+cli -> h : Send SeedDataCommand
+h -> db : Add each region whose slug is missing
+h -> db : Add each category whose slug is missing
+h -> db : Add the Settings row only when absent
+h -> db : Add each news query source whose seed key is missing
+db --> h : Each exists exactly once; existing rows untouched
+h --> cli : SeedDataResult (rows added of each kind)
+cli --> op : "Seed data added: …"; exit 0
 @enduml

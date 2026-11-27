@@ -21,17 +21,27 @@ class DatabaseReadinessCheck {
   +CheckHealthAsync(context, ct): Task<HealthCheckResult>
 }
 interface ISchemaVersion {
-  +ReadAsync(ct): Task<SchemaState>
+  +GetAsync(ct): Task<SchemaState>
 }
 class EfSchemaVersion {
   -KeryxDbContext db
-  +ReadAsync(ct): Task<SchemaState>
+  +GetAsync(ct): Task<SchemaState>
 }
 class SchemaState <<record>> {
   +bool Reachable
   +string? Applied
   +string? Expected
+  +SchemaStatus Status
   +bool Ready
+}
+enum SchemaStatus {
+  Ready
+  Behind
+  Ahead
+  Unreachable
+}
+class SchemaStatusLog <<static>> {
+  +Report(logger, status)
 }
 interface IDatabaseMigrator {
   +MigrateAsync(ct): Task<int>
@@ -40,44 +50,56 @@ class EfDatabaseMigrator {
   -KeryxDbContext db
   +MigrateAsync(ct): Task<int>
 }
-class MinimalHealthResponseWriter {
-  +{static} WriteAsync(http: HttpContext, report: HealthReport): Task
-}
 class SchemaStatusLogger {
-  +StartAsync(ct): Task
+  #ExecuteAsync(ct): Task
 }
 class WorkerReadinessGate {
   -TimeProvider time
-  +WaitUntilReadyAsync(ct): Task
+  +{static} RecheckInterval = 30 s
+  +Task Ready
+  #ExecuteAsync(ct): Task
 }
-class MigrateCommand {
-  +ExecuteAsync(ct): Task<int>
+class HostRunner <<static>> {
+  +{static} MissingSettingExitCode = 2
+  +RunAsync(build, error, ct): Task<int>
+  +GuardAsync(run, error): Task<int>
 }
-class SeedCommand {
-  +ExecuteAsync(ct): Task<int>
+class KeryxCli <<static>> {
+  +{static} UsageExitCode = 1
+  +RunAsync(args, output, error): Task<int>
 }
-class SeedDataCommand
+class SeedDataCommand <<record>>
+class SeedDataResult <<record>> {
+  +int Regions
+  +int Categories
+  +int Settings
+  +int Sources
+}
 class SeedDataCommandHandler {
-  +Handle(c: SeedDataCommand, ct): Task
-  -UpsertRegions(): Task
-  -UpsertCategories(): Task
-  -EnsureSettings(): Task
-  -UpsertNewsQuerySources(): Task
+  -IAppDbContext db
+  -TimeProvider time
+  +Handle(c: SeedDataCommand, ct): Task<SeedDataResult>
+}
+class SeedData <<static>> {
+  +Regions(): Region[]
+  +Categories(): Category[]
+  +DefaultSettings(): Settings
+  +NewsQuerySources(now): Source[]
 }
 class DatabaseOptions {
-  +[Required] string ConnectionString
-  +{static} Key = "ConnectionStrings__Keryx"
+  +string ConnectionString «required»
+  +{static} MissingConnectionString
 }
 class IdentityProviderOptions {
-  +[Required] string Authority
-  +[Required] string ClientId
+  +string Authority «required»
+  +string ClientId «required»
   +string StaffClaim
 }
 class AdminOptions {
-  +[Required] string Origin
+  +string Origin «required»
 }
 class FetchOptions {
-  +[Required] string ContactUrl
+  +string ContactUrl «required»
 }
 class SessionOptions {
   +int IdleMinutes = 60
@@ -92,11 +114,17 @@ DatabaseReadinessCheck ..|> IHealthCheck
 DatabaseReadinessCheck ..> ISchemaVersion : reads
 EfSchemaVersion ..|> ISchemaVersion
 ISchemaVersion ..> SchemaState : returns
+SchemaState ..> SchemaStatus
 EfDatabaseMigrator ..|> IDatabaseMigrator
-MigrateCommand ..> IDatabaseMigrator : calls
-SchemaStatusLogger ..> DatabaseReadinessCheck : runs
-WorkerReadinessGate ..> DatabaseReadinessCheck : runs
-MinimalHealthResponseWriter ..> DatabaseReadinessCheck : reports status of
-SeedCommand ..> SeedDataCommand : sends
+KeryxCli ..> IDatabaseMigrator : migrate calls
+KeryxCli ..> SeedDataCommand : seed sends
+KeryxCli ..> HostRunner : guarded by
+SchemaStatusLogger ..> ISchemaVersion : asks once at startup
+SchemaStatusLogger ..> SchemaStatusLog : reports through
+WorkerReadinessGate ..> ISchemaVersion : asks every 30 s until ready
+WorkerReadinessGate ..> SchemaStatusLog : reports through
 SeedDataCommandHandler ..> SeedDataCommand : handles
+SeedDataCommandHandler ..> SeedDataResult : returns
+SeedDataCommandHandler ..> SeedData : adds what is missing of
+HostRunner ..> DatabaseOptions : stops on a missing setting of
 @enduml

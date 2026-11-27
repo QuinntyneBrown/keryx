@@ -18,34 +18,34 @@ participant "Platform probe" as probe
 box "Backend — Keryx API application" #D1FADF
   participant "/health/live" as live
   participant "/health/ready" as ready
-  participant "MinimalHealthResponseWriter" as writer
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
   participant "DatabaseReadinessCheck" as check
+  participant "EfSchemaVersion" as schema
   database "Keryx database" as db
 end box
 probe -> live : GET /health/live (no credential)
-live --> probe : 200, database not touched (L2-095)
+live --> probe : 200 Healthy; no check runs, database not touched (L2-095)
 probe -> ready : GET /health/ready (no credential)
 ready -> check : CheckHealthAsync
-check -> db : CanConnect
+check -> schema : GetAsync
+schema -> db : CanConnect
 alt reachable
-  db --> check : true
-  check -> db : Last applied migration
-  db --> check : Migration id
-  alt equals the build's expected schema version
+  db --> schema : true
+  schema -> db : Applied migrations
+  db --> schema : Migration ids
+  schema --> check : SchemaState(applied, expected)
+  alt applied equals the build's expected schema version
     check --> ready : Healthy
-    ready -> writer : Write
-    writer --> probe : 200 status word only
+    ready --> probe : 200 Healthy
   else behind or ahead
     check --> ready : Unhealthy
-    ready -> writer : Write
-    writer --> probe : 503 status word only; no version, host or error
+    ready --> probe : 503 Unhealthy; no version, host or error
   end
 else unreachable
-  db --> check : Failure
+  db --> schema : Failure
+  schema --> check : SchemaState(unreachable)
   check --> ready : Unhealthy
-  ready -> writer : Write
-  writer --> probe : 503 status word only
+  ready --> probe : 503 Unhealthy
 end
 @enduml

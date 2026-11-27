@@ -13,11 +13,13 @@ skinparam class {
 ' --------------------------
 title Class structure — Observe the system
 
-class KeryxTelemetry {
-  +{static} AddKeryxTelemetry(services, configuration, serviceName: string): IServiceCollection
+class KeryxTelemetry <<static>> {
+  +{static} ApiServiceName = "keryx-api"
+  +{static} WorkerServiceName = "keryx-worker"
+  +{static} AddKeryxTelemetry(services, configuration, defaultServiceName: string, configureTracing, configureMetrics): IServiceCollection
 }
 class TelemetryRedactionProcessor {
-  -ISet<string> allowedTags
+  -{static} FrozenSet<string> AllowedTags
   +OnEnd(activity: Activity): void
 }
 class CollectionTelemetry {

@@ -27,20 +27,28 @@ as `trace_id`.
 
 **Shared (`Keryx.Infrastructure`)**
 
-- **`KeryxTelemetry.AddKeryxTelemetry(IServiceCollection, IConfiguration, string serviceName)`**
-  — extension called by the API and the worker. It registers the OpenTelemetry SDK with the
-  ASP.NET Core and `HttpClient` instrumentations, the activity sources and meters below, and the
-  OpenTelemetry logging provider. It adds the OTLP exporter only when `OTEL_EXPORTER_OTLP_ENDPOINT`
-  is set. Sampling and export intervals are the SDK's defaults (every trace sampled, spans and
-  logs exported in batches every 5 seconds, metrics every 60 seconds); each can be changed
-  through the standard `OTEL_*` variables without a build. The API adds the ASP.NET Core
-  instrumentation through the extension's callback, so `Keryx.Infrastructure` and the worker
-  carry no web dependency.
+- **`KeryxTelemetry.AddKeryxTelemetry(IServiceCollection, IConfiguration, string defaultServiceName, configureTracing, configureMetrics)`**
+  — extension called by the API and the worker. It registers the OpenTelemetry SDK for traces,
+  metrics and logs under one service name (`OTEL_SERVICE_NAME`, else the default the caller
+  gives: `keryx-api` or `keryx-worker`), with the `HttpClient` instrumentation, the activity
+  sources and meters below, and the OpenTelemetry logging provider. It adds the OTLP exporter
+  only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; with none, nothing is exported and the process
+  runs the same. Sampling and export intervals are the SDK's defaults (every trace sampled,
+  spans and logs exported in batches every 5 seconds, metrics every 60 seconds); each can be
+  changed through the standard `OTEL_*` variables without a build. The API adds the ASP.NET
+  Core instrumentation through the two callbacks (`configureTracing`, `configureMetrics`), so
+  `Keryx.Infrastructure` and the worker carry no web dependency. The redaction processor is
+  registered after the caller's callback, so no caller can leave it out.
 - **`TelemetryRedactionProcessor`** — `BaseProcessor<Activity>` that runs before export. It
   keeps an allow-list of tags (`http.route`, `http.request.method`,
   `http.response.status_code`, `keryx.source.id`, `keryx.run.id`, `keryx.stage`,
   `keryx.client.id`, `error.type`) and removes every other tag, including `url.query`,
-  `url.full`, header values, `enduser.*` and exception messages.
+  `url.full`, `url.path`, header values, `enduser.*` and exception messages; it also clears the
+  span's status description, which may hold an exception's message. Each `keryx.*` tag joins
+  the list in the change that first sets it.
+- **Request logs** — the API filters the `Microsoft.AspNetCore` log categories to `Warning`,
+  because their information lines print each request's full URL with its query string. Those
+  lines are neither written to the console nor exported.
 - **`HttpClient` instrumentation options** — `EnrichWithHttpRequestMessage` sets
   `keryx.source.id`, and `url.full` is never recorded, so a fetch span carries no query.
 - **`LogRedaction`** — the logging rules. Log calls use source-generated `LoggerMessage`
@@ -84,6 +92,18 @@ as `trace_id`.
   `keryx-api` and `keryx-worker`) and `OTEL_RESOURCE_ATTRIBUTES` are documented in
   `tools/deploy/` (health, migrations and configuration feature). The OTLP protocol default is
   the SDK's, `grpc`; `http/protobuf` is chosen with `OTEL_EXPORTER_OTLP_PROTOCOL`.
+
+**Delivered in steps**
+
+- Journey 1 (scaffolding) builds the wiring both processes share: `AddKeryxTelemetry`, the
+  ASP.NET Core instrumentation, the redaction processor with the four tags a request span
+  carries today (`http.route`, `http.request.method`, `http.response.status_code`,
+  `error.type`), the request-log filter and `trace_id` on every ProblemDetails body
+  (`L2-094` criteria 1 and 5, and the span half of criterion 2).
+- The `HttpClient` instrumentation and `CollectionTelemetry` arrive with the first worker that
+  fetches (journey 4); `keryx.client.id` and `ApiMetrics` with the first `/v1` endpoint.
+- Journey 25 completes the feature: the run traces and run metrics, the `LogRedaction` rules
+  for exceptions, and the acceptance tests of criteria 3, 4 and 6.
 
 ## Requirements
 

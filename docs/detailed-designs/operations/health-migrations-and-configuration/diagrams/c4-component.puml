@@ -6,31 +6,35 @@ title Components — Health, migrations and configuration
 Container_Boundary(api, "Keryx API") {
   Component(live, "/health/live", "Health endpoint", "200 without the database")
   Component(ready, "/health/ready", "Health endpoint", "200 or 503, status word only")
-  Component(logger, "SchemaStatusLogger", "Hosted service", "Logs an instruction to run migrate")
-  Component(opts, "KeryxOptions validation", "ValidateOnStart", "Stops startup naming missing settings")
+  Component(logger, "SchemaStatusLogger", "Hosted service", "Logs why the API is not ready: run migrate")
 }
 Container_Boundary(worker, "Keryx Worker") {
   Component(gate, "WorkerReadinessGate", "Startup gate", "No worker until ready")
   Component(workers, "CollectionScheduler, RetentionWorker, AlertDigestWorker", "BackgroundService", "30 s shutdown; interrupted runs recorded")
 }
 Container_Boundary(infra, "Keryx Infrastructure") {
-  Component(check, "DatabaseReadinessCheck", "IHealthCheck", "Can connect and schema at expected version")
+  Component(runner, "HostRunner", "Settings validation", "Stops a process with exit code 2, naming missing settings")
+  Component(check, "DatabaseReadinessCheck", "IHealthCheck", "Healthy only at the expected schema version")
+  Component(schema, "EfSchemaVersion", "ISchemaVersion", "Reachable, applied and expected migration")
+  Component(migrator, "EfDatabaseMigrator", "IDatabaseMigrator", "Applies pending migrations")
 }
 Container_Boundary(cli, "Keryx CLI") {
-  Component(mig, "migrate", "CLI command", "Database.MigrateAsync")
+  Component(mig, "migrate", "CLI command", "Calls IDatabaseMigrator")
   Component(seed, "seed", "CLI command", "Sends SeedDataCommand")
 }
 Container_Boundary(app, "Keryx Application and Domain") {
-  Component(seedh, "SeedDataCommandHandler", "MediatR handler", "Upserts by natural key")
+  Component(seedh, "SeedDataCommandHandler", "MediatR handler", "Adds the seed rows that are missing")
 }
 ContainerDb(db, "Keryx database", "EF Core relational store", "Schema and seed data")
 
 Rel(ready, check, "Runs")
-Rel(logger, check, "Runs once at startup")
-Rel(gate, check, "Runs until healthy")
+Rel(check, schema, "Reads")
+Rel(logger, schema, "Asks once at startup")
+Rel(gate, schema, "Asks every 30 s until ready")
 Rel(workers, gate, "Await")
-Rel(check, db, "CanConnect, applied migrations", "EF Core")
-Rel(mig, db, "Applies pending migrations", "EF Core")
+Rel(schema, db, "CanConnect, applied migrations", "EF Core")
+Rel(mig, migrator, "Calls")
+Rel(migrator, db, "Applies pending migrations", "EF Core")
 Rel(seed, seedh, "Sends SeedDataCommand")
-Rel(seedh, db, "Upserts regions, categories, settings, news query sources", "IAppDbContext")
+Rel(seedh, db, "Adds regions, categories, settings, news query sources", "IAppDbContext")
 @enduml

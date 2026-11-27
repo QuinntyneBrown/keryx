@@ -31,69 +31,90 @@ run as `failed` with reason `interrupted`, and exits within 30 seconds.
 - **`/health/live`** — `MapHealthChecks` with a predicate that runs no check; it answers `200`
   without touching the database. It is `AllowAnonymous` and excluded from the OpenAPI document.
 - **`/health/ready`** — runs `DatabaseReadinessCheck`; it answers `200` when healthy and `503`
-  otherwise. It is `AllowAnonymous`. `MinimalHealthResponseWriter` writes the status word only
-  (`Healthy` or `Unhealthy`, as `text/plain`): no version, host, exception or check detail.
-- **`SchemaStatusLogger`** — hosted service that runs `DatabaseReadinessCheck` once at startup.
-  When the schema is behind, it logs a warning to run `migrate`. It never migrates.
-- **Startup validation** — `Program` binds each options class with
-  `ValidateDataAnnotations().ValidateOnStart()`. Each `[Required]` member carries the message
+  otherwise. It is `AllowAnonymous`. The framework's own minimal writer answers with the status
+  word only (`Healthy` or `Unhealthy`, as `text/plain`): no version, host, exception or check
+  detail.
+- **`SchemaStatusLogger`** — hosted service that asks `ISchemaVersion` once as the API starts
+  and logs the answer through `SchemaStatusLog`. When the schema is behind, it logs a warning to
+  run `migrate`; when the schema is ahead of the build or the database cannot be reached, the
+  warning says that instead. It never migrates.
+- **Startup validation** — each options class validates on start (`Validate(…)` with
+  `ValidateOnStart()`). A missing required member fails with the message
   "Missing required setting: `<key>`", where the key is the environment variable's name
-  (`ConnectionStrings__Keryx`). On `OptionsValidationException` the process writes those
-  messages to standard error, never a value, and exits with code `2`. The worker and the CLI
-  do the same.
+  (`ConnectionStrings__Keryx`); a setting that is empty or blank is missing. `Program` runs
+  through `HostRunner`, which validates before the host starts, writes those messages to
+  standard error, never a value, and exits with code `2`. The worker and the CLI do the same.
 
 **Infrastructure (`Keryx.Infrastructure`)**
 
-- **`DatabaseReadinessCheck`** — `IHealthCheck` shared by the API and the worker. It is healthy
-  only when the database can be reached and the last applied migration equals the build's
-  expected schema version. A database ahead of the build is not ready either. It reads both
-  facts through `ISchemaVersion` and never throws: a failure to connect is "not ready".
+- **`DatabaseReadinessCheck`** — `IHealthCheck` behind `/health/ready`. It is healthy only when
+  the database can be reached and the last applied migration equals the build's expected schema
+  version. A database ahead of the build is not ready either. It reads both facts through
+  `ISchemaVersion` and never throws: a failure to connect is "not ready".
 - **`ISchemaVersion`** / **`EfSchemaVersion`** — the one place that asks EF Core about the
   schema: `Database.CanConnectAsync`, then `GetAppliedMigrationsAsync` against `GetMigrations`.
-  A provider with no migrations (the tests' EF Core InMemory) is at the expected version. A
-  test injects a fake to stand for a database that is behind or unreachable.
+  It answers a `SchemaState` whose `Status` is `Ready`, `Behind`, `Ahead` or `Unreachable`;
+  migration identifiers start with their timestamp, so they compare as their migrations do, and
+  a database that holds none is behind. A provider with no migrations (the tests' EF Core
+  InMemory) is at the expected version. A test injects a fake to stand for a database that is
+  behind, ahead or unreachable. The readiness check, `SchemaStatusLogger` and
+  `WorkerReadinessGate` all read it.
+- **`SchemaStatusLog`** — the log lines for each status, shared by the API and the worker: one
+  information line for `Ready` and one warning for each other status, naming what to do and
+  never a version, a host or an error.
 - **`IDatabaseMigrator`** / **`EfDatabaseMigrator`** — applies the pending migrations
-  (`Database.MigrateAsync`) and returns how many it applied. Only the CLI resolves it.
+  (`Database.MigrateAsync`) and returns how many it applied. Only the CLI calls it.
+- **`HostRunner`** — runs a process and turns a missing required setting into exit code `2`
+  with one line per setting. `RunAsync` builds, validates and runs a host; `GuardAsync` does
+  the same for the CLI, which runs a command and never starts its host.
 - **`KeryxOptions`** classes — `DatabaseOptions`, `IdentityProviderOptions`, `AdminOptions`,
   `PublicApiOptions`, `MailOptions`, `PlatformCredentialsOptions`, `FetchOptions`,
-  `RateLimitOptions`, `SessionOptions`, `DataProtectionOptions`, each with `[Required]` on its
-  required members.
+  `RateLimitOptions`, `SessionOptions`, `DataProtectionOptions`, each validating its required
+  members on start.
 
 **Worker (`Keryx.Worker`)**
 
-- **`WorkerReadinessGate`** — awaited by `CollectionScheduler`, `RetentionWorker` and
-  `AlertDigestWorker` before their first schedule. It runs `DatabaseReadinessCheck` and, while
-  unhealthy, reports not ready and re-checks every 30 seconds, timed through `TimeProvider`.
-  It reports through the log: one warning when it starts waiting, naming `migrate`, and one
-  information line when the database becomes ready. The worker serves no HTTP endpoint.
-- **Graceful shutdown** — `HostOptions.ShutdownTimeout` is 30 seconds. The stopping token
-  cancels the current source fetch. `CollectionPipeline` then sends `RecordRunFailureCommand`
-  with reason `interrupted` (run recording subsystem, `L2-019`) and the process exits.
+- **`WorkerReadinessGate`** — awaited (its `Ready` task) by `CollectionScheduler`,
+  `RetentionWorker` and `AlertDigestWorker` before their first schedule. It asks
+  `ISchemaVersion` and, while the answer is not `Ready`, runs no worker and asks again every
+  30 seconds, timed through `TimeProvider`. It reports through the log: one warning when it
+  starts waiting, naming `migrate` when the schema is behind, again only if the reason changes,
+  and one information line when the database is ready. The worker serves no HTTP endpoint.
+- **Graceful shutdown** — `HostOptions.ShutdownTimeout` is 30 seconds, the host's own default.
+  The stopping token cancels the current source fetch. `CollectionPipeline` then sends
+  `RecordRunFailureCommand` with reason `interrupted` (run recording subsystem, `L2-019`) and
+  the process exits. This part arrives with the first worker that runs (journey 4); until then
+  the worker host holds only the gate, which stops at once.
 
 **CLI (`Keryx.Cli`)**
 
 - **`migrate`** — `dotnet run --project src/Keryx.Cli -- migrate` calls `IDatabaseMigrator`
-  (`Database.MigrateAsync`). It applies pending migrations and exits `0`; run again, it changes
-  nothing and exits `0`. An unknown command prints the usage and exits `1`; a missing required
-  setting exits `2`.
-- **`seed`** — sends `SeedDataCommand`. `SeedDataCommandHandler` upserts by natural key:
-  regions by `slug`, categories by `slug`, the single `Settings` row when absent, and news query
-  sources by a fixed seed key. Each therefore exists exactly once after any number of runs.
-  A row that already exists is left as it is, so a second run changes nothing. The seed data
+  (`Database.MigrateAsync`). It applies pending migrations, prints `Migrations applied: <n>` and
+  exits `0`; run again, it changes nothing, prints `Migrations applied: 0` and exits `0`. A
+  command line that names no command prints the usage and exits `1`; a missing required setting
+  exits `2` before the command touches anything.
+- **`seed`** — sends `SeedDataCommand`. `SeedDataCommandHandler` adds each row whose natural
+  key is missing: regions by `slug`, categories by `slug`, the single `Settings` row when
+  absent, and news query sources by a fixed seed key. Each therefore exists exactly once after
+  any number of runs. A row that already exists is left as it is, so a second run changes
+  nothing and a change staff made since is kept. The command prints how many rows of each kind
+  it added (`Seed data added: regions 14, categories 6, settings 1, sources 1`). The seed data
   (`SeedData` in `Keryx.Domain`) is:
 
   | Kind | Rows |
   |------|------|
-  | Regions, in rank order | `toronto`, `scarborough`, `mississauga`, `brampton`, `markham`, `vaughan`, `oakville`, `richmond-hill`, `pickering`, `ajax` (the regions and default focus areas the mocks show), then `gta`, `ontario`, `canada`, `global`. Every zone is `America/Toronto` except `global`, which is `Etc/UTC`. |
+  | Regions, in rank order | `toronto`, `scarborough`, `mississauga`, `brampton`, `markham`, `vaughan`, `oakville`, `richmond-hill`, `pickering`, `ajax` (the regions and default focus areas the mocks show; ranks 10 to 100), then `gta`, `ontario`, `canada`, `global` (ranks from 1000, so a municipality added later ranks before the wider areas). Every zone is `America/Toronto` except `global`, which is `Etc/UTC`. |
   | Categories | `events` Events, `races-challenges` Races & Challenges, `gyms-studios` Gyms & Studios, `ministry-programs` Ministry Programs, `nutrition` Nutrition, `faith-wellness` Faith & Wellness |
-  | Settings | Interval 6 hours, timeout 30 seconds, publish threshold 0.60, the mocks' nine topics, three exclusions and nine focus areas, Ontario-wide on, national off, merge duplicates on, retention 24 months, no alert e-mail, alert after 3 failures, alert on a failed run on, daily digest on |
+  | Settings | Interval 6 hours, timeout 30 seconds, publish threshold 0.60, the mocks' eight topics, three exclusions and nine focus areas, Ontario-wide on, national off, merge duplicates on, retention 24 months, no alert e-mail, alert after 3 failures, alert on a failed run on, daily digest on. The table holds one row: its id is fixed and a check constraint refuses a second. |
   | News query sources | Seed key `toronto-church-fitness`: "Toronto church fitness", query `"church" AND (fitness OR run) near:Toronto`, region `gta` |
 
 **Configuration (`tools/deploy/`)**
 
 - **`tools/deploy/configuration.md`** — one row per setting with its name, meaning, default and
-  whether it is a secret, updated in the same change that introduces or changes a setting. The
-  settings named by `L2-096` and their proposed keys:
+  whether it is a secret, updated in the same change that introduces or changes a setting. It
+  also says what a release runs (`migrate`, `seed`, then the API and the worker), the CLI's exit
+  codes and what the health endpoints answer. The settings named by `L2-096` and their proposed
+  keys:
 
   | Setting | Proposed key | Secret | Default |
   |---------|--------------|--------|---------|
@@ -157,15 +178,16 @@ check the schema version and wait while it is behind.
 
 ### Components
 
-`DatabaseReadinessCheck` serves `/health/ready`, `SchemaStatusLogger` and
-`WorkerReadinessGate`. The CLI's `migrate` and `seed` commands own every schema and seed change.
+`EfSchemaVersion` answers `/health/ready` (through `DatabaseReadinessCheck`),
+`SchemaStatusLogger` and `WorkerReadinessGate`. The CLI's `migrate` and `seed` commands own
+every schema and seed change.
 
 ![C4 component view for health, migrations and configuration](diagrams/c4-component.png)
 
 ### Class structure
 
-The options classes validate on start. The readiness check compares the applied migration with
-the build's expected schema version.
+The options classes validate on start, and `HostRunner` turns a missing setting into exit
+code `2`. `SchemaState` compares the applied migration with the build's expected schema version.
 
 ![Class diagram for health, migrations and configuration](diagrams/class-structure.png)
 
@@ -178,8 +200,8 @@ database is reachable at the expected schema version, else `503`, with no detail
 
 ### Behaviour — migrate and seed
 
-`migrate` applies pending migrations and is a no-op when run again; `seed` upserts by natural
-key, so each seeded row exists exactly once.
+`migrate` applies pending migrations and is a no-op when run again; `seed` adds the rows whose
+natural key is missing, so each seeded row exists exactly once.
 
 ![Sequence diagram for migrate and seed](diagrams/sequence-migrate-and-seed.png)
 

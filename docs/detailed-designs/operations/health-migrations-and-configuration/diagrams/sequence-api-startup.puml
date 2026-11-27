@@ -17,29 +17,38 @@ skinparam package {
 actor "Operator" as op
 box "Backend — Keryx API application" #D1FADF
   participant "Program" as prog
-  participant "KeryxOptions validation" as opts
   participant "SchemaStatusLogger" as logger
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
-  participant "DatabaseReadinessCheck" as check
+  participant "HostRunner" as runner
+  participant "Options validation" as opts
+  participant "EfSchemaVersion" as schema
   database "Keryx database" as db
 end box
 op -> prog : Start the API
-prog -> opts : ValidateOnStart
+prog -> runner : RunAsync(ApiHost.Build)
+runner -> opts : Validate, before the host starts
 alt a required setting is missing
-  opts --> prog : OptionsValidationException
-  prog --> op : Message naming the setting, not its value; non-zero exit (L2-096)
+  opts --> runner : OptionsValidationException
+  runner --> op : "Missing required setting: <name>" on standard error, never a value; exit code 2 (L2-096)
 else all required settings present
-  opts --> prog : Valid
-  prog -> logger : StartAsync
-  logger -> check : CheckHealthAsync
-  check -> db : CanConnect, last applied migration
+  opts --> runner : Valid
+  runner -> logger : Start with the host
+  logger -> schema : GetAsync, once
+  schema -> db : CanConnect, applied migrations
   alt schema behind the build
-    check --> logger : Unhealthy
+    schema --> logger : Behind
     logger -> logger : Log warning: run migrate (no migration applied, L2-095)
+  else schema ahead of the build
+    schema --> logger : Ahead
+    logger -> logger : Log warning: deploy the newer build
+  else database unreachable
+    schema --> logger : Unreachable
+    logger -> logger : Log warning: the database cannot be reached
   else schema at expected version
-    check --> logger : Healthy
+    schema --> logger : Ready
+    logger -> logger : Log information: ready
   end
-  prog --> op : Listening; /health/ready reports readiness
+  runner --> op : Listening; /health/ready reports readiness
 end
 @enduml
