@@ -9,7 +9,7 @@
 | 5 | Worker ingests idempotently | Repeat runs change nothing; duplicates merge; provenance kept | 4 | 100 |
 | 6 | Worker scores and publishes | Items scored for relevance, then published, held or hidden | 3 | 100 |
 | 7 | Staff issues an API key | Staff create a scoped key shown once, and revoke it | 3 | 100 |
-| 8 | Product reads articles | Consuming product lists and reads published articles with its key | 6 | 95 |
+| 8 | Product reads articles | Consuming product lists and reads published articles with its key | 6 | 100 |
 | 9 | Product reads events and organizations | Consuming product lists events, organizations and sources | 4 | 0 |
 | 10 | Product reads reference data and status | Consuming product reads categories, regions and collection freshness | 2 | 0 |
 | 11 | Staff reviews articles | Staff search, filter and open articles with provenance | 4 | 0 |

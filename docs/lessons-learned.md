@@ -305,3 +305,37 @@ one-hour advance gave 401) and was fixed by a five-minute gap that proves the sa
 `SaveFault` switch. Deferred: the 401 for a revoked key on `/v1` (journey 8), the audit entries
 (journey 24), and the usage numbers in the table and the Revoke dialog (journey 21).
 
+
+## Journey 8: Product reads articles
+
+**What slowed it.** Test fixtures that did not mean what they said. A region outside the focus
+areas (Scarborough) held every article back at a 0.48 score, so filter tests failed for a reason
+that had nothing to do with filters; a "later than the run" date that was earlier than the run
+put the no-time article in the wrong place. Both were the tests' arithmetic, found by reading the
+seeded settings and the fixture clock, not the code. The ETag slice lost a run to `HttpClient`
+rewriting `Cache-Control` as `max-age=60, private`.
+
+- **Work a fixture's numbers from the seeded settings.** An item is published only when its topics
+  and its region score at or above the threshold: use a focus-area region (Toronto, Mississauga)
+  for anything a product must see, and say so in the test's comment.
+- **Assert parsed headers, not their text.** `HttpClient` re-serialises `Cache-Control` in its own
+  order; compare `CacheControlHeaderValue`'s fields (private, max-age and that nothing else is set).
+- **A guard no request can reach today gets a direct test.** The ETag filter's "not 200" guard
+  survived every API mutation because errors are thrown, not returned; `[ApiController]`'s
+  automatic 400 is a returned `ObjectResult`, so a test of the filter with such a result proves it.
+- **Fold a slice into the next when they share every file.** Filters were planned as their own
+  slice but changed the same query, validator and cursor fingerprint as paging; they were built
+  together with each rule still mutation-proven, and the journey kept six planned slices' worth
+  of tests.
+- **Keep the per-instance limits honest in the settings doc.** In-memory rate windows let n
+  instances allow n times the limit; `tools/deploy/configuration.md` says so beside the setting.
+- **Name the open decision when you close it.** Each `<TO SUPPLY>` this journey met (cursor expiry
+  and fingerprint, the no-time sort, `org`'s code, store sharing, forwarded headers, the key names,
+  the document's anonymity) was replaced in the design in the same commit as the code.
+
+**How earlier lessons worked.** "Start a mutation run with a control" caught that a rewrite was an
+equivalent refactor, not a mutant (`ObjectResult` pattern). "Inject DbUpdateException" was not
+needed: nothing here writes. Deferred: AC3 of L2-032 names staff hiding an article, which arrives
+with journey 12, so the changed-content case is proven here by a newly published article; the
+Data Protection key ring is not yet persisted, so cursors (and sessions) do not survive a restart
+or cross instances, and that store stays `<TO SUPPLY>` in authenticate-api-clients.
