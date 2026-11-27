@@ -1,10 +1,13 @@
 using FluentValidation;
+using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Probes;
+using Keryx.Infrastructure.Persistence.Schema;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 
 namespace Keryx.Api.Tests;
@@ -16,18 +19,31 @@ namespace Keryx.Api.Tests;
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>
 {
+    /// <summary>The fixture's store. A CLI run in the same test names it to seed what the API reads.</summary>
+    public string Store { get; } = TestStore.NewName();
+
     /// <summary>The fixture's clock. It starts on a fixed instant, in UTC.</summary>
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 27, 15, 0, 0, TimeSpan.Zero));
+
+    /// <summary>Every line the API logs.</summary>
+    public CapturedLogs Logs { get; } = new();
+
+    /// <summary>The migrations, which the API must never touch: a test asserts it was never called.</summary>
+    public RecordingMigrator Migrator { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.UseEnvironment("Production");
-        builder.UseSetting("ConnectionStrings:Keryx", "Host=unused.invalid;Database=unused");
+        builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
         builder.ConfigureTestServices(services =>
         {
+            services.UseTestStore(Store);
             services.RemoveAll<TimeProvider>();
             services.AddSingleton<TimeProvider>(Time);
+            services.AddSingleton<ILoggerProvider>(Logs);
+            services.RemoveAll<IDatabaseMigrator>();
+            services.AddSingleton<IDatabaseMigrator>(Migrator);
 
             // The probe endpoints of this assembly: a request to validate and a handler that throws.
             var probes = typeof(ProbeController).Assembly;
@@ -43,5 +59,17 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Replaces services for one fixture: a fake behind a contract, or a fault.</summary>
     protected virtual void ConfigureServices(IServiceCollection services)
     {
+    }
+}
+
+/// <summary>The API against a database in the state a test chooses.</summary>
+public sealed class SchemaApiFactory(SchemaState state) : ApiFactory
+{
+    public FakeSchemaVersion Schema { get; } = new(state);
+
+    protected override void ConfigureServices(IServiceCollection services)
+    {
+        services.RemoveAll<ISchemaVersion>();
+        services.AddSingleton<ISchemaVersion>(Schema);
     }
 }
