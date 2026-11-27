@@ -45,6 +45,9 @@ export class OverviewPage {
   readonly statusError: Locator;
   readonly chartError: Locator;
   readonly body: Locator;
+  readonly progress: Locator;
+  readonly progressBar: Locator;
+  readonly spinner: Locator;
   readonly loadingStatus: Locator;
   readonly statusSkeletons: Locator;
   readonly latestSkeletonRows: Locator;
@@ -90,6 +93,9 @@ export class OverviewPage {
     this.statusError = page.locator('main .page-body .stack > kx-empty > .empty--error');
     this.chartError = this.statusCard.locator('.status-card__history .empty--error');
     this.body = page.locator('main .page-body');
+    this.progress = this.statusCard.getByRole('progressbar');
+    this.progressBar = this.progress.locator('.progress__bar');
+    this.spinner = this.statusIcon.locator('.spinner');
     this.loadingStatus = this.body.locator('.visually-hidden[role="status"]');
     this.statusSkeletons = this.statusCard.locator('.skeleton');
     this.latestSkeletonRows = this.latest.locator('.list__item:has(.skeleton)');
@@ -114,6 +120,17 @@ export class OverviewPage {
     return this.bars.evaluateAll((bars) =>
       bars.map((bar) => Math.round(bar.getBoundingClientRect().height)),
     );
+  }
+
+  /** The progress bar's fill as a share of its track, in whole percent. */
+  progressShare(): Promise<number> {
+    return this.progress.evaluate((track) => {
+      const bar = track.querySelector('.progress__bar');
+      if (!bar) return -1;
+      return Math.round(
+        (bar.getBoundingClientRect().width / track.getBoundingClientRect().width) * 100,
+      );
+    });
   }
 
   /** Whether every bar lies inside the card, with nothing to scroll sideways. */

@@ -94,10 +94,14 @@ export default class Overview {
     { label: 'Next run', value: '', size: 'sm', sub: '' },
   ];
 
-  /** The status card's words and stats for the last run. */
+  /**
+   * The status card's words and stats: the run in progress when there is one (L2-043 AC3),
+   * otherwise the last run.
+   */
   protected readonly card = computed(() => {
     const status = ready(this.store.status());
-    const run = status?.last_run;
+    const current = status?.current_run;
+    const run = current ?? status?.last_run;
     if (!status || !run) return null;
     const now = this.store.now();
     const stats: StatItem[] = [
@@ -110,6 +114,21 @@ export default class Overview {
         size: 'sm',
       },
     ];
+    if (current) {
+      return {
+        eyebrow: 'Current run',
+        headline: runHeadline(current),
+        meta: `Started ${formatClockTime(current.started_at, status.time_zone)} · ${current.sources_checked} of ${current.sources_total} sources checked`,
+        reference: null,
+        tone: runTone(current.outcome),
+        stats,
+        progress: {
+          label: 'Sources checked',
+          value: current.sources_checked,
+          max: current.sources_total,
+        },
+      };
+    }
     return {
       eyebrow: 'Last run',
       headline: runHeadline(run),
@@ -117,6 +136,7 @@ export default class Overview {
       reference: run.id,
       tone: runTone(run.outcome),
       stats,
+      progress: null,
     };
   });
 

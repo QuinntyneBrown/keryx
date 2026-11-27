@@ -49,3 +49,5 @@ export { List, type ListEntry } from './list/list';
 export { SectionHead } from './section-head/section-head';
 export { Rail } from './stack/rail';
 export { Stack } from './stack/stack';
+export { Progress } from './progress/progress';
+export { Spinner } from './spinner/spinner';

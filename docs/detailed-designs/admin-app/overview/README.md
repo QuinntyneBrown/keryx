@@ -162,6 +162,15 @@ issue cards, "All runs", the problems link and the page error's "Go to runs" ope
 screen, so they arrive in journey 14, which builds it (ADR 0006); until then a card is not a
 link and the page error offers "Try again" alone.
 
+**Run in progress** (`L2-043` AC3) — when the status serves a `current_run`, the card reads
+"Current run", "Collecting news now…" and "Started 9:46 AM · 38 of 64 sources checked", with a
+spinner in place of the icon and a progress bar named "Sources checked" whose value is the
+sources checked and whose maximum is all of them; Sources OK counts only those that answered.
+Following the run live (polling `GET /admin/v1/runs/{id}`, the card returning to "Last run" when
+it ends, `L2-043` AC6, and the outcome notifications of `L2-076`) and the disabled "Collecting…"
+in place of "Run now" arrive with journey 15, "Staff starts a collection now", whose run they
+follow. Until then the card shows the run as it stood when Overview was read.
+
 **Loading** (`L2-046` AC1) — when the first answers take over 300 ms, each section still loading
 shows skeletons drawn by its own component (`StatusCard`, `Stats`, `List` and `IssueCard` each
 have a loading form), the page body carries `aria-busy="true"` and one status sentence reads

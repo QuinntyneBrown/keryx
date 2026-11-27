@@ -1,0 +1,27 @@
+// The progress bar (docs/design-system/components/progress.html).
+@use 'sass:math';
+
+:host {
+  display: block;
+}
+
+.progress {
+  height: var(--space-1);
+  overflow: hidden;
+  background: var(--color-border-default);
+}
+
+.progress__bar {
+  width: 0;
+  height: 100%;
+  background: var(--color-brand);
+}
+
+// The fill is its `data-value`, one rule per whole percent: an attribute binding, where the design
+// system's `--value` would need a style binding, whose first use pulls Angular's styling
+// instructions into the initial bundle (see the run chart).
+@for $value from 1 through 100 {
+  .progress__bar[data-value='#{$value}'] {
+    width: math.percentage(math.div($value, 100));
+  }
+}

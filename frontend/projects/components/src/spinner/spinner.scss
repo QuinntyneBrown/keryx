@@ -1,0 +1,20 @@
+// The spinner (docs/design-system/components/spinner.html).
+:host {
+  display: inline-flex;
+}
+
+.spinner {
+  display: inline-block;
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  border: var(--border-width-thick) solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin var(--duration-spin) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}

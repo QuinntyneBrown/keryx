@@ -1,6 +1,8 @@
 import { booleanAttribute, Component, computed, input } from '@angular/core';
 import { Icon, type IconName } from '../icon/icon';
+import { Progress } from '../progress/progress';
 import { Skeleton } from '../skeleton/skeleton';
+import { Spinner } from '../spinner/spinner';
 import { Stats, type StatItem } from '../stats/stats';
 
 export type StatusTone = 'success' | 'warning' | 'danger' | 'info';
@@ -12,7 +14,7 @@ export type StatusTone = 'success' | 'warning' | 'danger' | 'info';
  */
 @Component({
   selector: 'kx-status-card',
-  imports: [Icon, Skeleton, Stats],
+  imports: [Icon, Progress, Skeleton, Spinner, Stats],
   templateUrl: './status-card.html',
   styleUrl: './status-card.scss',
 })
@@ -27,6 +29,8 @@ export class StatusCard {
   readonly stats = input<readonly StatItem[]>([]);
   /** What the history below the stats plots; with none, the history is not drawn. */
   readonly historyCaption = input<string | null>(null);
+  /** How far a run in progress has got; with it, a spinner stands in for the icon. */
+  readonly progress = input<{ label: string; value: number; max: number } | null>(null);
   /** The run is still being read: skeletons in the card's shape stand in (L2-046 AC1). */
   readonly loading = input(false, { transform: booleanAttribute });
 

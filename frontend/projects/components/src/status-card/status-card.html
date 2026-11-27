@@ -27,7 +27,13 @@
   <section class="card card--flush status-card" aria-labelledby="status-title">
     <div class="status-card__main">
       <div class="status-card__summary">
-        <span [attr.class]="iconClasses()"><kx-icon [name]="icon()" size="lg" /></span>
+        <span [attr.class]="iconClasses()">
+          @if (progress()) {
+            <kx-spinner />
+          } @else {
+            <kx-icon [name]="icon()" size="lg" />
+          }
+        </span>
         <div class="status-card__text">
           <p class="status-card__eyebrow">{{ eyebrow() }}</p>
           <h2 class="status-card__headline" id="status-title">{{ headline() }}</h2>
@@ -41,6 +47,9 @@
       </div>
       <kx-stats class="status-card__stats" [items]="stats()" />
     </div>
+    @if (progress(); as shown) {
+      <kx-progress [label]="shown.label" [value]="shown.value" [max]="shown.max" />
+    }
     @if (historyCaption(); as caption) {
       <div class="status-card__history">
         <p class="text-caption">{{ caption }}</p>
