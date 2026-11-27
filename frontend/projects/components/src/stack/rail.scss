@@ -1,0 +1,19 @@
+// The rail layout (docs/design-system/components/stack.html). Each column is minmax(0, …), so a
+// long title wraps inside it rather than widening it.
+@use '../breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.layout-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@include bp.from(1024) {
+  .layout-rail {
+    grid-template-columns: minmax(0, 1fr) var(--layout-rail-width);
+  }
+}

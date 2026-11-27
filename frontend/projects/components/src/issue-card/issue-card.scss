@@ -1,0 +1,53 @@
+// The issue card (docs/design-system/components/issue-card.html).
+:host {
+  display: block;
+}
+
+.issue-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  color: inherit;
+}
+
+.issue-card__icon {
+  margin-top: var(--space-0-5);
+}
+
+.issue-card__icon[data-severity='error'] {
+  color: var(--color-danger-icon);
+}
+
+.issue-card__icon[data-severity='warning'] {
+  color: var(--color-warning-icon);
+}
+
+.issue-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.issue-card__body > span:not(.visually-hidden) {
+  display: block;
+}
+
+.issue-card__title {
+  font: var(--text-label);
+  overflow-wrap: anywhere;
+}
+
+.issue-card__source {
+  margin-top: var(--space-0-5);
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+.issue-card__meta {
+  margin-top: var(--space-2);
+  font: var(--text-caption);
+  color: var(--color-fg-subtle);
+}

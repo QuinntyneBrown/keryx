@@ -157,9 +157,19 @@ The slice runs from the routed Overview page to four admin read endpoints.
 **Navigation targets** — a bar opens `/runs?run=<id>`; an issue card opens the run it belongs to
 in the same tab; "All runs" opens `/runs`; with more than 5 open issues a link opens
 `/runs?problems=true`; "View all 18,432" opens `/articles`. "Add a source" opens Sources and
-"Review the schedule" opens Settings; the exact targets are `<TO SUPPLY>`. The issue title text
-for each `kind` ("Feed returned 404", "Timed out after 30s") is `<TO SUPPLY>` pending the Record
-runs and issues design.
+"Review the schedule" opens Settings; the exact targets are `<TO SUPPLY>`. The bars, the issue
+cards, "All runs" and the problems link open the Runs screen, so they become links in journey 14,
+which builds it (ADR 0006); until then a card is not a link.
+
+**Issue titles** — the domain helper `issueTitle(kind)` names each kind: `source_not_found`
+"Feed returned 404", `source_timeout` "Source timed out", `source_blocked` "Source blocked
+Keryx", `source_invalid` "Feed couldn’t be read", `items_held` "Items held for review",
+`stage_failed` "A stage failed", `run_skipped` "Scheduled run skipped", and any other kind
+"Something needs attention". The mock's "Timed out after 30s" and "6 articles held for review"
+need a number the issues endpoint does not serve: the Record runs and issues design keeps it
+only inside the `detail` sentence, which is not parsed. A card's time is `issueWhen`: "Today,
+6:01 AM" for a new issue, and for a streak "4 runs in a row · since Mon, 12:02 PM", by weekday
+alone up to six calendar days back in the zone the status names, and in full beyond.
 
 ## Requirements
 

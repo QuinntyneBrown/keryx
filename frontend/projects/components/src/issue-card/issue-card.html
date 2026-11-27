@@ -1,0 +1,11 @@
+<div class="issue-card">
+  <kx-icon class="issue-card__icon" [attr.data-severity]="severity()" [name]="icon()" />
+  <span class="issue-card__body">
+    <span class="visually-hidden">{{ severityWord() }} </span>
+    <span class="issue-card__title">{{ title() }}</span>
+    @if (source(); as shown) {
+      <span class="issue-card__source truncate">{{ shown }}</span>
+    }
+    <span class="issue-card__meta">{{ meta() }}</span>
+  </span>
+</div>

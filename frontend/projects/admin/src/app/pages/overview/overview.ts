@@ -1,15 +1,38 @@
 import { Component, computed, inject } from '@angular/core';
-import { OVERVIEW_API, RUNS_API } from '@kx/api';
-import { PageBody, PageHeader, RunChart, StatusCard, type StatItem } from '@kx/components';
+import { Router } from '@angular/router';
+import { ARTICLES_API, OVERVIEW_API, RUNS_API } from '@kx/api';
 import {
+  Empty,
+  IssueCard,
+  List,
+  PageBody,
+  PageHeader,
+  Rail,
+  RunChart,
+  SectionHead,
+  Stack,
+  StatusCard,
+  type ListEntry,
+  type StatItem,
+} from '@kx/components';
+import {
+  categoryName,
   formatClockTime,
   formatCollectedAt,
+  formatCount,
   formatCountdown,
   formatDuration,
+  formatRelativeAge,
+  issueSeverityWord,
+  issueTitle,
+  issueWhen,
+  organizationLabel,
   runBars,
   runHeadline,
   runTone,
+  titleLabel,
 } from '@kx/domain';
+import { HttpArticlesApi } from '../../articles/http-articles-api';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
 import { OverviewStore } from '../../overview/overview-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
@@ -20,17 +43,30 @@ import { HttpRunsApi } from '../../runs/http-runs-api';
  */
 @Component({
   selector: 'kx-overview',
-  imports: [PageBody, PageHeader, RunChart, StatusCard],
+  imports: [
+    Empty,
+    IssueCard,
+    List,
+    PageBody,
+    PageHeader,
+    Rail,
+    RunChart,
+    SectionHead,
+    Stack,
+    StatusCard,
+  ],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
   providers: [
     { provide: OVERVIEW_API, useClass: HttpOverviewApi },
     { provide: RUNS_API, useClass: HttpRunsApi },
+    { provide: ARTICLES_API, useClass: HttpArticlesApi },
     OverviewStore,
   ],
 })
 export default class Overview {
   protected readonly store = inject(OverviewStore);
+  private readonly router = inject(Router);
 
   /** The status card's words and stats for the last run. */
   protected readonly card = computed(() => {
@@ -64,6 +100,48 @@ export default class Overview {
     const zone = this.store.status()?.time_zone;
     return runs && zone ? runBars(runs, this.store.now(), zone) : null;
   });
+
+  /** Latest articles: "View all 18,432" and a row per article, newest first (L2-045 AC1). */
+  protected readonly latest = computed(() => {
+    const latest = this.store.latest();
+    if (!latest) return null;
+    const now = this.store.now();
+    const regionName = (slug: string) =>
+      latest.regions.find((region) => region.slug === slug)?.name ?? slug;
+    const entries: ListEntry[] = latest.page.items.map((row) => ({
+      id: row.id,
+      title: titleLabel(row.title),
+      meta: `${organizationLabel(row.organization)} · ${regionName(row.region)} · ${categoryName(row.category)}`,
+      aside: formatRelativeAge(row.collected_at, now),
+      ...(row.status === 'needs_review'
+        ? { badge: { text: 'Review', tone: 'warning' as const } }
+        : {}),
+    }));
+    return { viewAll: `View all ${formatCount(latest.page.total)}`, entries };
+  });
+
+  /** Needs attention: the open count and a card per issue, most severe first (L2-045 AC2). */
+  protected readonly attention = computed(() => {
+    const issues = this.store.issues();
+    const zone = this.store.status()?.time_zone;
+    if (!issues || !zone) return null;
+    const now = this.store.now();
+    return {
+      note: issues.total > 0 ? `${formatCount(issues.total)} open` : null,
+      cards: issues.items.map((issue) => ({
+        id: issue.id,
+        severity: issue.severity,
+        severityWord: issueSeverityWord(issue.severity),
+        title: issueTitle(issue.kind),
+        source: issue.subject_name,
+        meta: issueWhen(issue.since, issue.consecutive_runs, now, zone),
+      })),
+    };
+  });
+
+  protected navigate(href: string): void {
+    void this.router.navigateByUrl(href);
+  }
 
   constructor() {
     void this.store.load();

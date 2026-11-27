@@ -20,6 +20,7 @@ export type IconName =
   | 'copy'
   | 'articles'
   | 'overview'
+  | 'arrow-right'
   | 'chevron-left'
   | 'chevron-right'
   | 'external'

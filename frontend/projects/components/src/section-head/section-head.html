@@ -1,0 +1,10 @@
+<div class="section-head">
+  <h2 class="text-h3" [id]="headingId()">{{ heading() }}</h2>
+  @if (href(); as link) {
+    <a class="section-head__link" [href]="link" (click)="follow($event, link)"
+      >{{ linkText() }}<kx-icon name="arrow-right" size="sm"
+    /></a>
+  } @else if (note(); as shown) {
+    <span class="text-muted">{{ shown }}</span>
+  }
+</div>

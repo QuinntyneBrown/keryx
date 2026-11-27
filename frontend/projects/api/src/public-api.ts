@@ -45,6 +45,8 @@ export {
 } from './overview/overview-api';
 export {
   RUNS_API,
+  type OpenIssue,
+  type OpenIssuePage,
   type RunPage,
   type RunQuery,
   type RunSummary,

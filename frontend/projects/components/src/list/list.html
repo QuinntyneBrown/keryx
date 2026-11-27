@@ -1,0 +1,16 @@
+<ul class="list">
+  @for (entry of entries(); track entry.id) {
+    <li class="list__item">
+      <div class="list__body">
+        <p class="list__title">{{ entry.title }}</p>
+        <p class="list__meta truncate">{{ entry.meta }}</p>
+      </div>
+      <div class="list__aside">
+        <span>{{ entry.aside }}</span>
+        @if (entry.badge; as badge) {
+          <kx-badge [tone]="badge.tone">{{ badge.text }}</kx-badge>
+        }
+      </div>
+    </li>
+  }
+</ul>

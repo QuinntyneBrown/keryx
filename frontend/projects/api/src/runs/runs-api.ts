@@ -27,9 +27,33 @@ export interface RunQuery {
   pageSize: number;
 }
 
-/** The run history reads (View run history design, L2-044, L2-056). */
+/** An issue still open, as last seen in a run. Its names came from a source: render them as text. */
+export interface OpenIssue {
+  id: string;
+  /** The run it last occurred in. */
+  run_id: string;
+  severity: 'error' | 'warning';
+  kind: string;
+  subject_type: string;
+  subject_id: string | null;
+  subject_name: string | null;
+  detail: string;
+  consecutive_runs: number;
+  since: string;
+}
+
+/** The most severe open issues, with how many are open in all. */
+export interface OpenIssuePage {
+  items: OpenIssue[];
+  total: number;
+  page_size: number;
+}
+
+/** The run history reads (View run history design, L2-044, L2-045, L2-056). */
 export interface RunsApi {
   list(query: RunQuery, signal: AbortSignal): Promise<RunPage>;
+  /** The `pageSize` most severe open issues: errors first, then the longest streak. */
+  openIssues(pageSize: number, signal: AbortSignal): Promise<OpenIssuePage>;
 }
 
 export const RUNS_API = new InjectionToken<RunsApi>('Keryx runs');

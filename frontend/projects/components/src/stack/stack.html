@@ -1,0 +1,8 @@
+<ng-template #content><ng-content /></ng-template>
+@if (list()) {
+  <ul [attr.class]="classes()">
+    <ng-container [ngTemplateOutlet]="content" />
+  </ul>
+} @else {
+  <div [attr.class]="classes()"><ng-container [ngTemplateOutlet]="content" /></div>
+}

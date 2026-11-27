@@ -75,3 +75,146 @@ export const LAST_14_RUNS = [
 export function runPage(items: readonly Record<string, unknown>[], total = items.length) {
   return { items, total, page: 1, page_size: 14 };
 }
+
+/** The regions the latest articles are named with. */
+export const OVERVIEW_REGIONS = [
+  { slug: 'toronto', name: 'Toronto', time_zone: 'America/Toronto' },
+  { slug: 'mississauga', name: 'Mississauga', time_zone: 'America/Toronto' },
+  { slug: 'vaughan', name: 'Vaughan', time_zone: 'America/Toronto' },
+];
+
+const HOUR = 60 * 60 * 1000;
+
+/** An article row collected `hoursAgo` before Overview's now. */
+function latest(
+  n: number,
+  title: string,
+  organization: string,
+  region: string,
+  category: string,
+  hoursAgo: number,
+  status = 'published',
+) {
+  return {
+    id: `art_${String(n).padStart(12, '0')}`,
+    title,
+    organization,
+    category,
+    region,
+    relevance: status === 'published' ? 0.9 : 0.52,
+    status,
+    published_at: null,
+    collected_at: new Date(OVERVIEW_NOW.getTime() - hoursAgo * HOUR).toISOString(),
+  };
+}
+
+/** The mock's 7 newest articles, newest first, the fourth held for review. */
+export const LATEST_ARTICLES = [
+  latest(
+    1,
+    'Shepherd’s 5K returns to Lakefront Promenade this May',
+    'Shepherd’s 5K',
+    'mississauga',
+    'races-challenges',
+    2,
+  ),
+  latest(
+    2,
+    'Grace Barbell Club opens second location in Leslieville',
+    'Grace Barbell Club',
+    'toronto',
+    'gyms-studios',
+    3,
+  ),
+  latest(
+    3,
+    'Men’s Iron Sharpens Iron bootcamp launches at Crossroads Church',
+    'Crossroads Church Fitness Ministry',
+    'vaughan',
+    'ministry-programs',
+    5,
+  ),
+  latest(
+    4,
+    'Toronto youth pastors challenge congregations to 100 km in March',
+    'Ontario Christian Coaches Network',
+    'toronto',
+    'races-challenges',
+    6,
+    'needs_review',
+  ),
+  latest(
+    5,
+    'Temple Fit Markham adds prenatal strength classes',
+    'Temple Fit Markham',
+    'toronto',
+    'gyms-studios',
+    8,
+  ),
+  latest(
+    6,
+    'Faithful Fuel publishes Lenten meal-prep guide for athletes',
+    'Faithful Fuel Nutrition',
+    'mississauga',
+    'nutrition',
+    11,
+  ),
+  latest(
+    7,
+    'Torch Athletics hosts free sports camp for Brampton newcomers',
+    'Torch Athletics Brampton',
+    'toronto',
+    'events',
+    14,
+  ),
+];
+
+/** A page of the newest articles with the whole total. */
+export function latestPage(items: readonly unknown[] = LATEST_ARTICLES, total = 18432) {
+  return { items, total, page: 1, page_size: 7 };
+}
+
+/** An open issue as `GET /admin/v1/issues` serves it. */
+export function openIssue(fields: Record<string, unknown> = {}) {
+  return {
+    id: 'iss_000000000001',
+    run_id: 'run_2418',
+    severity: 'error',
+    kind: 'source_not_found',
+    subject_type: 'source',
+    subject_id: 'src_000000000001',
+    subject_name: 'Redeemed Run Club Toronto',
+    detail: 'Nothing was found at https://redeemedrun.ca/feed.',
+    consecutive_runs: 1,
+    since: '2026-11-28T11:01:00Z',
+    ...fields,
+  };
+}
+
+/** The mock's 3 open issues, most severe first as served. */
+export const OPEN_ISSUES = [
+  openIssue(),
+  openIssue({
+    id: 'iss_000000000002',
+    kind: 'source_timeout',
+    subject_id: 'src_000000000002',
+    subject_name: 'Covenant Cycling Collective',
+    detail: 'The source did not answer within 30s on 3 attempts.',
+    consecutive_runs: 4,
+    since: '2026-11-23T17:02:00Z',
+  }),
+  openIssue({
+    id: 'iss_000000000003',
+    severity: 'warning',
+    kind: 'items_held',
+    subject_id: 'src_000000000003',
+    subject_name: 'Google News · “Toronto church fitness”',
+    detail: '6 items held for review: their relevance score is between 0.45 and 0.60.',
+    since: '2026-11-28T11:03:00Z',
+  }),
+];
+
+/** A page of open issues with how many are open in all. */
+export function issuePage(items: readonly unknown[] = OPEN_ISSUES, total = items.length) {
+  return { items, total, page_size: 5 };
+}

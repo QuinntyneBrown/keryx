@@ -1,0 +1,26 @@
+// The section head (docs/design-system/components/section-head.html).
+:host {
+  display: block;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.section-head__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--target-comfortable);
+  font: var(--text-label);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+
+.section-head__link:hover {
+  color: var(--color-fg-default);
+}

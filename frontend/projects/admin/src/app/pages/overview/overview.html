@@ -3,19 +3,67 @@
   description="Christian fitness news collected across Toronto & the GTA."
 />
 <kx-page-body>
-  @if (card(); as shown) {
-    <kx-status-card
-      [eyebrow]="shown.eyebrow"
-      [headline]="shown.headline"
-      [meta]="shown.meta"
-      [reference]="shown.reference"
-      [tone]="shown.tone"
-      [stats]="shown.stats"
-      historyCaption="New articles per run · last 14 runs"
-    >
-      @if (bars(); as shownBars) {
-        <kx-run-chart [bars]="shownBars" />
-      }
-    </kx-status-card>
-  }
+  <kx-stack gap="lg">
+    @if (card(); as shown) {
+      <kx-status-card
+        [eyebrow]="shown.eyebrow"
+        [headline]="shown.headline"
+        [meta]="shown.meta"
+        [reference]="shown.reference"
+        [tone]="shown.tone"
+        [stats]="shown.stats"
+        historyCaption="New articles per run · last 14 runs"
+      >
+        @if (bars(); as shownBars) {
+          <kx-run-chart [bars]="shownBars" />
+        }
+      </kx-status-card>
+    }
+    <kx-rail>
+      <section aria-labelledby="latest-title">
+        <kx-section-head
+          heading="Latest articles"
+          headingId="latest-title"
+          href="/articles"
+          [linkText]="latest()?.viewAll ?? null"
+          (navigate)="navigate($event)"
+        />
+        @if (latest(); as shown) {
+          <kx-list [entries]="shown.entries" />
+        }
+      </section>
+      <section aria-labelledby="attention-title">
+        <kx-section-head
+          heading="Needs attention"
+          headingId="attention-title"
+          [note]="attention()?.note ?? null"
+        />
+        @if (attention(); as shown) {
+          @if (shown.cards.length) {
+            <kx-stack list gap="sm">
+              @for (card of shown.cards; track card.id) {
+                <li>
+                  <kx-issue-card
+                    [severity]="card.severity"
+                    [severityWord]="card.severityWord"
+                    [title]="card.title"
+                    [source]="card.source"
+                    [meta]="card.meta"
+                  />
+                </li>
+              }
+            </kx-stack>
+          } @else {
+            <kx-empty
+              card
+              compact
+              tone="success"
+              title="Nothing needs attention"
+              text="Every source responded in the last run."
+            />
+          }
+        }
+      </section>
+    </kx-rail>
+  </kx-stack>
 </kx-page-body>

@@ -1,6 +1,13 @@
 import { test as base, expect, type ConsoleMessage } from '@playwright/test';
 import { ApiHandlers } from './api-handlers';
-import { LAST_14_RUNS, overviewStatus, runPage } from './overview';
+import {
+  issuePage,
+  LAST_14_RUNS,
+  latestPage,
+  OVERVIEW_REGIONS,
+  overviewStatus,
+  runPage,
+} from './overview';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
@@ -52,6 +59,9 @@ export const test = base.extend<Fixtures>({
     // Overview opens at `/`, where sign-in and the shell land.
     handlers.on('GET', '/admin/v1/overview/status', () => ({ json: overviewStatus() }));
     handlers.on('GET', '/admin/v1/runs', () => ({ json: runPage(LAST_14_RUNS, 2418) }));
+    handlers.on('GET', '/admin/v1/articles', () => ({ json: latestPage() }));
+    handlers.on('GET', '/admin/v1/regions', () => ({ json: { items: OVERVIEW_REGIONS } }));
+    handlers.on('GET', '/admin/v1/issues', () => ({ json: issuePage() }));
     await use(handlers);
   },
 
