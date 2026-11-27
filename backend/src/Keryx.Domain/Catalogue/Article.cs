@@ -77,6 +77,9 @@ public sealed class Article
     /// <summary>When staff last decided it, in UTC.</summary>
     public DateTimeOffset? DecidedAt { get; private set; }
 
+    /// <summary>The staff session that made the last decision: only it may undo the decision (L2-014 AC4).</summary>
+    public string? DecisionSession { get; private set; }
+
     /// <summary>A digest of the stored facts: an item collected again with the same digest is unchanged.</summary>
     public string Fingerprint { get; private set; } = string.Empty;
 
@@ -126,15 +129,36 @@ public sealed class Article
     /// Staff publish it whatever its score (L2-014 AC1). Returns false, changing nothing, when it is
     /// already published.
     /// </summary>
-    public bool Publish(DateTimeOffset now) => Decide(PublicationStatus.Published, now);
+    public bool Publish(DateTimeOffset now, string session) => Decide(PublicationStatus.Published, now, session);
 
     /// <summary>
     /// Staff hide it from the consumer API whatever its score (L2-014 AC2). Returns false, changing
     /// nothing, when it is already hidden.
     /// </summary>
-    public bool Hide(DateTimeOffset now) => Decide(PublicationStatus.Hidden, now);
+    public bool Hide(DateTimeOffset now, string session) => Decide(PublicationStatus.Hidden, now, session);
 
-    private bool Decide(PublicationStatus status, DateTimeOffset now)
+    /// <summary>
+    /// Undoes the last decision (L2-014 AC4): the status it held and whoever had set it return. Only
+    /// the session that decided may undo, only to the status the decision replaced, and only once;
+    /// otherwise it returns false and changes nothing.
+    /// </summary>
+    public bool RevertTo(PublicationStatus previous, string session)
+    {
+        if (PreviousStatus != previous || PreviousDecidedBy is not { } decider || session.Length == 0 || DecisionSession != session)
+        {
+            return false;
+        }
+
+        Status = previous;
+        DecidedBy = decider;
+        StatusReason = decider == DecisionMaker.System ? PublicationPolicy.Reason(previous) : null;
+        PreviousStatus = null;
+        PreviousDecidedBy = null;
+        DecisionSession = null;
+        return true;
+    }
+
+    private bool Decide(PublicationStatus status, DateTimeOffset now, string session)
     {
         if (Status == status)
         {
@@ -147,6 +171,7 @@ public sealed class Article
         StatusReason = null;
         DecidedBy = DecisionMaker.Staff;
         DecidedAt = now;
+        DecisionSession = session;
         return true;
     }
 

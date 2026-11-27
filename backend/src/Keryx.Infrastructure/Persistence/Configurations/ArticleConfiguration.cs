@@ -48,6 +48,7 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(article => article.PreviousDecidedBy).HasConversion(
             by => by == null ? null : by == DecisionMaker.Staff ? "staff" : "system",
             word => word == null ? null : word == "staff" ? DecisionMaker.Staff : DecisionMaker.System).HasMaxLength(8);
+        builder.Property(article => article.DecisionSession).HasMaxLength(32);
         builder.HasIndex(article => new { article.Status, article.CollectedAt });
         // A product's list: served articles, newest first, sought by (ListedAt, Id) (L2-026, L2-086).
         builder.HasIndex(article => new { article.Status, article.ListedAt, article.Id });

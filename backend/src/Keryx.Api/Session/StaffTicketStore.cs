@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Keryx.Application.Abstractions;
 using Keryx.Domain.Staff;
 using Microsoft.AspNetCore.Authentication;
@@ -14,13 +15,21 @@ internal sealed class StaffTicketStore(IServiceScopeFactory scopes, IDataProtect
     private readonly IDataProtector _protector = protection.CreateProtector("Keryx.StaffSession.v1");
     public const string Expired = "Keryx.SessionExpired";
 
+    /// <summary>The claim naming the server-side session, so a decision can be undone only in the session that made it.</summary>
+    public const string SessionClaim = "keryx_session";
+
     public async Task<string> StoreAsync(AuthenticationTicket ticket)
     {
         await using var scope = scopes.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
         var subject = ticket.Principal.FindFirst("sub")?.Value ?? throw new InvalidOperationException("Missing session subject.");
-        var session = new StaffSession(Guid.NewGuid().ToString("N"), subject,
-            _protector.Protect(TicketSerializer.Default.Serialize(ticket)), clock.GetUtcNow());
+        var id = Guid.NewGuid().ToString("N");
+        if (ticket.Principal.Identity is ClaimsIdentity identity)
+        {
+            identity.AddClaim(new Claim(SessionClaim, id));
+        }
+
+        var session = new StaffSession(id, subject, _protector.Protect(TicketSerializer.Default.Serialize(ticket)), clock.GetUtcNow());
         db.StaffSessions.Add(session);
         await db.SaveChangesAsync().ConfigureAwait(false);
         return session.Id;

@@ -82,13 +82,14 @@ without it)
 |---|---|---|---|
 | `POST /admin/v1/articles/{id}/publish` | — | `200` `ArticleDecisionDto` | `404` `article_not_found` |
 | `POST /admin/v1/articles/{id}/hide` | — | `200` `ArticleDecisionDto` | `404` `article_not_found` |
-| `POST /admin/v1/articles/{id}/revert` | `previous_status` (`published`, `needs_review`, `hidden`) | `200` `ArticleDecisionDto` | `404` `article_not_found`; `400` for an unknown status (code `<TO SUPPLY>`) |
+| `POST /admin/v1/articles/{id}/revert` | `previous_status` (`published`, `needs_review`, `hidden`) | `200` `ArticleDecisionDto` | `404` `article_not_found`; `400` `invalid_status` for a missing or unknown status; `409` `revert_unavailable` when the decision cannot be undone |
 
 **Backend — `Keryx.Api` and `Keryx.Application`**
 
 - **`AdminArticlesController`** — `Publish`, `Hide` and `Revert` actions. Each checks nothing
   and sends one command.
-- **`PublishArticleCommand`** / **`PublishArticleCommandHandler`** — loads the `Article`
+- **`PublishArticleCommand`** / **`PublishArticleCommandHandler`** (built as `PublishArticle`,
+  `HideArticle` and `RevertArticleDecision`, all handled by one `DecideOnArticleHandler`) — loads the `Article`
   through `IAppDbContext`, throws `ArticleNotFoundException` when it does not exist, calls
   `Article.Publish(now)` with `now` from `TimeProvider`, and, when the status changed, saves the
   article and an `AuditEntry` (staff subject id, action `article.publish`, target id, time) in
@@ -97,10 +98,15 @@ without it)
   and action `article.hide`.
 - **`RevertArticleDecisionCommand`** / **`RevertArticleDecisionCommandValidator`** /
   **`RevertArticleDecisionCommandHandler`** — the validator accepts only the three statuses. The
-  handler calls `Article.RevertTo(previousStatus, now)` and audits `article.revert`. `L2-014`
-  limits a revert to "within the same session"; how the server enforces that limit is
-  `<TO SUPPLY>`. The audit action names are `<TO SUPPLY>` pending the Audit staff actions
-  design.
+  handler calls `Article.RevertTo(previousStatus, session)`. `L2-014` limits a revert to
+  "within the same session": the staff ticket store adds the server-side session's id to the
+  ticket as the claim `keryx_session`, each decision records it on the article
+  (`DecisionSession`), and `RevertTo` accepts only that session, only the status the decision
+  replaced, and only once; otherwise the handler throws `RevertUnavailableException` (`409`
+  `revert_unavailable`). A session with no id (signed in before the claim existed) never
+  matches. Audit entries for `article.publish`, `article.hide` and `article.revert` are written
+  with journey 24 (Audit staff actions), which builds the audit log; until then decisions are
+  not audited.
 - **`ArticleNotFoundException`** — `KeryxException` with `code` `article_not_found`, mapped to
   `404` ProblemDetails by `ProblemDetailsMapper`.
 
@@ -111,8 +117,9 @@ without it)
   prior status and `decided_by` before setting the new status and `decided_by` = `staff`; each
   returns `false` when the article already holds the requested status. `RevertTo` restores the
   given status and the previous `decided_by`.
-- **`DecidedBy`** — `staff`, and the value recorded when the collection rule sets the status
-  (`<TO SUPPLY>`; `L2-014` names only `staff`).
+- **`DecidedBy`** — `staff`, and `system` when the collection rule sets the status (the value
+  the admin endpoints already serve). A staff decision clears `status_reason`; a revert to a
+  status the rule had set restores its reason.
 
 **Backend — `Keryx.Worker`**
 
