@@ -121,8 +121,8 @@ The slice runs from the routed Articles page to three admin read endpoints.
 
 | Endpoint | Request | Response | Errors |
 |---|---|---|---|
-| `GET /admin/v1/articles` | `page`, `page_size` (1 to 100; the screen sends 10), `status` (`published`, `needs_review`, `hidden`), `q`, `region` (slug), `category` (slug) | `items` of `id`, `title`, `organization`, `category`, `region`, `relevance`, `status`, `published_at`, `collected_at`; `total`, `page`, `page_size` as numbers | `400` `invalid_page` |
-| `GET /admin/v1/articles/counts` (path `<TO SUPPLY>`) | `q`, `region`, `category` `<TO SUPPLY>` | `all`, `needs_review`, `published`, `hidden` as numbers | — |
+| `GET /admin/v1/articles` | `page` (from 1), `page_size` (1 to 100, default 10; the screen sends 10), `status` (`published`, `needs_review`, `hidden`), `q`, `region` (slug), `category` (slug) | `items` of `id`, `title`, `organization`, `category`, `region`, `relevance`, `status`, `published_at`, `collected_at`; `total`, `page`, `page_size` as numbers | `400` `invalid_page`; `400` `invalid_filter` for an unknown status, region or category |
+| `GET /admin/v1/articles/counts` | none | `all`, `needs_review`, `published`, `hidden` as numbers: the whole totals | — |
 | `GET /admin/v1/articles/{id}` | — | the row fields plus `summary`, `url`, `source` (`id`, `name`), `tags`, `status_reason` (`below_publish_threshold` for a held article), `threshold`, `decided_by` | `404` `article_not_found` |
 
 **Backend**
@@ -131,14 +131,16 @@ The slice runs from the routed Articles page to three admin read endpoints.
   MediatR request.
 - **`GetAdminArticlesQuery`** / **`GetAdminArticlesQueryValidator`** /
   **`GetAdminArticlesQueryHandler`** — the validator refuses `page_size` above 100 or below 1
-  with `code` `invalid_page`. The handler trims `q` to its first 100 characters and matches it
-  as literal text against title, organization name and place, with `%`, `_` and quotes escaped
-  in a parameterized query. It filters by status, region and category, orders by
-  `CollectedAt` descending (`<TO SUPPLY>`: whether "newest" means collected or published time),
-  counts the total and reads one page.
+  with `code` `invalid_page`, as it does a `page` below 1 or either value that is not a whole
+  number. The handler trims `q` to its first 100 characters and matches it as literal text,
+  without regard to case, against the title, the organization name and the place: the region's
+  name and the place of the article's event. The term is a parameter of a containment test,
+  never a `LIKE` pattern, so `%`, `_` and quotes match only themselves. It filters by status,
+  region and category, orders by `CollectedAt` descending then id ("newest" is newest collected,
+  since staff review what Keryx gathered), counts the total and reads one page.
 - **`GetArticleStatusCountsQuery`** / **`GetArticleStatusCountsQueryHandler`** — counts articles
-  per status. Whether the counts follow the search and filters is `<TO SUPPLY>`; `L2-049` asks
-  only that they are the server's real totals.
+  per status in one grouped query. The counts are the whole totals and do not follow the search
+  or filters, as the no-results mock shows "All 18,432" beside a search that matched nothing.
 - **`GetAdminArticleQuery`** / **`GetAdminArticleQueryHandler`** — reads one `Article` with its
   `Provenance`, source and tags, and throws `ArticleNotFoundException` (`code`
   `article_not_found`, `404`) when the id does not exist.
