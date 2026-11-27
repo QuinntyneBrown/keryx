@@ -84,10 +84,10 @@ The slice runs from the consuming product's HTTPS request to the relational data
   `organization` as `OrganizationRefDto` with `id` and `name` or `null`, `category`, `region`,
   `published_at`, `url`, `summary`); `ArticleDetailDto` adds `tags`, `collected_at`, the linked
   event id and `sources` as `SourceLinkDto` (`name`, `url`) from the article's provenance. No DTO
-  carries a relevance score, a status or an internal field. Whether `category` and `region` are
-  served as slugs or as objects is `<TO SUPPLY>`; this design serves slugs. The JSON name of the
-  linked event id is `<TO SUPPLY>` (L2-027 says "the linked `event` id"); this design uses
-  `event_id`.
+  carries a relevance score, a status or an internal field. `category` and `region` are served as
+  slugs, which `/v1/categories` and `/v1/regions` name. The linked event id is served as
+  `event_id`, `null` when the article announces no event. No consumer depended on either shape
+  when they were chosen (the Christian Fitness repository did not yet call Keryx).
 - **Domain types** (`Keryx.Domain`) — `Article` with `ArticleStatus`, `Provenance`,
   `Organization`, `CanonicalUrl` and `PublicId` (`art_` prefix). `CanonicalUrl` holds only
   absolute `http` or `https` URLs, so the served `url` is always one (L2-027).

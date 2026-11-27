@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Keryx.Api.Consumer;
 using Keryx.Api.Errors;
 using Keryx.Api.Health;
 using Keryx.Api.Session;
@@ -43,6 +44,7 @@ public static class ApiHost
         builder.Services.AddExceptionHandler<ProblemDetailsMapper>();
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddApiKey()
             .AddCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
@@ -78,7 +80,9 @@ public static class ApiHost
                 .AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
                 .RequireClaim("roles", builder.Configuration["Keryx:Oidc:StaffClaim"] ?? "KeryxStaff"))
+            .AddApiKeyPolicies()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationMiddlewareResultHandler, ApiAuthorizationResultHandler>();
 
         var app = builder.Build();
         app.Use(async (context, next) =>

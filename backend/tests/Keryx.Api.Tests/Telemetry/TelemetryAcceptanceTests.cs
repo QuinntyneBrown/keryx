@@ -68,7 +68,7 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
     [Fact]
     public async Task Given_a_path_that_matches_no_route_When_it_is_requested_Then_its_span_carries_the_method_and_status_only()
     {
-        var span = await RequestAndAwaitSpanAsync("/v1/articles/art_0190c0de", HttpStatusCode.NotFound);
+        var span = await RequestAndAwaitSpanAsync("/v1/no-such-list/art_0190c0de", HttpStatusCode.NotFound);
 
         Assert.Equal("GET", span.DisplayName);
         Assert.Equal(["http.request.method", "http.response.status_code"], TagKeys(span));
@@ -112,7 +112,7 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
     public async Task Given_no_OTLP_endpoint_When_requests_are_served_Then_the_APIs_logs_are_recorded_and_none_carries_the_url()
     {
         await RequestAndAwaitSpanAsync("/health/live", HttpStatusCode.OK);
-        await RequestAndAwaitSpanAsync("/v1/articles/art_0190c0de", HttpStatusCode.NotFound);
+        await RequestAndAwaitSpanAsync("/v1/no-such-list/art_0190c0de", HttpStatusCode.NotFound);
 
         var started = await factory.ExportedLogs.WaitForAsync(
             log => log.CategoryName == "Keryx.Api.Health.SchemaStatusLogger", Describe, "the line the API logs as it starts");

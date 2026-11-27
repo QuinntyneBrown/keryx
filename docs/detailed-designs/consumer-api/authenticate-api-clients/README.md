@@ -64,7 +64,8 @@ relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the
   arithmetic to `RateWindow` and holds no other rule.
 - **`ApiKeyAuthenticationHandler`** (`Keryx.Api`) — ASP.NET Core authentication handler for the
   `ApiKey` scheme, the only scheme the `/v1` controllers accept. It reads only the
-  `Authorization` header and ignores any key in the query string (L2-033). It sends one
+  `Authorization` header and ignores any key in the query string (L2-033). The scheme word `Bearer` is
+  matched without regard to case (RFC 9110). It sends one
   `AuthenticateApiClientQuery` and, on success, builds a principal carrying the client's public
   id and one `scope` claim per granted scope. On every failure it answers the challenge
   identically: `401`, `WWW-Authenticate: Bearer`, ProblemDetails `code` `invalid_api_key`.
@@ -75,11 +76,12 @@ relational database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the
   the presented key with each stored hash in constant time through `IApiKeyHasher.Matches`. It
   returns an `ApiClientPrincipalDto` or nothing. It reads the database on every request and
   caches no result, so a revocation takes effect on the next request (L2-036).
-- **`IApiKeyHasher`** (`Keryx.Application`) and **`ApiKeyHasher`** (`Keryx.Infrastructure`) —
-  `Hash(key)` returns the SHA-256 hash of the key; `Matches(key, storedHash)` hashes the key and
-  compares the two hashes with `CryptographicOperations.FixedTimeEquals` (L2-033, L2-084).
+- **`ApiKeyHash`** (`Keryx.Application`) — `Of(key)` returns the SHA-256 hash of the key as
+  lower-case hex; `Matches(key, storedHash)` hashes the key and compares the two hashes with
+  `CryptographicOperations.FixedTimeEquals` (L2-033, L2-084). Both are pure, with no I/O, so they
+  are a static helper rather than a contract with an infrastructure client.
 - **`ApiKeyFormat`** (`Keryx.Domain`) — pure rule for a well-formed key: the prefix `kx_live_` or
-  `kx_test_`, then at least 24 characters from the key alphabet. A malformed key is refused
+  `kx_test_`, then at least 24 ASCII letters and digits, and at most 128 characters in all. A malformed key is refused
   without a database read, with the same response as an unknown key.
 - **`ApiClient`** (`Keryx.Domain`) — entity with `Id` (`PublicId`), `ProductName`, `KeyPrefix`,
   `KeyHash`, `Scopes`, `CreatedAt`, `RevokedAt` and `IsActive`. It never holds the full key.
