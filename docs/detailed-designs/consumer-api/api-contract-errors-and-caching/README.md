@@ -97,13 +97,17 @@ command. It has no admin app part.
 
 **Caching (L2-032)**
 
-- **`EtagFilter`** — `IAsyncResultFilter` on every consumer `GET`. For a successful result it
+- **`EtagFilter`** — `IAsyncResultFilter` on every consumer `GET`, applied by putting
+  `[ConditionalGet]` on each consumer controller. For a successful result it
   serializes the body with the API's JSON options and computes a strong ETag from a SHA-256
   hash of those bytes. It sets `ETag` and `Cache-Control: private, max-age=60`. When
   `If-None-Match` matches the current ETag, it answers `304` with the same `ETag` and
   `Cache-Control` and no body. Because the ETag hashes the content itself, any change, such as
   an article hidden by staff, gives a new ETag and a `200`. Error responses carry no ETag. A
   `304` still runs the query; it saves the client's bandwidth, not the server's work.
+  `If-None-Match` is compared weakly (RFC 9110), so `W/"…"`, a list holding the ETag, or `*`
+  each give `304`. An error returned as a result rather than thrown, such as `[ApiController]`'s
+  automatic `400`, is passed through without either header.
 
 **Performance (L2-086)**
 

@@ -88,6 +88,7 @@ public static class ApiHost
             .Validate(limits => limits.ClientPermitsPerMinute > 0 && limits.UnauthenticatedPermitsPerMinute > 0,
                 "Rate limits must be positive.").ValidateOnStart();
         builder.Services.AddSingleton<ClientRateLimiter>();
+        builder.Services.AddSingleton<EtagFilter>();
 
         var app = builder.Build();
         app.Use(async (context, next) =>
