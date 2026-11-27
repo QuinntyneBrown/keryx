@@ -20,3 +20,8 @@ export {
   testFetchSummary,
   type TestFetchSummary,
 } from './sources/test-fetch-words';
+export {
+  publicationStatusFor,
+  REVIEW_FLOOR,
+  type PublicationStatus,
+} from './articles/publication-status';
