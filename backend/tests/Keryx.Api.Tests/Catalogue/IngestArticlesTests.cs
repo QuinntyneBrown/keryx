@@ -148,6 +148,36 @@ public sealed class IngestArticlesTests
         Assert.Equal(1, await ArticleCountAsync(factory));
     }
 
+    // L2-011 AC4: provenance keeps the source's name and URL after the source is removed.
+    [Fact]
+    public async Task Given_a_source_is_removed_When_its_article_is_read_Then_its_provenance_still_names_that_source_and_its_url()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var sourceId = await AddSourceAsync(factory, SourceKind.Rss, Address, "Redeemed Run Club", "toronto");
+        factory.Sources.AnswerFeed(Address, Feed(Five[0]));
+        await RunAsync(factory);
+        var id = await ArticleIdAsync(factory, Five[0].Link);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<KeryxDbContext>();
+            // Removing a source sets its records' references to null, as the database does.
+            await db.Articles.Include(article => article.Provenance).Include(article => article.Organization!).ThenInclude(organization => organization.Provenance)
+                .LoadAsync(TestContext.Current.CancellationToken);
+            db.Sources.Remove(await db.Sources.SingleAsync(source => source.PublicId == sourceId, TestContext.Current.CancellationToken));
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using var client = await StaffClient.OpenAsync(factory);
+        var article = await ReadArticleAsync(client, id);
+
+        Assert.Equal(JsonValueKind.Null, article.GetProperty("source").ValueKind);
+        var provenance = Assert.Single(article.GetProperty("provenance").EnumerateArray());
+        Assert.Equal(JsonValueKind.Null, provenance.GetProperty("source_id").ValueKind);
+        Assert.Equal("Redeemed Run Club", provenance.GetProperty("source_name").GetString());
+        Assert.Equal(Five[0].Link, provenance.GetProperty("url").GetString());
+    }
+
     [Theory]
     [InlineData("art_doesnotexist")]
     [InlineData("not-an-id")]
