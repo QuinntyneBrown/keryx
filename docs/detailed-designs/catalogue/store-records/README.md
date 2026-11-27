@@ -51,16 +51,20 @@ database, and out through the regions endpoint.
   `Provenance` entries. It holds no body, image or HTML.
 - **`ArticleTitle`** — value object. It keeps the title whole up to 300 characters. A missing
   title is `null`; the admin app shows "Untitled post" and the consumer API never serves an
-  article without a title. Whether a title longer than 300 characters is cut or rejected is
-  `<TO SUPPLY>`.
+  article without a title. A title longer than 300 characters is cut on a word boundary and ends
+  with "…", within 300 characters; the item is not rejected.
 - **`ArticleSummary`** — value object. It takes the source's summary, or the item's first
   sentence when there is none, and bounds it to 500 characters ending on a word boundary. No
   more of the body is kept.
 - **`TagSet`** — value object holding at most 30 tags, each at most 40 characters, lower-cased
-  and de-duplicated; tags beyond 30 are dropped. The handling of a single tag longer than 40
-  characters is `<TO SUPPLY>`.
+  and de-duplicated; tags beyond 30 are dropped. A single tag longer than 40 characters is
+  dropped, not cut.
 - **`Category`** — closed set of six slugs: `events`, `races-challenges`, `gyms-studios`,
-  `ministry-programs`, `nutrition`, `faith-wellness`. A classified item gets exactly one.
+  `ministry-programs`, `nutrition`, `faith-wellness`. A classified item gets exactly one: a
+  source tag naming a category (its slug or name) decides it; otherwise the first category, in
+  the order `races-challenges`, `events`, `gyms-studios`, `nutrition`, `ministry-programs`,
+  `faith-wellness`, whose words the title or summary mentions; and `faith-wellness` when none
+  does.
 - **`ArticleFactory`** — domain service that builds an `Article` from a parsed item, its
   classification and its source, applying the bounds above.
 - **`Event`** — entity with `PublicId Id` (prefix `<TO SUPPLY>`), `Title`, `EventTime Start`,
