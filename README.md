@@ -1,4 +1,9 @@
-<h1 align="center">Keryx</h1>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/design-system/assets/brand/keryx-logo-dark.svg">
+    <img src="docs/design-system/assets/brand/keryx-logo.svg" alt="Keryx" width="265" height="80">
+  </picture>
+</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
@@ -16,9 +21,11 @@ also around the world. It has three parts:
 - **Admin web app (staff):** see when each worker last ran and how many records it added or
   updated, and run minor queries of the database. Keryx has no public website of its own.
 
-> **Status:** just started. This repository holds the engineering rules and agent skills;
-> requirements, designs, mocks and application code (`frontend/`, `backend/`) come next, in
-> incremental slices. The layout and commands below describe where the code will live.
+> **Status:** specified and designed, not yet built. The requirements
+> ([L1](docs/specs/L1.md), [L2](docs/specs/L2.md)), the [mocks](docs/mocks/README.md) of every
+> admin screen and state, and the [design system](docs/design-system/README.md) extracted from
+> them are in place. Detailed designs and application code (`frontend/`, `backend/`) come next,
+> in incremental slices. The layout and commands below describe where the code will live.
 
 ## Contents
 
@@ -109,7 +116,7 @@ dotnet run --project src/Keryx.Worker          # the daily searches
 | `docs/specs/`            | L1 and L2 requirements                       |
 | `docs/detailed-designs/` | Per-feature software design documents        |
 | `docs/mocks/`            | HTML mocks for every admin screen and state  |
-| `docs/design-system/`    | Tokens, foundations, components and patterns |
+| `docs/design-system/`    | Tokens, foundations, components and patterns; the logo and favicon in `assets/brand/` |
 | `docs/adr/`              | Architecture decision records                |
 | `AGENTS.md`              | Engineering rules for people and AI agents   |
 | `.claude/skills/`, `.agents/skills/` | Agent skills: requirements, designs, mocks, design system, incremental implementation |
