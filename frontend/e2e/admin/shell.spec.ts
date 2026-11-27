@@ -104,16 +104,6 @@ test.describe('Admin shell placeholder', () => {
     expect(shell.path()).toBe('/');
     expect(await shell.documentWasKept()).toBe(true);
   });
-
-  // ADR 0004: until the Not found screen exists, any other address opens the placeholder.
-  test('sends an unknown address to the placeholder', async ({ page }) => {
-    const shell = new ShellPage(page);
-
-    await shell.open('/no-such-screen');
-
-    await expect(shell.headings).toHaveText('Keryx Admin');
-    expect(shell.path()).toBe('/');
-  });
 });
 
 test.describe('Signed-in person', () => {

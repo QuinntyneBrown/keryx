@@ -2,8 +2,8 @@
 
 ## Status
 
-Accepted, 27 November 2026 (journey 1, scaffolding). Superseded when journey 2 builds the admin
-shell of L2-042 and the Not found screen of L2-040.
+Superseded by [ADR 0006](0006-shell-screens-arrive-with-their-journeys.md). Accepted 27 November
+2026 (journey 1, scaffolding).
 
 ## Context
 

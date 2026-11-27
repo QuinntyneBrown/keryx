@@ -1,19 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { CURRENT_STAFF } from '@kx/api';
-import { App, Avatar, Brand, Empty, PageBody, Sidebar, SkipLink } from '@kx/components';
+import { App, Avatar, Brand, PageBody, Sidebar, SkipLink } from '@kx/components';
 
 /**
  * The admin shell: the frame every screen sits in. It orchestrates and composes; it draws
  * nothing itself. Every element on the screen is a design-system component from the components
  * library, built once there and reused (AGENTS.md).
  *
- * Until the screens exist it is the placeholder of ADR 0004: the frame, the lockup as the home
- * link and one empty-state card. Journey 2 projects the routed screens where the card is.
+ * The routed screens render in its page body. Each screen's navigation link arrives with the
+ * screen (ADR 0006).
  */
 @Component({
   selector: 'kx-app-shell',
-  imports: [App, Avatar, Brand, Empty, PageBody, Sidebar, SkipLink],
+  imports: [App, Avatar, Brand, PageBody, RouterOutlet, Sidebar, SkipLink],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })

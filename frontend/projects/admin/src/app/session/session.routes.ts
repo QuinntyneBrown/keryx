@@ -25,15 +25,7 @@ export default [
       {
         path: '',
         canMatch: [staffGuard],
-        children: [
-          {
-            path: '',
-            pathMatch: 'full',
-            title: 'Admin · Keryx',
-            loadComponent: () => import('../shell/app-shell'),
-          },
-          { path: '**', redirectTo: '' },
-        ],
+        loadChildren: () => import('../shell/shell.routes'),
       },
     ],
   },

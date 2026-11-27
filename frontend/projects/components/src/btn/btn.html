@@ -1,13 +1,23 @@
-<button
-  type="button"
-  [attr.class]="classes()"
-  [disabled]="disabled() || busy()"
-  [attr.aria-busy]="busy() || null"
-  [attr.aria-label]="label() ?? null"
-  (click)="activated.emit()"
->
+@if (href(); as href) {
+  <a [attr.class]="classes()" [href]="href" (click)="follow($event, href)">
+    <ng-container [ngTemplateOutlet]="content" />
+  </a>
+} @else {
+  <button
+    type="button"
+    [attr.class]="classes()"
+    [disabled]="disabled() || busy()"
+    [attr.aria-busy]="busy() || null"
+    [attr.aria-label]="label() ?? null"
+    (click)="activated.emit()"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </button>
+}
+
+<ng-template #content>
   @if (!busy()) {
     <ng-content select="[slot=icon]" />
   }
   <ng-content />
-</button>
+</ng-template>
