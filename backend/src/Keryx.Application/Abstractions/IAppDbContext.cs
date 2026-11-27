@@ -35,5 +35,7 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Catalogue.StagedArticle> StagedArticles { get; }
 
+    DbSet<Keryx.Domain.Catalogue.Organization> Organizations { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

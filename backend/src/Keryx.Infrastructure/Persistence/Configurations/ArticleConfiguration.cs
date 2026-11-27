@@ -31,6 +31,7 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(article => article.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
         builder.HasOne<Region>().WithMany().HasForeignKey(article => article.RegionSlug).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Source>().WithMany().HasForeignKey(article => article.SourceId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(article => article.Organization).WithMany().HasForeignKey(article => article.OrganizationId).OnDelete(DeleteBehavior.SetNull);
         builder.Property(article => article.Tags).HasConversion(Tags.Converter, Tags.Comparer).HasMaxLength(1300);
         builder.Property(article => article.Score).HasPrecision(3, 2);
         builder.Property(article => article.Status).HasConversion(Words.Status, Words.StatusOf).HasMaxLength(16);
@@ -47,6 +48,36 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
             entry.HasOne<Source>().WithMany().HasForeignKey(provenance => provenance.SourceId).OnDelete(DeleteBehavior.SetNull);
         });
         builder.Navigation(article => article.Provenance).HasField("_provenance");
+    }
+}
+
+/// <summary>Organizations, one per normalized name, with where they were seen.</summary>
+internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
+{
+    public void Configure(EntityTypeBuilder<Organization> builder)
+    {
+        builder.ToTable("Organizations");
+        builder.HasKey(organization => organization.Id);
+        builder.Property(organization => organization.PublicId).HasMaxLength(SourceConfiguration.PublicIdLength);
+        builder.HasIndex(organization => organization.PublicId).IsUnique();
+        builder.Property(organization => organization.Name).HasMaxLength(120);
+        builder.Property(organization => organization.NormalizedName).HasMaxLength(120);
+        builder.HasIndex(organization => organization.NormalizedName).IsUnique();
+        builder.Property(organization => organization.Kind).HasConversion(kind => OrganizationKinds.Word(kind), word => OrganizationKinds.Of(word)).HasMaxLength(16);
+        builder.Property(organization => organization.RegionSlug).HasMaxLength(ReferenceConfiguration.SlugLength);
+        builder.HasOne<Region>().WithMany().HasForeignKey(organization => organization.RegionSlug).OnDelete(DeleteBehavior.Restrict);
+        builder.Property(organization => organization.WebsiteUrl).HasMaxLength(ArticleConfiguration.UrlLength);
+        builder.OwnsMany(organization => organization.Provenance, entry =>
+        {
+            entry.ToTable("OrganizationProvenance");
+            entry.WithOwner().HasForeignKey("OrganizationId");
+            entry.Property<long>("Id");
+            entry.HasKey("Id");
+            entry.Property(provenance => provenance.SourceName).HasMaxLength(120);
+            entry.Property(provenance => provenance.Url).HasMaxLength(ArticleConfiguration.UrlLength);
+            entry.HasOne<Source>().WithMany().HasForeignKey(provenance => provenance.SourceId).OnDelete(DeleteBehavior.SetNull);
+        });
+        builder.Navigation(organization => organization.Provenance).HasField("_provenance");
     }
 }
 

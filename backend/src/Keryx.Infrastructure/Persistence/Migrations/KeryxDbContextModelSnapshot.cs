@@ -43,6 +43,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<long?>("OrganizationId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -89,6 +92,8 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrganizationId");
+
                     b.HasIndex("PublicId")
                         .IsUnique();
 
@@ -102,6 +107,56 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "CollectedAt");
 
                     b.ToTable("Articles", (string)null);
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.Organization", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("RegionSlug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RegionSlug");
+
+                    b.ToTable("Organizations", (string)null);
                 });
 
             modelBuilder.Entity("Keryx.Domain.Catalogue.StagedArticle", b =>
@@ -590,6 +645,11 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Keryx.Domain.Catalogue.Article", b =>
                 {
+                    b.HasOne("Keryx.Domain.Catalogue.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Keryx.Domain.Reference.Region", null)
                         .WithMany()
                         .HasForeignKey("RegionSlug")
@@ -641,6 +701,66 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ArticleId");
+
+                            b1.HasOne("Keryx.Domain.Sources.Source", null)
+                                .WithMany()
+                                .HasForeignKey("SourceId")
+                                .OnDelete(DeleteBehavior.SetNull);
+                        });
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("Provenance");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Catalogue.Organization", b =>
+                {
+                    b.HasOne("Keryx.Domain.Reference.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionSlug")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("Keryx.Domain.Catalogue.Provenance", "Provenance", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bigint");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<long>("Id"));
+
+                            b1.Property<DateTimeOffset>("FirstSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTimeOffset>("LastSeenAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<long>("OrganizationId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<long?>("SourceId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("SourceName")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)");
+
+                            b1.Property<string>("Url")
+                                .IsRequired()
+                                .HasMaxLength(2048)
+                                .HasColumnType("character varying(2048)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("OrganizationId");
+
+                            b1.HasIndex("SourceId");
+
+                            b1.ToTable("OrganizationProvenance", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationId");
 
                             b1.HasOne("Keryx.Domain.Sources.Source", null)
                                 .WithMany()

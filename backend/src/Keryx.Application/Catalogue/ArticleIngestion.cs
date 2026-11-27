@@ -99,7 +99,9 @@ public sealed class ArticleIngestion(IAppDbContext db)
 /// <summary>
 /// The publish stage (L2-007): applies every change the run staged to the live articles in one
 /// save, so the API serves the run's records all at once or not at all, then removes the staged
-/// rows. Each source's entry moves to the run's start time.
+/// rows. Each source's entry moves to the run's start time. The organization behind each source
+/// is found by its normalized name or created (L2-010 AC5, L2-017); sources are taken in the
+/// order they were added, so the first source to name an organization gives its name.
 /// </summary>
 public sealed class ArticlePublication(IAppDbContext db)
 {
@@ -111,11 +113,12 @@ public sealed class ArticlePublication(IAppDbContext db)
         var urls = staged.Select(row => row.Url).Distinct().ToList();
         var articles = await db.Articles.Where(article => urls.Contains(article.Url))
             .ToDictionaryAsync(article => article.Url, StringComparer.Ordinal, cancellationToken).ConfigureAwait(false);
+        var organizations = await OrganizationsAsync(run, staged, cancellationToken).ConfigureAwait(false);
         foreach (var row in staged)
         {
             if (!articles.TryGetValue(row.Url, out var article))
             {
-                article = Article.Collect(row.Facts, row.SourceId, row.SourceName, run.StartedAt);
+                article = Article.Collect(row.Facts, organizations.GetValueOrDefault(row.SourceId), row.SourceId, row.SourceName, run.StartedAt);
                 articles[row.Url] = article;
                 db.Articles.Add(article);
             }
@@ -133,5 +136,40 @@ public sealed class ArticlePublication(IAppDbContext db)
         db.StagedArticles.RemoveRange(staged);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return staged.Count(row => row.Action != StagedAction.Seen);
+    }
+
+    /// <summary>The organization behind each source with staged items, found or created, and seen by that source.</summary>
+    private async Task<Dictionary<long, Organization>> OrganizationsAsync(Run run, List<StagedArticle> staged, CancellationToken cancellationToken)
+    {
+        var sourceIds = staged.Select(row => row.SourceId).Distinct().ToList();
+        var sources = await db.Sources.AsNoTracking().Where(source => sourceIds.Contains(source.Id)).OrderBy(source => source.Id)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var keys = sources.Select(source => OrganizationName.Normalize(source.OrganizationName)).Distinct().ToList();
+        var known = await db.Organizations.Where(organization => keys.Contains(organization.NormalizedName))
+            .ToDictionaryAsync(organization => organization.NormalizedName, StringComparer.Ordinal, cancellationToken).ConfigureAwait(false);
+        var bySource = new Dictionary<long, Organization>();
+        foreach (var source in sources)
+        {
+            var key = OrganizationName.Normalize(source.OrganizationName);
+            if (key.Length == 0)
+            {
+                continue;
+            }
+
+            if (known.TryGetValue(key, out var organization))
+            {
+                organization.Seen(source.Id, source.OrganizationName, source.Address, run.StartedAt);
+            }
+            else
+            {
+                organization = Organization.Named(source.OrganizationName, source.RegionSlug, source.Address, source.Id, source.OrganizationName, run.StartedAt);
+                known[key] = organization;
+                db.Organizations.Add(organization);
+            }
+
+            bySource[source.Id] = organization;
+        }
+
+        return bySource;
     }
 }

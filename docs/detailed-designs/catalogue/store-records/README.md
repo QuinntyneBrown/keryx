@@ -82,6 +82,10 @@ database, and out through the regions endpoint.
   `NormalizedName` (the `L2-010` match key), `OrganizationKind Kind`, `Region` and
   `WebsiteUrl`. It holds no personal e-mail address, personal phone number or home address.
 - **`OrganizationKind`** — `church`, `ministry`, `gym`, `club`, `network`, `business`, `other`.
+  `OrganizationKinds.From(name)` gives the first kind, in that order, whose words the published
+  name holds (for example "Church", "Ministries", "Fitness", "Club", "Network", "Inc."), and
+  `other` when none does. The website is the scheme and host of the first web source that names
+  the organization.
 - **`Region`** — entity with `Slug`, `Name`, `TimeZone` (IANA) and `Rank`.
   `Region.FromFocusArea(name)` makes a region with zone `America/Toronto` and a slug made from
   the name. The seeded list of GTA municipalities and the rank given to a focus-area region are
@@ -90,8 +94,11 @@ database, and out through the regions endpoint.
 **Application (`Keryx.Application`)**
 
 - **`OrganizationResolver`** — finds an organization by the `L2-010` normalized-name match or
-  creates one with the source's name and region. `StoreStage` and `AddSourceCommandHandler`
-  (source catalogue subsystem) both use it, so a new source attaches to an existing organization.
+  creates one with the source's name and region. It runs in the publish stage
+  (`ArticlePublication`), so an organization appears with the first published record that names
+  it, never with a source that has yielded nothing; sources are taken in the order they were
+  added, so the earliest source's spelling is the name. A source keeps the organization name it
+  was saved with, and attaches by that name's match key.
 - **`RegionResolver`** — maps an item's place to a region. When the place cannot be resolved, it
   returns the source's region.
 - **`FocusAreaRegionSync`** — called by `SaveSettingsCommandHandler` (settings subsystem). It

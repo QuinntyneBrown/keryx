@@ -36,6 +36,8 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Keryx.Domain.Catalogue.StagedArticle> StagedArticles => Set<Keryx.Domain.Catalogue.StagedArticle>();
 
+    public DbSet<Keryx.Domain.Catalogue.Organization> Organizations => Set<Keryx.Domain.Catalogue.Organization>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

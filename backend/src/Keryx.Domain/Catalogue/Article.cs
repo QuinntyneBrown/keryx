@@ -32,6 +32,11 @@ public sealed class Article
     /// <summary>The source the article was first collected from; null once that source is removed.</summary>
     public long? SourceId { get; private set; }
 
+    /// <summary>The organization behind its first source; null when it cannot be determined (L2-015 AC4).</summary>
+    public long? OrganizationId { get; private set; }
+
+    public Organization? Organization { get; private set; }
+
     public string Category { get; private set; } = string.Empty;
 
     public string RegionSlug { get; private set; } = string.Empty;
@@ -53,10 +58,17 @@ public sealed class Article
 
     public IReadOnlyList<Provenance> Provenance => _provenance;
 
-    public static Article Collect(ArticleFacts facts, long sourceId, string sourceName, DateTimeOffset seenAt)
+    public static Article Collect(ArticleFacts facts, Organization? organization, long sourceId, string sourceName, DateTimeOffset seenAt)
     {
         ArgumentNullException.ThrowIfNull(facts);
-        var article = new Article { PublicId = PublicIds.New("art"), Url = facts.Url, SourceId = sourceId, CollectedAt = seenAt };
+        var article = new Article
+        {
+            PublicId = PublicIds.New("art"),
+            Url = facts.Url,
+            SourceId = sourceId,
+            Organization = organization,
+            CollectedAt = seenAt,
+        };
         article.Apply(facts);
         article._provenance.Add(new Provenance(sourceId, sourceName, facts.Url, seenAt));
         return article;

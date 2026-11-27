@@ -43,3 +43,21 @@ public sealed class MatchingRulesTests
     public void Given_an_organization_name_When_it_is_normalized_Then_case_punctuation_space_and_a_leading_The_are_ignored(string name, string normalized) =>
         Assert.Equal(normalized, OrganizationName.Normalize(name));
 }
+
+/// <summary>The kind an organization gets from the name it publishes under (L2-017).</summary>
+public sealed class OrganizationKindTests
+{
+    [Theory]
+    [InlineData("St. Paul's Anglican Church", "church")]
+    [InlineData("Toronto Chinese Baptist Church", "church")]
+    [InlineData("Athletes in Action Ministries", "ministry")]
+    [InlineData("Faith Fitness Ministry", "ministry")]
+    [InlineData("LifePoint Fitness", "gym")]
+    [InlineData("Iron Sharpens Gym", "gym")]
+    [InlineData("Redeemed Run Club", "club")]
+    [InlineData("Christian Athletes Network", "network")]
+    [InlineData("Grace Nutrition Inc.", "business")]
+    [InlineData("World Faith Fit", "other")]
+    public void Given_an_organization_name_When_its_kind_is_read_Then_the_first_matching_word_decides(string name, string kind) =>
+        Assert.Equal(kind, OrganizationKinds.Word(OrganizationKinds.From(name)));
+}

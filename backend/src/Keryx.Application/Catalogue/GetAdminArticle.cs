@@ -36,7 +36,7 @@ internal sealed class GetAdminArticleHandler(IAppDbContext db) : IRequestHandler
 {
     public async Task<AdminArticleDto> Handle(GetAdminArticle request, CancellationToken cancellationToken)
     {
-        var article = await db.Articles.AsNoTracking()
+        var article = await db.Articles.AsNoTracking().Include(candidate => candidate.Organization)
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new ArticleNotFoundException();
         var sourceIds = article.Provenance.Select(entry => entry.SourceId).Append(article.SourceId).OfType<long>().Distinct().ToList();
@@ -44,7 +44,7 @@ internal sealed class GetAdminArticleHandler(IAppDbContext db) : IRequestHandler
             .ToDictionaryAsync(source => source.Id, cancellationToken).ConfigureAwait(false);
         var first = article.SourceId is { } id && sources.TryGetValue(id, out var source) ? new ArticleSourceDto(source.PublicId, source.OrganizationName) : null;
         return new AdminArticleDto(
-            article.PublicId, article.Title, null, article.Category, article.RegionSlug, article.Score, StatusWord(article.Status),
+            article.PublicId, article.Title, article.Organization?.Name, article.Category, article.RegionSlug, article.Score, StatusWord(article.Status),
             article.PublishedAt, article.CollectedAt, article.Summary, article.Url, first, article.Tags,
             [.. article.Provenance.OrderBy(entry => entry.FirstSeenAt).Select(entry => new ProvenanceDto(
                 entry.SourceId is { } sourceId && sources.TryGetValue(sourceId, out var named) ? named.PublicId : null,
