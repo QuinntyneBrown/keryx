@@ -59,17 +59,19 @@ The slice runs from the consuming product's HTTPS request to the relational data
   page through active sources with `limit` and `cursor`, projecting only `name`, `kind`,
   `organization` and `region` into `PublicSourceDto`. The projection selects no other column,
   so health, `failure_reason`, counts and a news query's address cannot reach the response. The
-  sort order of the sources list is `<TO SUPPLY>`; this design orders by name then internal id.
-  How a source's `name` is formed for a news query without revealing its query text is
-  `<TO SUPPLY>`. Whether a platform source whose credentials are not configured (L2-001,
-  decision 9) counts as active is `<TO SUPPLY>`.
+  list is ordered by name then internal id. A source's `name` is the organization name staff
+  gave it (for a seeded news query, its descriptive label such as "Toronto church fitness"),
+  never its address or query text. A platform source whose credentials are not configured is
+  still active: staff added it and have not removed it. Until source removal exists (journey 17)
+  every stored source is active; removal adds its filter to this handler.
 - **`ServedRecordFilters.ListedOrganizations`** — keeps organizations that have a served
   article or a served event, reusing `ServedArticles` and `ServedEvents`.
 - **DTOs** — `OrganizationDto` (`id`, `name`, `kind`, `region`, `website_url`, `article_count`
   as a number); `PublicSourceDto` (`name`, `kind`, `organization`, `region`). Sources are
   served with no id, because L2-029 names only those four fields. The `organization` of a source
-  is served as `OrganizationRefDto` (`id`, `name`) or `null`, matching the article list; L2-029
-  does not state the shape, so its confirmation is `<TO SUPPLY>`.
+  is served as `OrganizationRefDto` (`id`, `name`), matching the article list, and only when that
+  organization is listed (found through its provenance entry for the source); otherwise `null`,
+  so every organization id a product reads also reads on `/v1/organizations/{id}`.
 - **Domain types** (`Keryx.Domain`) — `Organization`, `Source`, `SourceKind`, `SourceHealth`
   and `PublicId`. An organization holds no personal contact detail (L2-017, L2-081).
 - **Reused parts** — `ICursorCodec`, `PageDto<T>`, `EtagFilter` and `ProblemDetailsMapper`.
