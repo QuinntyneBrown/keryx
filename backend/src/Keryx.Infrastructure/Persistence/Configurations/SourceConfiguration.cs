@@ -23,6 +23,9 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>
         builder.Property(source => source.SeedKey).HasMaxLength(ReferenceConfiguration.SlugLength);
         builder.HasOne<Region>().WithMany().HasForeignKey(source => source.RegionSlug).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(source => source.SeedKey).IsUnique();
+        builder.Property(source => source.NormalizedAddress).HasMaxLength(2048);
+        // One source per kind and normalized address; a concurrent duplicate fails here (L2-001 AC3).
+        builder.HasIndex(source => new { source.Kind, source.NormalizedAddress }).IsUnique();
         builder.Property(source => source.PublicId).HasMaxLength(PublicIdLength);
         builder.HasIndex(source => source.PublicId).IsUnique();
         builder.Property(source => source.Health).HasConversion(health => SourceWords.Health(health), word => SourceWords.HealthOf(word)!.Value).HasMaxLength(16);

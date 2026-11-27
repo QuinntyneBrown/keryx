@@ -162,6 +162,11 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastSucceededAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("NormalizedAddress")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
                     b.Property<string>("OrganizationName")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -189,6 +194,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasIndex("RegionSlug");
 
                     b.HasIndex("SeedKey")
+                        .IsUnique();
+
+                    b.HasIndex("Kind", "NormalizedAddress")
                         .IsUnique();
 
                     b.ToTable("Sources", (string)null);

@@ -21,6 +21,9 @@ public sealed class Source
     /// <summary>A URL, or for a news query the query text.</summary>
     public string Address { get; private set; } = string.Empty;
 
+    /// <summary>The address in the form that decides whether two sources are the same (L2-001 AC4).</summary>
+    public string NormalizedAddress { get; private set; } = string.Empty;
+
     public string OrganizationName { get; private set; } = string.Empty;
 
     public string RegionSlug { get; private set; } = string.Empty;
@@ -49,6 +52,7 @@ public sealed class Source
             PublicId = PublicIds.New("src"),
             Kind = kind,
             Address = address,
+            NormalizedAddress = CanonicalUrl.Normalize(address),
             OrganizationName = organizationName,
             RegionSlug = regionSlug,
             CreatedAt = now,
@@ -61,6 +65,7 @@ public sealed class Source
             PublicId = PublicIds.New("src"),
             Kind = SourceKind.NewsQuery,
             Address = query,
+            NormalizedAddress = query,
             OrganizationName = organizationName,
             RegionSlug = regionSlug,
             CreatedAt = now,
