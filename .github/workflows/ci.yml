@@ -1,0 +1,140 @@
+# Continuous integration (L2-096 AC3; docs/detailed-designs/operations/health-migrations-and-configuration).
+# Every push to main and every pull request against it runs the frontend's lint, format check,
+# build and one critical Playwright path per feature, and the backend's format check, build and
+# acceptance tests. The whole run stays under five minutes and nothing is retried (AGENTS.md,
+# "E2E (Playwright) and CI"). It needs no secret, calls no real source and uses no real database.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer run for the same branch or pull request replaces the older one.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      # Sparse: the job reads nothing outside frontend/ (AGENTS.md, "Shared fixture").
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: frontend
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      # The build fails when the initial bundle passes its budget (L2-088, angular.json).
+      - name: Build
+        run: npm run build
+
+      # The browser is cached by the installed Playwright version; a miss downloads Chromium's
+      # headless shell, the only browser the specs use.
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browser
+        id: browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+
+      - name: Install the Playwright browser
+        if: steps.browser.outputs.cache-hit != 'true'
+        run: npx playwright install --only-shell chromium
+
+      # Only the specs tagged @critical run here: one happy-path acceptance test per feature, so
+      # the job stays under five minutes as journeys add specs. Every new journey tags its one
+      # critical path with { tag: '@critical' }; the rest of the behaviour specs and the unit
+      # tests run locally (npm run e2e, npm test). The specs serve the build above instead of
+      # compiling the app again with ng serve.
+      - name: Critical behaviour specs
+        id: specs
+        env:
+          KX_SERVE_BUILT: '1'
+        run: npm run e2e:critical
+
+      - name: Keep the Playwright traces
+        if: failure() && steps.specs.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DOTNET_NOLOGO: 'true'
+      DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      # Sparse: the job reads nothing outside backend/.
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: backend
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: backend/global.json
+
+      # Versions are pinned centrally (Directory.Packages.props), so it and the projects key the cache.
+      - name: Restore the NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Keryx.slnx
+
+      - name: Format check
+        run: dotnet format Keryx.slnx --verify-no-changes --no-restore
+
+      # TreatWarningsAsErrors is set for every project in Directory.Build.props.
+      - name: Build (warnings as errors)
+        run: dotnet build Keryx.slnx -c Release --no-restore
+
+      # The acceptance tests through the API, the worker's host and the CLI's entry, on EF Core
+      # InMemory with fakes behind the contracts: no database and no network. The direct handler
+      # and domain tests (Keryx.Application.Tests) are built above and run locally (AGENTS.md:
+      # CI runs one acceptance path per feature; unit tests run locally).
+      - name: Acceptance tests
+        run: dotnet test tests/Keryx.Api.Tests -c Release --no-build
