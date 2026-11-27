@@ -21,11 +21,14 @@ also around the world. It has three parts:
 - **Admin web app (staff):** see when each worker last ran and how many records it added or
   updated, and run minor queries of the database. Keryx has no public website of its own.
 
-> **Status:** specified and designed, not yet built. The requirements
-> ([L1](docs/specs/L1.md), [L2](docs/specs/L2.md)), the [mocks](docs/mocks/README.md) of every
-> admin screen and state, and the [design system](docs/design-system/README.md) extracted from
-> them are in place. Detailed designs and application code (`frontend/`, `backend/`) come next,
-> in incremental slices. The layout and commands below describe where the code will live.
+> **Status:** specified, designed and scaffolded. The requirements
+> ([L1](docs/specs/L1.md), [L2](docs/specs/L2.md)), the [detailed designs](docs/detailed-designs/),
+> the [mocks](docs/mocks/README.md) of every admin screen and state, and the
+> [design system](docs/design-system/README.md) extracted from them are in place. The skeleton
+> runs: the Angular workspace with its four projects and a placeholder shell, the .NET solution
+> with health endpoints, the `migrate` and `seed` commands, startup validation of settings and
+> OpenTelemetry, and CI. No feature is built yet: [docs/journeys.md](docs/journeys.md) lists
+> the journeys in order and how far each one is.
 
 ## Contents
 
@@ -70,8 +73,10 @@ The stack is the same as Christian Fitness.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) LTS and npm
-- [.NET SDK](https://dotnet.microsoft.com/download) (current LTS)
+- [Node.js](https://nodejs.org/) 24 and npm
+- [.NET SDK](https://dotnet.microsoft.com/download) 10 (`backend/global.json` pins the version)
+- [PostgreSQL](https://www.postgresql.org/) (the skeleton was checked on 16), only to run the
+  API, the worker or the CLI: no test needs it
 - Git
 
 ### Clone
@@ -83,8 +88,6 @@ cd keryx
 
 ### Frontend
 
-Once the workspace exists:
-
 ```sh
 cd frontend
 npm ci
@@ -93,20 +96,42 @@ npm start                         # the admin app
 npm run lint                      # ESLint, including the dependency direction
 npm run format:check              # Prettier
 npm run build                     # failing beyond the angular.json budgets
+npm test                          # unit tests of the domain and components libraries
 npm run e2e                       # Playwright behaviour specs
 ```
 
+Presentation components live in `frontend/projects/components/`, one folder per
+[design-system component](docs/design-system/components/) under its design-system name, and
+the app composes them: build a missing one there first, never in the app.
+
 ### Backend
 
-Once the solution exists. The tests need no database and no network.
+The tests need no database and no network.
 
 ```sh
 cd backend
+dotnet tool restore                            # dotnet-ef, for adding a migration
 dotnet build                                   # analysers on, warnings are errors
 dotnet test                                    # Application and Api tests, EF Core InMemory
+dotnet format --verify-no-changes              # the format check CI runs
+```
+
+To run the processes, set `ConnectionStrings__Keryx` to a PostgreSQL connection string. Every
+setting is in [tools/deploy/configuration.md](tools/deploy/configuration.md); a missing
+required one stops a process at startup, naming it.
+
+```sh
 dotnet run --project src/Keryx.Cli -- migrate  # the API never migrates on startup
+dotnet run --project src/Keryx.Cli -- seed     # regions, categories, default settings; safe to repeat
 dotnet run --project src/Keryx.Api             # the API other products call
 dotnet run --project src/Keryx.Worker          # the daily searches
+```
+
+`GET /health/live` answers when the API runs and `GET /health/ready` when its database is at
+the schema this build expects. A schema change is a new migration:
+
+```sh
+dotnet ef migrations add <Name> --project src/Keryx.Infrastructure --startup-project src/Keryx.Infrastructure --output-dir Persistence/Migrations
 ```
 
 ## Documentation
@@ -118,6 +143,10 @@ dotnet run --project src/Keryx.Worker          # the daily searches
 | `docs/mocks/`            | HTML mocks for every admin screen and state  |
 | `docs/design-system/`    | Tokens, foundations, components and patterns; the logo and favicon in `assets/brand/` |
 | `docs/adr/`              | Architecture decision records                |
+| `docs/journeys.md`       | The journeys in build order, with effort and how complete each is |
+| `docs/estimates/`        | Effort and percent complete per detailed design, and a brief roadmap |
+| `docs/lessons-learned.md` | What each journey taught; read before starting one |
+| `tools/deploy/`          | What a release runs and every setting a deployment needs |
 | `AGENTS.md`              | Engineering rules for people and AI agents   |
 | `.claude/skills/`, `.agents/skills/` | Agent skills: requirements, designs, mocks, design system, incremental implementation |
 
