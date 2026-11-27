@@ -113,3 +113,28 @@ and running the worker's host on its own, made every schedule test deterministic
 - The forbidden-screen mock shows a switch-account action. The design specifies the complete
   sequence: obtain the anti-forgery token, end the old session, and request the provider account
   chooser. Verify the outgoing provider query as well as the browser request.
+
+**Journey 2, closing slices (shell person, Not found, Settings › Account, expiry)**
+
+- **What slowed it.** Moving the placeholder into a child route grew the initial bundle by 3.2 kB,
+  and three bisections (the button template, the outlet, the route shape) each cleared their
+  suspect. `NG_BUILD_OPTIMIZE_CHUNKS=0` showed the cause: the build's chunk optimiser folds small
+  chunks shared by several lazy screens into `main`. Try that switch before bisecting. Diff
+  `--stats-json` inputs with paths normalised from `node_modules/` onward; a second checkout's
+  absolute paths otherwise hide every match.
+- **A projected icon is styled through its wrapper.** `::slotted` does nothing under emulated
+  encapsulation, and a selector into `kx-icon` styles another block. Set `color` on a wrapper
+  element the component owns; the icon strokes in `currentColor`.
+- **A button that navigates is a link.** The mocks write `<a class="btn" role="button">`; the
+  library renders `<a class="btn">` (ADR 0006). Locators by BEM class are unaffected.
+- **A missing state is a mock first.** Sign-out failure had no mock; adding
+  `settings/sign-out-failed.html` (and its entry in the manifest, the index and every state bar)
+  took minutes and gave the spec its copy.
+- **Pin a port per worktree.** `reuseExistingServer` would run a spec against another
+  checkout's server on the default port; `KX_ADMIN_PORT` set per worktree avoids it.
+
+**How earlier lessons worked.** "Prove a lazy chunk by breaking it" and "honest red" both held:
+the expiry spec passed at once and was proved by breaking the guard's `session_expired` mapping.
+"Read the initial total after each new API" caught the 3.2 kB growth in the same slice it
+happened.
+

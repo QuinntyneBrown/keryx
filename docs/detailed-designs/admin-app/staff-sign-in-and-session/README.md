@@ -62,42 +62,43 @@ EF Core.
 
 **Admin app (`frontend/projects/admin`)**
 
-- **`app.routes.ts`** — the shell route and its six children carry `staffGuard` (`canMatch`).
-  `/sign-in` loads `SignInPage` and `/forbidden` loads `ForbiddenPage`, both outside the shell and
-  without the guard. The wildcard route loads `NotFoundPage` for a signed-in person. Every route
-  uses `loadComponent`.
-- **`staffGuard`** — functional guard. It asks `SessionStore` to load the person once. On success
-  it admits the route; on `401` it redirects to `/sign-in?return=<path>`; on `403` `not_staff` it
-  redirects to `/forbidden`.
-- **`sessionInterceptor`** — functional `HttpInterceptor` on every admin API request. It sends
-  the cookie (`withCredentials`) and, for `POST`, `PUT`, `PATCH` and `DELETE`, adds the
-  anti-forgery header from `SessionStore`. On `401` with `code` `session_expired` it closes any
-  open CDK Dialog by its ref, clears `SessionStore`, and navigates to
-  `/sign-in?state=session-expired&return=<current path>` (L2-041). It retries nothing and discards
-  nothing the server has saved.
-- **`SessionStore`** — app-wide store (`providedIn: 'root'`), shared by the shell, Settings and
-  the guard. It holds `me` (`name`, `initials`, `role`), the anti-forgery request token in
-  memory, and the load state. `clear()` drops both. It never writes a token to `localStorage`,
-  `sessionStorage` or the URL (L2-039).
+- **`session/session.routes.ts`** — loaded lazily from `app.routes.ts`; it binds `SESSION_API`
+  and `CURRENT_STAFF` for every route below it. `/sign-in` loads `SignInPage` and `/forbidden`
+  loads `ForbiddenPage`, both outside the shell and without the guard. The guarded route
+  (`canMatch: [staffGuard]`) loads `shell/shell.routes.ts`, whose children render in the shell:
+  each screen, and the wildcard `NotFoundPage` for a signed-in person. Every screen uses
+  `loadComponent` ([ADR 0006](../../../adr/0006-shell-screens-arrive-with-their-journeys.md)).
+- **`staffGuard`** — functional guard, re-run on every navigation. It reads `GET /admin/v1/me`
+  and keeps the profile in `CURRENT_STAFF`. On `401` it redirects to `/sign-in?return=<path>`,
+  adding `state=session-expired` when the `code` is `session_expired` (L2-041 AC2); on `403`
+  `not_staff` it redirects to `/forbidden`.
+- **Session transport** — the admin app calls the same-origin admin API with the Fetch API behind
+  `SessionApi` (`HttpSessionApi`), not `HttpClient`, to keep the initial bundle small
+  ([ADR 0005](../../../adr/0005-lazy-staff-session-transport.md)). Every request sends the cookie
+  (`credentials: 'include'`). A state-changing request first reads the anti-forgery request token
+  and sends it as `X-XSRF-TOKEN`. When the first admin data request arrives (journey 3), the
+  same transport sends `session_expired` on any request to the guard's Sign in redirect, closing
+  any open CDK Dialog by its ref first. It retries nothing and discards nothing the server has
+  saved.
+- **`CURRENT_STAFF`** / **`CurrentStaffStore`** — route-scoped store shared by the guard, the
+  shell and Settings. It holds the profile (`name`, `initials`, `role`) in memory only; `clear()`
+  drops it. Nothing is written to `localStorage`, `sessionStorage` or the URL (L2-039).
 - **`SignInPage`** — routed page with the states `default`, `busy`, `error`, `session-expired` and
-  `signed-out`, chosen from the query string. "Sign in" shows its busy state and sets
-  `window.location` to the sign-in URL from `SessionApi.signInUrl(returnPath)`. The error state
-  shows a generic message and "Reference req_…" from the `ref` query value. Its markup and copy
-  are `<TO SUPPLY>`: the mocks `pages/sign-in/default.html`, `busy.html`, `error.html`,
-  `session-expired.html` and `signed-out.html` are referenced by L2-039 and L2-041 but are not in
-  `docs/mocks/`.
-- **`ForbiddenPage`** — Access denied screen, with no navigation: the heading "This account can’t
-  open Keryx admin" and the action "Sign in with a different account", which signs out and then
-  starts sign-in with the OIDC `prompt=select_account` parameter. Whether the identity provider
-  honours `prompt=select_account` is `<TO SUPPLY>`. Markup `<TO SUPPLY>`
-  (`pages/forbidden/default.html` is not in `docs/mocks/`).
-- **`NotFoundPage`** — Not found screen with a link to Overview. Markup `<TO SUPPLY>`
-  (`pages/not-found/default.html` is not in `docs/mocks/`).
-- **Account section** — a `settings-section` on `SettingsPage` (manage-settings feature),
-  outside the settings form, reading "Signed in as" with the person's `avatar`, name and role and
-  the button "Sign out". "Sign out" calls `SessionApi.signOut()`, then clears `SessionStore` and
-  navigates to `/sign-in?state=signed-out`. Its markup is `<TO SUPPLY>`: L2-041 names the Account
-  section of `pages/settings/default.html`, which holds no such section.
+  `signed-out`, chosen from the query string (mocks `pages/sign-in/*.html`). "Sign in" shows its
+  busy state and sets `window.location` to the sign-in URL from `SessionApi.signInUrl(returnPath)`.
+  The error state shows a generic message and "Reference req_…" from the `ref` query value.
+- **`ForbiddenPage`** — Access denied screen (`pages/forbidden/default.html`), with no
+  navigation: the heading "This account can’t open Keryx admin" and the action "Sign in with a
+  different account", which signs out and then starts sign-in with the OIDC
+  `prompt=select_account` parameter. Whether the identity provider honours
+  `prompt=select_account` is `<TO SUPPLY>`.
+- **`NotFoundPage`** — Not found screen inside the shell (`pages/not-found/default.html`) with
+  "Go to overview". The mock's "Browse articles" is added with the Articles screen (ADR 0006).
+- **Account section** — a `settings-section` on `SettingsPage`, outside the settings form
+  (`pages/settings/default.html`, `sign-out-failed.html`), reading "Signed in as" with the
+  person's name and role and the button "Sign out". "Sign out" calls `SessionApi.signOut()`,
+  then clears `CURRENT_STAFF` and navigates to `/sign-in?state=signed-out`. A failure keeps the
+  person signed in and shows "Couldn’t sign out" in an alert.
 
 **Domain library (`frontend/projects/domain`)**
 
@@ -113,9 +114,9 @@ EF Core.
   `signOut(): Observable<void>`. `HttpSessionApi` implements it; `app.config.ts` binds it.
   `MeDto` holds `name`, `initials` and `role`.
 
-**Components library (`frontend/projects/components`)** — `btn`, `alert`, `avatar`, `empty`,
-`settings-section`. The Sign in, Access denied and Not found screens compose these until their
-mocks name other blocks.
+**Components library (`frontend/projects/components`)** — `btn` (a link with `href`), `alert`,
+`avatar`, `empty`, `field`, `nav-link`, `page-header` and `settings-section`. The Sign in, Access
+denied and Not found screens compose these.
 
 **Keryx API (`Keryx.Api`)**
 

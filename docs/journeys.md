@@ -3,7 +3,7 @@
 | # | Name | Description | Effort (days) | Complete % |
 |---|---|---|---|---|
 | 1 | Scaffolding | Workspace, solution, database, migrations CLI, health checks, CI pipeline green | 5 | 100 |
-| 2 | Staff signs in | Staff sign in through identity provider; non-staff refused | 4 | 0 |
+| 2 | Staff signs in | Staff sign in through identity provider; non-staff refused | 4 | 100 |
 | 3 | Staff adds a source | Staff add and test-fetch a feed, page or organizer | 4 | 0 |
 | 4 | Worker collects on schedule | Scheduled run fetches every source safely through six pipeline stages | 8 | 0 |
 | 5 | Worker ingests idempotently | Repeat runs change nothing; duplicates merge; provenance kept | 4 | 0 |
