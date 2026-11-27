@@ -174,3 +174,40 @@ removing `disableClose`. "Read the initial total after each new API" kept every 
 at the same 253.40 kB after the dialog. The deferred pieces are recorded where they will land:
 the next run's time in the toast (journey 4), "Edit source" on the warning toast (journey 17),
 the audit entry on create (journey 24), and the list's held and 30-day counts (journeys 5–6).
+
+## Journey 4: Worker collects on schedule
+
+**What slowed it.** Three designs (schedule, pipeline, run record) met in one worker, with many
+`<TO SUPPLY>` values to settle: the re-check bound, the pickup interval, the skipped start's
+severity, the issue prefix, the held-only outcome and the reading of the clock-change days. The
+pipeline's later stages need tables from journey 5, so ADR 0010 records what arrives when.
+
+- **Capture `$?` before anything else in the same line.** A mutation loop printed
+  `"$(basename $f) … test=$?"`: the command substitution ran first, so every mutation "survived".
+  Assign `t=$?` straight after the command, then print. When every mutation survives, suspect
+  the loop before the tests.
+- **A timer's due time is not its identity.** `SignallingTimeProvider.TimerAsync(30 s)` matched
+  the readiness gate's 30-second timer instead of the scheduler's, so the test advanced before
+  the scheduler had ticked; it failed once in a full run. Choose a due time no other timer of
+  the host uses, and list the host's timers (here 10, 30, 60 seconds) in a comment.
+- **A guard that no behaviour reaches is dead code.** Skipping the spring-forward hour changed
+  nothing: the missing time maps onto the next slot's instant. Its mutation survived, and the
+  guard was removed rather than kept "for clarity".
+- **A test's setup can make a rule unreachable.** The later-stage reset, the execution guard,
+  close-on-success and the sanitizer all survived their first mutation because the test's data
+  never needed them (later stages already not run, a lease already free, a closed issue replaced
+  anyway, an address with nothing to strip). Each needed one more line of setup.
+- **A new hosted service changes every worker test.** The runner made the scheduler tests'
+  worker execute runs too, and the worker needed the fetch contact URL, so the startup
+  validation test failed until its arguments gave one. Run the whole worker suite after adding
+  a hosted service.
+- **Analysers name things.** CA1711 refused `RunCollection` (ends in "Collection"); the design's
+  own `RunCollectionCommand` was the answer.
+
+**How earlier lessons worked.** "A mutation that does not compile proves nothing" caught two
+mutations that failed to build and one with unreachable code. "Two guards can hide each other"
+did not arise; "a new call in a shared flow breaks every spec that walks it" did, in its backend
+form (a new required setting). Deferred, and recorded where they land: `next_run_at` served on
+`/v1/status` and the admin overview (journeys 10 and 13), the toast's next-run time (journey 13),
+the store-failure and API-unchanged criteria with the store stage (journey 5), issue listing and
+muting (journey 20), and the news query and platform sources (their clients).
