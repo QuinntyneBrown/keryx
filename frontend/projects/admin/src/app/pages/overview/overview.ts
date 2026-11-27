@@ -2,7 +2,9 @@ import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ARTICLES_API, OVERVIEW_API, RUNS_API } from '@kx/api';
 import {
+  Btn,
   Empty,
+  Icon,
   IssueCard,
   List,
   PageBody,
@@ -34,8 +36,13 @@ import {
 } from '@kx/domain';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
-import { OverviewStore } from '../../overview/overview-store';
+import { OverviewStore, type Section } from '../../overview/overview-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
+
+/** A section's data once it is ready, otherwise null. */
+function ready<T>(section: Section<T>): T | null {
+  return section.state === 'ready' ? section.data : null;
+}
 
 /**
  * Overview (docs/mocks/pages/overview/): how the last run went and when the next one is
@@ -44,7 +51,9 @@ import { HttpRunsApi } from '../../runs/http-runs-api';
 @Component({
   selector: 'kx-overview',
   imports: [
+    Btn,
     Empty,
+    Icon,
     IssueCard,
     List,
     PageBody,
@@ -70,7 +79,7 @@ export default class Overview {
 
   /** The status card's words and stats for the last run. */
   protected readonly card = computed(() => {
-    const status = this.store.status();
+    const status = ready(this.store.status());
     const run = status?.last_run;
     if (!status || !run) return null;
     const now = this.store.now();
@@ -96,14 +105,14 @@ export default class Overview {
 
   /** The run chart's bars, oldest first, in the zone the status names. */
   protected readonly bars = computed(() => {
-    const runs = this.store.chart();
-    const zone = this.store.status()?.time_zone;
+    const runs = ready(this.store.chart());
+    const zone = ready(this.store.status())?.time_zone;
     return runs && zone ? runBars(runs, this.store.now(), zone) : null;
   });
 
   /** Latest articles: "View all 18,432" and a row per article, newest first (L2-045 AC1). */
   protected readonly latest = computed(() => {
-    const latest = this.store.latest();
+    const latest = ready(this.store.latest());
     if (!latest) return null;
     const now = this.store.now();
     const regionName = (slug: string) =>
@@ -117,13 +126,22 @@ export default class Overview {
         ? { badge: { text: 'Review', tone: 'warning' as const } }
         : {}),
     }));
-    return { viewAll: `View all ${formatCount(latest.page.total)}`, entries };
+    const total = formatCount(latest.page.total);
+    // After a failed run the list gives way to a notice that the API still serves the rest (L2-043 AC4).
+    const failed = ready(this.store.status())?.last_run?.outcome === 'failed';
+    return {
+      viewAll: `View all ${total}`,
+      entries,
+      failedNotice: failed
+        ? `The run stopped before anything was stored. The API is still serving the ${total} articles from earlier runs.`
+        : null,
+    };
   });
 
   /** Needs attention: the open count and a card per issue, most severe first (L2-045 AC2). */
   protected readonly attention = computed(() => {
-    const issues = this.store.issues();
-    const zone = this.store.status()?.time_zone;
+    const issues = ready(this.store.issues());
+    const zone = ready(this.store.status())?.time_zone;
     if (!issues || !zone) return null;
     const now = this.store.now();
     return {
@@ -138,6 +156,10 @@ export default class Overview {
       })),
     };
   });
+
+  protected retry(): void {
+    void this.store.retry();
+  }
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);

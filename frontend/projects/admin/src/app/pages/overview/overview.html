@@ -3,67 +3,107 @@
   description="Christian fitness news collected across Toronto & the GTA."
 />
 <kx-page-body>
-  <kx-stack gap="lg">
-    @if (card(); as shown) {
-      <kx-status-card
-        [eyebrow]="shown.eyebrow"
-        [headline]="shown.headline"
-        [meta]="shown.meta"
-        [reference]="shown.reference"
-        [tone]="shown.tone"
-        [stats]="shown.stats"
-        historyCaption="New articles per run · last 14 runs"
+  @if (store.allFailed()) {
+    <kx-empty
+      card
+      tone="error"
+      announce
+      title="The overview didn’t load"
+      text="Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx."
+      [reference]="store.reference() ?? undefined"
+    >
+      <kx-btn slot="actions" variant="primary" [busy]="store.retrying()" (activated)="retry()"
+        >Try again</kx-btn
       >
-        @if (bars(); as shownBars) {
-          <kx-run-chart [bars]="shownBars" />
-        }
-      </kx-status-card>
-    }
-    <kx-rail>
-      <section aria-labelledby="latest-title">
-        <kx-section-head
-          heading="Latest articles"
-          headingId="latest-title"
-          href="/articles"
-          [linkText]="latest()?.viewAll ?? null"
-          (navigate)="navigate($event)"
-        />
-        @if (latest(); as shown) {
-          <kx-list [entries]="shown.entries" />
-        }
-      </section>
-      <section aria-labelledby="attention-title">
-        <kx-section-head
-          heading="Needs attention"
-          headingId="attention-title"
-          [note]="attention()?.note ?? null"
-        />
-        @if (attention(); as shown) {
-          @if (shown.cards.length) {
-            <kx-stack list gap="sm">
-              @for (card of shown.cards; track card.id) {
-                <li>
-                  <kx-issue-card
-                    [severity]="card.severity"
-                    [severityWord]="card.severityWord"
-                    [title]="card.title"
-                    [source]="card.source"
-                    [meta]="card.meta"
-                  />
-                </li>
-              }
-            </kx-stack>
-          } @else {
-            <kx-empty
-              card
-              compact
-              tone="success"
-              title="Nothing needs attention"
-              text="Every source responded in the last run."
-            />
+    </kx-empty>
+  } @else if (store.isEmpty()) {
+    <kx-empty
+      card
+      title="Nothing has been collected yet"
+      text="Keryx checks every source on a schedule — every 6 hours, Toronto time — and lists what it finds here. Add the first source to get started."
+    >
+      <kx-icon slot="icon" name="rss" size="lg" />
+      <kx-btn slot="actions" variant="primary" href="/sources" (navigate)="navigate($event)"
+        ><kx-icon name="plus" size="sm" />Add a source</kx-btn
+      >
+      <kx-btn slot="actions" href="/settings" (navigate)="navigate($event)"
+        >Review the schedule</kx-btn
+      >
+    </kx-empty>
+  } @else {
+    <kx-stack gap="lg">
+      @if (card(); as shown) {
+        <kx-status-card
+          [eyebrow]="shown.eyebrow"
+          [headline]="shown.headline"
+          [meta]="shown.meta"
+          [reference]="shown.reference"
+          [tone]="shown.tone"
+          [stats]="shown.stats"
+          historyCaption="New articles per run · last 14 runs"
+        >
+          @if (bars(); as shownBars) {
+            <kx-run-chart [bars]="shownBars" />
           }
-        }
-      </section>
-    </kx-rail>
-  </kx-stack>
+        </kx-status-card>
+      }
+      <kx-rail>
+        <section aria-labelledby="latest-title">
+          <kx-section-head
+            heading="Latest articles"
+            headingId="latest-title"
+            href="/articles"
+            [linkText]="latest()?.viewAll ?? null"
+            (navigate)="navigate($event)"
+          />
+          @if (latest(); as shown) {
+            @if (shown.failedNotice; as notice) {
+              <kx-empty
+                card
+                compact
+                title="No articles were collected in the last run"
+                [text]="notice"
+              >
+                <kx-icon slot="icon" name="inbox" size="lg" />
+              </kx-empty>
+            } @else {
+              <kx-list [entries]="shown.entries" />
+            }
+          }
+        </section>
+        <section aria-labelledby="attention-title">
+          <kx-section-head
+            heading="Needs attention"
+            headingId="attention-title"
+            [note]="attention()?.note ?? null"
+          />
+          @if (attention(); as shown) {
+            @if (shown.cards.length) {
+              <kx-stack list gap="sm">
+                @for (card of shown.cards; track card.id) {
+                  <li>
+                    <kx-issue-card
+                      [severity]="card.severity"
+                      [severityWord]="card.severityWord"
+                      [title]="card.title"
+                      [source]="card.source"
+                      [meta]="card.meta"
+                    />
+                  </li>
+                }
+              </kx-stack>
+            } @else {
+              <kx-empty
+                card
+                compact
+                tone="success"
+                title="Nothing needs attention"
+                text="Every source responded in the last run."
+              />
+            }
+          }
+        </section>
+      </kx-rail>
+    </kx-stack>
+  }
 </kx-page-body>

@@ -31,6 +31,14 @@ export class OverviewPage {
   readonly issueMetas: Locator;
   readonly issueSeverities: Locator;
   readonly allClear: Locator;
+  /** The whole-page empty or error state. */
+  readonly pageState: Locator;
+  readonly pageStateTitle: Locator;
+  readonly pageStateText: Locator;
+  readonly pageStateReference: Locator;
+  readonly pageStateActions: Locator;
+  /** The notice in Latest articles after a failed run. */
+  readonly latestNotice: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.locator('main h1');
@@ -61,6 +69,12 @@ export class OverviewPage {
     this.issueMetas = this.issueCards.locator('.issue-card__meta');
     this.issueSeverities = this.issueCards.locator('.visually-hidden');
     this.allClear = this.attention.locator('.empty');
+    this.pageState = page.locator('main .page-body > kx-empty > .empty');
+    this.pageStateTitle = this.pageState.locator('.empty__title');
+    this.pageStateText = this.pageState.locator('.empty__text');
+    this.pageStateReference = this.pageState.locator('.empty__ref');
+    this.pageStateActions = this.pageState.locator('.empty__actions .btn');
+    this.latestNotice = this.latest.locator('.empty');
     this.navLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', {
       name: 'Overview',
     });

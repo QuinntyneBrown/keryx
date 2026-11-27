@@ -1,5 +1,13 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import {
+  computed,
+  DestroyRef,
+  inject,
+  Injectable,
+  signal,
+  type WritableSignal,
+} from '@angular/core';
+import {
+  ApiProblem,
   ARTICLES_API,
   OVERVIEW_API,
   RUNS_API,
@@ -22,9 +30,14 @@ export const ATTENTION_ISSUES = 5;
 /** How often the countdown to the next run is worked out again. */
 const CLOCK_MS = 30_000;
 
+/** One part of Overview, loaded on its own: its data once read, or the reference of its failure. */
+export type Section<T> =
+  { state: 'loading' } | { state: 'ready'; data: T } | { state: 'error'; reference: string | null };
+
 /**
- * Overview's state, held only while the screen is shown: its status and the time the countdown
- * reads. Provided on the screen, so its request and timer end with the visit (L2-089).
+ * Overview's state, held only while the screen is shown: four sections read in parallel, each on
+ * its own, so one failing leaves the others shown (L2-045 AC5), and the time the countdown reads.
+ * Provided on the screen, so its requests and timer end with the visit (L2-089).
  */
 @Injectable()
 export class OverviewStore {
@@ -33,13 +46,39 @@ export class OverviewStore {
   private readonly articles = inject(ARTICLES_API);
   private readonly controller = new AbortController();
 
-  readonly status = signal<OverviewStatus | null>(null);
+  readonly status = signal<Section<OverviewStatus>>({ state: 'loading' });
   /** The last runs, newest first as served. */
-  readonly chart = signal<readonly RunSummary[] | null>(null);
+  readonly chart = signal<Section<readonly RunSummary[]>>({ state: 'loading' });
   /** The newest articles, with the regions that name them. */
-  readonly latest = signal<{ page: ArticlePage; regions: readonly Region[] } | null>(null);
-  readonly issues = signal<OpenIssuePage | null>(null);
+  readonly latest = signal<Section<{ page: ArticlePage; regions: readonly Region[] }>>({
+    state: 'loading',
+  });
+  readonly issues = signal<Section<OpenIssuePage>>({ state: 'loading' });
   readonly now = signal(new Date());
+  /** Try again is repeating every request. */
+  readonly retrying = signal(false);
+
+  private readonly sections = [this.status, this.chart, this.latest, this.issues] as const;
+
+  /** Every request failed: the page error stands in for the screen (L2-046 AC3). */
+  readonly allFailed = computed(() =>
+    this.sections.every((section) => section().state === 'error'),
+  );
+
+  /** The reference of the first failure, for the page error. */
+  readonly reference = computed(() => {
+    for (const section of this.sections) {
+      const shown = section();
+      if (shown.state === 'error' && shown.reference) return shown.reference;
+    }
+    return null;
+  });
+
+  /** No source and no run exist: the empty state stands in for the screen (L2-046 AC2). */
+  readonly isEmpty = computed(() => {
+    const status = this.status();
+    return status.state === 'ready' && !status.data.has_sources && !status.data.has_runs;
+  });
 
   constructor() {
     const clock = setInterval(() => this.now.set(new Date()), CLOCK_MS);
@@ -49,37 +88,59 @@ export class OverviewStore {
     });
   }
 
-  /** Reads each section on its own, so one never waits for another; resolves once all are shown. */
-  async load(): Promise<void> {
-    await Promise.all([this.loadStatus(), this.loadChart(), this.loadLatest(), this.loadIssues()]);
-  }
-
-  private async loadStatus(): Promise<void> {
-    const status = await this.api.status(this.controller.signal);
-    if (this.controller.signal.aborted) return;
-    this.status.set(status);
-    this.now.set(new Date());
-  }
-
-  private async loadChart(): Promise<void> {
-    const page = await this.runs.list({ page: 1, pageSize: CHART_RUNS }, this.controller.signal);
-    if (this.controller.signal.aborted) return;
-    this.chart.set(page.items);
-  }
-
-  private async loadLatest(): Promise<void> {
-    const { signal } = this.controller;
-    const [page, regions] = await Promise.all([
-      this.articles.list({ page: 1, pageSize: LATEST_ARTICLES }, signal),
-      this.articles.regions(signal),
+  /**
+   * Reads every section, each shown as it answers; resolves once all have. With `together`, the
+   * answers are shown at once when the last arrives, so a retry's page error stays until then.
+   */
+  async load(together = false): Promise<void> {
+    const { signal: abort } = this.controller;
+    const held: (() => void)[] = [];
+    const settle = async <T>(section: WritableSignal<Section<T>>, fetch: () => Promise<T>) => {
+      const next = await this.read(fetch);
+      const show = () => {
+        if (!abort.aborted) section.set(next);
+      };
+      if (together) held.push(show);
+      else show();
+    };
+    await Promise.all([
+      settle(this.status, () => this.api.status(abort)),
+      settle(this.chart, async () => {
+        const page = await this.runs.list({ page: 1, pageSize: CHART_RUNS }, abort);
+        return page.items;
+      }),
+      settle(this.latest, async () => {
+        const [page, regions] = await Promise.all([
+          this.articles.list({ page: 1, pageSize: LATEST_ARTICLES }, abort),
+          this.articles.regions(abort),
+        ]);
+        return { page, regions };
+      }),
+      settle(this.issues, () => this.runs.openIssues(ATTENTION_ISSUES, abort)),
     ]);
-    if (signal.aborted) return;
-    this.latest.set({ page, regions });
+    for (const show of held) show();
+    if (!abort.aborted) this.now.set(new Date());
   }
 
-  private async loadIssues(): Promise<void> {
-    const issues = await this.runs.openIssues(ATTENTION_ISSUES, this.controller.signal);
-    if (this.controller.signal.aborted) return;
-    this.issues.set(issues);
+  /** Repeats every request after the page error, busy meanwhile (L2-073 AC3). */
+  async retry(): Promise<void> {
+    this.retrying.set(true);
+    try {
+      await this.load(true);
+    } finally {
+      this.retrying.set(false);
+    }
+  }
+
+  /** A section's next state: its data, or its failure with the response's trace id. */
+  private async read<T>(fetch: () => Promise<T>): Promise<Section<T>> {
+    try {
+      return { state: 'ready', data: await fetch() };
+    } catch (error) {
+      return {
+        state: 'error',
+        reference: error instanceof ApiProblem ? (error.reference ?? null) : null,
+      };
+    }
   }
 }

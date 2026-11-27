@@ -21,6 +21,7 @@ export type IconName =
   | 'articles'
   | 'overview'
   | 'arrow-right'
+  | 'inbox'
   | 'chevron-left'
   | 'chevron-right'
   | 'external'

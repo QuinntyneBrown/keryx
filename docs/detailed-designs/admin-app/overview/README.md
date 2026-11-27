@@ -156,10 +156,15 @@ The slice runs from the routed Overview page to four admin read endpoints.
 
 **Navigation targets** — a bar opens `/runs?run=<id>`; an issue card opens the run it belongs to
 in the same tab; "All runs" opens `/runs`; with more than 5 open issues a link opens
-`/runs?problems=true`; "View all 18,432" opens `/articles`. "Add a source" opens Sources and
-"Review the schedule" opens Settings; the exact targets are `<TO SUPPLY>`. The bars, the issue
-cards, "All runs" and the problems link open the Runs screen, so they become links in journey 14,
-which builds it (ADR 0006); until then a card is not a link.
+`/runs?problems=true`; "View all 18,432" opens `/articles`. "Add a source" opens `/sources`,
+where the Add source dialog starts, and "Review the schedule" opens `/settings`. The bars, the
+issue cards, "All runs", the problems link and the page error's "Go to runs" open the Runs
+screen, so they arrive in journey 14, which builds it (ADR 0006); until then a card is not a
+link and the page error offers "Try again" alone.
+
+**Retry** — "Try again" repeats all four requests with the button busy, and the page error stays
+until every answer is in: the store shows the answers together, so the page never flashes the
+error away and back (`L2-073` AC3).
 
 **Issue titles** — the domain helper `issueTitle(kind)` names each kind: `source_not_found`
 "Feed returned 404", `source_timeout` "Source timed out", `source_blocked` "Source blocked
