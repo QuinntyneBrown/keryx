@@ -1,6 +1,14 @@
 <kx-skip-link />
 <kx-app>
-  <kx-sidebar slot="sidebar" [userName]="staff()?.name" [userRole]="staff()?.role">
+  <kx-sidebar
+    slot="sidebar"
+    [nextCollection]="nextCollection()"
+    [countdown]="countdown()"
+    [schedule]="recurrence()"
+    [collecting]="schedule.collecting()"
+    [userName]="staff()?.name"
+    [userRole]="staff()?.role"
+  >
     <kx-brand slot="brand" href="/" label="Keryx, go to overview" (navigate)="navigate($event)" />
     <kx-nav-link href="/" [current]="isCurrent('/')" (navigate)="navigate($event)">
       <kx-icon slot="icon" name="overview" size="sm" />Overview
