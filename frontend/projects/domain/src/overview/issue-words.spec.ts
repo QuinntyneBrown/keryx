@@ -1,4 +1,5 @@
 import {
+  issueChangeFailedNotice,
   issueMutedNotice,
   issueName,
   issueSeverityWord,
@@ -48,6 +49,23 @@ describe('issueMutedNotice', () => {
     ['stage_failed', null, '“A stage failed” no longer raises alerts.'],
   ])('%s about %s says %s', (kind, subject, text) => {
     expect(issueMutedNotice(kind, subject)).toEqual({ title: 'Issue muted', text });
+  });
+});
+
+describe('issueChangeFailedNotice', () => {
+  it.each([
+    [
+      'mute',
+      'Issue not muted',
+      'Keryx couldn’t reach its API just now, so the issue still raises alerts. Try again.',
+    ],
+    [
+      'unmute',
+      'Issue not unmuted',
+      'Keryx couldn’t reach its API just now, so the issue is still muted. Try again.',
+    ],
+  ] as const)('%s reads %s', (action, title, text) => {
+    expect(issueChangeFailedNotice(action)).toEqual({ title, text });
   });
 });
 

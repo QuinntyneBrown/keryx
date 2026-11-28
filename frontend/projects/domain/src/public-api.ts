@@ -89,6 +89,7 @@ export {
 } from './overview/run-words';
 export { runBars, type RunBar, type RunPoint } from './overview/run-bars';
 export {
+  issueChangeFailedNotice,
   issueMutedNotice,
   issueName,
   issueSeverityWord,

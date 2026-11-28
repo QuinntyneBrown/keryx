@@ -10,6 +10,7 @@ import {
 import {
   canRetryFailedSources,
   failedSources,
+  issueChangeFailedNotice,
   issueMutedNotice,
   retryStartedNotice,
   skeletonDelay,
@@ -172,7 +173,7 @@ export class RunsStore {
    * Undo, which opens it again.
    */
   async muteIssue(id: string, settled: (id: string) => void): Promise<void> {
-    const issue = await this.changeIssue(id, 'mute');
+    const issue = await this.changeIssue(id, 'mute', settled);
     if (!issue) return;
     settled(id);
     this.notifier.notify({
@@ -184,11 +185,19 @@ export class RunsStore {
 
   /** Opens a muted issue again (L2-020 AC3); `settled` is told once the API has answered. */
   async unmuteIssue(id: string, settled: (id: string) => void): Promise<void> {
-    if (await this.changeIssue(id, 'unmute')) settled(id);
+    if (await this.changeIssue(id, 'unmute', settled)) settled(id);
   }
 
-  /** One request per issue while one is out; the answer's state replaces the shown one. */
-  private async changeIssue(id: string, action: 'mute' | 'unmute'): Promise<RunIssue | null> {
+  /**
+   * One request per issue while one is out; the answer's state replaces the shown one. Refused,
+   * the issue stays as shown and a notice offers "Try again" (L2-083); an issue that is over is
+   * read again with its run, so it shows as it now is.
+   */
+  private async changeIssue(
+    id: string,
+    action: 'mute' | 'unmute',
+    settled: (id: string) => void,
+  ): Promise<RunIssue | null> {
     if (this.changingIssues().has(id)) return null;
     this.changingIssues.update((ids) => new Set([...ids, id]));
     try {
@@ -205,7 +214,18 @@ export class RunsStore {
           },
       );
       return issue;
-    } catch {
+    } catch (error) {
+      if (this.controller.signal.aborted) return null;
+      if (error instanceof ApiProblem && error.code === 'issue_closed') this.reload();
+      this.notifier.notify({
+        tone: 'danger',
+        ...issueChangeFailedNotice(action),
+        action: {
+          label: 'Try again',
+          run: () =>
+            void (action === 'mute' ? this.muteIssue(id, settled) : this.unmuteIssue(id, settled)),
+        },
+      });
       return null;
     } finally {
       this.changingIssues.update((ids) => new Set([...ids].filter((other) => other !== id)));

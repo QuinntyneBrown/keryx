@@ -33,6 +33,25 @@ export function issueMutedNotice(
   return { title: 'Issue muted', text: subject ? `${what} for ${subject}.` : `${what}.` };
 }
 
+/**
+ * The notice that a mute or unmute was not taken (notifications/run-toast/mute-failed.html): one
+ * generic message whatever the API refused with.
+ */
+export function issueChangeFailedNotice(action: 'mute' | 'unmute'): {
+  title: string;
+  text: string;
+} {
+  return action === 'mute'
+    ? {
+        title: 'Issue not muted',
+        text: 'Keryx couldn’t reach its API just now, so the issue still raises alerts. Try again.',
+      }
+    : {
+        title: 'Issue not unmuted',
+        text: 'Keryx couldn’t reach its API just now, so the issue is still muted. Try again.',
+      };
+}
+
 /** The word a screen reader hears before an issue, since its icon is not read. */
 export function issueSeverityWord(severity: 'error' | 'warning'): string {
   return severity === 'error' ? 'Error:' : 'Warning:';
