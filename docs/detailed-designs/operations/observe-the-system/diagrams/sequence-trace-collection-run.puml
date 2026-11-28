@@ -19,7 +19,7 @@ box "Backend — Keryx Worker application" #D1FADF
   participant "RunCollectionCommandHandler" as handler
   participant "CollectionPipeline" as pipe
   participant "RunTelemetry" as tel
-  participant "CollectionMetrics" as metrics
+  participant "RunMetrics" as metrics
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
   participant "HttpSourceFetcher" as fetch
@@ -41,11 +41,11 @@ else the lease names a pending run
     fetch -> src : GET
     src --> fetch : Response
     fetch --> pipe : FetchResult
-    pipe -> metrics : RecordFetch(source id, latency)
+    pipe -> metrics : Fetched(source, seconds)
   end
   pipe -> tel : End the five streaming stages when the stream ends
   pipe -> tel : StartStage(publish), ended after publishing
-  pipe -> metrics : RecordRun(duration, added, updated, unchanged, sources failed)
+  handler -> metrics : Finished(run): seconds by outcome, added, updated, unchanged, sources failed
 end
 opt the run throws
   rec -> tel : Status Error, error.type; the run's correlation id is the trace id

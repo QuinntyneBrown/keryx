@@ -33,13 +33,13 @@ class RunTelemetry {
 class RunRecordingBehavior {
   +Handle(request, next): TResponse
 }
-class CollectionMetrics {
+class RunMetrics {
   -Histogram<double> runDuration
   -Counter<long> items
   -Counter<long> sourcesFailed
   -Histogram<double> fetchDuration
-  +RecordRun(run: Run): void
-  +RecordFetch(sourceId: string, ms: double): void
+  ~Finished(run: Run): void
+  ~Fetched(source: Source, took: TimeSpan): void
 }
 class ApiMetrics {
   -Counter<long> requests
@@ -60,7 +60,7 @@ BP <|-- TelemetryRedactionProcessor
 KeryxTelemetry ..> TelemetryRedactionProcessor : registers
 KeryxTelemetry ..> RunTelemetry : registers source
 RunRecordingBehavior ..> RunTelemetry : root span per run
-KeryxTelemetry ..> CollectionMetrics : registers meter
+KeryxTelemetry ..> RunMetrics : registers meter
 KeryxTelemetry ..> ApiMetrics : registers meter
 ProblemDetailsMapper ..> ApiError : trace_id read by admin app
 @enduml

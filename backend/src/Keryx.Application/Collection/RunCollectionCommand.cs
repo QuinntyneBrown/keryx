@@ -18,7 +18,7 @@ public sealed record RunCollectionCommand : IRequest, IWorkerRunCommand
 /// Picks up the run the collection lease names when the pipeline has not started it, runs the
 /// pipeline, finishes the run and frees the lease. With no pending run it returns at once.
 /// </summary>
-internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPipeline pipeline, TimeProvider time, IPublisher publisher) : IRequestHandler<RunCollectionCommand>
+internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPipeline pipeline, RunMetrics metrics, TimeProvider time, IPublisher publisher) : IRequestHandler<RunCollectionCommand>
 {
     public async Task Handle(RunCollectionCommand request, CancellationToken cancellationToken)
     {
@@ -56,6 +56,7 @@ internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPi
 
         lease.Release(run.PublicId);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        metrics.Finished(run);
         // Alerts follow the saved outcome, so they cannot change it (L2-077 AC5).
         await publisher.Publish(new RunFinishedNotification(run.PublicId), cancellationToken).ConfigureAwait(false);
     }

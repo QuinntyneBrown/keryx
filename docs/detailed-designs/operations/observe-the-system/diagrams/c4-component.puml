@@ -10,7 +10,7 @@ Container_Boundary(api, "Keryx API") {
 }
 Container_Boundary(worker, "Keryx Worker") {
   Component(colt, "RunTelemetry", "ActivitySource Keryx.Runs", "Run, stage and fetch spans; by id, never by URL")
-  Component(colm, "CollectionMetrics", "Meter Keryx.Collection", "Run duration, items, sources failed, fetch latency")
+  Component(colm, "RunMetrics", "Meter Keryx.Runs", "Run duration, items, sources failed, fetch latency, in seconds")
 }
 Container_Boundary(infra, "Keryx Infrastructure") {
   Component(setup, "KeryxTelemetry", "Service registration", "SDK, logging provider, optional OTLP exporter")

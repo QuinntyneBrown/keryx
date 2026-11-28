@@ -27,6 +27,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Sources.SafeAddressCheck>();
         services.AddScoped<Sources.SourceTester>();
         services.AddScoped<Collection.CollectionPipeline>();
+        services.AddSingleton<Telemetry.RunMetrics>();
         services.AddScoped<Collection.SourceIssueTracker>();
         services.AddSingleton<Alerts.AlertComposer>();
         services.AddScoped<Alerts.AlertNotSentTracker>();

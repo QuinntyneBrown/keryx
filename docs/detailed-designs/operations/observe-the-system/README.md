@@ -83,11 +83,17 @@ as `trace_id`.
   Publish follows on its own. Under the fetch stage there is a span per source fetch,
   `source.fetch`, tagged with `keryx.source.id` only. The source is static, as .NET advises for
   an `ActivitySource`; the Application layer needs nothing beyond `System.Diagnostics` for it.
-- **`CollectionMetrics`** — meter `Keryx.Collection`: histogram `keryx.run.duration`
-  (milliseconds), counter `keryx.run.items` tagged `result` = `added`, `updated` or
-  `unchanged`, counter `keryx.run.sources_failed`, and histogram `keryx.fetch.duration`
-  (milliseconds) tagged by source id. The final instrument names follow the OpenTelemetry
-  semantic conventions where one exists; the names above are `<TO SUPPLY>` until confirmed.
+- **`RunMetrics`** (`Keryx.Application`) — meter `Keryx.Runs`, made by `IMeterFactory`:
+  - histogram `keryx.run.duration` (`s`), tagged `keryx.run.outcome`;
+  - counter `keryx.run.items` (`{item}`), tagged `result` = `added`, `updated` or `unchanged`;
+  - counter `keryx.run.sources_failed` (`{source}`);
+  - histogram `keryx.fetch.duration` (`s`), tagged `keryx.source.id`.
+
+  Durations are in seconds, as the OpenTelemetry conventions measure them
+  (`http.server.request.duration` is too). No convention covers a run, so the names keep the
+  `keryx.` namespace. A run's measures are recorded when its handler has saved it as finished; a
+  run that throws is counted by the failure alert and its trace, not here. A fetch is measured
+  whatever its result. Tagging by source id is bounded by the catalogue, which staff curate.
 
 **Admin app (`frontend/projects`)**
 

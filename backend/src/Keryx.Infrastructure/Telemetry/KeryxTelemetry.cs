@@ -48,7 +48,11 @@ public static class KeryxTelemetry
                 configureTracing?.Invoke(tracing);
                 tracing.AddProcessor(new TelemetryRedactionProcessor());
             })
-            .WithMetrics(metrics => configureMetrics?.Invoke(metrics))
+            .WithMetrics(metrics =>
+            {
+                metrics.AddMeter(Keryx.Application.Telemetry.RunMetrics.MeterName);
+                configureMetrics?.Invoke(metrics);
+            })
             .WithLogging();
 
         // The exporter reads the endpoint, the protocol and the rest of the OTEL_* variables itself.

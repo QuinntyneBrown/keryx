@@ -23,7 +23,7 @@ namespace Keryx.Application.Collection;
 /// </summary>
 public sealed class CollectionPipeline(
     IAppDbContext db, ISourceFetcher fetcher, IFeedParser parser, IRelevanceScorer scorer, SourceIssueTracker issues,
-    ArticleIngestion ingestion, ArticlePublication publication, TimeProvider time)
+    ArticleIngestion ingestion, ArticlePublication publication, RunMetrics metrics, TimeProvider time)
 {
     /// <summary>How many sources are fetched at once (L2-022).</summary>
     internal const int FetchConcurrency = 8;
@@ -230,6 +230,7 @@ public sealed class CollectionPipeline(
                 async (entry, token) =>
                 {
                     SourceFetchResult result;
+                    var fetchStarted = time.GetTimestamp();
                     using (RunTelemetry.StartFetch(stage, entry.Source))
                     {
                         try
@@ -243,6 +244,8 @@ public sealed class CollectionPipeline(
                             result = SourceFetchResult.Failed(FetchFailureReason.Refused);
                         }
                     }
+
+                    metrics.Fetched(entry.Source, time.GetElapsedTime(fetchStarted));
 
                     await writer.WriteAsync((entry.Source, result), token).ConfigureAwait(false);
                 }).ConfigureAwait(false);
