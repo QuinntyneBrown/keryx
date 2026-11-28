@@ -167,7 +167,7 @@ test.describe('Publish an article', () => {
     await articles.doubleActivate(articles.publish);
 
     await expect(articles.panelStatus).toHaveText('Published');
-    await expect(articles.toast).toHaveCount(1);
+    await expect(articles.toasts).toHaveCount(1);
     expect(sent).toBe(1);
   });
 

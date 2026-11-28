@@ -165,9 +165,9 @@ export class ArticlesStore {
 
   /**
    * The CSV file of the articles the query's tab, search and filters match (L2-054). It rejects
-   * with the API's refusal, or with the abort when the screen is left first.
+   * with the API's refusal; it resolves `null` when the screen was left first, which cancels it.
    */
-  async exportCsv(query: ArticleQuery): Promise<Blob> {
+  async exportCsv(query: ArticleQuery): Promise<Blob | null> {
     this.exporting.set(true);
     try {
       return await this.api.exportCsv(
@@ -179,6 +179,9 @@ export class ArticlesStore {
         },
         this.exports.signal,
       );
+    } catch (error) {
+      if (this.exports.signal.aborted) return null;
+      throw error;
     } finally {
       this.exporting.set(false);
     }

@@ -38,6 +38,7 @@ export class ArticlesPage {
   readonly panelValues: Locator;
   readonly panelTags: Locator;
   readonly panelAlert: Locator;
+  readonly toasts: Locator;
   readonly toast: Locator;
   readonly toastTitle: Locator;
   readonly toastText: Locator;
@@ -93,7 +94,9 @@ export class ArticlesPage {
     this.panelValues = this.detail.locator('.dl dd');
     this.panelTags = this.detail.locator('.dl dd .badge');
     this.panelAlert = this.detail.locator('.alert');
-    this.toast = page.locator('.toast-region .toast');
+    this.toasts = page.locator('.toast-region .toast');
+    // The newest: an export's outcome stacks under "Export started".
+    this.toast = this.toasts.last();
     this.toastTitle = this.toast.locator('.toast__title');
     this.toastText = this.toast.locator('.toast__text');
     this.exportCsv = header.getByRole('button', { name: 'Export CSV' });

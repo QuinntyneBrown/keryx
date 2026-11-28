@@ -27,3 +27,21 @@ export function exportStartedNotice(fileName: string, rows: number): ExportNotic
     text: `${fileName} will download when it’s ready — ${formatCount(rows)} ${rows === 1 ? 'row' : 'rows'}.`,
   };
 }
+
+/** More than 50,000 articles match: staff narrow the search or filters (L2-054 AC3). */
+export function exportTooLargeNotice(): ExportNotice {
+  return {
+    tone: 'warning',
+    title: 'Too many articles to export',
+    text: 'Exports stop at 50,000 rows. Narrow the search or filters, then export again.',
+  };
+}
+
+/** The export failed for any other reason; the screen offers "Try again" beside it. */
+export function exportFailedNotice(): ExportNotice {
+  return {
+    tone: 'danger',
+    title: 'Keryx couldn’t export the articles',
+    text: 'Nothing was downloaded.',
+  };
+}

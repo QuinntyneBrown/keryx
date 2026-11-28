@@ -1,4 +1,9 @@
-import { exportFileName, exportStartedNotice } from '../public-api';
+import {
+  exportFailedNotice,
+  exportFileName,
+  exportStartedNotice,
+  exportTooLargeNotice,
+} from '../public-api';
 
 describe('exportFileName', () => {
   it.each([
@@ -26,6 +31,26 @@ describe('exportStartedNotice', () => {
       tone: 'info',
       title: 'Export started',
       text,
+    });
+  });
+});
+
+describe('exportTooLargeNotice', () => {
+  it('asks staff to narrow the search or filters', () => {
+    expect(exportTooLargeNotice()).toEqual({
+      tone: 'warning',
+      title: 'Too many articles to export',
+      text: 'Exports stop at 50,000 rows. Narrow the search or filters, then export again.',
+    });
+  });
+});
+
+describe('exportFailedNotice', () => {
+  it('says nothing was downloaded', () => {
+    expect(exportFailedNotice()).toEqual({
+      tone: 'danger',
+      title: 'Keryx couldn’t export the articles',
+      text: 'Nothing was downloaded.',
     });
   });
 });

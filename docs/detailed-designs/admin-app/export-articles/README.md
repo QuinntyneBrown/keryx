@@ -45,7 +45,10 @@ streaming admin endpoint.
   `notifications/article-toast/warning.html`). Any other failure raises a danger notification,
   "Keryx couldn’t export the articles" / "Nothing was downloaded." with "Try again" (mock
   `notifications/article-toast/export-failed.html`). The request is cancelled through the store's `DestroyRef` when the page is left
-  (`L2-089`).
+  (`L2-089`). A cancelled export saves nothing and says nothing. The outcome's notification stacks under
+  "Export started", as the `collection-toast/stacked` mock shows; the notifier has no way to
+  withdraw one, and adding it is not worth a contract change for this screen. "Try again" runs
+  the whole export again, "Export started" included.
 
 **Frontend — `frontend/projects/domain`**
 

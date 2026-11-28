@@ -69,12 +69,12 @@ test.describe('A scheduled run', () => {
     phase = 'ended';
     await expect(async () => {
       await page.clock.runFor(1000);
-      await expect(articles.toast).toHaveCount(1, { timeout: 50 });
+      await expect(articles.toasts).toHaveCount(1, { timeout: 50 });
     }).toPass({ intervals: [0], timeout: 10_000 });
 
     await expect(articles.toast.locator('.toast__title')).toHaveText('Collection finished');
     await page.clock.runFor(6000);
-    await expect(articles.toast).toHaveCount(1);
+    await expect(articles.toasts).toHaveCount(1);
     // The next run is hours away: the shell asks no more.
     const reads = statusReads;
     await page.clock.runFor(120_000);

@@ -60,8 +60,10 @@ import {
   type ArticleQuery,
   decidedNotice,
   decisionFailedNotice,
+  exportFailedNotice,
   exportFileName,
   exportStartedNotice,
+  exportTooLargeNotice,
 } from '@kx/domain';
 import { ArticlesStore } from '../../articles/articles-store';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
@@ -264,12 +266,28 @@ export default class Articles {
     () => this.store.status() !== 'ready' || this.nothingCollected() || this.store.exporting(),
   );
 
-  /** Says the export started, with the rows the list counts, then saves the file (L2-054 AC1). */
+  /**
+   * Says the export started, with the rows the list counts, then saves the file (L2-054 AC1). A
+   * refusal for size asks staff to narrow the filters (AC3); any other failure offers "Try again".
+   */
   protected async exportCsv(): Promise<void> {
     const name = exportFileName(new Date());
     this.notifier.notify(exportStartedNotice(name, this.store.page()?.total ?? 0));
-    const file = await this.store.exportCsv(this.query());
-    saveFile(this.document, file, name);
+    let file: Blob | null;
+    try {
+      file = await this.store.exportCsv(this.query());
+    } catch (error) {
+      this.notifier.notify(
+        error instanceof ApiProblem && error.code === 'export_too_large'
+          ? exportTooLargeNotice()
+          : {
+              ...exportFailedNotice(),
+              action: { label: 'Try again', run: () => void this.exportCsv() },
+            },
+      );
+      return;
+    }
+    if (file) saveFile(this.document, file, name);
   }
 
   protected navigate(href: string): void {
