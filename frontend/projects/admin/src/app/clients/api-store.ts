@@ -8,6 +8,7 @@ import {
   type ApiClientPage,
   type CreatedApiClientDto,
 } from '@kx/api';
+import { skeletonDelay } from '@kx/domain';
 
 export type ApiClientsState =
   | { status: 'loading' }
@@ -39,7 +40,9 @@ export interface RevealedKey {
 export class ApiStore {
   private readonly api = inject(API_CLIENTS_API);
   private readonly usageApi = inject(API_USAGE_API);
-  private controller: AbortController | null = null;
+  private clientsRequest: AbortController | null = null;
+  private usageRequest: AbortController | null = null;
+  private readonly skeleton = skeletonDelay();
   private readonly current = signal<ApiClientsState>({ status: 'loading' });
   private readonly usageState = signal<ApiUsageState>({ status: 'loading' });
   private readonly revealed = signal<RevealedKey | null>(null);
@@ -47,6 +50,8 @@ export class ApiStore {
   private readonly endpoint = signal<string | null>(null);
 
   readonly state = this.current.asReadonly();
+  /** The clients have taken over 300 ms: the screen shows skeletons (L2-073 AC1). */
+  readonly slow = signal(false);
   /** The whole API's usage, read beside the clients: either can fail on its own. */
   readonly usage = this.usageState.asReadonly();
   readonly revealedKey = this.revealed.asReadonly();
@@ -61,22 +66,31 @@ export class ApiStore {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this.controller?.abort();
+      this.clientsRequest?.abort();
+      this.usageRequest?.abort();
+      this.skeleton.cancel();
       this.revealed.set(null);
     });
   }
 
-  /** Reads the clients and the usage in parallel. */
+  /** Reads the first page of clients and the usage in parallel. */
   async load(): Promise<void> {
-    this.controller?.abort();
-    const controller = new AbortController();
-    this.controller = controller;
-    this.current.set({ status: 'loading' });
-    this.usageState.set({ status: 'loading' });
-    await Promise.all([this.loadClients(controller), this.loadUsage(controller)]);
+    await Promise.all([this.loadClients(1), this.loadUsage()]);
   }
 
-  private async loadUsage(controller: AbortController): Promise<void> {
+  /** Reads the page before or after the one shown (L2-067 AC8). */
+  async step(direction: -1 | 1): Promise<void> {
+    const state = this.current();
+    if (state.status !== 'ready') return;
+    await this.loadClients(state.page.page + direction);
+  }
+
+  /** Reads the usage again after it failed; the clients stay as they are (L2-067 AC7). */
+  async loadUsage(): Promise<void> {
+    this.usageRequest?.abort();
+    const controller = new AbortController();
+    this.usageRequest = controller;
+    this.usageState.set({ status: 'loading' });
     try {
       const usage = await this.usageApi.get(controller.signal);
       if (!controller.signal.aborted) this.usageState.set({ status: 'ready', usage });
@@ -86,10 +100,17 @@ export class ApiStore {
     }
   }
 
-  private async loadClients(controller: AbortController): Promise<void> {
+  private async loadClients(page: number): Promise<void> {
+    this.clientsRequest?.abort();
+    const controller = new AbortController();
+    this.clientsRequest = controller;
+    this.current.set({ status: 'loading' });
+    // `slow` only matters while loading: a pause that ends after the answer changes nothing.
+    this.slow.set(false);
+    this.skeleton.run(() => this.slow.set(true));
     try {
-      const page = await this.api.list(1, controller.signal);
-      if (!controller.signal.aborted) this.current.set({ status: 'ready', page });
+      const answer = await this.api.list(page, controller.signal);
+      if (!controller.signal.aborted) this.current.set({ status: 'ready', page: answer });
     } catch (error) {
       if (controller.signal.aborted) return;
       this.current.set({ status: 'error', reference: referenceOf(error) });

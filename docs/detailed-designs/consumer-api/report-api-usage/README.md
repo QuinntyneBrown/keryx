@@ -188,6 +188,11 @@ beside the three L2-037 names.
   is written from `/v1/…`. The sample bodies follow the served shapes, so `organization` is an
   object with `id` and `name`, not the name the mock shows. The list and the panel sit side by
   side from 1024 px (L2-067 AC9), not at the 1280 px of the mocks' `.split`.
+- **States.** While the clients take over 300 ms the body is busy and shows skeletons shaped as
+  the tiles (8), five table rows and the two endpoint blocks (`skeleton--block`, added to the
+  library), with "New API key" disabled. The usage alone is read again by "Try again"; the
+  clients are not. The pager's range reads "Showing 1–50 of 51 keys" (`pageRange`), which the
+  `paged` mock now shows in its `table-footer`, as the `pagination` component draws it.
 - **Last call.** Articles' `formatRelativeAge` reads "3m ago", not the mock's "2 min ago", so the
   Last call text has its own helper, `formatLastCall`: "just now" under a minute, "N min ago"
   under an hour, the time on the same Toronto day, otherwise "Feb 2" (with the year when it is

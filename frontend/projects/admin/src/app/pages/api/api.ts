@@ -9,6 +9,7 @@ import {
   type CreatedApiClientDto,
 } from '@kx/api';
 import {
+  Alert,
   Badge,
   Btn,
   Callout,
@@ -19,6 +20,8 @@ import {
   List,
   PageBody,
   PageHeader,
+  Pagination,
+  Skeleton,
   SummaryCard,
   Table,
   Tag,
@@ -33,6 +36,7 @@ import {
   formatErrorRate,
   formatLastCall,
   formatLatency,
+  pageRange,
   requestsLabel,
 } from '@kx/domain';
 import { ApiStore } from '../../clients/api-store';
@@ -51,6 +55,7 @@ const TORONTO = 'America/Toronto';
 @Component({
   selector: 'kx-api',
   imports: [
+    Alert,
     Badge,
     Btn,
     Callout,
@@ -61,6 +66,8 @@ const TORONTO = 'America/Toronto';
     List,
     PageBody,
     PageHeader,
+    Pagination,
+    Skeleton,
     SummaryCard,
     Table,
     Tag,
@@ -116,6 +123,18 @@ export default class Api {
   protected readonly baseUrl = computed(() => {
     const state = this.store.usage();
     return state.status === 'ready' ? state.usage.base_url : null;
+  });
+
+  /** Rows shaped as the table while the clients are slow, as many as the mock shows. */
+  protected readonly skeletonRows = Array.from({ length: 5 }, (_, i) => ({ key: `s${i}` }));
+  protected readonly skeletonKey = (row: unknown) => (row as { key: string }).key;
+
+  /** "Showing 1–50 of 51 keys" under a table of more than one page. */
+  protected readonly range = computed(() => {
+    const state = this.store.state();
+    if (state.status !== 'ready') return '';
+    const { page, page_size, total } = state.page;
+    return pageRange(page, page_size, total, ['key', 'keys']);
   });
 
   /** The endpoint shown: the one chosen, or the first. */
@@ -236,6 +255,10 @@ export default class Api {
         action: { label: 'New API key', run: () => void this.newKey() },
       });
     });
+  }
+
+  protected retryUsage(): void {
+    void this.store.loadUsage();
   }
 
   protected retry(): void {

@@ -7,13 +7,48 @@
     #newKeyButton
     slot="actions"
     variant="primary"
-    [disabled]="state.status === 'error'"
+    [disabled]="state.status !== 'ready'"
     (activated)="newKey()"
     ><kx-icon slot="icon" name="plus" size="sm" />New API key</kx-btn
   >
 </kx-page-header>
-<kx-page-body>
+<kx-page-body [busy]="state.status === 'loading'">
   @switch (state.status) {
+    @case ('loading') {
+      @if (store.slow()) {
+        <div class="api">
+          <p class="visually-hidden" role="status">Loading API usage…</p>
+          <kx-summary-card label="API usage" loading [stats]="usageStats()" />
+          <div>
+            <p class="text-h3 api__heading"><kx-skeleton shape="title" [width]="20" />&nbsp;</p>
+            <kx-table
+              caption="Consumers and keys, newest first"
+              [columns]="columns"
+              [rows]="skeletonRows"
+              [rowKey]="skeletonKey"
+              [cells]="{
+                product: skeletonTitle,
+                key: skeletonText,
+                scopes: skeletonPill,
+                requests: skeletonText,
+                errors: skeletonText,
+                lastCall: skeletonText,
+              }"
+            />
+            <ng-template #skeletonTitle><kx-skeleton [width]="60" /></ng-template>
+            <ng-template #skeletonText><kx-skeleton /></ng-template>
+            <ng-template #skeletonPill><kx-skeleton shape="pill" /></ng-template>
+          </div>
+          <div>
+            <p class="text-h3 api__heading"><kx-skeleton shape="title" [width]="20" />&nbsp;</p>
+            <div class="api__split">
+              <kx-skeleton shape="block" />
+              <kx-skeleton shape="block" />
+            </div>
+          </div>
+        </div>
+      }
+    }
     @case ('error') {
       <kx-empty
         card
@@ -29,13 +64,25 @@
     }
     @case ('ready') {
       <div class="api">
+        @let usage = store.usage();
         <kx-summary-card
           label="API usage"
           caption="Base URL"
-          [loading]="store.usage().status === 'loading'"
+          [loading]="usage.status === 'loading'"
           [value]="baseUrl()"
           [stats]="usageStats()"
-        />
+        >
+          @if (usage.status === 'error') {
+            <kx-alert tone="danger" announcement="alert" title="Usage didn’t load">
+              <p>
+                The keys below are up to date; only the usage figures failed.{{
+                  usage.reference ? ' Reference ' + usage.reference : ''
+                }}
+              </p>
+              <kx-btn slot="actions" small (activated)="retryUsage()">Try again</kx-btn>
+            </kx-alert>
+          }
+        </kx-summary-card>
         @if (store.revealedKey(); as revealed) {
           <kx-callout
             [title]="
@@ -126,6 +173,14 @@
                 }
               </ng-template>
             </kx-table>
+            @if (state.page.page > 1 || state.page.total > state.page.page_size) {
+              <kx-pagination
+                [range]="range()"
+                [hasPrevious]="state.page.page > 1"
+                [hasNext]="state.page.page * state.page.page_size < state.page.total"
+                (step)="store.step($event)"
+              />
+            }
           }
         </section>
         <section aria-labelledby="endpoints-title">
