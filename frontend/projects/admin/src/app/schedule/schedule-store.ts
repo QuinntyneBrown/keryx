@@ -43,7 +43,7 @@ export class ScheduleStore {
   readonly collecting = computed(() => this.starting() || this.active() !== null);
 
   constructor() {
-    const clock = setInterval(() => this.now.set(new Date()), CLOCK_MS);
+    const clock = setInterval(() => this.tick(), CLOCK_MS);
     const destroyRef = inject(DestroyRef);
     destroyRef.onDestroy(() => {
       clearInterval(clock);
@@ -116,6 +116,27 @@ export class ScheduleStore {
       this.starting.set(false);
     }
     if (runId) shown(runId);
+  }
+
+  /**
+   * The countdown moves on; once the next collection's time has passed, the status says whether
+   * that run is in progress, for the watcher to follow on any screen (L2-076 AC5), and the
+   * schedule is read again for the run after it. Until the schedule names a later time, this is
+   * asked again on each tick.
+   */
+  private tick(): void {
+    const now = new Date();
+    this.now.set(now);
+    const schedule = this.schedule();
+    if (!schedule || now < new Date(schedule.next_run_at)) return;
+    const signal = this.controller.signal;
+    Promise.all([this.api.status(signal), this.api.schedule(signal)])
+      .then(([status, next]) => {
+        this.watcher.track(status.current_run);
+        this.schedule.set(next);
+      })
+      // A failed check is made again on the next tick.
+      .catch(() => undefined);
   }
 
   /** Reads the schedule the first time a screen asks for it. */

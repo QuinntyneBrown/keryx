@@ -46,6 +46,8 @@ export default class AppShell {
   private readonly path = signal(this.pathOf(this.router.url));
 
   constructor() {
+    // The schedule is read on any screen, so the shell learns when a scheduled run begins.
+    inject(ScheduleStore).load();
     const navigations = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) this.path.set(this.pathOf(event.urlAfterRedirects));
     });

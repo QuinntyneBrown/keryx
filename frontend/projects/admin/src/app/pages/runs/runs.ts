@@ -275,7 +275,6 @@ export default class Runs {
   }
 
   constructor() {
-    this.schedule.load();
     const subscription = this.route.queryParamMap.subscribe((params) => {
       this.viewing.set(params.get('run'));
       this.store.request(params.get('run'), params.get('problems') === 'true');

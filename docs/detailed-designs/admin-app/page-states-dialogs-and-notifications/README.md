@@ -158,6 +158,10 @@ backend mapper; each screen and dialog design uses them.
   watcher's `onEnd`, which fires once per run because the watcher stops following a run when it
   ends, so no notified id is kept. "View run" closes any open CDK dialog (`Dialog.closeAll`)
   before navigating; "Retry now" starts a run as "Run now" does, and the watcher follows it.
+  A scheduled run is learned of on any screen: the shell reads the schedule when it starts, and
+  on each 30-second tick past `next_run_at` `ScheduleStore` reads `GET /admin/v1/overview/status`
+  (whose `current_run` the watcher follows) and the schedule again, until the schedule names a
+  later time. No endpoint changed for it.
 
 **Backend — Keryx API**
 
