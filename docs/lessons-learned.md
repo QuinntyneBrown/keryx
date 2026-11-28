@@ -564,3 +564,40 @@ bindings, and the initial total stayed at 253.71 kB through all twelve slices. "
 equals another hides which one a field reads" shaped the fixtures: the running run's sources
 checked (38) differ from its total (64) and from its added count (21).
 
+## Journey 15: Staff starts a collection now
+
+Ten slices: the start endpoint and its lease race, then "Run now" on Runs and Overview, the run
+already in progress, a failed start and double presses, "Collecting…", following a running run,
+its end, the outcome notifications and a scheduled run on any screen. What slowed it: the design
+split the poll between `RunsStore` and `CollectionWatcher` with a pause handshake, and building
+it that way polled twice at the 3-second mark; tests that proved an absence ("no further read")
+passed under mutants until each had a barrier; and fixtures that described two worlds at once (a
+list still running after its run ended, a status with no run while Runs showed one) failed for
+reasons that had nothing to do with the code.
+
+- **One poller by construction beats two that pause each other.** The watcher is the only reader
+  of the run in progress; Runs shows the reads it hands out (`onRead`). The design and its
+  sequence diagram were changed to match, in the same slice.
+- **An absence needs a barrier.** A timer's request is still in flight when `runFor` returns, so
+  "no read" passed while reads were being sent. Send a request after it (`fetch` from the page,
+  or opening another run) and count once that has answered: requests reach the routes in order.
+- **Make each fixture one consistent world.** When a run ends, the detail, the list and the
+  status all say so; a helper that serves all three from one phase variable kept the
+  follow, end, outcome and schedule specs honest.
+- **A test written for an earlier slice can encode a rule the next slice rightly changes.** The
+  "already in progress" case opened on a list that showed the run, which, once "Collecting…"
+  existed, correctly disabled the button; the case became a run that began after the read.
+- **A new test can expose an old gap.** The failed-start notice found that danger notices
+  dismissed themselves after 8 s, against L2-075 AC3; `NotifierStore` sets no timer for them now.
+- **Delete what a mutant shows is unreachable.** The once-per-run id, the same-id early return
+  and the overlap flag each survived because the structure already guaranteed what they
+  guarded; they were removed and the reason written into the design, not kept as comments.
+- **Prefer callbacks to `effect` for cross-store events.** `onEnd`/`onRead` with a `DestroyRef`
+  kept the first `effect` out of the app; the initial total held at 253.71 kB.
+
+**How earlier lessons worked.** "Run the control first" caught nothing this time but cost
+nothing. "A store that clears what a new choice replaces" predicted the bug mutant 6 of slice 7
+found: a pending timer of the previous run replacing the chosen run's detail. "Rebuild after a
+backend mutation loop" saved a false red in slice 2. "Settle each read in `finally`" carried
+over to `runNow`, whose busy state is reset in one place.
+
