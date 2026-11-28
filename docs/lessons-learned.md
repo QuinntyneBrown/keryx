@@ -601,3 +601,45 @@ found: a pending timer of the previous run replacing the chosen run's detail. "R
 backend mutation loop" saved a false red in slice 2. "Settle each read in `finally`" carried
 over to `runNow`, whose busy state is reset in one place.
 
+## Journey 16: Staff retries failed sources
+
+Four slices: the retry endpoint, the worker merging a retry into the same run, the button with its
+notices, and the summary when the retry ends. The design left five `<TO SUPPLY>`s (a refusal's
+code and copy, the titles for other counts, the all-recovered notice, the "Edit sources"
+target); each was decided in the design, and the one stand-in, "Edit source" opening Sources until
+journey 17, has ADR 0012. What slowed it: a fixture that advanced the clock six hours expired the
+staff session (401s that looked like a missing route), a partially applied edit script (one file
+written before another's anchor failed), and fixtures whose "before" numbers equalled the
+mutants' (an earlier run that added nothing, items listed errors-first).
+
+- **Work a run's retryable sources out from what is stored.** No list of source ids is kept: a
+  run's failed sources are the open or muted fetch issues that occurred in it. One query serves
+  the endpoint's count and the worker's fetch, and a source that recovered since drops out by
+  itself.
+- **Merge into the run from a baseline taken before the pipeline.** The pipeline records stages
+  as a run's own; the handler takes `RetryBaseline` first and `MergeRetry` adds the two passes,
+  so the pipeline needed no retry mode beyond which sources it reads.
+- **Say a retry's end as a retry, once.** The watcher's ordinary end would have announced
+  "Collection finished with 1 failing source" beside "1 of 2 sources recovered"; the run is marked
+  a retry on the watcher and the shell announces it one way.
+- **Don't advance a test clock past the session.** A backend fixture moved the clock six hours
+  between runs; the staff session expired and every request answered 401. Two runs at the same
+  instant order by id.
+- **Assert every file's anchors before writing any.** An edit script that wrote three files and
+  then failed on the fourth's anchor left a half change; the next script built a dict of every
+  file's text, asserted all, then wrote.
+- **Make the fixture's "before" differ from what a mutant leaves.** `Added = retry.Added`
+  survived while the earlier run added nothing, and the "only errors name a source" filter
+  survived while errors were listed first; a new item in the earlier run and a warning listed
+  first killed them.
+- **A test passes "by poll" when timers run in real time.** `setFixedTime` leaves timers
+  running, so the watcher's 3-second read showed the retried run as Running without the reload
+  the code made; `clock.install` stopped the timers and the mutant failed.
+
+**How earlier lessons worked.** "Make each fixture one consistent world" from journey 15 caught
+the first red of slice 16.3 at once: a retried run whose detail still read completed raised
+"Collection finished". "An absence needs a barrier" was not needed: every check here was a
+presence. "Delete what a mutant shows is unreachable" removed `Distinct()` and a redundant
+`track`; two survivors were kept on purpose (a persisted flag cleared, a map entry forgotten),
+and the designs say why.
+

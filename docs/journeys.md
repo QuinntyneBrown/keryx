@@ -17,7 +17,7 @@
 | 13 | Staff checks the Overview | Staff see last run, new articles, issues and next run | 4 | 100 |
 | 14 | Staff reviews run history | Staff inspect each run's stages, counts and issues | 4 | 100 |
 | 15 | Staff starts a collection now | Staff start a run on demand and follow it live | 2 | 100 |
-| 16 | Staff retries failed sources | Staff refetch only a run's failed sources | 2 | 95 |
+| 16 | Staff retries failed sources | Staff refetch only a run's failed sources | 2 | 100 |
 | 17 | Staff maintains sources | Staff see source health, edit and remove sources | 4 | 0 |
 | 18 | Staff changes settings | Staff change schedule, scoring, geography, retention and alerts | 4 | 0 |
 | 19 | Staff receives alerts | Staff e-mailed on failing sources, failed runs and daily digest | 3 | 0 |
