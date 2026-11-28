@@ -13,8 +13,9 @@ export const MAX_TOASTS = 3;
 export const TOAST_MS = 8000;
 
 /**
- * The toasts the shell shows (L2-075). Bounded to three; each leaves after eight seconds or when
- * dismissed, and every timer ends with the shell.
+ * The toasts the shell shows (L2-075). Bounded to three; info, success and warning leave after
+ * eight seconds, a danger notice only when dismissed or its action is taken (AC3), and every timer
+ * ends with the shell.
  */
 @Injectable()
 export class NotifierStore implements Notifier {
@@ -36,6 +37,7 @@ export class NotifierStore implements Notifier {
     const kept = [...this.shown(), { key, notice }];
     for (const old of kept.slice(0, Math.max(0, kept.length - MAX_TOASTS))) this.forget(old.key);
     this.shown.set(kept.slice(-MAX_TOASTS));
+    if (notice.tone === 'danger') return;
     this.timers.set(
       key,
       setTimeout(() => this.dismiss(key), TOAST_MS),

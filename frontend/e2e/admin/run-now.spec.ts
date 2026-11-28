@@ -167,4 +167,55 @@ test.describe('Run now', () => {
     await expect(overview.eyebrow).toHaveText('Current run');
     await expect(overview.toast).toHaveCount(0);
   });
+  // L2-047 AC3: a start that fails says so, offers Try again and leaves the button usable.
+  test('says the collection did not start, and starts it on Try again', async ({ page, api }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    let posts = 0;
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/runs', () => {
+      posts += 1;
+      return posts === 1
+        ? { status: 503, json: { status: 503, trace_id: 'req_7' } }
+        : { status: 202, json: RUN_STARTED };
+    });
+    const overview = new OverviewPage(page);
+    await overview.open();
+
+    await overview.runNow.click();
+
+    await expect(overview.toastTitle).toHaveText('Collection didn’t start');
+    await expect(overview.toastText).toHaveText(
+      'Keryx couldn’t reach its API just now, so no run started. Reference req_7',
+    );
+    await expect(overview.toastAction).toHaveText('Try again');
+    await expect(overview.runNow).not.toHaveAttribute('aria-busy');
+    await expect(overview.runNow).toBeEnabled();
+    // A danger notification stays until it is dismissed or its action succeeds.
+    await page.clock.fastForward(60_000);
+    await expect(overview.toastTitle).toHaveText('Collection didn’t start');
+
+    await overview.toastAction.click();
+
+    await expect(overview.toastTitle).toHaveText('Collection started');
+    expect(posts).toBe(2);
+  });
+
+  // L2-047 AC4: two quick presses send one request.
+  test('sends one request for two quick presses', async ({ page, api }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    let posts = 0;
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/runs', () => {
+      posts += 1;
+      return { status: 202, json: RUN_STARTED };
+    });
+    const overview = new OverviewPage(page);
+    await overview.open();
+
+    await overview.runNow.dblclick();
+
+    await expect(overview.toastTitle).toHaveText('Collection started');
+    await expect(overview.toast).toHaveCount(1);
+    expect(posts).toBe(1);
+  });
 });

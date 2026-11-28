@@ -89,6 +89,13 @@ hands execution to the worker.
   `btn` with the `play` icon, busy while the request is out.
   A `run_in_progress` refusal resolves with the problem's `run_id` (`ApiProblem.runId`, read
   from the body by `problemOf`), and the screen shows that run with no notification.
+  `runNow(shown)` takes what the screen does with the run (Runs opens it, Overview reads its
+  status again), so "Try again" in the failure notice starts the run for the same screen. That
+  notice reads "Collection didn’t start" and "Keryx couldn’t reach its API just now, so no run
+  started. Reference req_…" (the reference when the API gave one). A danger notice stays until
+  dismissed or its action is taken (`L2-075` AC3); `NotifierStore` sets no timer for one, which
+  it had done before this journey. A press while a start is out sends nothing, even before the
+  busy state renders.
 - **First start** — when no worker has looked at the schedule yet, the handler creates the lease
   as the worker's first look would, with the latest slot already past counted as handled, so a
   manual run never makes the schedule start a second run for that slot.

@@ -34,12 +34,15 @@ export class ScheduleStore {
   }
 
   /**
-   * Starts a collection run (L2-047 AC1): says so with how many sources it checks, and resolves
-   * with the new run's id for the screen to show it. A run already in progress is no error: it
-   * resolves with that run's id, unannounced (AC2).
+   * Starts a collection run (L2-047 AC1): says so with how many sources it checks, and hands the
+   * new run's id to `shown` for the screen to show it. A run already in progress is no error: its
+   * id is handed over, unannounced (AC2). A start that fails says so, with "Try again", which
+   * starts it again for the same screen (AC3). A press while a start is out sends nothing (AC4).
    */
-  async runNow(): Promise<string | null> {
+  async runNow(shown: (runId: string) => unknown): Promise<void> {
+    if (this.starting()) return;
     this.starting.set(true);
+    let runId: string | null;
     try {
       const started = await this.runs.start(this.controller.signal);
       this.notifier.notify({
@@ -47,15 +50,24 @@ export class ScheduleStore {
         title: 'Collection started',
         text: collectionStartedText(started.sources_total, started.estimated_duration_ms),
       });
-      return started.id;
+      runId = started.id;
     } catch (error) {
       if (error instanceof ApiProblem && error.code === 'run_in_progress') {
-        return error.runId ?? null;
+        runId = error.runId ?? null;
+      } else {
+        const reference = error instanceof ApiProblem ? error.reference : undefined;
+        this.notifier.notify({
+          tone: 'danger',
+          title: 'Collection didn’t start',
+          text: `Keryx couldn’t reach its API just now, so no run started.${reference ? ` Reference ${reference}` : ''}`,
+          action: { label: 'Try again', run: () => void this.runNow(shown) },
+        });
+        return;
       }
-      throw error;
     } finally {
       this.starting.set(false);
     }
+    if (runId) shown(runId);
   }
 
   /** Reads the schedule the first time a screen asks for it. */

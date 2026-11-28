@@ -240,11 +240,11 @@ export default class Runs {
   }
 
   /** Starts a run and shows it, first in the list and chosen (L2-047 AC1). */
-  protected async runNow(): Promise<void> {
-    const id = await this.schedule.runNow();
-    if (!id) return;
-    this.store.refresh();
-    await this.router.navigateByUrl(`/runs?run=${encodeURIComponent(id)}`);
+  protected runNow(): void {
+    void this.schedule.runNow(async (id) => {
+      this.store.refresh();
+      await this.router.navigateByUrl(`/runs?run=${encodeURIComponent(id)}`);
+    });
   }
 
   /** Opens a run; below 1024 px focus moves to the way back, the first thing in its place. */

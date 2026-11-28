@@ -219,8 +219,8 @@ export default class Overview {
   }
 
   /** Starts a run; the status, read again, shows it in progress (L2-047 AC1). */
-  protected async runNow(): Promise<void> {
-    if (await this.schedule.runNow()) await this.store.load(['status', 'chart']);
+  protected runNow(): void {
+    void this.schedule.runNow(() => this.store.load(['status', 'chart']));
   }
 
   constructor() {
