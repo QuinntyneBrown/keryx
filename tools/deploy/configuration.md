@@ -22,7 +22,12 @@ committed.
 | `Keryx__RateLimits__ClientPermitsPerMinute` | Requests a product's API client may send to `/v1` in a minute; the next is `429` with `Retry-After`. Each API instance counts on its own, so n instances allow up to n times this. Positive integer. | 600 | No | API |
 | `Keryx__RateLimits__UnauthenticatedPermitsPerMinute` | Requests with no valid API key one address may send to `/v1` in a minute. The address is the connection's: behind a proxy, configure forwarded headers for it, or every caller shares the proxy's address. Positive integer. | 60 | No | API |
 | `Keryx__Fetch__UserAgentContactUrl` | An `https` page saying what Keryx's collector is and how to reach its operator. Every request to a source names it in its `User-Agent`, as `Keryx/<version> (+<url>)`. | Required. | No | API, worker |
-| `Keryx__AdminApp__Origin` | The admin app's origin, for example `https://admin.keryx.ca`. Alert e-mails link only here. | Required once a mail service is configured. | No | Worker |
+| `Keryx__Mail__Host` | The mail service alerts and the daily digest are sent through, for example `smtp.example.com`. | Unset: no e-mail is sent, and the worker logs that once at start. | No | Worker |
+| `Keryx__Mail__Port` | Its port. Port 465 uses TLS from the first byte; any other port must offer STARTTLS. Each send gives up after 30 seconds. | 587 | No | Worker |
+| `Keryx__Mail__Username` | The user name to sign in to the mail service with. | Unset: no sign-in. | No | Worker |
+| `Keryx__Mail__Password` | Its password. Never logged or traced. | Unset. | Yes | Worker |
+| `Keryx__Mail__From` | The address alerts are sent from, for example `keryx@example.com`. | Required once `Keryx__Mail__Host` is set. | No | Worker |
+| `Keryx__AdminApp__Origin` | The admin app's origin, for example `https://admin.keryx.ca`. Alert e-mails link only here. | Required once `Keryx__Mail__Host` is set. | No | Worker |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Where traces, metrics and logs are sent: the address of an OpenTelemetry (OTLP) collector, for example `http://collector:4317`. | Unset: nothing is exported, and the process runs the same. | No | API, worker |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | How they are sent: `grpc` or `http/protobuf`. | `grpc` | No | API, worker |
 | `OTEL_SERVICE_NAME` | The service name every trace, metric and log carries. | `keryx-api` for the API, `keryx-worker` for the worker. | No | API, worker |

@@ -42,12 +42,26 @@ public static class InfrastructureServiceCollectionExtensions
 
     /// <summary>
     /// The mail service that alerts are sent through, for the worker, and the admin app's origin
-    /// their links lead to (L2-077).
+    /// their links lead to (L2-077). With no mail host none is sent, and the worker says so once;
+    /// with one, a sender address and the origin are required, and a worker without them does not
+    /// start (L2-096).
     /// </summary>
     public static IServiceCollection AddMail(this IServiceCollection services)
     {
+        // The origin is checked with the mail settings: it is required only when mail is sent.
         services.AddOptions<Keryx.Application.Alerts.AlertOptions>().BindConfiguration(Keryx.Application.Alerts.AlertOptions.Section);
-        services.AddSingleton<Keryx.Application.Alerts.IMailSender, Mail.UnconfiguredMailSender>();
+        services.AddOptions<Mail.MailOptions>().BindConfiguration(Mail.MailOptions.Section)
+            .Validate(options => !options.Configured || MimeKit.MailboxAddress.TryParse(options.From, out _), Mail.MailOptions.MissingFrom)
+            .Validate<IOptions<Keryx.Application.Alerts.AlertOptions>>(
+                (mail, alerts) => !mail.Configured
+                    || alerts.Value.Origin is { IsAbsoluteUri: true } origin && (origin.Scheme == Uri.UriSchemeHttps || origin.Scheme == Uri.UriSchemeHttp),
+                Mail.MailOptions.MissingOrigin)
+            .ValidateOnStart();
+        services.AddSingleton<Keryx.Application.Alerts.IMailSender>(provider =>
+            provider.GetRequiredService<IOptions<Mail.MailOptions>>().Value.Configured
+                ? ActivatorUtilities.CreateInstance<Mail.SmtpMailSender>(provider)
+                : new Mail.UnconfiguredMailSender());
+        services.AddHostedService<Mail.MailConfigurationNotice>();
         return services;
     }
 
