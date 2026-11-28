@@ -44,6 +44,9 @@ public sealed class Run
     /// <summary>Whether the pipeline has picked the run up; a run that has not cannot be interrupted.</summary>
     public bool ExecutionStarted { get; private set; }
 
+    /// <summary>Staff asked for the run's failed sources to be fetched again; the worker has yet to finish it (L2-008 AC3).</summary>
+    public bool RetryPending { get; private set; }
+
     public IReadOnlyCollection<StageResult> Stages => _stages;
 
     public static Run Start(RunWorker worker, RunTrigger trigger, DateTimeOffset now)
@@ -59,6 +62,19 @@ public sealed class Run
         ExecutionStarted = true;
         SourcesTotal = sourcesTotal;
         SourcesChecked = 0;
+    }
+
+    /// <summary>
+    /// Staff asked for the finished run's <paramref name="failedSources"/> failed sources to be
+    /// fetched again: until the worker merges the retry, the run is running over those sources only.
+    /// </summary>
+    public void RequestRetry(int failedSources)
+    {
+        RetryPending = true;
+        Outcome = RunOutcome.Running;
+        ExecutionStarted = false;
+        SourcesChecked = 0;
+        SourcesTotal = failedSources;
     }
 
     /// <summary>One more source finished, whatever its result (L2-019 AC2).</summary>

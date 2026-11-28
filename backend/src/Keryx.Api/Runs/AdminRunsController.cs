@@ -27,6 +27,16 @@ public sealed class AdminRunsController(ISender sender) : ControllerBase
     public async Task<IActionResult> Start(CancellationToken cancellationToken) =>
         Accepted(await sender.Send(new StartRun(), cancellationToken).ConfigureAwait(false));
 
+    /// <summary>
+    /// Fetches a finished run's failed sources again into the same run: <c>202</c> with its id (a new
+    /// run's when the original failed), <c>404</c> <c>run_not_found</c>, or <c>409</c>
+    /// <c>run_in_progress</c> with the running run's id, or <c>nothing_to_retry</c>.
+    /// </summary>
+    [HttpPost("{id}/retry")]
+    [ProducesResponseType<RetryStartedDto>(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> Retry(string id, CancellationToken cancellationToken) =>
+        Accepted(await sender.Send(new RetryFailedSources(id), cancellationToken).ConfigureAwait(false));
+
     [HttpGet("{id}")]
     public Task<RunDto> Get(string id, CancellationToken cancellationToken) => sender.Send(new GetRun(id), cancellationToken);
 }

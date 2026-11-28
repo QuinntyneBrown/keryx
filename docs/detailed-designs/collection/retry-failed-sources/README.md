@@ -61,10 +61,15 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
     [run-collection-now](../run-collection-now/README.md) does and returns its id.
   - Otherwise it claims the lease for the same run and calls `Run.RequestRetry` with the failed
     source ids, then returns the same id.
-  - A request for a run with no failed source answers with a code that is `<TO SUPPLY>`.
-- **`Run.RequestRetry`** and **`RetryRequest`** — record the pending retry. While it executes, the
-  run reads `outcome` `running`, and `sources_checked` and `sources_total` count the retried
-  sources.
+  - A request for a run with no failed source, or for a run of another worker, answers `409`
+    `nothing_to_retry` (`NothingToRetryException`).
+  - A run's failed sources are worked out from what is stored, not kept on the run: the sources
+    whose fetch issue (`source_not_found`, `source_timeout`, `source_blocked`,
+    `source_invalid`), still open or muted, occurred in that run. A source that has recovered
+    since, in a later run, is not retried; a failure first seen in a later run is not that run's.
+- **`Run.RequestRetry(failedSources)`** — records the pending retry (`RetryPending`, one
+  boolean column; no `RetryRequest` type). Until the retry is merged, the run reads `outcome`
+  `running`, and `sources_checked` and `sources_total` count the retried sources.
 - **`RunCollectionCommandHandler`** — in the worker, picks up the pending retry, builds
   `RunPlan.ForRetry` over the failed sources only, and runs the pipeline. **`Run.MergeRetry`** adds
   the new counts to the run, recomputes `sources_ok` and `sources_failed`, updates the `fetch`
@@ -73,7 +78,8 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
   `completed_with_issues` while any source still fails.
 - **Endpoint** — `POST /admin/v1/runs/{id}/retry`: `202` with `{ "id": "run_…" }` (the same
   run, or a new run when the original failed); `404` `run_not_found`; `409` `run_in_progress`
-  with `run_id`.
+  with `run_id`; `409` `nothing_to_retry`. It is an admin endpoint, outside the consumer API's
+  OpenAPI document.
 
 ## Requirements
 

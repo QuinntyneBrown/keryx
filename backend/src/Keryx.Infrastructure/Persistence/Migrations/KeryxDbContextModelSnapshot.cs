@@ -498,6 +498,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<bool>("RetryPending")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("SourcesChecked")
                         .HasColumnType("integer");
 

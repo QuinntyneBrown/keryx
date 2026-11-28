@@ -16,7 +16,8 @@ namespace Keryx.Application.Collection;
 /// </summary>
 public sealed class SourceIssueTracker(IAppDbContext db)
 {
-    private static readonly IssueKind[] FetchKinds =
+    /// <summary>The kinds of issue a source's failed fetch raises.</summary>
+    internal static readonly IssueKind[] FetchKinds =
         [IssueKind.SourceNotFound, IssueKind.SourceTimeout, IssueKind.SourceBlocked, IssueKind.SourceInvalid];
 
     /// <summary>The source's fetch failed after its final attempt.</summary>
