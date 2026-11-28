@@ -86,9 +86,11 @@ The slice runs from the routed Overview page to four admin read endpoints.
   is marked by more than colour. A bar's height is a `data-value` from 0 to 100 (rounded against
   the run that added the most), with one stylesheet rule per value: the design system's
   `--value` would need a style binding, whose first use pulls Angular's styling instructions
-  into the initial bundle. All bars fit inside the card at every viewport class. Journey 14
-  makes each bar a link that emits `openRun(runId)` and adds "All runs" (`L2-044` AC4, AC5): the
-  Runs screen they open arrives then, as ADR 0006 has each screen's links arrive with it.
+  into the initial bundle. All bars fit inside the card at every viewport class. Each bar holds
+  a link (`run-chart__link`) to `/runs?run=<id>` covering its whole column, and "All runs" sits
+  beside the caption as the small `section-head` link (`L2-044` AC4, AC5; built in journey 14).
+  At 360 px a bar's column is narrower than 44 px; "All runs" is the full-size way to the same
+  runs (ADR 0011). The loading card's caption line is as tall as that link, so nothing shifts.
 - **Not deferred.** The run chart is not in a `@defer` block although `L2-088` AC4 names it:
   measured, the first `@defer` in the app raises the initial total from 254.19 kB to 262.75 kB,
   past the 255 kB budget of AC1, to defer about 1 kB of Overview's own lazy chunk. It costs more
@@ -159,8 +161,10 @@ in the same tab; "All runs" opens `/runs`; with more than 5 open issues a link o
 `/runs?problems=true`; "View all 18,432" opens `/articles`. "Add a source" opens `/sources`,
 where the Add source dialog starts, and "Review the schedule" opens `/settings`. The bars, the
 issue cards, "All runs", the problems link and the page error's "Go to runs" open the Runs
-screen, so they arrive in journey 14, which builds it (ADR 0006); until then a card is not a
-link and the page error offers "Try again" alone.
+screen and arrived with it in journey 14 (ADR 0006). The problems link is the open count itself
+("7 open"), shown as the section head's link when more issues are open than the 5 cards show;
+with 5 or fewer it stays a note. An issue card is an `a.issue-card` to the run it last occurred
+in (`run_id`).
 
 **Run in progress** (`L2-043` AC3) — when the status serves a `current_run`, the card reads
 "Current run", "Collecting news now…" and "Started 9:46 AM · 38 of 64 sources checked", with a

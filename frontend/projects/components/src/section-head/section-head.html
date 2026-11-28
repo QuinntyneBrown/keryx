@@ -1,7 +1,14 @@
-<div class="section-head">
-  <h2 class="text-h3" [id]="headingId()">{{ heading() }}</h2>
+<div [attr.class]="caption() ? 'section-head section-head--caption' : 'section-head'">
+  @if (caption()) {
+    <p class="text-caption">{{ heading() }}</p>
+  } @else {
+    <h2 class="text-h3" [attr.id]="headingId()">{{ heading() }}</h2>
+  }
   @if (href(); as link) {
-    <a class="section-head__link" [href]="link" (click)="follow($event, link)"
+    <a
+      [attr.class]="caption() ? 'section-head__link section-head__link--sm' : 'section-head__link'"
+      [href]="link"
+      (click)="follow($event, link)"
       >{{ linkText() }}<kx-icon name="arrow-right" size="sm"
     /></a>
   } @else if (note(); as shown) {

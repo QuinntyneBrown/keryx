@@ -144,7 +144,13 @@ export default class Overview {
   protected readonly bars = computed(() => {
     const runs = ready(this.store.chart());
     const zone = ready(this.store.status())?.time_zone;
-    return runs && zone ? runBars(runs, this.store.now(), zone) : null;
+    // Each bar opens its run on Runs (L2-044 AC5).
+    return runs && zone
+      ? runBars(runs, this.store.now(), zone).map((bar) => ({
+          ...bar,
+          href: `/runs?run=${encodeURIComponent(bar.id)}`,
+        }))
+      : null;
   });
 
   /** Latest articles: "View all 18,432" and a row per article, newest first (L2-045 AC1). */
@@ -183,6 +189,8 @@ export default class Overview {
     const now = this.store.now();
     return {
       note: issues.total > 0 ? `${formatCount(issues.total)} open` : null,
+      // More open than the cards shown: the count leads to the runs with problems (L2-045 AC6).
+      more: issues.total > issues.items.length,
       cards: issues.items.map((issue) => ({
         id: issue.id,
         severity: issue.severity,
@@ -190,6 +198,8 @@ export default class Overview {
         title: issueTitle(issue.kind),
         source: issue.subject_name,
         meta: issueWhen(issue.since, issue.consecutive_runs, now, zone),
+        // The card opens the run the issue last occurred in (L2-045 AC3).
+        href: `/runs?run=${encodeURIComponent(issue.run_id)}`,
       })),
     };
   });

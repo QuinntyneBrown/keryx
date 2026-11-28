@@ -1,6 +1,7 @@
-import { booleanAttribute, Component, computed, input } from '@angular/core';
+import { booleanAttribute, Component, computed, input, output } from '@angular/core';
 import { Icon, type IconName } from '../icon/icon';
 import { Progress } from '../progress/progress';
+import { SectionHead } from '../section-head/section-head';
 import { Skeleton } from '../skeleton/skeleton';
 import { Spinner } from '../spinner/spinner';
 import { Stats, type StatItem } from '../stats/stats';
@@ -14,7 +15,7 @@ export type StatusTone = 'success' | 'warning' | 'danger' | 'info';
  */
 @Component({
   selector: 'kx-status-card',
-  imports: [Icon, Progress, Skeleton, Spinner, Stats],
+  imports: [Icon, Progress, SectionHead, Skeleton, Spinner, Stats],
   templateUrl: './status-card.html',
   styleUrl: './status-card.scss',
 })
@@ -29,6 +30,11 @@ export class StatusCard {
   readonly stats = input<readonly StatItem[]>([]);
   /** What the history below the stats plots; with none, the history is not drawn. */
   readonly historyCaption = input<string | null>(null);
+  /** The link beside the caption ("All runs") and where it leads (L2-044 AC4). */
+  readonly historyHref = input<string | null>(null);
+  readonly historyLinkText = input<string | null>(null);
+  /** A plain click on the caption's link, for the app's router. */
+  readonly navigate = output<string>();
   /** How far a run in progress has got; with it, a spinner stands in for the icon. */
   readonly progress = input<{ label: string; value: number; max: number } | null>(null);
   /** The run is still being read: skeletons in the card's shape stand in (L2-046 AC1). */

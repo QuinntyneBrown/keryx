@@ -18,6 +18,7 @@
       <kx-btn slot="actions" variant="primary" [busy]="store.retrying()" (activated)="retry()"
         >Try again</kx-btn
       >
+      <kx-btn slot="actions" href="/runs" (navigate)="navigate($event)">Go to runs</kx-btn>
     </kx-empty>
   } @else if (store.isEmpty()) {
     <kx-empty
@@ -46,7 +47,7 @@
         />
       } @else if (store.status().state === 'loading') {
         @if (store.slow()) {
-          <kx-status-card loading [stats]="loadingStats" />
+          <kx-status-card loading historyHref="/runs" [stats]="loadingStats" />
         }
       } @else if (card(); as shown) {
         <kx-status-card
@@ -58,6 +59,9 @@
           [stats]="shown.stats"
           [progress]="shown.progress"
           historyCaption="New articles per run · last 14 runs"
+          historyHref="/runs"
+          historyLinkText="All runs"
+          (navigate)="navigate($event)"
         >
           @if (store.chart().state === 'error') {
             <ng-container
@@ -69,7 +73,7 @@
               }"
             />
           } @else if (bars(); as shownBars) {
-            <kx-run-chart [bars]="shownBars" />
+            <kx-run-chart [bars]="shownBars" (navigate)="navigate($event)" />
           }
         </kx-status-card>
       }
@@ -114,7 +118,10 @@
           <kx-section-head
             heading="Needs attention"
             headingId="attention-title"
+            [href]="attention()?.more ? '/runs?problems=true' : null"
+            [linkText]="attention()?.note ?? null"
             [note]="attention()?.note ?? null"
+            (navigate)="navigate($event)"
           />
           @if (store.issues().state === 'error') {
             <ng-container
@@ -144,6 +151,8 @@
                       [title]="card.title"
                       [source]="card.source"
                       [meta]="card.meta"
+                      [href]="card.href"
+                      (navigate)="navigate($event)"
                     />
                   </li>
                 }

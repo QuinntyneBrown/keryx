@@ -47,6 +47,12 @@
   translate: 0 -50%;
 }
 
+.status-card__placeholder--linked {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-comfortable);
+}
+
 .status-card__icon {
   display: grid;
   flex: none;

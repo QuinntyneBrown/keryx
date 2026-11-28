@@ -19,7 +19,16 @@
       <kx-stats class="status-card__stats" loading [items]="stats()" />
     </div>
     <div class="status-card__history">
-      <p class="text-caption status-card__placeholder"><kx-skeleton [width]="30" />&nbsp;</p>
+      <!-- As tall as the caption row it stands for, its link's target included. -->
+      <p
+        [attr.class]="
+          historyHref()
+            ? 'text-caption status-card__placeholder status-card__placeholder--linked'
+            : 'text-caption status-card__placeholder'
+        "
+      >
+        <kx-skeleton [width]="30" />&nbsp;
+      </p>
       <kx-skeleton shape="chart" />
     </div>
   </div>
@@ -52,7 +61,13 @@
     }
     @if (historyCaption(); as caption) {
       <div class="status-card__history">
-        <p class="text-caption">{{ caption }}</p>
+        <kx-section-head
+          caption
+          [heading]="caption"
+          [href]="historyHref()"
+          [linkText]="historyLinkText()"
+          (navigate)="navigate.emit($event)"
+        />
         <ng-content />
       </div>
     }

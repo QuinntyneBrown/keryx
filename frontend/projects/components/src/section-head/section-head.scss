@@ -21,6 +21,16 @@
   text-decoration: none;
 }
 
+.section-head--caption {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.section-head__link--sm {
+  font: var(--text-overline);
+  color: var(--color-fg-default);
+}
+
 .section-head__link:hover {
   color: var(--color-fg-default);
 }

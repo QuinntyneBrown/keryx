@@ -111,7 +111,7 @@ test.describe('Overview states', () => {
       "Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx.",
     );
     await expect(overview.pageStateReference).toHaveText('Reference req_8f2c41d0');
-    await expect(overview.pageStateActions).toHaveText(['Try again']);
+    await expect(overview.pageStateActions).toHaveText(['Try again', 'Go to runs']);
     await expect(overview.statusCard).toHaveCount(0);
 
     fail = false;

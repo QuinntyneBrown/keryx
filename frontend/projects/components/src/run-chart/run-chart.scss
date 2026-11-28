@@ -16,10 +16,21 @@
 }
 
 .run-chart__bar {
+  position: relative;
   flex: 1;
   min-height: var(--space-1);
   border-radius: var(--radius-xs);
   background: var(--color-border-inverse);
+}
+
+// A bar's link covers its column: the chart's full height and half the gap on each side. Its
+// function is also reached through "All runs", which meets the 44 px target (ADR 0011).
+.run-chart__link {
+  position: absolute;
+  inset-inline: calc(var(--space-1-5) / -2);
+  bottom: 0;
+  height: var(--size-chart);
+  border-radius: var(--radius-xs);
 }
 
 // A bar's height is its `data-value`, one rule per whole percent: an attribute binding, where the

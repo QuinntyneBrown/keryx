@@ -47,6 +47,8 @@ export function runSummary(
     outcome,
     added,
     sources_failed: outcome === 'completed_with_issues' ? 2 : 0,
+    sources_checked: 64,
+    sources_total: 64,
   };
 }
 

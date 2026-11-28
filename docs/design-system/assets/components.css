@@ -184,6 +184,7 @@ img, svg { max-width: 100%; display: block; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
 .section-head__link { display: inline-flex; align-items: center; gap: var(--space-1); font: var(--text-label); color: var(--color-fg-muted); text-decoration: none; }
 .section-head__link:hover, .section-head__link[data-state="hover"] { color: var(--color-fg-default); }
+.section-head--caption { align-items: center; margin-bottom: 0; }
 .section-head__link--sm { font: var(--text-overline); color: var(--color-fg-default); }
 
 .layout-rail { display: grid; gap: var(--space-6); }
@@ -297,7 +298,8 @@ img, svg { max-width: 100%; display: block; }
 }
 
 .run-chart { display: flex; align-items: flex-end; gap: var(--space-1-5); height: var(--size-chart); margin-top: var(--space-3); }
-.run-chart__bar { flex: 1; min-height: var(--space-1); height: var(--value, 8%); border-radius: var(--radius-xs); background: var(--color-border-inverse); }
+.run-chart__bar { position: relative; flex: 1; min-height: var(--space-1); height: var(--value, 8%); border-radius: var(--radius-xs); background: var(--color-border-inverse); }
+.run-chart__link { position: absolute; inset-inline: calc(var(--space-1-5) / -2); bottom: 0; height: var(--size-chart); border-radius: var(--radius-xs); }
 .run-chart__bar[data-status="warning"] { background: var(--color-warning-solid); }
 .run-chart__bar[data-status="failed"] { background: var(--color-danger-solid); height: var(--space-1); }
 .run-chart__bar[data-status="running"] { background: var(--color-brand); animation: pulse var(--duration-deliberate) var(--ease-standard) infinite; }

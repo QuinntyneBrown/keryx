@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 /** One run's bar. */
 export interface RunChartBar {
@@ -10,6 +10,8 @@ export interface RunChartBar {
   label: string;
   /** Its tooltip: "Today 6:00 AM · 47 new". */
   title: string;
+  /** Where the bar leads: its run on the Runs screen (L2-044 AC5); none when it leads nowhere. */
+  href?: string | null;
 }
 
 /**
@@ -24,4 +26,14 @@ export interface RunChartBar {
 })
 export class RunChart {
   readonly bars = input.required<readonly RunChartBar[]>();
+  /** A plain click on a bar's link, for the app's router; other clicks are the browser's. */
+  readonly navigate = output<string>();
+
+  protected follow(event: MouseEvent, href: string): void {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    this.navigate.emit(href);
+  }
 }

@@ -6,7 +6,14 @@
       [attr.data-value]="bar.value"
       [attr.title]="bar.title"
     >
-      <span class="visually-hidden">{{ bar.label }}</span>
+      @if (bar.href; as href) {
+        <!-- The link spans the bar's whole column, so a stub is as easy to hit as a tall bar. -->
+        <a class="run-chart__link" [href]="href" (click)="follow($event, href)"
+          ><span class="visually-hidden">{{ bar.label }}</span></a
+        >
+      } @else {
+        <span class="visually-hidden">{{ bar.label }}</span>
+      }
     </li>
   }
 </ol>

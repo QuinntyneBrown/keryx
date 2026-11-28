@@ -5,16 +5,22 @@
       <kx-skeleton [width]="60" /><kx-skeleton [width]="80" /><kx-skeleton [width]="40" />
     </span>
   </div>
+} @else if (href(); as link) {
+  <a class="issue-card" [href]="link" (click)="follow($event, link)"
+    ><ng-container [ngTemplateOutlet]="content"
+  /></a>
 } @else {
-  <div class="issue-card">
-    <kx-icon class="issue-card__icon" [attr.data-severity]="severity()" [name]="icon()" />
-    <span class="issue-card__body">
-      <span class="visually-hidden">{{ severityWord() }} </span>
-      <span class="issue-card__title">{{ title() }}</span>
-      @if (source(); as shown) {
-        <span class="issue-card__source truncate">{{ shown }}</span>
-      }
-      <span class="issue-card__meta">{{ meta() }}</span>
-    </span>
-  </div>
+  <div class="issue-card"><ng-container [ngTemplateOutlet]="content" /></div>
 }
+
+<ng-template #content>
+  <kx-icon class="issue-card__icon" [attr.data-severity]="severity()" [name]="icon()" />
+  <span class="issue-card__body">
+    <span class="visually-hidden">{{ severityWord() }} </span>
+    <span class="issue-card__title">{{ title() }}</span>
+    @if (source(); as shown) {
+      <span class="issue-card__source truncate">{{ shown }}</span>
+    }
+    <span class="issue-card__meta">{{ meta() }}</span>
+  </span>
+</ng-template>

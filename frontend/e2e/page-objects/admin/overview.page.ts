@@ -46,6 +46,10 @@ export class OverviewPage {
   readonly chartError: Locator;
   readonly body: Locator;
   readonly progress: Locator;
+  /** Each bar's link to its run, "All runs" beside the chart, and the open count's link. */
+  readonly barLinks: Locator;
+  readonly allRuns: Locator;
+  readonly problemsLink: Locator;
   readonly progressBar: Locator;
   readonly spinner: Locator;
   readonly loadingStatus: Locator;
@@ -66,6 +70,11 @@ export class OverviewPage {
     this.chartCaption = this.statusCard.locator('.status-card__history .text-caption');
     this.chart = this.statusCard.locator('ol.run-chart');
     this.bars = this.chart.locator('.run-chart__bar');
+    this.barLinks = this.bars.locator('a.run-chart__link');
+    this.allRuns = this.statusCard.getByRole('link', { name: 'All runs' });
+    this.problemsLink = page.locator(
+      'main section[aria-labelledby="attention-title"] a.section-head__link',
+    );
     this.latest = page.locator('main section[aria-labelledby="latest-title"]');
     this.latestHeading = this.latest.locator('h2#latest-title');
     this.viewAll = this.latest.locator('a.section-head__link');
@@ -75,7 +84,10 @@ export class OverviewPage {
     this.latestAges = this.latestItems.locator('.list__aside > span:first-child');
     this.attention = page.locator('main section[aria-labelledby="attention-title"]');
     this.attentionHeading = this.attention.locator('h2#attention-title');
-    this.openCount = this.attention.locator('.section-head .text-muted');
+    // A note, or a link to the runs with problems when more are open than shown.
+    this.openCount = this.attention.locator(
+      '.section-head .text-muted, .section-head a.section-head__link',
+    );
     this.issueCards = this.attention.locator('.issue-card');
     this.issueTitles = this.issueCards.locator('.issue-card__title');
     this.issueSources = this.issueCards.locator('.issue-card__source');

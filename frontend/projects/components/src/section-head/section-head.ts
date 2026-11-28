@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
 import { Icon } from '../icon/icon';
 
 /**
@@ -17,7 +17,12 @@ import { Icon } from '../icon/icon';
 })
 export class SectionHead {
   readonly heading = input.required<string>();
-  readonly headingId = input.required<string>();
+  readonly headingId = input<string | null>(null);
+  /**
+   * A caption over a chart rather than a section's heading: the words are a caption and the link
+   * is the small one ("All runs").
+   */
+  readonly caption = input(false, { transform: booleanAttribute });
   readonly href = input<string | null>(null);
   readonly linkText = input<string | null>(null);
   /** A short note in place of a link ("3 open"). */
