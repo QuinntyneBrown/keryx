@@ -83,6 +83,11 @@ public sealed class Settings
         return settings;
     }
 
+    /// <summary>The values as staff last saved them.</summary>
+    public SettingsValues Values() => new(
+        IntervalHours, TimeoutSeconds, PublishThreshold, [.. Topics], [.. Exclusions], [.. FocusAreas], IncludeOntarioWide,
+        IncludeNational, MergeDuplicates, RetentionMonths, AlertEmail, AlertFailureStreak, AlertOnRunFailure, DailyDigest);
+
     /// <summary>Takes staff's values and raises the version.</summary>
     public void Update(SettingsValues values)
     {

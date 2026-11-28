@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Runs;
 using Keryx.Api.Tests.Session;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Keryx.Api.Tests.Audit;
 
 // Acceptance Test
-// Traces to: L2-085 AC1, AC2; L2-064; L2-065; L2-068; L2-069; L2-006; L2-008; L2-020
+// Traces to: L2-085 AC1, AC2; L2-064; L2-065; L2-068; L2-069; L2-006; L2-008; L2-020; L2-070
 // Description: Each state-changing staff action that succeeds stores one audit entry: the staff
 // member's subject id, the action, the target's public id and the time, and nothing else. A
 // request that fails, or that changes nothing, stores none. The trail has no endpoint: the test
@@ -177,6 +178,38 @@ public sealed class AuditTests
         Assert.Equal(
             [(Subject, AuditAction.RunRetried, failed.PublicId, now), (Subject, AuditAction.RunStarted, started, now)],
             await EntriesAsync(factory));
+    }
+
+    [Fact]
+    public async Task Given_staff_change_the_alert_address_and_streak_When_they_save_Then_the_entry_names_those_fields_and_holds_no_address()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        using var staff = await StaffClient.OpenAsync(factory, Subject);
+        var ct = TestContext.Current.CancellationToken;
+        var settings = new Uri("/admin/v1/settings", UriKind.Relative);
+        var loaded = JsonNode.Parse((await staff.GetFromJsonAsync<JsonElement>(settings, ct)).GetRawText())!.AsObject();
+        var stale = loaded.DeepClone();
+        loaded["alert_email"] = "ops@keryx.example";
+        loaded["alert_failure_streak"] = 5;
+
+        using (var saved = await staff.PutAsJsonAsync(settings, loaded, ct))
+        {
+            Assert.Equal(HttpStatusCode.OK, saved.StatusCode);
+        }
+
+        using (var refused = await staff.PutAsJsonAsync(settings, stale, ct))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        }
+
+        await using var store = TestStore.Open(factory.Store);
+        var entry = Assert.Single(await store.AuditEntries.ToListAsync(ct));
+        Assert.Equal(
+            (Subject, AuditAction.SettingsSaved, "settings", factory.Time.GetUtcNow()),
+            (entry.SubjectId, entry.Action, entry.TargetId, entry.OccurredAt));
+        Assert.Equal(["alert_email", "alert_failure_streak"], entry.ChangedFields);
+        Assert.DoesNotContain("ops@keryx.example", string.Join(' ', [entry.SubjectId, entry.TargetId, .. entry.ChangedFields]), StringComparison.Ordinal);
     }
 
     private static async Task<string> HeldArticleAsync(ApiFactory factory)

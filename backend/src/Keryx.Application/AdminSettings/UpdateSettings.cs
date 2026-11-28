@@ -2,8 +2,10 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Errors;
 using Keryx.Domain;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Reference;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -77,7 +79,7 @@ internal sealed partial class UpdateSettingsValidator : AbstractValidator<Update
 /// that is not yet a region becomes one in Toronto's zone, after the places already in focus
 /// (L2-018). The schedule reads the new interval at its next decision (L2-005 AC3).
 /// </summary>
-internal sealed class UpdateSettingsHandler(IAppDbContext db) : IRequestHandler<UpdateSettings, SettingsDto>
+internal sealed class UpdateSettingsHandler(IAppDbContext db, IAuditTrail audit) : IRequestHandler<UpdateSettings, SettingsDto>
 {
     // Regions ranked below this are the places in focus; the wider areas come after.
     private const int WiderAreas = 1000;
@@ -91,7 +93,7 @@ internal sealed class UpdateSettingsHandler(IAppDbContext db) : IRequestHandler<
         }
 
         var focusAreas = Trimmed(request.FocusAreas!);
-        settings.Update(new SettingsValues(
+        var submitted = new SettingsValues(
             request.IntervalHours,
             request.TimeoutSeconds,
             request.PublishThreshold,
@@ -105,7 +107,11 @@ internal sealed class UpdateSettingsHandler(IAppDbContext db) : IRequestHandler<
             request.AlertEmail,
             request.AlertFailureStreak,
             request.AlertOnRunFailure,
-            request.DailyDigest));
+            request.DailyDigest);
+
+        // The names of what changed, never the values: the alert address stays out (L2-085 AC2).
+        audit.Record(AuditAction.SettingsSaved, "settings", SettingsDiff.ChangedFields(settings.Values(), submitted));
+        settings.Update(submitted);
         await AddRegionsAsync(focusAreas, cancellationToken).ConfigureAwait(false);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return SettingsDto.From(settings);
