@@ -35,6 +35,8 @@ export class Btn {
   readonly busy = input(false, { transform: booleanAttribute });
   /** Submits the form it is in: Enter in a field presses it too. */
   readonly submit = input(false, { transform: booleanAttribute });
+  /** The id of the form it submits when it sits outside it, as a save bar's button does. */
+  readonly form = input<string>();
   readonly activated = output<void>();
   /** A plain click on the link: the `href` to follow without loading the document again. */
   readonly navigate = output<string>();

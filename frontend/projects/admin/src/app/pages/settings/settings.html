@@ -28,7 +28,18 @@
   }
   @case ('ready') {
     @if (store.draft(); as draft) {
-      <kx-page-body form>
+      <kx-page-body form formId="settings-form" (submitted)="save()">
+        @if (store.errors().length) {
+          <kx-alert
+            class="settings__summary"
+            tone="danger"
+            announcement="alert"
+            focusable
+            [title]="fixTitle()"
+            [items]="summary()"
+            (follow)="focusField($event)"
+          />
+        }
         <kx-settings-section
           title="Schedule"
           hint="When the collector runs. Times are Toronto time."
@@ -42,10 +53,17 @@
             />
             <p class="mono text-subtle settings__schedule">{{ schedule() }}</p>
           </fieldset>
-          <kx-field label="Timeout per source" for="timeout">
+          <kx-field
+            label="Timeout per source"
+            for="timeout"
+            errorId="timeout-error"
+            [error]="errorOf('timeout')"
+          >
             <kx-input-affix suffix="seconds">
               <kx-input
                 controlId="timeout"
+                [invalid]="!!errorOf('timeout')"
+                [describedBy]="errorOf('timeout') ? 'timeout-error' : undefined"
                 inputmode="numeric"
                 width="short"
                 [value]="draft.timeout_seconds"
@@ -116,10 +134,17 @@
               (checkedChange)="store.set('merge_duplicates', $event)"
             />
           </fieldset>
-          <kx-field label="Keep articles for" for="retention">
+          <kx-field
+            label="Keep articles for"
+            for="retention"
+            errorId="retention-error"
+            [error]="errorOf('retention')"
+          >
             <kx-input-affix suffix="months">
               <kx-input
                 controlId="retention"
+                [invalid]="!!errorOf('retention')"
+                [describedBy]="errorOf('retention') ? 'retention-error' : undefined"
                 inputmode="numeric"
                 width="short"
                 [value]="draft.retention_months"
@@ -129,9 +154,16 @@
           </kx-field>
         </kx-settings-section>
         <kx-settings-section title="Alerts" hint="Who hears about problems.">
-          <kx-field label="E-mail" for="alert-email">
+          <kx-field
+            label="E-mail"
+            for="alert-email"
+            errorId="email-error"
+            [error]="errorOf('alert-email')"
+          >
             <kx-input
               controlId="alert-email"
+              [invalid]="!!errorOf('alert-email')"
+              [describedBy]="errorOf('alert-email') ? 'email-error' : undefined"
               type="email"
               autocomplete="email"
               width="medium"
@@ -139,10 +171,17 @@
               (valueChange)="store.set('alert_email', $event)"
             />
           </kx-field>
-          <kx-field label="Alert when a source fails" for="alert-after">
+          <kx-field
+            label="Alert when a source fails"
+            for="alert-after"
+            errorId="alert-after-error"
+            [error]="errorOf('alert-after')"
+          >
             <kx-input-affix suffix="runs in a row">
               <kx-input
                 controlId="alert-after"
+                [invalid]="!!errorOf('alert-after')"
+                [describedBy]="errorOf('alert-after') ? 'alert-after-error' : undefined"
                 inputmode="numeric"
                 width="short"
                 [value]="draft.alert_failure_streak"
@@ -181,9 +220,13 @@
         </kx-settings-section>
       </kx-page-body>
       @if (store.dirty()) {
-        <kx-save-bar label="Unsaved changes" text="You have unsaved changes.">
+        <kx-save-bar
+          label="Unsaved changes"
+          [text]="store.errors().length ? fixBar() : 'You have unsaved changes.'"
+          [tone]="store.errors().length ? 'danger' : 'neutral'"
+        >
           <kx-btn slot="actions" variant="ghost" (activated)="store.discard()">Discard</kx-btn>
-          <kx-btn slot="actions" variant="primary">Save changes</kx-btn>
+          <kx-btn slot="actions" variant="primary" submit form="settings-form">Save changes</kx-btn>
         </kx-save-bar>
       }
     }

@@ -21,6 +21,8 @@ export class PageBody {
   readonly centered = input(false, { transform: booleanAttribute });
   /** Its content is loading: assistive technology waits for it (`aria-busy`). */
   readonly busy = input(false, { transform: booleanAttribute });
+  /** The form's id, which a submit button outside it names. */
+  readonly formId = input<string>();
   readonly submitted = output<void>();
 
   protected readonly classes = computed(() =>

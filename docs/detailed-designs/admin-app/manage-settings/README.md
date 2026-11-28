@@ -161,6 +161,12 @@ this design's; the ranges are those of `L2-070`.
 - At or below the review floor (0.45) nothing waits for review, so the threshold help reads
   "None wait in Needs review. Below 0.40 are hidden." instead of a range that would run
   backwards.
+- The mocks word the timeout and e-mail errors only. "Keep articles for" and "Alert when a
+  source fails" follow their pattern: "Enter a period between 1 and 120 months." and "Enter a
+  number of runs between 1 and 20.", with the summary line naming the field first.
+- "Save changes" is the form's submit button, outside it in the save bar and tied to it by
+  `form="settings-form"`, so Enter in a field saves as the button does. The errors stay until the
+  next save or Discard.
 - `page-body` is the `form` element itself in its `form` variant, as the mock has it
   (`form.page-body--form` with `novalidate`); the button variant of `segmented` names no group
   of its own inside the "Run every" fieldset, whose legend names it.

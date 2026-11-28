@@ -42,6 +42,9 @@ export class SettingsPage {
   readonly saveBarText: Locator;
   readonly discard: Locator;
   readonly save: Locator;
+  readonly summary: Locator;
+  readonly summaryTitle: Locator;
+  readonly summaryLinks: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -82,6 +85,9 @@ export class SettingsPage {
     this.saveBarText = this.saveBar.locator('.save-bar__text');
     this.discard = this.saveBar.getByRole('button', { name: 'Discard' });
     this.save = this.saveBar.getByRole('button', { name: 'Save changes' });
+    this.summary = page.locator('main .alert--danger');
+    this.summaryTitle = this.summary.locator('.alert__title');
+    this.summaryLinks = this.summary.locator('.alert__list a');
   }
 
   async open(path = '/settings'): Promise<void> {
@@ -92,6 +98,13 @@ export class SettingsPage {
   /** The values of the chip list named `name` ("Topics", "Excluded terms", "Focus areas"). */
   chips(name: string): Locator {
     return this.page.getByRole('list', { name }).locator('.chip:not(.chip--add)');
+  }
+
+  /** The error a field shows under its control, which the control names as its description. */
+  fieldError(control: Locator): Locator {
+    return control
+      .locator('xpath=ancestor::*[contains(@class, "field")][1]')
+      .locator('.field__error');
   }
 
   /** A switch by its label. */

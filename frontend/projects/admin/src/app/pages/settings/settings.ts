@@ -1,4 +1,13 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CURRENT_STAFF, SESSION_API, SETTINGS_API, type IntervalHours } from '@kx/api';
 import {
@@ -16,9 +25,16 @@ import {
   Segmented,
   SettingsSection,
   Switch,
+  type AlertItem,
   type SegmentedChoice,
 } from '@kx/components';
-import { cronLine, thresholdHelp } from '@kx/domain';
+import {
+  cronLine,
+  fixFieldsBar,
+  fixFieldsTitle,
+  thresholdHelp,
+  type SettingsField,
+} from '@kx/domain';
 import { HttpSettingsApi } from '../../settings/http-settings-api';
 import { SettingsStore } from '../../settings/settings-store';
 
@@ -69,6 +85,13 @@ export default class Settings {
     const draft = this.store.draft();
     return draft ? cronLine(draft.interval_hours, new Date(), 'America/Toronto') : '';
   });
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+  protected readonly summary = computed<AlertItem[]>(() =>
+    this.store.errors().map((error) => ({ id: error.field, text: error.summary })),
+  );
+  protected readonly fixTitle = computed(() => fixFieldsTitle(this.store.errors().length));
+  protected readonly fixBar = computed(() => fixFieldsBar(this.store.errors().length));
   protected readonly thresholdHelp = computed(() =>
     thresholdHelp(this.store.draft()?.publish_threshold ?? 0),
   );
@@ -80,6 +103,26 @@ export default class Settings {
   constructor() {
     inject(DestroyRef).onDestroy(() => this.abort.abort());
     void this.store.load();
+  }
+
+  /** A field's message, when the last save found it out of range. */
+  protected errorOf(field: SettingsField): string | null {
+    return this.store.errors().find((error) => error.field === field)?.message ?? null;
+  }
+
+  /** "Save changes", or Enter in a field: a refused save moves focus to the summary. */
+  protected save(): void {
+    if (this.store.save()) return;
+    afterNextRender(() => this.focus('.alert--danger'), { injector: this.injector });
+  }
+
+  /** Follows a summary line to its field. */
+  protected focusField(id: string): void {
+    this.focus(`#${id}`);
+  }
+
+  private focus(selector: string): void {
+    this.host.nativeElement.parentElement?.querySelector<HTMLElement>(selector)?.focus();
   }
 
   protected chooseInterval(value: string): void {

@@ -9,7 +9,7 @@ export { Sidebar } from './sidebar/sidebar';
 export { SkipLink } from './skip-link/skip-link';
 export { Btn } from './btn/btn';
 export { Icon, type IconName } from './icon/icon';
-export { Alert } from './alert/alert';
+export { Alert, type AlertItem } from './alert/alert';
 export { Avatar } from './avatar/avatar';
 export { NavLink } from './nav-link/nav-link';
 export { PageHeader } from './page-header/page-header';

@@ -1,6 +1,13 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, SETTINGS_API, type SettingsDto } from '@kx/api';
-import { draftOf, settingsEqual, skeletonDelay, type SettingsDraft } from '@kx/domain';
+import {
+  draftOf,
+  settingsEqual,
+  settingsValidation,
+  skeletonDelay,
+  type SettingsDraft,
+  type SettingsError,
+} from '@kx/domain';
 
 export type SettingsState =
   | { status: 'loading' }
@@ -25,6 +32,8 @@ export class SettingsStore {
   /** A load has had no answer for 300 ms: skeleton sections stand in (L2-071 AC8). */
   readonly slow = signal(false);
   /** An entry differs from its saved value (L2-071 AC1). */
+  /** The fields the last save found out of range, in the order of the form (L2-071 AC3). */
+  readonly errors = signal<SettingsError[]>([]);
   readonly dirty = computed(() => {
     const state = this.current();
     const draft = this.entries();
@@ -63,6 +72,19 @@ export class SettingsStore {
   discard(): void {
     const state = this.current();
     if (state.status === 'ready') this.entries.set(draftOf(state.saved));
+    this.errors.set([]);
+  }
+
+  /**
+   * Saves the entries, unless one is out of range: then nothing is sent and the errors say which
+   * (L2-071 AC3). Resolves whether the entries were valid.
+   */
+  save(): boolean {
+    const draft = this.entries();
+    if (!draft) return false;
+    const errors = settingsValidation(draft);
+    this.errors.set(errors);
+    return errors.length === 0;
   }
 
   /** Changes one entry of the draft. */

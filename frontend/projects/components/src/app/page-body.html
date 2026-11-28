@@ -2,6 +2,7 @@
   <form
     [attr.class]="classes()"
     [attr.aria-busy]="busy() || null"
+    [attr.id]="formId() ?? null"
     novalidate
     (submit)="$event.preventDefault(); submitted.emit()"
   >

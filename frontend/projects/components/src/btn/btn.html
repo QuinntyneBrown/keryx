@@ -5,6 +5,7 @@
 } @else {
   <button
     [type]="submit() ? 'submit' : 'button'"
+    [attr.form]="form() ?? null"
     [attr.class]="classes()"
     [disabled]="disabled() || busy()"
     [attr.aria-busy]="busy() || null"

@@ -1,8 +1,13 @@
-// The page composes library components; its one rule spaces the schedule line under its choice.
+// The page composes library components; its rules space the schedule line and the summary.
 :host {
   display: contents;
 }
 
 .settings__schedule {
   margin-top: var(--space-2);
+}
+
+.settings__summary {
+  display: block;
+  margin-bottom: var(--space-4);
 }

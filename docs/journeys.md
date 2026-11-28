@@ -21,7 +21,7 @@ The Settings percentage includes completed slices on `journey/18-change-settings
 | 15 | Staff starts a collection now | Staff start a run on demand and follow it live | 2 | 100 |
 | 16 | Staff retries failed sources | Staff refetch only a run's failed sources | 2 | 100 |
 | 17 | Staff maintains sources | Staff see source health, edit and remove sources | 4 | 100 |
-| 18 | Staff changes settings | Staff change schedule, scoring, geography, retention and alerts | 4 | 45 |
+| 18 | Staff changes settings | Staff change schedule, scoring, geography, retention and alerts | 4 | 55 |
 | 19 | Staff receives alerts | Staff e-mailed on failing sources, failed runs and daily digest | 3 | 0 |
 | 20 | Staff mutes an issue | Staff silence a known issue, with Undo | 1 | 0 |
 | 21 | Staff monitors API usage | Staff see traffic, latency, errors and per-product usage | 3 | 0 |

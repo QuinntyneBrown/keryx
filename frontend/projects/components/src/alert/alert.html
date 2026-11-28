@@ -1,4 +1,8 @@
-<div [attr.class]="'alert alert--' + tone()" [attr.role]="announcement() ?? null">
+<div
+  [attr.class]="'alert alert--' + tone()"
+  [attr.role]="announcement() ?? null"
+  [attr.tabindex]="focusable() ? -1 : null"
+>
   <kx-icon
     class="alert__icon"
     [name]="
@@ -12,6 +16,15 @@
   <div class="alert__body">
     @if (title(); as title) {
       <p class="alert__title">{{ title }}</p>
+    }
+    @if (items().length) {
+      <ul class="alert__list">
+        @for (item of items(); track item.id) {
+          <li>
+            <a [href]="'#' + item.id" (click)="go($event, item.id)">{{ item.text }}</a>
+          </li>
+        }
+      </ul>
     }
     <ng-content />
     <div class="alert__actions"><ng-content select="[slot=actions]" /></div>
