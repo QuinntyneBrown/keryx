@@ -1072,3 +1072,64 @@ Lessons:
   or prefix can hide in one.
 - "A redundant flush is code no test can see": the always-record mutant was equivalent, because
   an unsaved entry is thrown away, so nothing was removed for it.
+
+Addendum: the push failed CI's format check on an import out of order in `StartRun.cs`. The
+analysers pass on a misordered `using`, and only `dotnet format --verify-no-changes` catches
+it. The fix was a one-line commit. Lesson: **run `dotnet format --verify-no-changes` with the
+Release build before every push.** Journey 25 ran it before each commit.
+
+## Journey 25: Operator observes the system
+
+Four slices, backend only. Journey 1 had already built the shared wiring, the request spans,
+`trace_id` and the admin app's "Reference":
+- each worker run is one trace, with a span per stage and per source fetch;
+- collection runs measure their duration, items, failed sources and fetch latency;
+- consumer requests are measured and traced by route template and client;
+- an unhandled exception is logged by its type and trace, never its message.
+
+The design's open points were settled before any code. Three changed, and the design says why:
+- **The root span starts in `RunRecordingBehavior`, not the pipeline.** A failed run's
+  correlation id is then its trace's id. A pickup with nothing to run clears the span's
+  recorded flag, so the pickup every 10 seconds exports nothing.
+- **There is no `ApiMetrics` meter.** ASP.NET Core's `http.server.request.duration`, with
+  `keryx.client.id` added through `IHttpMetricsTagsFeature`, gives the count, the latency and
+  the errors by route and client without a second set of instruments.
+- **There is no `HttpClient` instrumentation.** The fetcher drives its own sockets, and the
+  `source.fetch` span, named by the source's id, is the fetch's span.
+
+Durations are in seconds, as the OpenTelemetry conventions measure them.
+
+What slowed it:
+- Every telemetry test first passed alone and failed in the full suite. An `ActivitySource`, a
+  meter that OpenTelemetry subscribes to by name, and ASP.NET Core's server spans are all heard
+  by every host in the process. Each test now tells its own data apart:
+  - metrics through a `MeterListener` filtered on its host's `IMeterFactory`
+    (`HostMeasurements`);
+  - spans by the run's or client's id.
+- An "absence" check (no root span without a run id) would have caught other tests' failed
+  pickups. It now excludes error spans, which are not what it proves.
+- `SignallingTimeProvider.TimerAsync` waits for a timer but does not advance the clock. A
+  second pickup needs `Advance` first.
+- Fetches run eight at once, so a fake that advances the clock for one source can stretch
+  another source's measured latency. Only the fed source's latency is asserted exactly; the
+  other's is given a range.
+- The log test's first matcher looked for the trace id in the body, while it sits in the
+  attributes. Both mutants "died" only because the test could never pass, so they were run
+  again after the fix.
+
+Lessons:
+- **In a process that runs several hosts, tell telemetry apart by what this test created.**
+  Filter meters by factory scope, and spans by the ids the test seeded. Exporters are shared
+  by name.
+- **Prefer enriching the framework's instrument to adding a parallel one.**
+  `IHttpMetricsTagsFeature` adds a tag to `http.server.request.duration` at no cost.
+- **Never hand an exception to a logger whose lines are exported.** Log its type and a
+  correlation id; the exporter would send its message and stack.
+- **A mutant killed by a test that cannot pass proves nothing.** Rerun the mutants after the
+  test goes green.
+
+**How earlier lessons worked.**
+- "Count a metric per host by the meter factory's scope" (journey 24) became the shared
+  `HostMeasurements` helper. It was needed again the same day.
+- "A presence check proves the exporter is wired": each meter's `AddMeter` has a mutant that a
+  by-name export check kills.
