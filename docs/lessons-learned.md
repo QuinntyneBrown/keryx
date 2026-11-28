@@ -882,8 +882,8 @@ Lessons:
   under 0.1 kB, diff the stats inputs of `main` (`dist/admin/browser-stats.json`, paths cut at
   `node_modules/`). If no input was added and only existing ones changed by a few bytes, the
   minifier renamed things; record it and move on.
-- **List paths in a zsh loop literally, or use an array.** `for f in $FILES` does not split. Use
-  `files=(a b c); for f in $files`.
+- The zsh loop that copied nothing repeats journey 17's lesson, "Use an array for a list of paths
+  in a zsh loop". The lesson was known and not applied, so it is not a new one.
 - **A new field on a DTO means grepping every fixture that builds it.** Search the specs for
   another field of the DTO (`revoked_at:`), not only the shared fixture.
 - **Wait for the screen or dialog before acting away from it.** After a click that loads a lazy
@@ -902,3 +902,53 @@ Lessons:
   is `browser-stats.json`, not `stats.json`.
 - "Watch the API keys spec before calling it flaky": watching it led to the real cause, and it
   was fixed rather than retried.
+
+## Journey 22: Staff exports articles
+
+Four slices:
+- `GET /admin/v1/articles/export`, streaming the rows the list would show for the same filters,
+  every value quoted and guarded against formulas;
+- the refusal above 50,000 rows, `400 export_too_large`;
+- "Export CSV" on the Articles screen, with "Export started", the saved file and the revoked
+  object URL, and the states that disable it;
+- the warning for too many rows, the failure with "Try again", and the export cancelled on
+  leaving.
+
+The design's six open points were settled first, mostly from the mocks: the button is disabled
+while loading and in the error and empty states and enabled on no results; the path; empty cells
+for missing values; no audit; and the two notifications, whose mocks (`article-toast/warning`,
+`export-failed`) were added before any code.
+
+What slowed it:
+- The mock checker wants a state named for each tone. The too-large toast became `warning`, not
+  `export-too-large`.
+- An edit script failed its first assertion because Prettier had put an export list on one line.
+  The script wrote nothing else, as it should, but the shell carried on and ran the specs against
+  the half-made change.
+- The outcome toast stacked under "Export started", and the page object's `toast` matched both.
+  Pointing it at the newest made three older `toHaveCount(1)` checks pass however many toasts
+  there were. They now count `toasts`.
+- A mutant that leaves `file` possibly null did not compile. Writing it with a cast made it run,
+  and it was caught.
+
+Lessons:
+- **Share a list's filter with its export through one interface.** `IAdminArticleFilter` lets the
+  list and the export use one `Apply` and one validator, and the export's theory reuses the list
+  tests' case table, so the two cannot drift.
+- **Prove a bound on a stored store, not through collection.** Adding 50,001 articles straight to
+  the InMemory store in a class fixture took under 4 s. Collecting them would have taken minutes.
+- **When a locator narrows to one element, check what counted it.** `.last()` and `.first()` turn
+  `toHaveCount(n)` into "at most one". Give counts their own locator.
+- **Stop the shell when an edit script fails.** End the script's command with `|| exit` before
+  anything that runs tests, or run the tests in their own call.
+- **A redundant flush is code no test can see.** `StreamWriter` hands each full buffer on, so a
+  flush every 500 rows added nothing. It was removed.
+
+**How earlier lessons worked.**
+- "Add a missing mock state, or record a stand-in, rather than invent": both export notifications
+  had mocks before the code, and their copy was not argued over again.
+- "An absence needs a barrier": the cancelled export's test checks after the Overview heading has
+  shown, and the fixture's page-error check proves nothing was thrown.
+- "Have the mutation loop say when a mutant did not apply" flagged two mutants: one run exited 1
+  with no failed count (a compile error) and one reported `NO-CHANGE`.
+
