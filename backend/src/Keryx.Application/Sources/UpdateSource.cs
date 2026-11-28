@@ -1,5 +1,7 @@
 using FluentValidation;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Sources;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +41,7 @@ internal sealed class UpdateSourceValidator : AbstractValidator<UpdateSource>
 /// Saves the change unless it would equal another source of the kind (L2-003 AC2), then tests the
 /// saved address once. The test leaves the stored health as it is, as a test fetch does (L2-002).
 /// </summary>
-internal sealed class UpdateSourceHandler(IAppDbContext db, SourceTester tester) : IRequestHandler<UpdateSource, SourceSaved>
+internal sealed class UpdateSourceHandler(IAppDbContext db, IAuditTrail audit, SourceTester tester) : IRequestHandler<UpdateSource, SourceSaved>
 {
     public async Task<SourceSaved> Handle(UpdateSource request, CancellationToken cancellationToken)
     {
@@ -55,6 +57,7 @@ internal sealed class UpdateSourceHandler(IAppDbContext db, SourceTester tester)
         }
 
         source.Update(request.Address!, request.OrganizationName!, request.Region!);
+        audit.Record(AuditAction.SourceEdited, source.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

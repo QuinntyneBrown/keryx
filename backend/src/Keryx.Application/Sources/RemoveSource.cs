@@ -1,4 +1,6 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
+using Keryx.Domain.Audit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +13,7 @@ public sealed record RemoveSource(string Id) : IRequest;
 /// Marks the source removed, so nothing fetches, lists or matches it, and closes its open and
 /// muted issues: no run will raise or clear them again, so they would count forever.
 /// </summary>
-internal sealed class RemoveSourceHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<RemoveSource>
+internal sealed class RemoveSourceHandler(IAppDbContext db, IAuditTrail audit, TimeProvider time) : IRequestHandler<RemoveSource>
 {
     public async Task Handle(RemoveSource request, CancellationToken cancellationToken)
     {
@@ -19,6 +21,7 @@ internal sealed class RemoveSourceHandler(IAppDbContext db, TimeProvider time) :
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new SourceNotFoundException();
         source.Remove(time.GetUtcNow());
+        audit.Record(AuditAction.SourceRemoved, source.PublicId);
         var issues = await db.RunIssues.Where(issue => issue.SourceId == source.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var issue in issues)
         {
@@ -37,7 +40,7 @@ public sealed record RestoreSource(string Id) : IRequest<SourceDto>;
 /// is refused with <c>source_exists</c> (L2-001 AC3). Its closed issues stay closed; the next run
 /// raises any that still apply.
 /// </summary>
-internal sealed class RestoreSourceHandler(IAppDbContext db) : IRequestHandler<RestoreSource, SourceDto>
+internal sealed class RestoreSourceHandler(IAppDbContext db, IAuditTrail audit) : IRequestHandler<RestoreSource, SourceDto>
 {
     public async Task<SourceDto> Handle(RestoreSource request, CancellationToken cancellationToken)
     {
@@ -52,6 +55,7 @@ internal sealed class RestoreSourceHandler(IAppDbContext db) : IRequestHandler<R
         }
 
         source.Restore();
+        audit.Record(AuditAction.SourceRestored, source.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

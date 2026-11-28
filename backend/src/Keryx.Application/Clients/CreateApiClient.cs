@@ -1,6 +1,8 @@
 using FluentValidation;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Errors;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Clients;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,7 @@ internal sealed class CreateApiClientValidator : AbstractValidator<CreateApiClie
     }
 }
 
-internal sealed class CreateApiClientHandler(IAppDbContext db, IApiKeyGenerator keys, TimeProvider time) : IRequestHandler<CreateApiClient, CreatedApiClientDto>
+internal sealed class CreateApiClientHandler(IAppDbContext db, IAuditTrail audit, IApiKeyGenerator keys, TimeProvider time) : IRequestHandler<CreateApiClient, CreatedApiClientDto>
 {
     public async Task<CreatedApiClientDto> Handle(CreateApiClient request, CancellationToken cancellationToken)
     {
@@ -40,6 +42,7 @@ internal sealed class CreateApiClientHandler(IAppDbContext db, IApiKeyGenerator 
         var key = keys.NewKey();
         var created = ApiClient.Create(request.ProductName!, request.Scopes!, key, ApiKeyHash.Of(key), time.GetUtcNow());
         db.ApiClients.Add(created);
+        audit.Record(AuditAction.ApiKeyCreated, created.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

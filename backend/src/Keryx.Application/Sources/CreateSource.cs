@@ -1,5 +1,7 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Errors;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Sources;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +11,7 @@ namespace Keryx.Application.Sources;
 /// <summary>Adds a source to the catalogue (L2-001); the next collection run fetches it.</summary>
 public sealed record CreateSource(string? Kind, string? Address, string? OrganizationName, string? Region) : IRequest<SourceDto>;
 
-internal sealed class CreateSourceHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<CreateSource, SourceDto>
+internal sealed class CreateSourceHandler(IAppDbContext db, IAuditTrail audit, TimeProvider time) : IRequestHandler<CreateSource, SourceDto>
 {
     public async Task<SourceDto> Handle(CreateSource request, CancellationToken cancellationToken)
     {
@@ -33,6 +35,7 @@ internal sealed class CreateSourceHandler(IAppDbContext db, TimeProvider time) :
         }
 
         db.Sources.Add(source);
+        audit.Record(AuditAction.SourceAdded, source.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
