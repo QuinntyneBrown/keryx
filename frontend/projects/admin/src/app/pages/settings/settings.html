@@ -180,6 +180,12 @@
           </div>
         </kx-settings-section>
       </kx-page-body>
+      @if (store.dirty()) {
+        <kx-save-bar label="Unsaved changes" text="You have unsaved changes.">
+          <kx-btn slot="actions" variant="ghost" (activated)="store.discard()">Discard</kx-btn>
+          <kx-btn slot="actions" variant="primary">Save changes</kx-btn>
+        </kx-save-bar>
+      }
     }
   }
 }

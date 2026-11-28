@@ -60,3 +60,4 @@ export { Switch } from './switch/switch';
 export { Range } from './range/range';
 export { InputAffix } from './input-affix/input-affix';
 export { Chip } from './chip/chip';
+export { SaveBar } from './save-bar/save-bar';

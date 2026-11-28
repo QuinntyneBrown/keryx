@@ -40,3 +40,14 @@ export function draftOf(saved: SettingsDto): SettingsDraft {
     daily_digest: saved.daily_digest,
   };
 }
+
+/** Whether two sets of entries are the same, list order included: the form is dirty when not. */
+export function settingsEqual(a: SettingsDraft, b: SettingsDraft): boolean {
+  return (Object.keys(a) as (keyof SettingsDraft)[]).every((field) => {
+    const x = a[field];
+    const y = b[field];
+    return Array.isArray(x) && Array.isArray(y)
+      ? x.length === y.length && x.every((value, i) => value === y[i])
+      : x === y;
+  });
+}

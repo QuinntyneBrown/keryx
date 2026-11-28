@@ -1,6 +1,6 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, SETTINGS_API, type SettingsDto } from '@kx/api';
-import { draftOf, skeletonDelay, type SettingsDraft } from '@kx/domain';
+import { draftOf, settingsEqual, skeletonDelay, type SettingsDraft } from '@kx/domain';
 
 export type SettingsState =
   | { status: 'loading' }
@@ -24,6 +24,12 @@ export class SettingsStore {
   readonly draft = this.entries.asReadonly();
   /** A load has had no answer for 300 ms: skeleton sections stand in (L2-071 AC8). */
   readonly slow = signal(false);
+  /** An entry differs from its saved value (L2-071 AC1). */
+  readonly dirty = computed(() => {
+    const state = this.current();
+    const draft = this.entries();
+    return state.status === 'ready' && !!draft && !settingsEqual(draft, draftOf(state.saved));
+  });
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -51,6 +57,12 @@ export class SettingsStore {
         reference: error instanceof ApiProblem ? (error.reference ?? null) : null,
       });
     }
+  }
+
+  /** Returns every entry to its saved value (L2-071 AC2). */
+  discard(): void {
+    const state = this.current();
+    if (state.status === 'ready') this.entries.set(draftOf(state.saved));
   }
 
   /** Changes one entry of the draft. */

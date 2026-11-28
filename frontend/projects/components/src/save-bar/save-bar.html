@@ -1,0 +1,18 @@
+<div
+  class="save-bar"
+  [attr.role]="label() ? 'region' : 'status'"
+  [attr.aria-label]="label() ?? null"
+>
+  <p
+    [attr.class]="'save-bar__text' + (tone() === 'neutral' ? '' : ' save-bar__text--' + tone())"
+    [attr.role]="live() ? 'status' : null"
+  >
+    @if (tone() === 'danger') {
+      <kx-icon name="warning" size="sm" />
+    } @else if (tone() === 'success') {
+      <kx-icon name="success" size="sm" />
+    }
+    {{ text() }}
+  </p>
+  <div class="save-bar__actions"><ng-content select="[slot=actions]" /></div>
+</div>

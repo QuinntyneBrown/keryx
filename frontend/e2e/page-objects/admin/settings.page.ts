@@ -38,6 +38,10 @@ export class SettingsPage {
   readonly retention: Locator;
   readonly alertEmail: Locator;
   readonly alertStreak: Locator;
+  readonly saveBar: Locator;
+  readonly saveBarText: Locator;
+  readonly discard: Locator;
+  readonly save: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -74,6 +78,10 @@ export class SettingsPage {
     this.retention = page.getByLabel('Keep articles for');
     this.alertEmail = page.getByLabel('E-mail');
     this.alertStreak = page.getByLabel('Alert when a source fails');
+    this.saveBar = page.locator('main .save-bar');
+    this.saveBarText = this.saveBar.locator('.save-bar__text');
+    this.discard = this.saveBar.getByRole('button', { name: 'Discard' });
+    this.save = this.saveBar.getByRole('button', { name: 'Save changes' });
   }
 
   async open(path = '/settings'): Promise<void> {
@@ -84,6 +92,11 @@ export class SettingsPage {
   /** The values of the chip list named `name` ("Topics", "Excluded terms", "Focus areas"). */
   chips(name: string): Locator {
     return this.page.getByRole('list', { name }).locator('.chip:not(.chip--add)');
+  }
+
+  /** A switch by its label. */
+  switchNamed(name: string): Locator {
+    return this.page.getByRole('switch', { name });
   }
 
   /** A "Run every" option by its label. */
