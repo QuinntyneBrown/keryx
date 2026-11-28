@@ -102,4 +102,10 @@ export {
   type RunProgress,
   type StageView,
 } from './runs/stage-words';
-export { collectionRunningLine, collectionStartedText } from './runs/run-now-words';
+export {
+  collectionEndedNotice,
+  collectionRunningLine,
+  collectionStartedText,
+  type EndedNotice,
+  type EndedRun,
+} from './runs/run-now-words';

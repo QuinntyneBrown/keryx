@@ -147,6 +147,17 @@ backend mapper; each screen and dialog design uses them.
   closes any dialog by its ref and opens `/runs?run=<id>` (warning); "Collection failed" with
   "Keryx couldn’t reach its database, so nothing was stored. The API is still serving the
   previous run." and "Retry now", which sends `POST /admin/v1/runs` (danger).
+- **As built (journey 15)** — the words come from `collectionEndedNotice` in the domain
+  library, with a case table. "Collection finished" also covers a run completed with issues but
+  no failing source, and has "View run" as the success mock shows. The warning names the
+  failing sources from the run's `error` issues about a source, as their sources published
+  them; past two it reads "B, C and 2 more didn’t respond.", and with no names, only the
+  articles. The run's `failure_reason` is free text, so the danger notice names the database
+  only when the `store` stage failed; any other failure reads "The run stopped before anything
+  was stored. The API is still serving the previous run." `ScheduleStore` raises it from the
+  watcher's `onEnd`, which fires once per run because the watcher stops following a run when it
+  ends, so no notified id is kept. "View run" closes any open CDK dialog (`Dialog.closeAll`)
+  before navigating; "Retry now" starts a run as "Run now" does, and the watcher follows it.
 
 **Backend — Keryx API**
 

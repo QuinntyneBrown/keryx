@@ -1,6 +1,15 @@
+import { Dialog } from '@angular/cdk/dialog';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { ApiProblem, NOTIFIER, OVERVIEW_API, RUNS_API, type ShellSchedule } from '@kx/api';
-import { collectionStartedText } from '@kx/domain';
+import { Router } from '@angular/router';
+import {
+  ApiProblem,
+  NOTIFIER,
+  OVERVIEW_API,
+  RUNS_API,
+  type RunDetail,
+  type ShellSchedule,
+} from '@kx/api';
+import { collectionEndedNotice, collectionStartedText } from '@kx/domain';
 import { CollectionWatcher } from './collection-watcher';
 
 /** How often the countdown to the next run is worked out again. */
@@ -18,6 +27,8 @@ export class ScheduleStore {
   private readonly runs = inject(RUNS_API);
   private readonly notifier = inject(NOTIFIER);
   private readonly watcher = inject(CollectionWatcher);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(Dialog);
   private readonly controller = new AbortController();
   private requested = false;
 
@@ -33,9 +44,40 @@ export class ScheduleStore {
 
   constructor() {
     const clock = setInterval(() => this.now.set(new Date()), CLOCK_MS);
-    inject(DestroyRef).onDestroy(() => {
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => {
       clearInterval(clock);
       this.controller.abort();
+    });
+    this.watcher.onEnd((run) => this.announce(run), destroyRef);
+  }
+
+  /**
+   * Says how the run ended (L2-076 AC2–AC4), once: the watcher ends each run once. "View run"
+   * closes any dialog and opens the run; "Retry now" starts another, which the watcher follows.
+   */
+  private announce(run: RunDetail): void {
+    const notice = collectionEndedNotice(run);
+    this.notifier.notify({
+      tone: notice.tone,
+      title: notice.title,
+      text: notice.text,
+      action:
+        notice.action === 'view'
+          ? {
+              label: 'View run',
+              run: () => {
+                this.dialog.closeAll();
+                void this.router.navigateByUrl(`/runs?run=${encodeURIComponent(run.id)}`);
+              },
+            }
+          : {
+              label: 'Retry now',
+              run: () =>
+                void this.runNow((id) =>
+                  this.watcher.track({ id, started_at: new Date().toISOString() }),
+                ),
+            },
     });
   }
 
