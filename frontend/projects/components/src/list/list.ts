@@ -64,9 +64,14 @@ export class List {
   readonly navigate = output<string>();
   /** Skeleton rows standing in while the entries load, in place of them. */
   readonly placeholders = input(0);
+  /** Skeleton run rows standing in while the history loads. */
+  readonly runPlaceholders = input(0);
 
   protected readonly slots = computed(() =>
     Array.from({ length: this.placeholders() }, (_, index) => index),
+  );
+  protected readonly runSlots = computed(() =>
+    Array.from({ length: this.runPlaceholders() }, (_, index) => index),
   );
 
   protected follow(event: MouseEvent, href: string): void {

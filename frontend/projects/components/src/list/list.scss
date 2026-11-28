@@ -143,6 +143,18 @@ li:first-child > .list__item {
   color: var(--color-warning-fg);
 }
 
+// A skeleton laid over a line of a loading row, centred on it.
+.list__placeholder {
+  position: relative;
+}
+
+.list__placeholder > kx-skeleton {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  translate: 0 -50%;
+}
+
 // The aside's skeleton is a fifth of the row, as the loading mock draws it.
 .list__aside--loading {
   flex: none;

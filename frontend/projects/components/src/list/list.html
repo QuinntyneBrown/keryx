@@ -5,6 +5,16 @@
       <kx-skeleton class="list__aside--loading" />
     </li>
   }
+  <!-- Each line holds a no-break space, so it is as tall as the line it stands for. -->
+  @for (slot of runSlots(); track slot) {
+    <li class="list__item run-item">
+      <kx-skeleton shape="icon" />
+      <div class="list__body">
+        <p class="list__title list__placeholder"><kx-skeleton [width]="60" />&nbsp;</p>
+        <p class="list__meta list__placeholder"><kx-skeleton [width]="40" />&nbsp;</p>
+      </div>
+    </li>
+  }
   @for (run of runs(); track run.id) {
     <li>
       <a

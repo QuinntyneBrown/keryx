@@ -1,5 +1,8 @@
 <kx-page-header title="Runs" [description]="description()" />
-<kx-page-body>
+<kx-page-body [busy]="store.listLoading()">
+  @if (store.listLoading() && store.slow()) {
+    <p class="visually-hidden" role="status">Loading runs…</p>
+  }
   @if (store.listFailed(); as failure) {
     <kx-empty
       card
@@ -27,6 +30,7 @@
         <kx-segmented
           class="runs__filter"
           label="Filter runs"
+          [disabled]="store.opening()"
           [options]="filters()"
           (navigate)="navigate($event)"
         />
@@ -47,6 +51,8 @@
               >
             </kx-empty>
           }
+        } @else if (store.slow()) {
+          <kx-list [runPlaceholders]="10" />
         }
       </section>
       @if (detail(); as shown) {
@@ -99,6 +105,16 @@
             >
           </kx-alert>
         </section>
+      } @else if ((store.listLoading() || store.detailLoading()) && store.slow()) {
+        <kx-stack gap="lg">
+          <kx-card loading>
+            <kx-stats four ruled loading [items]="loadingTiles" />
+          </kx-card>
+          <section>
+            <h3 class="runs__section-title">Pipeline</h3>
+            <kx-timeline [placeholders]="6" />
+          </section>
+        </kx-stack>
       } @else if (store.page()?.items?.length === 0) {
         <kx-empty
           title="Choose a run"

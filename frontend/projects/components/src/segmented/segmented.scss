@@ -12,6 +12,11 @@
   background: var(--color-bg-surface);
 }
 
+.segmented[aria-disabled='true'] {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
 .segmented__option {
   display: inline-flex;
   align-items: center;

@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Icon, type IconName } from '../icon/icon';
+import { Skeleton } from '../skeleton/skeleton';
 
 /** A step's state: its icon and colour, and for a skipped step a quieter name. */
 export type TimelineState = 'ok' | 'warn' | 'failed' | 'running' | 'skipped';
@@ -29,12 +30,18 @@ const ICONS: Record<TimelineState, IconName> = {
  */
 @Component({
   selector: 'kx-timeline',
-  imports: [Icon],
+  imports: [Icon, Skeleton],
   templateUrl: './timeline.html',
   styleUrl: './timeline.scss',
 })
 export class Timeline {
-  readonly steps = input.required<readonly TimelineStep[]>();
+  readonly steps = input<readonly TimelineStep[]>([]);
+  /** Skeleton steps standing in while the steps load. */
+  readonly placeholders = input(0);
+
+  protected readonly slots = computed(() =>
+    Array.from({ length: this.placeholders() }, (_, index) => index),
+  );
 
   protected icon(state: TimelineState): IconName {
     return ICONS[state];

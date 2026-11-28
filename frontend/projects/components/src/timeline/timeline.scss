@@ -54,6 +54,17 @@
   color: var(--color-info-icon);
 }
 
+.timeline__placeholder {
+  position: relative;
+}
+
+.timeline__placeholder > kx-skeleton {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  translate: 0 -50%;
+}
+
 .timeline__body {
   flex: 1;
   min-width: 0;

@@ -1,5 +1,6 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
+import { skeletonDelay } from '@kx/domain';
 
 /** A failed read's reference, the response's trace id, for staff to quote. */
 function referenceOf(error: unknown): string | null {
@@ -18,6 +19,7 @@ export const HISTORY_RUNS = 14;
 export class RunsStore {
   private readonly api = inject(RUNS_API);
   private readonly controller = new AbortController();
+  private readonly skeleton = skeletonDelay();
   /** The run the URL names, or null for the newest. */
   private requested: string | null = null;
   /** Counts list and detail reads, so only the latest one's answer is shown. */
@@ -38,9 +40,22 @@ export class RunsStore {
   /** Try again is reading the list, or the detail, again. */
   readonly retrying = signal(false);
   readonly retryingDetail = signal(false);
+  /** The list is being read for the first time, or for a new filter. */
+  readonly listLoading = computed(() => !this.page() && !this.listFailed());
+  /** No list has been read yet: the filter waits for the first (as the loading mock shows). */
+  readonly opening = signal(true);
+  /** The chosen run's detail is being read. */
+  readonly detailLoading = computed(
+    () => !!this.selected() && !this.detail() && !this.detailFailed(),
+  );
+  /** A read has taken over 300 ms: skeletons stand in for what is loading (L2-061 AC1). */
+  readonly slow = signal(false);
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.controller.abort());
+    inject(DestroyRef).onDestroy(() => {
+      this.controller.abort();
+      this.skeleton.cancel();
+    });
   }
 
   /**
@@ -58,6 +73,7 @@ export class RunsStore {
       void this.load();
     }
     this.choose(id ?? this.page()?.items[0]?.id ?? null);
+    this.settle();
   }
 
   /** Reads the list again after the page error, busy meanwhile (L2-073 AC3). */
@@ -82,42 +98,60 @@ export class RunsStore {
     }
   }
 
+  /**
+   * Skeletons wait 300 ms while something loads, and go once nothing does. Called when a read
+   * starts or ends; never once the visit is over, so no timer outlives it.
+   */
+  private settle(): void {
+    if (this.controller.signal.aborted) return;
+    if (this.listLoading() || this.detailLoading()) {
+      this.skeleton.run(() => this.slow.set(true));
+      return;
+    }
+    this.skeleton.cancel();
+    this.slow.set(false);
+  }
+
   private async load(): Promise<void> {
     const read = ++this.listReads;
-    let page: RunPage;
+    const current = () => read === this.listReads && !this.controller.signal.aborted;
     try {
-      page = await this.api.list(
+      const page = await this.api.list(
         { page: 1, pageSize: HISTORY_RUNS, problems: this.problems() ?? false },
         this.controller.signal,
       );
+      if (!current()) return;
+      this.listFailed.set(null);
+      this.opening.set(false);
+      this.page.set(page);
+      if (!this.requested) this.choose(page.items[0]?.id ?? null);
     } catch (error) {
-      if (read === this.listReads && !this.controller.signal.aborted) {
-        this.listFailed.set({ reference: referenceOf(error) });
-      }
-      return;
+      if (current()) this.listFailed.set({ reference: referenceOf(error) });
+    } finally {
+      this.settle();
     }
-    if (read !== this.listReads || this.controller.signal.aborted) return;
-    this.listFailed.set(null);
-    this.page.set(page);
-    if (!this.requested) this.choose(page.items[0]?.id ?? null);
   }
 
   private choose(id: string | null): void {
     if (!id || id === this.selected()) return;
     this.selected.set(id);
+    this.detail.set(null);
+    this.detailFailed.set(null);
     void this.readDetail(id);
   }
 
   private async readDetail(id: string): Promise<void> {
     const read = ++this.detailReads;
+    const current = () => read === this.detailReads && !this.controller.signal.aborted;
     try {
       const detail = await this.api.get(id, this.controller.signal);
-      if (read !== this.detailReads || this.controller.signal.aborted) return;
-      this.detail.set(detail);
+      if (current()) this.detail.set(detail);
     } catch (error) {
-      if (read !== this.detailReads || this.controller.signal.aborted) return;
+      if (!current()) return;
       this.detail.set(null);
       this.detailFailed.set({ reference: referenceOf(error) });
+    } finally {
+      this.settle();
     }
   }
 }

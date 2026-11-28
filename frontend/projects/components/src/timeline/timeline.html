@@ -1,4 +1,14 @@
 <ol class="timeline">
+  <!-- Each line holds a no-break space, so it is as tall as the line it stands for. -->
+  @for (slot of slots(); track slot) {
+    <li class="timeline__step">
+      <kx-skeleton class="timeline__icon" shape="icon" />
+      <div class="timeline__body">
+        <p class="timeline__name timeline__placeholder"><kx-skeleton [width]="30" />&nbsp;</p>
+        <p class="timeline__detail timeline__placeholder"><kx-skeleton [width]="60" />&nbsp;</p>
+      </div>
+    </li>
+  }
   @for (step of steps(); track step.id) {
     <li class="timeline__step" [attr.data-state]="step.state">
       <kx-icon class="timeline__icon" [name]="icon(step.state)" size="lg" />

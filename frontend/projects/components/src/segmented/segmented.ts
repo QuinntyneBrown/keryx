@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
 
 /** One option of a segmented control: a link, current when it is the view shown. */
 export interface SegmentedOption {
@@ -22,8 +22,15 @@ export class Segmented {
   readonly label = input.required<string>();
   readonly options = input.required<readonly SegmentedOption[]>();
   readonly navigate = output<string>();
+  /** The views cannot be switched yet, as while the first answer loads. */
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   protected follow(event: MouseEvent, href: string): void {
+    // A disabled group's links do nothing, by pointer or by key.
+    if (this.disabled()) {
+      event.preventDefault();
+      return;
+    }
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }

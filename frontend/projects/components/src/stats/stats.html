@@ -1,10 +1,10 @@
 @if (loading()) {
   <!-- Each line holds a no-break space, so it is as tall as the line it stands for. -->
-  <div class="stats">
+  <div [attr.class]="classes()">
     @for (item of items(); track item.label) {
       <div class="stat">
         <p class="stat__label stat__placeholder"><kx-skeleton [width]="60" />&nbsp;</p>
-        <p [attr.class]="'stat__value stat__value--' + (item.size ?? 'lg') + ' stat__placeholder'">
+        <p [attr.class]="valueClasses(item) + ' stat__placeholder'">
           <kx-skeleton shape="stat" />&nbsp;
         </p>
         @if (item.sub !== undefined) {

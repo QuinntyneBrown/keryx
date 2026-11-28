@@ -157,6 +157,13 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   alert's new actions slot, under a visually hidden heading that still names the run. Only the
   latest read of the list and of a run is shown, failures included, and switching the list
   clears a run's error.
+- Loading (`L2-061` AC1): the page is busy from the first request; after 300 ms ten skeleton
+  run rows, a skeleton card with four tile skeletons and six skeleton stages stand in, each line
+  inside the element it replaces, so nothing shifts. The filter is disabled only until the first
+  list arrives, as `pages/runs/loading.html` shows; a later switch keeps it usable, so a staff
+  member can switch back. Choosing a run clears the run shown before and its error, and its
+  detail's skeleton follows after its own 300 ms; only the history's first load announces
+  "Loading runs…".
 - A run with no issues says "No issues in this run" in a compact success state under the
   section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two

@@ -106,6 +106,14 @@ export default class Runs {
     }));
   });
 
+  /** The shapes of the detail's four tiles, which their skeletons follow while it loads. */
+  protected readonly loadingTiles: readonly StatItem[] = [
+    { label: 'New articles', value: '', size: 'md' },
+    { label: 'Duplicates skipped', value: '', size: 'md' },
+    { label: 'Sources OK', value: '', size: 'md' },
+    { label: 'Sources failed', value: '', size: 'md' },
+  ];
+
   /** "All runs" and "With problems", the one shown current (L2-056 AC2). */
   protected readonly filters = computed((): SegmentedOption[] => {
     const problems = this.store.problems() === true;
