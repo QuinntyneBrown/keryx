@@ -114,6 +114,9 @@
               label="Topics"
               addLabel="Add to Topics"
               [values]="draft.topics"
+              [fresh]="store.fresh().topics"
+              (removeValue)="store.remove('topics', $event)"
+              (addValue)="addTo('topics')"
               [disabled]="saving()"
             />
           </kx-field>
@@ -122,6 +125,9 @@
               label="Excluded terms"
               addLabel="Add to Exclude"
               [values]="draft.exclusions"
+              [fresh]="store.fresh().exclusions"
+              (removeValue)="store.remove('exclusions', $event)"
+              (addValue)="addTo('exclusions')"
               [disabled]="saving()"
             />
           </kx-field>
@@ -153,6 +159,9 @@
               label="Focus areas"
               addLabel="Add to Focus areas"
               [values]="draft.focus_areas"
+              [fresh]="store.fresh().focus_areas"
+              (removeValue)="store.remove('focus_areas', $event)"
+              (addValue)="addTo('focus_areas')"
               [disabled]="saving()"
             />
           </kx-field>

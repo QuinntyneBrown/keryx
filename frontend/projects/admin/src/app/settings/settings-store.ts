@@ -6,6 +6,7 @@ import {
   settingsOf,
   settingsValidation,
   skeletonDelay,
+  type KeywordList,
   type SettingsDraft,
   type SettingsError,
 } from '@kx/domain';
@@ -25,6 +26,12 @@ export type SaveState =
   | { status: 'saved'; at: Date }
   | { status: 'failed'; reference: string | null }
   | { status: 'conflict' };
+
+const NONE_NEW: Readonly<Record<KeywordList, readonly string[]>> = {
+  topics: [],
+  exclusions: [],
+  focus_areas: [],
+};
 
 /** How long the bar confirms a save (L2-071 AC4). */
 export const SAVED_FOR_MS = 8_000;
@@ -51,6 +58,8 @@ export class SettingsStore {
   /** The fields the last save found out of range, in the order of the form (L2-071 AC3). */
   readonly errors = signal<SettingsError[]>([]);
   readonly saveState = signal<SaveState>({ status: 'idle' });
+  /** The values each chip list gained since the last save, shown as new (L2-072 AC5). */
+  readonly fresh = signal<Readonly<Record<KeywordList, readonly string[]>>>(NONE_NEW);
   /** An entry differs from its saved value (L2-071 AC1). */
   readonly dirty = computed(() => {
     const state = this.current();
@@ -71,6 +80,7 @@ export class SettingsStore {
     const controller = new AbortController();
     this.controller = controller;
     this.current.set({ status: 'loading' });
+    this.fresh.set(NONE_NEW);
     this.settle({ status: 'idle' });
     this.slow.set(false);
     this.skeleton.run(() => this.slow.set(true));
@@ -96,6 +106,24 @@ export class SettingsStore {
     this.settle({ status: 'idle' });
   }
 
+  /** Adds a value to a chip list, marked new until the next save (L2-072 AC5). */
+  add(list: KeywordList, value: string): void {
+    const draft = this.entries();
+    if (!draft) return;
+    this.set(list, [...draft[list], value]);
+    this.fresh.update((fresh) => ({ ...fresh, [list]: [...fresh[list], value] }));
+  }
+
+  /** Removes the value at `index` from a chip list (L2-072 AC2). */
+  remove(list: KeywordList, index: number): void {
+    const draft = this.entries();
+    if (draft)
+      this.set(
+        list,
+        draft[list].filter((_, i) => i !== index),
+      );
+  }
+
   /**
    * Saves the entries with the version they were loaded at, in one request (L2-071 AC4). With an
    * entry out of range nothing is sent and the errors say which (AC3): then it resolves false.
@@ -119,6 +147,7 @@ export class SettingsStore {
       if (controller.signal.aborted) return true;
       this.current.set({ status: 'ready', saved });
       this.entries.set(draftOf(saved));
+      this.fresh.set(NONE_NEW);
       this.settle({ status: 'saved', at: new Date() });
       this.confirmation = setTimeout(() => this.settle({ status: 'idle' }), SAVED_FOR_MS);
     } catch (error) {

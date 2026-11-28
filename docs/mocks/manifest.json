@@ -261,7 +261,9 @@
       },
       "states": [
         "default",
-        "invalid"
+        "invalid",
+        "exclude",
+        "focus-area"
       ],
       "requirements": [
         "L2-072"

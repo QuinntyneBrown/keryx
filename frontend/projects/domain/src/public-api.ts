@@ -137,3 +137,10 @@ export {
   type SettingsError,
   type SettingsField,
 } from './settings/settings-validation';
+export {
+  isDuplicateKeyword,
+  KEYWORD_WORDS,
+  keywordError,
+  type KeywordList,
+  type KeywordWords,
+} from './settings/keyword-words';

@@ -7,7 +7,7 @@
         type="button"
         [attr.aria-label]="'Remove ' + value"
         [disabled]="disabled()"
-        (click)="removeValue.emit($index)"
+        (click)="removeAt($index)"
       >
         <kx-icon name="close" size="sm" />
       </button>

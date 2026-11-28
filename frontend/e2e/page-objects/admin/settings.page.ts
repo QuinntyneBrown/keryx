@@ -117,6 +117,21 @@ export class SettingsPage {
       .locator('.field__error');
   }
 
+  /** The chips of a list marked new: added since the last save. */
+  newChips(name: string): Locator {
+    return this.page.getByRole('list', { name }).locator('.chip--new');
+  }
+
+  /** A chip's remove button, named "Remove <value>". */
+  remove(value: string): Locator {
+    return this.page.getByRole('button', { name: `Remove ${value}`, exact: true });
+  }
+
+  /** A list's Add chip, named "Add to <list>". */
+  addTo(list: string): Locator {
+    return this.page.getByRole('button', { name: `Add to ${list}`, exact: true });
+  }
+
   /** A switch by its label. */
   switchNamed(name: string): Locator {
     return this.page.getByRole('switch', { name });

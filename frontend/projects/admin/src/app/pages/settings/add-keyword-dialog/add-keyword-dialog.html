@@ -1,0 +1,27 @@
+<kx-dialog
+  small
+  [title]="words.title"
+  description="It is added to the list; nothing changes until you save Settings."
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  (dismiss)="close()"
+  (submitted)="submit()"
+>
+  <kx-field
+    [label]="words.label"
+    for="keyword"
+    [help]="words.hint"
+    helpId="keyword-help"
+    [error]="error()"
+    errorId="keyword-error"
+  >
+    <kx-input
+      controlId="keyword"
+      [invalid]="!!error()"
+      [describedBy]="error() ? 'keyword-error keyword-help' : 'keyword-help'"
+      [(value)]="value"
+    />
+  </kx-field>
+  <kx-btn slot="actions" variant="ghost" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="primary" submit>{{ words.submit }}</kx-btn>
+</kx-dialog>

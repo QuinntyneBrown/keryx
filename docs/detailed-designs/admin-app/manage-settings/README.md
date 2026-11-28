@@ -69,7 +69,7 @@ Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-
   with `aria-invalid` and adds nothing. A valid value of 2 to 40 characters closes the dialog
   with the value; the page adds it as a chip marked new until the form is saved and returns
   focus to "Add". The chip carries the `chip--new` modifier of the mocks' component kit
-  (`assets/ui.css`); no mock page shows it, so its state is added to a mock before it is built.
+  (`assets/ui.css`); `pages/settings/dirty.html` shows it on “pickleball”.
 - **Components library** — `page-header`, `settings-section` (`settings-section__hint`,
   `settings-section__fields`), `segmented` (button variant with `aria-pressed` for "Run
   every"), `field` (`field__label`, `field__help`, `field__error`), `input`, `input-affix`

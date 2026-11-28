@@ -34,6 +34,7 @@ import {
   savedLine,
   fixFieldsTitle,
   thresholdHelp,
+  type KeywordList,
   type SettingsField,
 } from '@kx/domain';
 import { HttpSettingsApi } from '../../settings/http-settings-api';
@@ -127,6 +128,33 @@ export default class Settings {
   protected async save(): Promise<void> {
     if (await this.store.save()) return;
     afterNextRender(() => this.focus('.alert--danger'), { injector: this.injector });
+  }
+
+  /**
+   * Opens the Add dialog of a chip list (L2-072 AC3); a value it closes with joins the list,
+   * marked new, and focus returns to Add. The CDK dialog and the dialog's code load when it is
+   * first opened, not with the screen (ADR 0008).
+   */
+  protected async addTo(list: KeywordList): Promise<void> {
+    const opener = document.activeElement;
+    const values = this.store.draft()?.[list] ?? [];
+    const [{ Dialog }, dialog] = await Promise.all([
+      import('@angular/cdk/dialog'),
+      import('./add-keyword-dialog/add-keyword-dialog'),
+    ]);
+    const ref = this.injector.get(Dialog).open<string>(dialog.AddKeywordDialog, {
+      injector: this.injector,
+      data: { list, values },
+      ariaModal: true,
+      ariaLabelledBy: dialog.ADD_KEYWORD_TITLE_ID,
+      ariaDescribedBy: dialog.ADD_KEYWORD_DESCRIPTION_ID,
+      autoFocus: dialog.ADD_KEYWORD_AUTO_FOCUS,
+      restoreFocus: opener instanceof HTMLElement ? opener : true,
+      backdropClass: 'kx-backdrop',
+    });
+    ref.closed.subscribe((value) => {
+      if (value) this.store.add(list, value);
+    });
   }
 
   /** Follows a summary line to its field. */
