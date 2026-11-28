@@ -66,9 +66,14 @@ export function formatCount(count: number): string {
  * The range a page shows: "Showing 11–20 of 18,432 articles". An empty list, or a page past
  * the end, says how many there are.
  */
-export function pageRange(page: number, pageSize: number, total: number): string {
-  const noun = total === 1 ? 'article' : 'articles';
-  if (total === 0) return 'Showing 0 articles';
+export function pageRange(
+  page: number,
+  pageSize: number,
+  total: number,
+  [one, many]: readonly [string, string] = ['article', 'articles'],
+): string {
+  const noun = total === 1 ? one : many;
+  if (total === 0) return `Showing 0 ${many}`;
   const first = (page - 1) * pageSize + 1;
   if (first > total) return `Showing 0 of ${formatCount(total)} ${noun}`;
   const last = Math.min(page * pageSize, total);

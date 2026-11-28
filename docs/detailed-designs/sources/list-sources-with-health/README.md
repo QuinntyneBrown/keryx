@@ -66,6 +66,15 @@ that derives health during a run.
   held for review", "Failing: 404 Not Found" and "Failing: Timeout · 4 runs". The label for each
   other reason and the count at which " · N runs" appears are `<TO SUPPLY>`; the mock shows it for
   4 runs and omits it for the 404 example.
+  - As built (journey 17): the reasons read "404 Not Found", "Timeout", "Blocked by
+    robots.txt", "Refused", "Unreadable content" and "Not a public address"; " · N runs"
+    appears from 2 failed runs in a row, as Runs' issue streak does ("Failing N runs in a
+    row" from 2). A reason Keryx does not know reads "Failing". "Last fetched" reads "Not
+    yet" before a source's first run, in the schedule's zone (Toronto until it is read).
+    "Articles · 30d" counts the articles whose provenance entry for the source was first seen
+    in the last 30 days, for the page's sources only. The page is in the URL (`?page=`, absent
+    for the first; anything but a whole number from 1 opens the first), and a reload or "Try
+    again" reads the page shown. `kx-table` gains a `nowrap` column (`table__nowrap`).
 - **`formatSourceAddress`** — domain helper that shows a URL without its scheme
   ("redeemedrun.ca/feed") and a news query's text as given. Both are bound as text, never HTML.
 - **Loading** — when the first response takes over 300 ms, 12 `skeleton` rows shaped like the

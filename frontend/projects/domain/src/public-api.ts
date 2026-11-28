@@ -5,6 +5,8 @@ export {
   formatSourceAddress,
   sourceHealthLabel,
   sourceKindLabel,
+  sourceLastFetched,
+  sourcesRange,
   sourcesSummary,
   type SourceHealthLabel,
   type SourceCounts,

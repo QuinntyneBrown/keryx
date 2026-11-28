@@ -21,6 +21,10 @@ export class SourcesPage {
   readonly caption: Locator;
   readonly columns: Locator;
   readonly rows: Locator;
+  /** "Showing 1–12 of 64 sources, failing first." under the table. */
+  readonly range: Locator;
+  readonly previous: Locator;
+  readonly next: Locator;
   readonly toastRegion: Locator;
   readonly toast: Locator;
   readonly toastTitle: Locator;
@@ -47,6 +51,10 @@ export class SourcesPage {
     this.caption = this.table.locator('caption');
     this.columns = this.table.locator('thead th');
     this.rows = this.table.locator('tbody tr');
+    const pagination = page.locator('main .pagination');
+    this.range = page.locator('main .table-footer p');
+    this.previous = pagination.getByRole('button', { name: 'Previous' });
+    this.next = pagination.getByRole('button', { name: 'Next' });
     this.toastRegion = page.locator('.toast-region');
     this.toast = this.toastRegion.locator('.toast');
     this.toastTitle = this.toast.locator('.toast__title');
@@ -55,8 +63,8 @@ export class SourcesPage {
     this.toastDismiss = this.toast.getByRole('button', { name: 'Dismiss' });
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/sources');
+  async open(query = ''): Promise<void> {
+    await this.page.goto(`/sources${query}`);
     await this.heading.waitFor();
   }
 
@@ -68,7 +76,13 @@ export class SourcesPage {
       address: row.locator('.source .table__sub--mono'),
       health: row.locator('td.from-lg .health'),
       region: row.locator('td.table__muted').first(),
+      articles: row.locator('td.num'),
+      lastFetched: row.locator('td.table__muted').nth(1),
     };
+  }
+
+  search(): string {
+    return new URL(this.page.url()).search;
   }
 
   path(): string {

@@ -52,6 +52,34 @@ public sealed class ListSourcesTests
     }
 
     [Fact]
+    public async Task Given_articles_first_seen_31_days_and_today_When_listed_Then_articles_30d_counts_the_one_of_the_last_30_days()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        const string Feed = "https://templefit.ca/feed";
+        await Runs.CollectionRuns.AddSourceAsync(factory, SourceKind.Rss, Feed, "Temple Fit", "toronto");
+        // Another source's article is not Temple Fit's.
+        await Runs.CollectionRuns.AddSourceAsync(factory, SourceKind.Rss, "https://redeemedrun.ca/feed", "Redeemed Run Club", "toronto");
+        factory.Sources.AnswerFeed("https://redeemedrun.ca/feed", Runs.CollectionRuns.Feed(("Church running club in Toronto meets at sunrise", "https://redeemedrun.ca/1", "Church running club in Toronto meets at sunrise")));
+        factory.Sources.AnswerFeed(Feed, Runs.CollectionRuns.Feed(("Sunrise running club at St. Paul's church", "https://templefit.ca/1", "Sunrise running club at St. Paul's church")));
+        await Runs.CollectionRuns.RunAsync(factory);
+        factory.Time.Advance(TimeSpan.FromDays(31));
+        factory.Sources.AnswerFeed(Feed, Runs.CollectionRuns.Feed(
+            ("Sunrise running club at St. Paul's church", "https://templefit.ca/1", "Sunrise running club at St. Paul's church"),
+            ("Church running club in Toronto meets at sunrise", "https://templefit.ca/2", "Church running club in Toronto meets at sunrise")));
+        await Runs.CollectionRuns.RunAsync(factory);
+        // The session opens after the clock moved, so it has not expired.
+        using var client = await StaffClient.OpenAsync(factory);
+
+        var page = await client.GetFromJsonAsync<JsonElement>(new Uri("/admin/v1/sources?kind=rss", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        var counts = page.GetProperty("items").EnumerateArray().ToDictionary(item => item.GetProperty("organization_name").GetString()!, item => item.GetProperty("articles_30d").GetInt32());
+        Assert.Equal(1, counts["Temple Fit"]);
+        // Redeemed Run Club's article is 31 days old and it fails now: none in 30 days.
+        Assert.Equal(0, counts["Redeemed Run Club"]);
+    }
+
+    [Fact]
     public async Task Given_more_sources_than_a_page_When_the_second_page_is_read_Then_it_holds_the_rest_and_the_total()
     {
         using var factory = new ApiFactory();

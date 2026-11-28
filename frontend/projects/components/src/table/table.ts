@@ -14,6 +14,8 @@ export interface TableColumn {
   muted?: boolean;
   /** Shown only from the large breakpoint; the primary cell shows its value below that. */
   wide?: boolean;
+  /** Kept on one line, such as a time. */
+  nowrap?: boolean;
   /** The fixed-width last column of row actions. */
   actions?: boolean;
   /** The actions column fits a word, such as "Revoke", rather than an icon. */
@@ -79,6 +81,7 @@ export class Table {
     const classes = [
       cell && column.primary ? 'table__primary' : '',
       cell && column.muted ? 'table__muted' : '',
+      cell && column.nowrap ? 'table__nowrap' : '',
       column.numeric ? 'num' : '',
       column.wide ? 'from-lg' : '',
       !cell && column.actions ? 'table__col-actions' : '',

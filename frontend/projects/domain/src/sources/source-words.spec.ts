@@ -2,6 +2,8 @@ import {
   formatSourceAddress,
   sourceHealthLabel,
   sourceKindLabel,
+  sourceLastFetched,
+  sourcesRange,
   sourcesSummary,
 } from '../public-api';
 
@@ -46,6 +48,54 @@ describe('sourceHealthLabel', () => {
     ['failing', 0, { tone: 'danger', prefix: null, text: 'Failing' }],
   ] as const)('words %s with %d held', (health, held, expected) => {
     expect(sourceHealthLabel(health, held)).toEqual(expected);
+  });
+
+  // L2-062 AC3: the reason, and the streak once more than one run has failed.
+  it.each([
+    ['not_found', 1, '404 Not Found'],
+    ['timeout', 4, 'Timeout · 4 runs'],
+    ['timeout', 2, 'Timeout · 2 runs'],
+    ['blocked_by_robots', 1, 'Blocked by robots.txt'],
+    ['refused', 1, 'Refused'],
+    ['invalid_content', 1, 'Unreadable content'],
+    ['unsafe_address', 1, 'Not a public address'],
+    ['not_found', 1200, '404 Not Found · 1,200 runs'],
+  ] as const)('words failing for %s over %d runs', (reason, failures, text) => {
+    expect(sourceHealthLabel('failing', 0, reason, failures)).toEqual({
+      tone: 'danger',
+      prefix: 'Failing: ',
+      text,
+    });
+  });
+
+  it('words a reason it does not know as Failing', () => {
+    expect(sourceHealthLabel('failing', 0, 'gremlins', 3)).toEqual({
+      tone: 'danger',
+      prefix: null,
+      text: 'Failing',
+    });
+  });
+});
+
+describe('sourcesRange', () => {
+  it.each([
+    [1, 64, 'Showing 1–12 of 64 sources, failing first.'],
+    [6, 64, 'Showing 61–64 of 64 sources, failing first.'],
+    [1, 1, 'Showing 1–1 of 1 source, failing first.'],
+    [1, 0, 'Showing 0 sources, failing first.'],
+  ])('page %i of %i sources', (page, total, expected) => {
+    expect(sourcesRange(page, 12, total)).toBe(expected);
+  });
+});
+
+describe('sourceLastFetched', () => {
+  const now = new Date('2026-11-28T14:46:00Z');
+  it.each([
+    ['2026-11-28T11:01:00Z', 'Today, 6:01 AM'],
+    ['2026-11-27T22:15:00Z', 'Yesterday, 5:15 PM'],
+    [null, 'Not yet'],
+  ])('%s', (at, expected) => {
+    expect(sourceLastFetched(at, now, 'America/Toronto')).toBe(expected);
   });
 });
 

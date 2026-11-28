@@ -91,7 +91,13 @@ test.describe('Sources', () => {
         '3 sources across the GTA · 1 failing · 1 need a look',
       );
       await expect(sources.caption).toHaveText('Sources, failing first');
-      await expect(sources.columns).toHaveText(['Source', 'Health', 'Region']);
+      await expect(sources.columns).toHaveText([
+        'Source',
+        'Health',
+        'Region',
+        'Articles · 30d',
+        'Last fetched',
+      ]);
       await expect(sources.rows).toHaveCount(3);
       const failing = sources.row(0);
       await expect(failing.name).toHaveText('Covenant Cycling Collective');

@@ -21,12 +21,15 @@ export class SourcesStore {
   private readonly current = signal<SourcesState>({ status: 'loading' });
 
   readonly state = this.current.asReadonly();
+  /** The page shown, or asked for: a reload reads it again. */
+  private page = 1;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.controller?.abort());
   }
 
-  async load(page = 1): Promise<void> {
+  async load(page = this.page): Promise<void> {
+    this.page = page;
     this.controller?.abort();
     const controller = new AbortController();
     this.controller = controller;

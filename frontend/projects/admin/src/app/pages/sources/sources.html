@@ -42,7 +42,13 @@
           [columns]="columns"
           [rows]="rows()"
           [rowKey]="rowKey"
-          [cells]="{ source: sourceCell, health: healthCell, region: regionCell }"
+          [cells]="{
+            source: sourceCell,
+            health: healthCell,
+            region: regionCell,
+            articles: articlesCell,
+            lastFetched: lastFetchedCell,
+          }"
         >
           <ng-template #sourceCell let-row>
             <kx-source
@@ -67,7 +73,15 @@
             />
           </ng-template>
           <ng-template #regionCell let-row>{{ row.item.region_name }}</ng-template>
+          <ng-template #articlesCell let-row>{{ row.articles }}</ng-template>
+          <ng-template #lastFetchedCell let-row>{{ row.lastFetched }}</ng-template>
         </kx-table>
+        <kx-pagination
+          [range]="range()"
+          [hasPrevious]="state.page.page > 1"
+          [hasNext]="hasNext()"
+          (step)="step($event, state.page.page)"
+        />
       }
     }
   }

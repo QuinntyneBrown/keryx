@@ -1,4 +1,7 @@
 import type { SourceHealth, SourceKind } from '@kx/api';
+import { formatCollectedAt, pageRange } from '../articles/article-words';
+
+const NUMBER = new Intl.NumberFormat('en-CA');
 
 const KIND_LABELS: Record<SourceKind, string> = {
   rss: 'RSS',
@@ -34,14 +37,33 @@ export interface SourceHealthLabel {
   text: string;
 }
 
+/** A failed fetch's reason, as the health cell names it (L2-002's fixed list). */
+const FAILURE_WORDS: Record<string, string> = {
+  not_found: '404 Not Found',
+  timeout: 'Timeout',
+  blocked_by_robots: 'Blocked by robots.txt',
+  refused: 'Refused',
+  invalid_content: 'Unreadable content',
+  unsafe_address: 'Not a public address',
+};
+
 /**
- * The health cell's words (L2-062). The failure reason's words and the run count arrive with the
- * runs that record them (journey 17); until then a failing source reads "Failing".
+ * The health cell's words (L2-062 AC3): "Failing: 404 Not Found", and after more than one failed
+ * run in a row " · 4 runs", as Runs counts a streak. A reason Keryx does not know reads "Failing".
  */
-export function sourceHealthLabel(health: SourceHealth, held: number): SourceHealthLabel {
+export function sourceHealthLabel(
+  health: SourceHealth,
+  held: number,
+  reason: string | null = null,
+  failures = 0,
+): SourceHealthLabel {
   switch (health) {
-    case 'failing':
-      return { tone: 'danger', prefix: null, text: 'Failing' };
+    case 'failing': {
+      const words = reason ? FAILURE_WORDS[reason] : undefined;
+      if (!words) return { tone: 'danger', prefix: null, text: 'Failing' };
+      const streak = failures > 1 ? ` · ${NUMBER.format(failures)} runs` : '';
+      return { tone: 'danger', prefix: 'Failing: ', text: `${words}${streak}` };
+    }
     case 'needs_look':
       return held > 0
         ? { tone: 'warning', prefix: 'Needs a look: ', text: `${held} held for review` }
@@ -57,7 +79,15 @@ export interface SourceCounts {
   needsLook: number;
 }
 
-const NUMBER = new Intl.NumberFormat('en-CA');
+/** "Showing 1–12 of 64 sources, failing first." under the Sources table (L2-062 AC1). */
+export function sourcesRange(page: number, pageSize: number, total: number): string {
+  return `${pageRange(page, pageSize, total, ['source', 'sources'])}, failing first.`;
+}
+
+/** When a source was last fetched, "Today, 6:01 AM", or "Not yet" before its first run. */
+export function sourceLastFetched(at: string | null, now: Date, timeZone: string): string {
+  return at ? formatCollectedAt(at, now, timeZone) : 'Not yet';
+}
 
 /** The Sources header line: "64 sources across the GTA · 2 failing · 1 need a look". */
 export function sourcesSummary({ all, failing, needsLook }: SourceCounts): string {

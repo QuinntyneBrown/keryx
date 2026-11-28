@@ -50,7 +50,7 @@ internal sealed class ListSourcesValidator : AbstractValidator<ListSources>
             .WithMessage("Choose a kind: rss, website, instagram, eventbrite or news_query.");
 }
 
-internal sealed class ListSourcesHandler(IAppDbContext db) : IRequestHandler<ListSources, SourcePage>
+internal sealed class ListSourcesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListSources, SourcePage>
 {
     public async Task<SourcePage> Handle(ListSources request, CancellationToken cancellationToken)
     {
@@ -70,6 +70,15 @@ internal sealed class ListSourcesHandler(IAppDbContext db) : IRequestHandler<Lis
             .Take(request.PageSize)
             .Join(db.Regions, source => source.RegionSlug, region => region.Slug, (source, region) => new { source, region.Name })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
+        // "Articles · 30d": the articles each source on the page was first seen with in 30 days.
+        var since = time.GetUtcNow().AddDays(-30);
+        var ids = rows.Select(row => (long?)row.source.Id).ToList();
+        var yields = await db.Articles
+            .SelectMany(article => article.Provenance)
+            .Where(entry => ids.Contains(entry.SourceId) && entry.FirstSeenAt >= since)
+            .GroupBy(entry => entry.SourceId)
+            .Select(group => new { SourceId = group.Key!.Value, Count = group.Count() })
+            .ToDictionaryAsync(entry => entry.SourceId, entry => entry.Count, cancellationToken).ConfigureAwait(false);
         return new SourcePage(
             [.. rows.Select(row => new SourceListItem(
                 row.source.PublicId,
@@ -82,7 +91,7 @@ internal sealed class ListSourcesHandler(IAppDbContext db) : IRequestHandler<Lis
                 row.source.FailureReason,
                 row.source.ConsecutiveFailures,
                 row.source.HeldCount,
-                0,
+                yields.GetValueOrDefault(row.source.Id),
                 row.source.LastFetchedAt))],
             total,
             request.Page,
