@@ -43,7 +43,13 @@ public sealed class CollectionPipeline(
         var settings = await db.Settings.AsNoTracking().SingleAsync(cancellationToken).ConfigureAwait(false);
         var scoring = ScoringSettings.From(settings);
         var timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
-        var sources = await db.Sources.Where(source => Fetchable.Contains(source.Kind)).OrderBy(source => source.Id)
+        // A retry fetches only the run's failed sources again (L2-008 AC3).
+        var retrying = run.RetryPending
+            ? await RetryableSources.Of(db, run).ToListAsync(cancellationToken).ConfigureAwait(false)
+            : null;
+        var sources = await db.Sources
+            .Where(source => Fetchable.Contains(source.Kind) && (retrying == null || retrying.Contains(source.Id)))
+            .OrderBy(source => source.Id)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         var places = await db.Regions.AsNoTracking().ToDictionaryAsync(region => region.Slug, region => region.Name, cancellationToken).ConfigureAwait(false);
         // The worker's run before this one: an issue seen there and again here continues its streak.

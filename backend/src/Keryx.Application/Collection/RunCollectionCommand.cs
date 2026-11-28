@@ -32,11 +32,20 @@ internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPi
             return;
         }
 
+        // A retry is merged into what the run found before it (L2-008 AC3).
+        var baseline = run.RetryPending ? run.RetryBaseline() : null;
         var counts = await pipeline.ExecuteAsync(run, cancellationToken).ConfigureAwait(false);
         // A stage that failed has already ended the run.
         if (run.Outcome == RunOutcome.Running)
         {
-            run.Finish(counts, time.GetUtcNow());
+            if (baseline is null)
+            {
+                run.Finish(counts, time.GetUtcNow());
+            }
+            else
+            {
+                run.MergeRetry(baseline, counts);
+            }
         }
 
         lease.Release(run.PublicId);

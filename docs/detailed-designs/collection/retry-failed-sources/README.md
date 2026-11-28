@@ -71,7 +71,19 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
   boolean column; no `RetryRequest` type). Until the retry is merged, the run reads `outcome`
   `running`, and `sources_checked` and `sources_total` count the retried sources.
 - **`RunCollectionCommandHandler`** — in the worker, picks up the pending retry, builds
-  `RunPlan.ForRetry` over the failed sources only, and runs the pipeline. **`Run.MergeRetry`** adds
+  `RunPlan.ForRetry` over the failed sources only, and runs the pipeline.
+  - As built (journey 16): there is no `RunPlan`. The handler takes the run's `RetryBaseline`
+    (its counts and each stage's status, duration and counts) before the pipeline runs, and
+    `CollectionPipeline` fetches only `RetryableSources.Of(run)` while `RetryPending` is set.
+    `Run.MergeRetry(baseline, retryCounts)` adds every count and stage duration, keeps a stage's
+    warning if either pass warned, sets `sources_failed` (run and fetch stage) to the sources
+    still failing, restores `sources_checked` and `sources_total` to the whole run, keeps the
+    original `finished_at` and `duration_ms`, and clears `RetryPending`, which is persisted and
+    so is kept true only while a retry is pending.
+  - A source that answers the retry has its occurrence in that run removed and its fetch issue
+    closed, so the run lists only what still fails; one that fails again keeps its occurrence and
+    streak, with no new occurrence. A retry whose store stage fails ends the run `failed`, as any
+    run's would. **`Run.MergeRetry`** adds
   the new counts to the run, recomputes `sources_ok` and `sources_failed`, updates the `fetch`
   stage summary, closes the issue of each recovered source (which also clears any mute, see
   [record-runs-and-issues](../record-runs-and-issues/README.md)), and restores the final outcome:

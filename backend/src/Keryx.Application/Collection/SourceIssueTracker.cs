@@ -33,6 +33,16 @@ public sealed class SourceIssueTracker(IAppDbContext db)
     public async Task SucceededAsync(Run run, long? previousRunId, Source source, int held, decimal threshold, DateTimeOffset now, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(run);
+        if (run.RetryPending)
+        {
+            // The source answered the retry: the run no longer has its failure (L2-008 AC4).
+            var failures = await db.IssueOccurrences
+                .Where(occurrence => occurrence.RunId == run.Id && occurrence.Issue.SourceId == source.Id && FetchKinds.Contains(occurrence.Issue.Kind))
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
+            db.IssueOccurrences.RemoveRange(failures);
+        }
+
         await CloseAsync(source, held > 0 ? FetchKinds : [.. FetchKinds, IssueKind.ItemsHeld], cancellationToken).ConfigureAwait(false);
         if (held > 0)
         {
@@ -49,6 +59,13 @@ public sealed class SourceIssueTracker(IAppDbContext db)
         var current = await db.RunIssues
             .SingleOrDefaultAsync(issue => issue.SourceId == source.Id && issue.Kind == kind && issue.State != IssueState.Closed, cancellationToken)
             .ConfigureAwait(false);
+        // Failing again in a retry of the same run is the same occurrence: no streak grows.
+        if (current is not null && await db.IssueOccurrences
+            .AnyAsync(occurrence => occurrence.IssueId == current.Id && occurrence.RunId == run.Id, cancellationToken).ConfigureAwait(false))
+        {
+            return;
+        }
+
         var continues = current is not null && previousRunId is { } previous && await db.IssueOccurrences
             .AnyAsync(occurrence => occurrence.IssueId == current.Id && occurrence.RunId == previous, cancellationToken).ConfigureAwait(false);
         if (continues)

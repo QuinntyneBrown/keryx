@@ -164,7 +164,7 @@ public sealed class RetryFailedSourcesTests
         await AddSourceAsync(factory, SourceKind.Rss, "https://redeemedrun.ca/feed", "Redeemed Run Club Toronto", "toronto");
         await AddSourceAsync(factory, SourceKind.Rss, "https://covenantcycling.ca/feed", "Covenant Cycling Collective", "toronto");
         await AddSourceAsync(factory, SourceKind.Rss, "https://kingdomlifters.ca/feed", "Kingdom Lifters", "toronto");
-        factory.Sources.AnswerFeed("https://templefit.ca/feed", Feed());
+        factory.Sources.AnswerFeed("https://templefit.ca/feed", Feed(("Sunrise running club at St. Paul's church", "https://templefit.ca/1", "Sunrise running club at St. Paul's church")));
         // World Faith Fit answers with an item held for review: a warning, not a failure.
         await AddSourceAsync(factory, SourceKind.Rss, "https://worldfaithfit.org/feed", "World Faith Fit", "global");
         factory.Sources.AnswerFeed("https://worldfaithfit.org/feed",
@@ -172,6 +172,10 @@ public sealed class RetryFailedSourcesTests
         // Kingdom Lifters fails in the first run only.
         await RunAsync(factory);
         factory.Sources.AnswerFeed("https://kingdomlifters.ca/feed", Feed());
+        // Temple Fit has a new item by the second run, which that run adds.
+        factory.Sources.AnswerFeed("https://templefit.ca/feed", Feed(
+            ("Sunrise running club at St. Paul's church", "https://templefit.ca/1", "Sunrise running club at St. Paul's church"),
+            ("Church running club in Toronto meets at sunrise", "https://templefit.ca/2", "Church running club in Toronto meets at sunrise")));
         return await RunAsync(factory);
     }
 

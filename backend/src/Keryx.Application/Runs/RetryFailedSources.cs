@@ -46,12 +46,7 @@ internal sealed class RetryFailedSourcesHandler(IAppDbContext db, ISender sender
             return new RetryStartedDto(started.Id);
         }
 
-        var failed = await db.IssueOccurrences
-            .Where(occurrence => occurrence.RunId == run.Id
-                && occurrence.Issue.SourceId != null
-                && occurrence.Issue.State != IssueState.Closed
-                && SourceIssueTracker.FetchKinds.Contains(occurrence.Issue.Kind))
-            .CountAsync(cancellationToken).ConfigureAwait(false);
+        var failed = await RetryableSources.Of(db, run).CountAsync(cancellationToken).ConfigureAwait(false);
         if (failed == 0 || lease is null)
         {
             throw new NothingToRetryException();

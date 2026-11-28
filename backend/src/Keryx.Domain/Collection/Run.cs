@@ -77,6 +77,59 @@ public sealed class Run
         SourcesTotal = failedSources;
     }
 
+    /// <summary>The run as it stands before the worker fetches its failed sources again.</summary>
+    public RetryBaseline RetryBaseline() =>
+        new(Counts, [.. _stages.Select(stage => new RetryBaseline.Stage(stage.Stage, stage.Status, stage.DurationMs, new Dictionary<string, int>(stage.Counts), stage.Reason))]);
+
+    /// <summary>
+    /// The retry finished every stage over the failed sources (L2-008 AC3, AC4). Its counts are added
+    /// to the run's; the sources that answered join those that did, and only those still failing
+    /// stay failed. Each stage adds its counts and durations, and warns if either pass warned; the
+    /// fetch stage warns while a source still fails. The outcome reads as if those sources had
+    /// answered the first time, and the run keeps its original end.
+    /// </summary>
+    public void MergeRetry(RetryBaseline before, RunCounts retry)
+    {
+        ArgumentNullException.ThrowIfNull(before);
+        ArgumentNullException.ThrowIfNull(retry);
+        Counts = new RunCounts
+        {
+            Added = before.Counts.Added + retry.Added,
+            Updated = before.Counts.Updated + retry.Updated,
+            Unchanged = before.Counts.Unchanged + retry.Unchanged,
+            Duplicates = before.Counts.Duplicates + retry.Duplicates,
+            Held = before.Counts.Held + retry.Held,
+            OffTopic = before.Counts.OffTopic + retry.OffTopic,
+            Rejected = before.Counts.Rejected + retry.Rejected,
+            SourcesOk = before.Counts.SourcesOk + retry.SourcesOk,
+            SourcesFailed = retry.SourcesFailed,
+        };
+        foreach (var earlier in before.Stages)
+        {
+            var stage = StageOf(earlier.Name);
+            var counts = new Dictionary<string, int>(earlier.Counts);
+            foreach (var (name, value) in stage.Counts)
+            {
+                counts[name] = counts.GetValueOrDefault(name) + value;
+            }
+
+            var status = earlier.Status == StageStatus.DoneWithWarnings || stage.Status == StageStatus.DoneWithWarnings
+                ? StageStatus.DoneWithWarnings
+                : StageStatus.Done;
+            if (earlier.Name == PipelineStage.Fetch)
+            {
+                counts["sources_failed"] = retry.SourcesFailed;
+                status = retry.SourcesFailed > 0 ? StageStatus.DoneWithWarnings : StageStatus.Done;
+            }
+
+            stage.Record(status, earlier.DurationMs + stage.DurationMs, counts, earlier.Reason);
+        }
+
+        SourcesTotal = SourcesChecked = Counts.SourcesOk + Counts.SourcesFailed;
+        Outcome = Counts.SourcesFailed > 0 ? RunOutcome.CompletedWithIssues : RunOutcome.Succeeded;
+        RetryPending = false;
+    }
+
     /// <summary>One more source finished, whatever its result (L2-019 AC2).</summary>
     public void SourceChecked() => SourcesChecked++;
 
@@ -120,6 +173,7 @@ public sealed class Run
 
     private void End(DateTimeOffset now)
     {
+        RetryPending = false;
         FinishedAt = now;
         DurationMs = (long)(now - StartedAt).TotalMilliseconds;
     }
