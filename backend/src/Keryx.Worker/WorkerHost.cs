@@ -30,6 +30,7 @@ public static class WorkerHost
         builder.Services.AddHostedService<CollectionScheduler>();
         builder.Services.AddHostedService<CollectionRunner>();
         builder.Services.AddHostedService<AlertDigestWorker>();
+        builder.Services.AddHostedService<RetentionWorker>();
 
         configure?.Invoke(builder);
         return builder.Build();
