@@ -20,7 +20,6 @@ import {
 import {
   formatCollectedAt,
   formatDuration,
-  formatStageDuration,
   issueSeverityWord,
   issueStreakLabel,
   issueTitle,
@@ -30,10 +29,11 @@ import {
   runOutcomeLabel,
   runTone,
   scheduleLine,
+  stageDetail,
   stageName,
   stageState,
   stageStatusLabel,
-  stageSummary,
+  stageTime,
 } from '@kx/domain';
 import { RunsStore } from '../../runs/runs-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
@@ -118,8 +118,8 @@ export default class Runs {
             state: stageState(result.status),
             word: stageStatusLabel(result.status),
             name: stageName(name),
-            time: formatStageDuration(result.duration_ms),
-            detail: stageSummary(name, result.counts),
+            time: stageTime(result),
+            detail: stageDetail(result),
           },
         ];
       }),

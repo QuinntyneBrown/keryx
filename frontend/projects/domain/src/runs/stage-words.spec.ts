@@ -1,5 +1,7 @@
 import {
   formatStageDuration,
+  stageDetail,
+  stageTime,
   PIPELINE_STAGES,
   stageName,
   stageState,
@@ -74,5 +76,26 @@ describe('stageSummary', () => {
     ['enrich', { items: 3 }, ''],
   ])('%s with %o reads %s', (stage, counts, words) => {
     expect(stageSummary(stage, counts)).toBe(words);
+  });
+});
+
+describe('stageTime and stageDetail', () => {
+  const result = (stage: string, status: string, reason: string | null = null) => ({
+    stage,
+    status,
+    duration_ms: 2_000,
+    counts: { items: 3 },
+    reason,
+  });
+
+  it.each([
+    [result('parse', 'done'), '0:02', '3 candidate items from feeds, pages and posts'],
+    [result('classify', 'failed', 'It could not finish.'), '0:02', 'It could not finish.'],
+    [result('store', 'failed'), '0:02', 'This stage failed.'],
+    [result('store', 'not_run'), '—', 'Skipped'],
+    [result('publish', 'not_run'), '—', 'Skipped — API still serving previous run'],
+  ])('%o reads %s and %s', (stage, time, detail) => {
+    expect(stageTime(stage)).toBe(time);
+    expect(stageDetail(stage)).toBe(detail);
   });
 });

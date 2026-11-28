@@ -92,3 +92,33 @@ export function stageSummary(stage: string, counts: Record<string, number>): str
       return '';
   }
 }
+
+/** The parts of a stage result its line in the pipeline is made of. */
+export interface StageView {
+  stage: string;
+  status: string;
+  duration_ms: number;
+  counts: Record<string, number>;
+  reason: string | null;
+}
+
+/** A stage's time: its duration, or "—" for a stage that did not run. */
+export function stageTime(result: StageView): string {
+  return result.status === 'not_run' ? '—' : formatStageDuration(result.duration_ms);
+}
+
+/**
+ * What a stage's line says (L2-057 AC2, AC3): its summary when it finished; the generic reason
+ * the run recorded when it failed; "Skipped" when a failure stopped it, publish adding that the
+ * API still serves the previous run.
+ */
+export function stageDetail(result: StageView): string {
+  switch (result.status) {
+    case 'failed':
+      return result.reason ?? 'This stage failed.';
+    case 'not_run':
+      return result.stage === 'publish' ? 'Skipped — API still serving previous run' : 'Skipped';
+    default:
+      return stageSummary(result.stage, result.counts);
+  }
+}

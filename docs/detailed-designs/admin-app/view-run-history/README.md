@@ -136,6 +136,12 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   run in a row; a warning, which is not a failure, shows none. "Mute" and "Edit source"
   (`L2-057` AC4) arrive with journeys 20 and 17, which give them behaviour, rather than as
   buttons that do nothing.
+- A failed stage's line reads the generic reason the run recorded ("The records of this run
+  could not be saved."), or "This stage failed." when none was; the stages after it read "Not
+  run", "—" and "Skipped", publish "Skipped — API still serving previous run" (`L2-057` AC3).
+  `pages/runs/failed.html` lists Store third and shows "Could not connect to database —
+  ECONNREFUSED": the screen keeps the pipeline's order (AC2) and shows no connection detail
+  (AC6, `L2-020`), which the server never serves.
 - A run with no issues says "No issues in this run" in a compact success state under the
   section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two

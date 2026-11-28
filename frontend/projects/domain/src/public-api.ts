@@ -90,8 +90,11 @@ export {
 export {
   formatStageDuration,
   PIPELINE_STAGES,
+  stageDetail,
   stageName,
   stageState,
   stageStatusLabel,
   stageSummary,
+  stageTime,
+  type StageView,
 } from './runs/stage-words';
