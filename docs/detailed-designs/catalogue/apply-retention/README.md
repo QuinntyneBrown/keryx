@@ -59,7 +59,9 @@ The slice runs from a hosted service in the worker through one MediatR command t
   5. API usage hours older than 30 days, whatever the retention period (`L2-037` AC5);
   6. audit entries whose `OccurredAt` is earlier than the cutoff, added by journey 24 with the
      audit log, which does not exist before it.
-  It finishes the run with the number deleted as a number.
+  It finishes the run with the number deleted as a number: the articles, events,
+  organizations, runs, issues and hours of usage it deleted. What goes with them (provenance,
+  stage results, issue occurrences, staged items, alert records) is not counted.
 - **`RetentionPolicy`** — pure domain service holding `Cutoff(now, months)` and the dependency
   rules above, with a direct unit test per case.
 - **`RetentionResult`** — counts per record type and their total `Deleted`.

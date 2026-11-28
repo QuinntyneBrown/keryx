@@ -3,6 +3,9 @@ namespace Keryx.Domain.Catalogue;
 /// <summary>How long Keryx keeps what it holds (L2-079, L2-037 AC5).</summary>
 public static class RetentionPolicy
 {
+    /// <summary>How long API usage is kept, whatever the retention period (L2-037 AC5).</summary>
+    public static readonly TimeSpan UsageKept = TimeSpan.FromDays(30);
+
     /// <summary>
     /// The instant before which a record has expired: <paramref name="now"/> less the retention
     /// period, in UTC. A month with fewer days ends on its last day (31 March less a month is 28 or

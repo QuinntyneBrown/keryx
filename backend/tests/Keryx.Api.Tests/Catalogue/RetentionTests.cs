@@ -4,7 +4,9 @@ using System.Text.Json;
 using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Session;
 using Keryx.Application.Catalogue;
+using Keryx.Domain.Alerts;
 using Keryx.Domain.Catalogue;
+using Keryx.Domain.Clients;
 using Keryx.Domain.Collection;
 using Keryx.Domain.Seeding;
 using Keryx.Infrastructure.Persistence;
@@ -15,14 +17,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Keryx.Api.Tests.Catalogue;
 
 // Acceptance Test
-// Traces to: L2-079 AC1, AC2, AC4, AC5; L2-019 AC1
+// Traces to: L2-079 AC1, AC2, AC3, AC4, AC5; L2-019 AC1; L2-037 AC5
 // Description: Given "Keep articles for" a number of months, the retention run deletes every
 // article collected before the cutoff (the clock less that many months), with its provenance,
 // and keeps the rest; its run is recorded with worker retention and the number deleted as a
 // number. The period is read at the start of every run, so a shortened one applies at the next.
 // An event goes with its expired article, or, with none, when it started before the cutoff; an
 // organization is kept while an article, an event or a source (by its normalized name) refers to
-// it, and goes when none does.
+// it, and goes when none does. A finished run started before the cutoff goes with its stages,
+// issue occurrences, staged items and alert records, and a closed issue left with no occurrence
+// goes with it; a running run, an open issue and an issue that still occurs are kept. API usage
+// hours go after 30 days, whatever the period.
 // The run is sent as the worker sends it; the worker's schedule is proven on its own.
 public sealed class RetentionTests
 {
@@ -127,6 +132,77 @@ public sealed class RetentionTests
         // One article, two events and two organizations.
         Assert.Equal(5, await DeletedAsync(staff, runId));
     }
+
+    [Fact]
+    public async Task Given_runs_older_than_24_months_When_retention_runs_Then_they_go_with_their_stage_results_and_issues()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var ct = TestContext.Current.CancellationToken;
+        var now = factory.Time.GetUtcNow();
+        var old = Finished(Cutoff.AddTicks(-1));
+        var running = Run.Start(RunWorker.Collection, RunTrigger.Schedule, Cutoff.AddDays(-1));
+        var kept = Finished(Cutoff);
+        var closedOld = RunIssue.AlertNotSent(RunWorker.Collection, "closed, old only", Cutoff.AddDays(-2));
+        var openOld = RunIssue.AlertNotSent(RunWorker.Collection, "open, old only", Cutoff.AddDays(-2));
+        var closedBoth = RunIssue.AlertNotSent(RunWorker.Collection, "closed, old and kept", Cutoff.AddDays(-2));
+        closedOld.Close();
+        closedBoth.Close();
+        var client = ApiClient.Create("Christian Fitness", ["articles:read"], "kx_live_test", "hash", now);
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            store.Runs.AddRange(old, running, kept);
+            store.RunIssues.AddRange(closedOld, openOld, closedBoth);
+            store.ApiClients.Add(client);
+            await store.SaveChangesAsync(ct);
+            store.IssueOccurrences.AddRange(
+                IssueOccurrence.Of(closedOld, old, old.StartedAt),
+                IssueOccurrence.Of(openOld, old, old.StartedAt),
+                IssueOccurrence.Of(closedBoth, old, old.StartedAt),
+                IssueOccurrence.Of(closedBoth, kept, kept.StartedAt));
+            store.AlertRecords.AddRange(AlertRecord.ForRun(old), AlertRecord.ForRun(kept), AlertRecord.ForIssue(closedOld), AlertRecord.ForIssue(openOld));
+            store.StagedArticles.AddRange(Staged(old), Staged(kept));
+            store.ApiUsageHours.AddRange(
+                ApiUsageHour.Start(client.Id, now.AddDays(-30).AddHours(-1)),
+                ApiUsageHour.Start(client.Id, now.AddDays(-30)));
+            await store.SaveChangesAsync(ct);
+        }
+
+        var runId = await RetainAsync(factory);
+
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            Assert.Equal(
+                [running.PublicId, kept.PublicId, runId],
+                await store.Runs.OrderBy(run => run.Id).Select(run => run.PublicId).ToListAsync(ct));
+            Assert.Equal(6, store.Runs.Where(run => run.PublicId == kept.PublicId).SelectMany(run => run.Stages).Count());
+            Assert.Equal(
+                ["open, old only", "closed, old and kept"],
+                await store.RunIssues.OrderBy(issue => issue.Id).Select(issue => issue.Detail).ToListAsync(ct));
+            Assert.Equal([kept.Id], await store.IssueOccurrences.Select(occurrence => occurrence.RunId).ToListAsync(ct));
+            Assert.Equal(
+                [((long?)kept.Id, (long?)null), (null, openOld.Id)],
+                (await store.AlertRecords.OrderBy(record => record.Id).Select(record => new { record.RunId, record.IssueId }).ToListAsync(ct))
+                    .Select(record => (record.RunId, record.IssueId)));
+            Assert.Equal([kept.Id], await store.StagedArticles.Select(staged => staged.RunId).ToListAsync(ct));
+            Assert.Equal([now.AddDays(-30)], await store.ApiUsageHours.Select(hour => hour.HourStart).ToListAsync(ct));
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory);
+        // One run, one issue and one hour of usage.
+        Assert.Equal(3, await DeletedAsync(staff, runId));
+    }
+
+    private static Run Finished(DateTimeOffset startedAt)
+    {
+        var run = Run.Start(RunWorker.Collection, RunTrigger.Schedule, startedAt);
+        run.Finish(new RunCounts(), startedAt.AddMinutes(1));
+        return run;
+    }
+
+    private static StagedArticle Staged(Run run) =>
+        StagedArticle.Of(run.Id, StagedAction.Add, null, 1, "Example feed",
+            new ArticleFacts($"https://example.org/staged/{run.PublicId}", "Staged", "All welcome.", "events", "toronto", [], null, 0.70m, PublicationStatus.Published));
 
     private static Article NewArticle(string title, Organization? organization, DateTimeOffset collectedAt) =>
         Article.Collect(
