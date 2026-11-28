@@ -30,8 +30,9 @@ streaming admin endpoint.
 **Frontend — `frontend/projects/admin`**
 
 - **`ArticlesPage`** — renders "Export CSV" (`Btn`, `btn`) in the `page-header__actions` slot,
-  disabled when `exportDisabled` is true (list in its error state, `L2-055`). Whether it is also
-  disabled in the empty state or while an export is in flight is `<TO SUPPLY>`.
+  disabled when `exportDisabled` is true: while the list loads, in its error state (`L2-055`), in
+  its empty state (no article at all), as the mocks show, and while an export is in flight. With
+  no results for the current search it stays enabled, as the `no-results` mock shows.
 - **`ArticlesStore`** — screen store of the Review articles design, extended with
   `exportDisabled`, `exportInFlight` and `export()`. `export()` raises the info notification
   "Export started" / "articles-<YYYY-MM-DD>.csv will download when it’s ready — 18,432 rows."
@@ -39,9 +40,11 @@ streaming admin endpoint.
   `exportCsv(query)` with the current status, search and filters. On success it creates an
   object URL for the returned `Blob`, starts the download through a temporary anchor with the
   `download` attribute, and revokes the object URL once the download has started. On
-  `export_too_large` it raises a notification that asks staff to narrow the filters; its kind and
-  copy are `<TO SUPPLY>`. Any other failure raises a danger notification whose copy is
-  `<TO SUPPLY>`. The request is cancelled through the store's `DestroyRef` when the page is left
+  `export_too_large` it raises a warning notification, "Too many articles to export" / "Exports
+  stop at 50,000 rows. Narrow the search or filters, then export again." (mock
+  `notifications/article-toast/warning.html`). Any other failure raises a danger notification,
+  "Keryx couldn’t export the articles" / "Nothing was downloaded." with "Try again" (mock
+  `notifications/article-toast/export-failed.html`). The request is cancelled through the store's `DestroyRef` when the page is left
   (`L2-089`).
 
 **Frontend — `frontend/projects/domain`**
@@ -51,8 +54,8 @@ streaming admin endpoint.
 
 **Frontend — `frontend/projects/api`**
 
-- **`ArticlesApi` / `ARTICLES_API`** — adds `exportCsv(query): Observable<Blob>`;
-  `HttpArticlesApi` requests it with `responseType: 'blob'`.
+- **`ArticlesApi` / `ARTICLES_API`** — adds `exportCsv(query, signal): Promise<Blob>`, as the
+  contract's other calls; `HttpArticlesApi` requests it with `responseType: 'blob'`.
 - **`Notifier` / `NOTIFIER`** — notification contract of the Page states, dialogs and
   notifications design (`toast--info`, mock `notifications/article-toast/info.html`).
 
@@ -60,7 +63,7 @@ streaming admin endpoint.
 
 | Endpoint | Request | Response | Errors |
 |---|---|---|---|
-| `GET /admin/v1/articles/export` (path `<TO SUPPLY>`; `L2-054` names none) | `status`, `q` (first 100 characters), `region`, `category`, as for `GET /admin/v1/articles` | `200` `text/csv; charset=utf-8`, `Content-Disposition: attachment; filename=articles-<YYYY-MM-DD>.csv`, streamed; header row `id,title,organization,category,region,relevance,status,published_at,collected_at,url`; at most 50,000 rows | `400` `export_too_large` |
+| `GET /admin/v1/articles/export` | `status`, `q` (first 100 characters), `region`, `category`, as for `GET /admin/v1/articles` | `200` `text/csv; charset=utf-8`, `Content-Disposition: attachment; filename=articles-<YYYY-MM-DD>.csv`, streamed; header row `id,title,organization,category,region,relevance,status,published_at,collected_at,url`; at most 50,000 rows | `400` `export_too_large` |
 
 **Backend**
 
@@ -72,9 +75,9 @@ streaming admin endpoint.
   `export_too_large`, `400`) when the count exceeds `MaxRows` = 50,000. Otherwise it returns an
   `IAsyncEnumerable<ArticleExportRowDto>` read with `AsNoTracking`.
 - **`ArticleExportRowDto`** — `Id`, `Title`, `Organization`, `Category`, `Region`, `Relevance`
-  (two decimals), `Status`, `PublishedAt`, `CollectedAt` and `Url`; times in ISO 8601 with an
-  offset. How a null title or organization is written (empty cell, or "Untitled post" and
-  "Unknown") is `<TO SUPPLY>`.
+  (two decimals), `Status`, `PublishedAt`, `CollectedAt` and `Url`; times in ISO 8601 in UTC
+  (`2025-03-11T12:14:00Z`). A null title, organization or publication time is an empty cell: the
+  file holds facts, not the screen's words.
 - **`CsvCell`** — static helper in `Keryx.Application`. `Escape(value)` prefixes a value that
   begins with `=`, `+`, `-`, `@`, tab or carriage return with a single quote, doubles embedded
   quotes and wraps every value in quotes per RFC 4180. It has a direct unit test with one case
@@ -84,7 +87,7 @@ streaming admin endpoint.
 - **`ExportTooLargeException`** — `KeryxException` mapped to `400` ProblemDetails by
   `ProblemDetailsMapper`.
 
-Whether an export is an audited staff action is `<TO SUPPLY>`; `L2-085` does not list it.
+An export is not an audited staff action: it changes no state, and `L2-085` does not list it.
 
 ## Requirements
 

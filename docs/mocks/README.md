@@ -156,12 +156,12 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 
 ### Notifications
 
-| Screen | info | success | warning | danger | stacked | with-action | mute-failed | Requirements |
-|---|---|---|---|---|---|---|---|---|
-| Collection toast (`collection-toast`) | [✅](notifications/collection-toast/info.html) | [✅](notifications/collection-toast/success.html) | [✅](notifications/collection-toast/warning.html) | [✅](notifications/collection-toast/danger.html) | [✅](notifications/collection-toast/stacked.html) |  |  | `L2-075`, `L2-076` |
-| Article toast (`article-toast`) | [✅](notifications/article-toast/info.html) | [✅](notifications/article-toast/success.html) | ➖ | [✅](notifications/article-toast/danger.html) |  | [✅](notifications/article-toast/with-action.html) |  | `L2-052`, `L2-054`, `L2-075` |
-| Source toast (`source-toast`) | ➖ | [✅](notifications/source-toast/success.html) | [✅](notifications/source-toast/warning.html) | [✅](notifications/source-toast/danger.html) |  | [✅](notifications/source-toast/with-action.html) |  | `L2-064`, `L2-065`, `L2-075` |
-| Run toast (`run-toast`) | [✅](notifications/run-toast/info.html) | [✅](notifications/run-toast/success.html) | [✅](notifications/run-toast/warning.html) | [✅](notifications/run-toast/danger.html) |  |  | [✅](notifications/run-toast/mute-failed.html) | `L2-059`, `L2-060`, `L2-075` |
-| API toast (`api-toast`) | ➖ | [✅](notifications/api-toast/success.html) | [✅](notifications/api-toast/warning.html) | [✅](notifications/api-toast/danger.html) |  |  |  | `L2-068`, `L2-069`, `L2-075` |
+| Screen | info | success | warning | danger | stacked | with-action | export-failed | mute-failed | Requirements |
+|---|---|---|---|---|---|---|---|---|---|
+| Collection toast (`collection-toast`) | [✅](notifications/collection-toast/info.html) | [✅](notifications/collection-toast/success.html) | [✅](notifications/collection-toast/warning.html) | [✅](notifications/collection-toast/danger.html) | [✅](notifications/collection-toast/stacked.html) |  |  |  | `L2-075`, `L2-076` |
+| Article toast (`article-toast`) | [✅](notifications/article-toast/info.html) | [✅](notifications/article-toast/success.html) | [✅](notifications/article-toast/warning.html) | [✅](notifications/article-toast/danger.html) |  | [✅](notifications/article-toast/with-action.html) | [✅](notifications/article-toast/export-failed.html) |  | `L2-052`, `L2-054`, `L2-075` |
+| Source toast (`source-toast`) | ➖ | [✅](notifications/source-toast/success.html) | [✅](notifications/source-toast/warning.html) | [✅](notifications/source-toast/danger.html) |  | [✅](notifications/source-toast/with-action.html) |  |  | `L2-064`, `L2-065`, `L2-075` |
+| Run toast (`run-toast`) | [✅](notifications/run-toast/info.html) | [✅](notifications/run-toast/success.html) | [✅](notifications/run-toast/warning.html) | [✅](notifications/run-toast/danger.html) |  |  |  | [✅](notifications/run-toast/mute-failed.html) | `L2-059`, `L2-060`, `L2-075` |
+| API toast (`api-toast`) | ➖ | [✅](notifications/api-toast/success.html) | [✅](notifications/api-toast/warning.html) | [✅](notifications/api-toast/danger.html) |  |  |  |  | `L2-068`, `L2-069`, `L2-075` |
 
 <!-- coverage:end -->

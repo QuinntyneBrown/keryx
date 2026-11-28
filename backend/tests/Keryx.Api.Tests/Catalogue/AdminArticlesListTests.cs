@@ -13,7 +13,7 @@ namespace Keryx.Api.Tests.Catalogue;
 public sealed class AdminArticlesListTests
 {
     private static readonly DateTimeOffset Day = new(2026, 11, 26, 12, 0, 0, TimeSpan.Zero);
-    private static readonly string LongTitle = "Running " + new string('k', 120);
+    internal static readonly string LongTitle = "Running " + new string('k', 120);
 
     // One topic in Toronto scores 0.60 and is published; two topics far away score 0.48 and are
     // held for review; no topic scores 0.30 and is hidden. Each collection is a minute later.

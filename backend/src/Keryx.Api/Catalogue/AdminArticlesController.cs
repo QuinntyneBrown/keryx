@@ -25,6 +25,21 @@ public sealed class AdminArticlesController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         sender.Send(new ListAdminArticles(page, pageSize, status, q, region, category), cancellationToken);
 
+    /// <summary>
+    /// The articles this status, search, region and category match, newest collected first, as a
+    /// CSV file streamed as it is read (L2-054).
+    /// </summary>
+    [HttpGet("export")]
+    [Produces("text/csv")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Export(
+        [FromQuery] string? status,
+        [FromQuery] string? q,
+        [FromQuery] string? region,
+        [FromQuery] string? category,
+        CancellationToken cancellationToken) =>
+        new ArticleCsvResult(await sender.Send(new ExportArticles(status, q, region, category), cancellationToken).ConfigureAwait(false));
+
     /// <summary>The whole total of each status, for the tabs.</summary>
     [HttpGet("counts")]
     public Task<ArticleStatusCountsDto> Counts(CancellationToken cancellationToken) => sender.Send(new GetArticleStatusCounts(), cancellationToken);

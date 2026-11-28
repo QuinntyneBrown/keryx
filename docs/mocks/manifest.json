@@ -297,14 +297,13 @@
       "kind": "notification",
       "title": "Article toast",
       "opens_from": "articles",
-      "not_applicable": {
-        "warning": "Article actions either complete or fail; there is no partial outcome to warn about."
-      },
       "states": [
         "info",
         "success",
         "with-action",
-        "danger"
+        "warning",
+        "danger",
+        "export-failed"
       ],
       "requirements": [
         "L2-052",

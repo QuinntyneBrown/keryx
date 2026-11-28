@@ -22,7 +22,7 @@ public sealed record AdminArticlePageDto(IReadOnlyList<AdminArticleRowDto> Items
 /// region and a category together (L2-048, L2-050). Values are as the query string gave them.
 /// </summary>
 public sealed record ListAdminArticles(string? Page, string? PageSize, string? Status, string? Q, string? Region, string? Category)
-    : IRequest<AdminArticlePageDto>
+    : IRequest<AdminArticlePageDto>, IAdminArticleFilter
 {
     public const int DefaultPageSize = 10;
     public const int MaxPageSize = 100;
@@ -42,18 +42,23 @@ public sealed record ListAdminArticles(string? Page, string? PageSize, string? S
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out value) && value >= min && value <= max;
 }
 
-internal sealed class ListAdminArticlesValidator : AbstractValidator<ListAdminArticles>
+/// <summary>The status, search, region and category that narrow the staff list and its export.</summary>
+public interface IAdminArticleFilter
 {
-    public ListAdminArticlesValidator(IAppDbContext db)
+    string? Status { get; }
+
+    string? Q { get; }
+
+    string? Region { get; }
+
+    string? Category { get; }
+}
+
+/// <summary>The filter's words as the query string gave them: a known status, region and category.</summary>
+internal sealed class AdminArticleFilterValidator : AbstractValidator<IAdminArticleFilter>
+{
+    public AdminArticleFilterValidator(IAppDbContext db)
     {
-        RuleFor(request => request.PageSize)
-            .Must(size => size is null || ListAdminArticles.TryParseNumber(size, 1, ListAdminArticles.MaxPageSize, out _))
-            .WithErrorCode("invalid_page")
-            .WithMessage("Give page_size as a whole number from 1 to 100.");
-        RuleFor(request => request.Page)
-            .Must(page => page is null || ListAdminArticles.TryParseNumber(page, 1, int.MaxValue, out _))
-            .WithErrorCode("invalid_page")
-            .WithMessage("Give page as a whole number from 1.");
         RuleFor(request => request.Status)
             .Must(status => status is null || ListAdminArticles.Statuses.Contains(status))
             .WithErrorCode("invalid_filter")
@@ -71,41 +76,38 @@ internal sealed class ListAdminArticlesValidator : AbstractValidator<ListAdminAr
 }
 
 /// <summary>
-/// Filters, counts the total and reads one page, newest collected first then newest id. The search
-/// uses the first 100 characters and matches title, organization name, region name and the place
-/// of the article's event as literal text without regard to case: EF sends the term as a
-/// parameter of a containment test, never as a LIKE pattern, so <c>%</c>, <c>_</c> and quotes are
-/// only themselves.
+/// Narrows the articles by the filter. The search uses the first 100 characters and matches
+/// title, organization name, region name and the place of the article's event as literal text
+/// without regard to case: EF sends the term as a parameter of a containment test, never as a
+/// LIKE pattern, so <c>%</c>, <c>_</c> and quotes are only themselves.
 /// </summary>
-internal sealed class ListAdminArticlesHandler(IAppDbContext db) : IRequestHandler<ListAdminArticles, AdminArticlePageDto>
+internal static class AdminArticleFilter
 {
     [SuppressMessage("Globalization", "CA1304", Justification = "Inside an EF query, ToUpper() is SQL upper(), not a .NET call.")]
     [SuppressMessage("Globalization", "CA1311", Justification = "Inside an EF query, ToUpper() is SQL upper(), not a .NET call.")]
     [SuppressMessage("Performance", "CA1862", Justification = "Inside an EF query, Contains(string) is SQL containment; a StringComparison overload does not translate.")]
-    public async Task<AdminArticlePageDto> Handle(ListAdminArticles request, CancellationToken cancellationToken)
+    public static IQueryable<Article> Apply(IAppDbContext db, IAdminArticleFilter filter)
     {
-        var page = request.Page is null ? 1 : int.Parse(request.Page, CultureInfo.InvariantCulture);
-        var size = request.PageSize is null ? ListAdminArticles.DefaultPageSize : int.Parse(request.PageSize, CultureInfo.InvariantCulture);
         var query = db.Articles.AsNoTracking();
-        if (request.Status is { } word)
+        if (filter.Status is { } word)
         {
             var status = ListAdminArticles.StatusOf(word);
             query = query.Where(article => article.Status == status);
         }
 
-        if (request.Region is { } region)
+        if (filter.Region is { } region)
         {
             query = query.Where(article => article.RegionSlug == region);
         }
 
-        if (request.Category is { } category)
+        if (filter.Category is { } category)
         {
             query = query.Where(article => article.Category == category);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Q))
+        if (!string.IsNullOrWhiteSpace(filter.Q))
         {
-            var term = (request.Q.Length > ListAdminArticles.MaxSearch ? request.Q[..ListAdminArticles.MaxSearch] : request.Q).ToUpperInvariant();
+            var term = (filter.Q.Length > ListAdminArticles.MaxSearch ? filter.Q[..ListAdminArticles.MaxSearch] : filter.Q).ToUpperInvariant();
             var regions = db.Regions;
             var events = db.Events;
             query = query.Where(article =>
@@ -115,6 +117,34 @@ internal sealed class ListAdminArticlesHandler(IAppDbContext db) : IRequestHandl
                 || events.Any(item => item.LinkedArticleId == article.Id && item.PlaceName.ToUpper().Contains(term)));
         }
 
+        return query;
+    }
+}
+
+internal sealed class ListAdminArticlesValidator : AbstractValidator<ListAdminArticles>
+{
+    public ListAdminArticlesValidator(IAppDbContext db)
+    {
+        Include(new AdminArticleFilterValidator(db));
+        RuleFor(request => request.PageSize)
+            .Must(size => size is null || ListAdminArticles.TryParseNumber(size, 1, ListAdminArticles.MaxPageSize, out _))
+            .WithErrorCode("invalid_page")
+            .WithMessage("Give page_size as a whole number from 1 to 100.");
+        RuleFor(request => request.Page)
+            .Must(page => page is null || ListAdminArticles.TryParseNumber(page, 1, int.MaxValue, out _))
+            .WithErrorCode("invalid_page")
+            .WithMessage("Give page as a whole number from 1.");
+    }
+}
+
+/// <summary>Filters (<see cref="AdminArticleFilter"/>), counts the total and reads one page, newest collected first then newest id.</summary>
+internal sealed class ListAdminArticlesHandler(IAppDbContext db) : IRequestHandler<ListAdminArticles, AdminArticlePageDto>
+{
+    public async Task<AdminArticlePageDto> Handle(ListAdminArticles request, CancellationToken cancellationToken)
+    {
+        var page = request.Page is null ? 1 : int.Parse(request.Page, CultureInfo.InvariantCulture);
+        var size = request.PageSize is null ? ListAdminArticles.DefaultPageSize : int.Parse(request.PageSize, CultureInfo.InvariantCulture);
+        var query = AdminArticleFilter.Apply(db, request);
         var total = await query.CountAsync(cancellationToken).ConfigureAwait(false);
         var items = await query
             .OrderByDescending(article => article.CollectedAt).ThenByDescending(article => article.Id)
