@@ -1,7 +1,7 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
 import { skeletonDelay } from '@kx/domain';
-import { ScheduleStore } from '../schedule/schedule-store';
+import { CollectionWatcher } from '../schedule/collection-watcher';
 
 /** A failed read's reference, the response's trace id, for staff to quote. */
 function referenceOf(error: unknown): string | null {
@@ -11,9 +11,6 @@ function referenceOf(error: unknown): string | null {
 /** Runs shows the 14 most recent collection runs (Decision 10 of L2.md). */
 export const HISTORY_RUNS = 14;
 
-/** A run in progress is read again no sooner than this after its last answer (L2-058 AC2). */
-export const FOLLOW_MS = 3000;
-
 /**
  * Runs' state, held only while the screen is shown: the page of runs, all of them or those with
  * problems, the run the URL names, and the chosen run's detail. Provided on the screen, so its
@@ -22,7 +19,7 @@ export const FOLLOW_MS = 3000;
 @Injectable()
 export class RunsStore {
   private readonly api = inject(RUNS_API);
-  private readonly schedule = inject(ScheduleStore);
+  private readonly watcher = inject(CollectionWatcher);
   private readonly controller = new AbortController();
   private readonly skeleton = skeletonDelay();
   /** The run the URL names, or null for the newest. */
@@ -30,8 +27,6 @@ export class RunsStore {
   /** Counts list and detail reads, so only the latest one's answer is shown. */
   private listReads = 0;
   private detailReads = 0;
-  /** The next read of the chosen run while it is in progress. */
-  private follow: ReturnType<typeof setTimeout> | undefined;
 
   /** Only runs with problems are listed (`?problems=true`). */
   readonly problems = signal<boolean | null>(null);
@@ -59,11 +54,15 @@ export class RunsStore {
   readonly slow = signal(false);
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => {
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => {
       this.controller.abort();
       this.skeleton.cancel();
-      clearTimeout(this.follow);
     });
+    // The chosen run in progress advances as the watcher reads it (L2-058 AC1).
+    this.watcher.onRead((run) => {
+      if (run.id === this.selected()) this.detail.set(run);
+    }, destroyRef);
   }
 
   /**
@@ -140,7 +139,7 @@ export class RunsStore {
       // The full history's newest run says whether one is in progress; a filtered list cannot.
       if (!this.problems()) {
         const newest = page.items[0];
-        this.schedule.track(newest?.outcome === 'running' ? newest : null);
+        this.watcher.track(newest?.outcome === 'running' ? newest : null);
       }
       if (!this.requested) this.choose(page.items[0]?.id ?? null);
     } catch (error) {
@@ -152,7 +151,6 @@ export class RunsStore {
 
   private choose(id: string | null): void {
     if (!id || id === this.selected()) return;
-    clearTimeout(this.follow);
     this.selected.set(id);
     this.detail.set(null);
     this.detailFailed.set(null);
@@ -166,10 +164,7 @@ export class RunsStore {
       const detail = await this.api.get(id, this.controller.signal);
       if (!current()) return;
       this.detail.set(detail);
-      // A run in progress is read again until it ends, another is chosen or the visit ends.
-      if (detail.outcome === 'running') {
-        this.follow = setTimeout(() => void this.readDetail(id), FOLLOW_MS);
-      }
+      this.watcher.observed(detail);
     } catch (error) {
       if (!current()) return;
       this.detail.set(null);

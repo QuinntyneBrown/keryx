@@ -1,6 +1,7 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, NOTIFIER, OVERVIEW_API, RUNS_API, type ShellSchedule } from '@kx/api';
 import { collectionStartedText } from '@kx/domain';
+import { CollectionWatcher } from './collection-watcher';
 
 /** How often the countdown to the next run is worked out again. */
 const CLOCK_MS = 30_000;
@@ -16,6 +17,7 @@ export class ScheduleStore {
   private readonly api = inject(OVERVIEW_API);
   private readonly runs = inject(RUNS_API);
   private readonly notifier = inject(NOTIFIER);
+  private readonly watcher = inject(CollectionWatcher);
   private readonly controller = new AbortController();
   private requested = false;
 
@@ -24,8 +26,8 @@ export class ScheduleStore {
   readonly now = signal(new Date());
   /** "Run now" is waiting for the API's answer. */
   readonly starting = signal(false);
-  /** The collection run in progress, as a screen last read it or Run now started it. */
-  readonly active = signal<{ id: string; startedAt: string } | null>(null);
+  /** The collection run in progress, as the watcher knows it. */
+  readonly active = this.watcher.active;
   /** "Run now" reads a disabled, busy "Collecting…" (L2-058 AC4). */
   readonly collecting = computed(() => this.starting() || this.active() !== null);
 
@@ -72,14 +74,6 @@ export class ScheduleStore {
       this.starting.set(false);
     }
     if (runId) shown(runId);
-  }
-
-  /**
-   * What a screen read about the run in progress: the newest run while it runs, or null when the
-   * newest has ended or the status serves none.
-   */
-  track(run: { id: string; started_at: string } | null): void {
-    this.active.set(run ? { id: run.id, startedAt: run.started_at } : null);
   }
 
   /** Reads the schedule the first time a screen asks for it. */

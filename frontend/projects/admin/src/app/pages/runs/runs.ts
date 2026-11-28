@@ -54,6 +54,7 @@ import {
 } from '@kx/domain';
 import { RunsStore } from '../../runs/runs-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
+import { CollectionWatcher } from '../../schedule/collection-watcher';
 import { ScheduleStore } from '../../schedule/schedule-store';
 
 /** Toronto's zone, which Keryx's times read in until the schedule names it. */
@@ -279,6 +280,9 @@ export default class Runs {
       this.viewing.set(params.get('run'));
       this.store.request(params.get('run'), params.get('problems') === 'true');
     });
-    inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => subscription.unsubscribe());
+    // The run in progress ended: its row and the header read the final outcome (L2-058 AC3).
+    inject(CollectionWatcher).onEnd(() => this.store.refresh(), destroyRef);
   }
 }

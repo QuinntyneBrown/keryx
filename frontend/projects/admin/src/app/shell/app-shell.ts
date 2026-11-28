@@ -13,6 +13,7 @@ import {
   ToastRegion,
 } from '@kx/components';
 import { NotifierStore } from '../notifier/notifier-store';
+import { CollectionWatcher } from '../schedule/collection-watcher';
 import { ScheduleStore } from '../schedule/schedule-store';
 
 /**
@@ -26,7 +27,12 @@ import { ScheduleStore } from '../schedule/schedule-store';
 @Component({
   selector: 'kx-app-shell',
   imports: [App, Avatar, Brand, Icon, NavLink, RouterOutlet, Sidebar, SkipLink, Toast, ToastRegion],
-  providers: [NotifierStore, { provide: NOTIFIER, useExisting: NotifierStore }, ScheduleStore],
+  providers: [
+    NotifierStore,
+    { provide: NOTIFIER, useExisting: NotifierStore },
+    CollectionWatcher,
+    ScheduleStore,
+  ],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })

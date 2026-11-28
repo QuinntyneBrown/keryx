@@ -32,33 +32,32 @@ box "Backend — Keryx Infrastructure" #FFF4E5
   database "Keryx database" as db
 end box
 actor -> page : Open Runs while run_2419 is in progress
+store -> client : getRun(run_2419), once, as for any run chosen
+store -> watcher : observed(RunDto) — the watcher follows run_2419 (it tracked it from the list)
+store -> watcher : onRead(show the chosen run), released by DestroyRef
 page --> actor : run_2419 first as "Running"; "Run now" is a disabled "Collecting…" (L2-058)
-store -> destroy : Register poll release (takeUntilDestroyed)
-store -> watcher : follow(run_2419) pauses the watcher poll for this run
-loop while outcome is running, at most every 3 s (L2-058 criterion 2)
-  store -> client : getRun(run_2419)
+loop while outcome is running, 3 s after each answer (L2-058 criterion 2)
+  watcher -> client : getRun(run_2419) — the only poll of the run, on any screen
   client -> controller : GET /admin/v1/runs/run_2419
   controller -> geth : Send GetRunQuery
   geth -> db : Read run, stages and progress
   db --> geth : Run in progress
   geth --> controller : RunDto(outcome = running, sources_checked, sources_total)
   controller --> client : 200 RunDto
-  client --> store : RunDto
-  store -> store : Replace previous progress; hold only the latest (L2-089)
+  client --> watcher : RunDto
+  watcher -> store : onRead(RunDto); shown while run_2419 is the run chosen
   store --> page : Stages done, running or not run; counts advance
-  page --> actor : Progress announced once per change through a live region (L2-092)
 end
 alt the run ends
-  store -> store : Stop polling
-  store -> watcher : observe(final RunDto)
-  watcher -> watcher : Notify once per run (L2-076)
-  store --> page : Final outcome
+  watcher -> watcher : No further read; active run cleared, "Run now" returns
+  watcher -> page : onEnd(final RunDto)
+  page -> store : refresh() reads the list again
+  store --> page : Final outcome in the detail and the list
   page --> actor : Final outcome without a reload (L2-058 criterion 3)
 else staff leave the screen
   actor -> page : Navigate elsewhere
   page -> destroy : Component destroyed
-  destroy -> store : Release poll timer and subscription
-  store -> watcher : unfollow(run_2419) resumes the watcher poll
-  store -> client : Unsubscribe aborts the in-flight request
+  destroy -> store : Release the onRead and onEnd listeners; abort the store's reads
+  watcher -> watcher : Goes on following run_2419 for the shell, still every 3 s
 end
 @enduml

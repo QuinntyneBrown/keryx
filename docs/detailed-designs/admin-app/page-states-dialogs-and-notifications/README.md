@@ -134,10 +134,13 @@ backend mapper; each screen and dialog design uses them.
 - **`CollectionWatcher`** — part of the shell's schedule state (Admin shell design), app-wide.
   It learns that a run is in progress from "Run now" (Run collection now design), from Overview
   or Runs data, and from the shell's refresh when the next collection time passes. While a run is
-  in progress it reads `GET /admin/v1/runs/{id}` no more often than every 3 seconds and holds
-  only the latest response; it pauses that read while `RunsStore` follows the same run. When the
-  run ends it raises one notification per run, remembering only the last notified run id. It
-  makes no request while no run is in progress.
+  in progress it reads `GET /admin/v1/runs/{id}` 3 seconds after each answer and holds only the
+  latest response; it is the only poll of that run, and `RunsStore` shows its reads (`onRead`)
+  rather than polling too. A detail a screen reads is reported to it (`observed`), so either can
+  learn of the end. When the run ends it tells the screens (`onEnd`: Runs reads its list again,
+  Overview its status and chart) and raises one notification per run, remembering only the last
+  notified run id. It makes no request while no run is in progress. It is provided on the shell
+  component beside `ScheduleStore`, whose "Collecting…" reads its `active` run.
 - **Messages** — "Collection started" with "Checking 64 sources. This usually takes about 4
   minutes." (info); "Collection finished" with "47 new articles from 64 sources." (success);
   "Collection finished with 2 failing sources" naming up to two of them, with "View run", which

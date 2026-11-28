@@ -46,13 +46,12 @@ Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-
 - **`RunsStore`** — screen store held in signals. It loads one page of 14 runs, selects the
   named run or the newest, loads the selected run's detail, and holds `listStatus` and
   `detailStatus` (`loading`, `ready`, `empty`, `no-results`, `error`). While the selected run
-  is `running` it polls its detail no more often than every 3 seconds, keeps only the latest
-  response, stops when the outcome is no longer `running`, and stops when its `DestroyRef`
-  fires. In-flight requests are cancelled on destroy, which aborts them. While it follows a run
-  it tells `CollectionWatcher`, which pauses its own poll for that run until the page is
-  destroyed, so the run is read by one poll at a time. On the end of a run it
-  passes the final run to `CollectionWatcher` (Page states, dialogs and notifications design),
-  which raises the outcome notification of `L2-076` once per run.
+  is `running` it shows each read `CollectionWatcher` (Page states, dialogs and notifications
+  design) makes of it: the watcher is the only poll of the run in progress, on any screen, so
+  the run is read by one poll at a time, no more often than every 3 seconds. The store reports
+  each detail it reads to the watcher, so a run's end is learned by either. Its listeners and
+  in-flight requests end with its `DestroyRef`. On the end of a run the page reads the list
+  again.
 - **`RunDetail`** — presentation composite in the `admin` app with no design-system
   equivalent. It is built from library components: a `card` with `card__title-row`, a `badge`
   for the outcome, `card__meta` ("run_2418 · Schedule · took 4m 12s"), a `stats stats--4
@@ -266,10 +265,10 @@ match the no-results state offers the way back to all runs.
 While the selected run is `running`, `RunsStore` polls its detail at most every 3 seconds and
 keeps only the latest response. Polling stops when the run ends or when the page is left.
 
-As built (journey 15): each read of a running run's detail sets one timer of `FOLLOW_MS`
-(3000 ms) for the next read, so a read is never sent sooner than 3 seconds after the last
-answer and never while one is out. The timer is cleared when another run is chosen and when
-the page is destroyed. A read whose run is no longer `running` sets none.
+As built (journey 15): `CollectionWatcher` sets one timer of `FOLLOW_MS` (3000 ms) after each
+answer, so a read is never sent sooner than 3 seconds after the last answer and never while one
+is out, and `RunsStore` shows the reads of the run chosen. Leaving Runs leaves the watcher's
+poll alone; a read whose run is no longer `running` sets no timer.
 
 ![Sequence diagram for following a running run](diagrams/sequence-follow-running-run.png)
 

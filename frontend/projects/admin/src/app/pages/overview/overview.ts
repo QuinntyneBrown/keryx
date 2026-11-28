@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ARTICLES_API, OVERVIEW_API, RUNS_API } from '@kx/api';
 import {
@@ -37,6 +37,7 @@ import {
 } from '@kx/domain';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
+import { CollectionWatcher } from '../../schedule/collection-watcher';
 import { ScheduleStore } from '../../schedule/schedule-store';
 import { OverviewStore, type Section, type SectionName } from '../../overview/overview-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
@@ -225,5 +226,10 @@ export default class Overview {
 
   constructor() {
     void this.store.load();
+    // The run in progress ended: the card returns to Last run (L2-043 AC6).
+    inject(CollectionWatcher).onEnd(
+      () => void this.store.load(['status', 'chart']),
+      inject(DestroyRef),
+    );
   }
 }
