@@ -32,6 +32,8 @@ export class Input {
   readonly placeholder = input<string>();
   /** Room at the start for an icon drawn over it, as in a search field. */
   readonly iconStart = input(false, { transform: booleanAttribute });
+  /** A width for a short entry: `short` for a number with its unit, `medium` for an address. */
+  readonly width = input<'short' | 'medium' | null>(null);
   /** Focus left the input. */
   readonly left = output<void>();
 

@@ -1,0 +1,27 @@
+<ul class="chips" [attr.aria-label]="label()">
+  @for (value of values(); track $index) {
+    <li [attr.class]="fresh().includes(value) ? 'chip chip--new' : 'chip'">
+      {{ value
+      }}<button
+        class="chip__remove"
+        type="button"
+        [attr.aria-label]="'Remove ' + value"
+        [disabled]="disabled()"
+        (click)="removeValue.emit($index)"
+      >
+        <kx-icon name="close" size="sm" />
+      </button>
+    </li>
+  }
+  <li>
+    <button
+      class="chip chip--add"
+      type="button"
+      [attr.aria-label]="addLabel()"
+      [disabled]="disabled()"
+      (click)="addValue.emit()"
+    >
+      <kx-icon name="plus" size="sm" />Add
+    </button>
+  </li>
+</ul>

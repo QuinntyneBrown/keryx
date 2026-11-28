@@ -1,0 +1,75 @@
+// The switch (docs/design-system/components/switch.html).
+:host {
+  display: block;
+}
+
+.switch {
+  --switch-thumb: var(--space-4);
+  --switch-track-height: var(--space-5);
+  --switch-track-width: calc(var(--switch-thumb) * 2 + var(--space-1));
+  --switch-track: var(--color-border-strong);
+  --switch-track-on: var(--color-accent);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control-height-sm);
+  width: fit-content;
+  cursor: pointer;
+
+  &:has(input:disabled) {
+    cursor: not-allowed;
+    color: var(--color-fg-muted);
+  }
+
+  input {
+    appearance: none;
+    position: relative;
+    width: var(--switch-track-width);
+    height: var(--switch-track-height);
+    flex: none;
+    margin: 0;
+    border-radius: var(--radius-full);
+    background: var(--switch-track);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-standard);
+
+    // The thumb: its position, start or end, carries the state.
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--space-0-5);
+      left: var(--space-0-5);
+      width: var(--switch-thumb);
+      height: var(--switch-thumb);
+      border-radius: var(--radius-full);
+      background: var(--color-bg-surface);
+      box-shadow: var(--shadow-1);
+      transition: translate var(--duration-fast) var(--ease-standard);
+    }
+
+    &:hover {
+      --switch-track: var(--color-fg-muted);
+    }
+
+    &:checked {
+      background: var(--switch-track-on);
+    }
+
+    &:checked::before {
+      translate: var(--switch-thumb) 0;
+      background: var(--color-fg-on-accent);
+    }
+
+    &:disabled {
+      opacity: var(--opacity-disabled);
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .switch input {
+    border: 1px solid CanvasText;
+  }
+}

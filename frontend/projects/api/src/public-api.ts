@@ -62,3 +62,9 @@ export {
   type RunStarted,
   type StageResult,
 } from './runs/runs-api';
+export {
+  SETTINGS_API,
+  type IntervalHours,
+  type SettingsApi,
+  type SettingsDto,
+} from './settings/settings-api';

@@ -22,7 +22,9 @@
   align-items: center;
   min-height: var(--control-height-sm);
   padding: var(--space-1) var(--space-3);
+  border: 0;
   border-radius: calc(var(--radius-md) - var(--space-0-5));
+  background: transparent;
   color: var(--color-fg-muted);
   font: var(--text-body-sm);
   text-decoration: none;
@@ -34,15 +36,21 @@
     color: var(--color-fg-default);
   }
 
-  // The current view is filled; its `aria-current` says so to a screen reader too.
-  &[aria-current='true'] {
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  // The current view, or the pressed choice, is filled; its attribute says so to a screen reader too.
+  &[aria-current='true'],
+  &[aria-pressed='true'] {
     background: var(--color-accent);
     color: var(--color-fg-on-accent);
   }
 }
 
 @media (forced-colors: active) {
-  .segmented__option[aria-current='true'] {
+  .segmented__option[aria-current='true'],
+  .segmented__option[aria-pressed='true'] {
     outline: 2px solid Highlight;
   }
 }

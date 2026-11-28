@@ -46,3 +46,13 @@
 .input--icon-start {
   padding-left: var(--space-8);
 }
+
+// A number with its unit.
+.input--short {
+  width: var(--space-20);
+}
+
+// An address: no wider than a field.
+.input--medium {
+  max-width: var(--layout-field-max);
+}

@@ -1,0 +1,14 @@
+// An input with its unit (docs/design-system/components/input.html).
+:host {
+  display: block;
+}
+
+.input-affix {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.input-affix__suffix {
+  color: var(--color-fg-muted);
+}

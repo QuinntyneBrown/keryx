@@ -1,0 +1,75 @@
+// The chip list (docs/design-system/components/chip.html).
+:host {
+  display: block;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-height-sm);
+  padding: var(--space-1) var(--space-1-5) var(--space-1) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-border-emphasis);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  font: var(--text-body-sm);
+}
+
+// The dashed Add chip.
+.chip--add {
+  padding-inline: var(--space-3);
+  border-style: dashed;
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+}
+
+// Added, not yet saved.
+.chip--new {
+  border-color: var(--color-brand);
+  background: var(--color-brand-subtle);
+  color: var(--color-fg-brand);
+}
+
+.chip__remove {
+  display: inline-grid;
+  place-items: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg-subtle);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-subtle-hover);
+    color: var(--color-fg-default);
+  }
+}
+
+.chip__remove:disabled,
+.chip--add:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+@media (forced-colors: active) {
+  .chip {
+    border: 1px solid CanvasText;
+  }
+}

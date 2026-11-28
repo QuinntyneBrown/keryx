@@ -9,6 +9,7 @@ import {
   runPage,
 } from './overview';
 import { runDetail, shellSchedule } from './runs';
+import { savedSettings } from './settings';
 
 export { expect };
 export type { ApiHandler, ApiHandlers, ApiReply } from './api-handlers';
@@ -64,6 +65,7 @@ export const test = base.extend<Fixtures>({
     handlers.on('GET', '/admin/v1/regions', () => ({ json: { items: OVERVIEW_REGIONS } }));
     handlers.on('GET', '/admin/v1/issues', () => ({ json: issuePage() }));
     handlers.on('GET', '/admin/v1/overview/schedule', () => ({ json: shellSchedule() }));
+    handlers.on('GET', '/admin/v1/settings', () => ({ json: savedSettings() }));
     handlers.on('GET', /^\/admin\/v1\/runs\/[^/]+$/, (request) => ({
       json: runDetail(new URL(request.url()).pathname.split('/').pop() ?? ''),
     }));

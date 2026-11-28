@@ -1,1 +1,15 @@
-<div [attr.class]="classes()" [attr.aria-busy]="busy() || null"><ng-content /></div>
+@if (form()) {
+  <form
+    [attr.class]="classes()"
+    [attr.aria-busy]="busy() || null"
+    novalidate
+    (submit)="$event.preventDefault(); submitted.emit()"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </form>
+} @else {
+  <div [attr.class]="classes()" [attr.aria-busy]="busy() || null">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+}
+<ng-template #content><ng-content /></ng-template>

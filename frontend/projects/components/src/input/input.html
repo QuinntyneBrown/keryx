@@ -1,6 +1,9 @@
 <input
   [attr.class]="
-    'input' + (mono() ? ' input--mono' : '') + (iconStart() ? ' input--icon-start' : '')
+    'input' +
+    (mono() ? ' input--mono' : '') +
+    (iconStart() ? ' input--icon-start' : '') +
+    (width() ? ' input--' + width() : '')
   "
   [id]="controlId()"
   [type]="type()"

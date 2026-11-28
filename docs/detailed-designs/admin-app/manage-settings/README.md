@@ -158,6 +158,12 @@ this design's; the ranges are those of `L2-070`.
   adds no region. A new one is ranked after the places in focus and before the wider areas
   (GTA, Ontario, Canada, Global).
 - Chip values are stored trimmed.
+- At or below the review floor (0.45) nothing waits for review, so the threshold help reads
+  "None wait in Needs review. Below 0.40 are hidden." instead of a range that would run
+  backwards.
+- `page-body` is the `form` element itself in its `form` variant, as the mock has it
+  (`form.page-body--form` with `novalidate`); the button variant of `segmented` names no group
+  of its own inside the "Run every" fieldset, whose legend names it.
 - The `AuditEntry` of a save is stored by Audit staff actions (journey 24), which adds the audit
   log to every staff change at once. Until then a save records no audit entry.
 

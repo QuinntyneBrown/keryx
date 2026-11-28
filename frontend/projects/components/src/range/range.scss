@@ -1,0 +1,23 @@
+// The range (docs/design-system/components/range.html).
+:host {
+  display: block;
+}
+
+.range {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  input {
+    width: 100%;
+    max-width: calc(var(--space-20) * 4);
+    min-height: var(--target-min);
+    accent-color: var(--color-accent);
+  }
+}
+
+.range__value {
+  width: var(--space-10);
+  font: var(--text-label);
+  font-variant-numeric: tabular-nums;
+}

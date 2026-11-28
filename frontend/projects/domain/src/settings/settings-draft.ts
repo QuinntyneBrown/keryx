@@ -1,0 +1,42 @@
+import type { IntervalHours, SettingsDto } from '@kx/api';
+
+/**
+ * The Settings form's entries. A number typed into a field is held as typed, so an entry that is
+ * not yet a valid number stays on screen to be corrected (L2-071 AC3).
+ */
+export interface SettingsDraft {
+  interval_hours: IntervalHours;
+  timeout_seconds: string;
+  publish_threshold: number;
+  topics: string[];
+  exclusions: string[];
+  focus_areas: string[];
+  include_ontario_wide: boolean;
+  include_national: boolean;
+  merge_duplicates: boolean;
+  retention_months: string;
+  alert_email: string;
+  alert_failure_streak: string;
+  alert_on_run_failure: boolean;
+  daily_digest: boolean;
+}
+
+/** The entries that show saved settings. */
+export function draftOf(saved: SettingsDto): SettingsDraft {
+  return {
+    interval_hours: saved.interval_hours,
+    timeout_seconds: String(saved.timeout_seconds),
+    publish_threshold: saved.publish_threshold,
+    topics: [...saved.topics],
+    exclusions: [...saved.exclusions],
+    focus_areas: [...saved.focus_areas],
+    include_ontario_wide: saved.include_ontario_wide,
+    include_national: saved.include_national,
+    merge_duplicates: saved.merge_duplicates,
+    retention_months: String(saved.retention_months),
+    alert_email: saved.alert_email ?? '',
+    alert_failure_streak: String(saved.alert_failure_streak),
+    alert_on_run_failure: saved.alert_on_run_failure,
+    daily_digest: saved.daily_digest,
+  };
+}
