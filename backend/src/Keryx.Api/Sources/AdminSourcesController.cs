@@ -54,6 +54,20 @@ public sealed class AdminSourcesController(ISender sender) : ControllerBase
         ArgumentNullException.ThrowIfNull(body);
         return sender.Send(new UpdateSource(id, body.Address, body.OrganizationName, body.Region), cancellationToken);
     }
+
+    /// <summary>Stops checking a source and keeps what it collected (L2-003 AC3).</summary>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Remove(string id, CancellationToken cancellationToken)
+    {
+        await sender.Send(new RemoveSource(id), cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    /// <summary>Undo of a removal: the same source is active again (L2-065 AC4).</summary>
+    [HttpPost("{id}/restore")]
+    public Task<SourceDto> Restore(string id, CancellationToken cancellationToken) =>
+        sender.Send(new RestoreSource(id), cancellationToken);
 }
 
 /// <summary>What staff send to change a source; its kind is not editable (L2-003).</summary>

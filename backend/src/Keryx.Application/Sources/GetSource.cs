@@ -15,7 +15,7 @@ internal sealed class GetSourceHandler(IAppDbContext db) : IRequestHandler<GetSo
         var source = await db.Sources.AsNoTracking()
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new SourceNotFoundException();
-        return SourceDto.From(source);
+        return await SourceDto.ReadAsync(db, source, cancellationToken).ConfigureAwait(false);
     }
 }
 

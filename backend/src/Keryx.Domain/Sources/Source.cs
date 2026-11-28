@@ -51,6 +51,18 @@ public sealed class Source
     /// <summary>How many items of the last fetch were held for review (L2-004 AC3).</summary>
     public int HeldCount { get; private set; }
 
+    /// <summary>
+    /// When staff removed it, in UTC; null while it is active. A removed source is kept, so every
+    /// record collected from it keeps its provenance (L2-003 AC3), but nothing fetches or lists it.
+    /// </summary>
+    public DateTimeOffset? RemovedAt { get; private set; }
+
+    /// <summary>Staff removed it: Keryx stops checking it, and keeps what it collected (L2-003 AC3).</summary>
+    public void Remove(DateTimeOffset now) => RemovedAt = now;
+
+    /// <summary>Undo of a removal: the same source is active again (L2-065 AC4).</summary>
+    public void Restore() => RemovedAt = null;
+
     /// <summary>The last fetch failed, after its final attempt: the source is failing (L2-004 AC2).</summary>
     public void RecordFetchFailed(DateTimeOffset at, string reason)
     {

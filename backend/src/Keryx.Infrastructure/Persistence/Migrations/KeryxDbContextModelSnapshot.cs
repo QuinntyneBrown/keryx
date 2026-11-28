@@ -781,6 +781,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset?>("RemovedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SeedKey")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -796,7 +799,8 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("Kind", "NormalizedAddress")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("\"RemovedAt\" IS NULL");
 
                     b.ToTable("Sources", (string)null);
                 });

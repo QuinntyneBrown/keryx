@@ -44,7 +44,8 @@ internal sealed class GetAdminArticleHandler(IAppDbContext db) : IRequestHandler
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new ArticleNotFoundException();
         var sourceIds = article.Provenance.Select(entry => entry.SourceId).Append(article.SourceId).OfType<long>().Distinct().ToList();
-        var sources = await db.Sources.AsNoTracking().Where(source => sourceIds.Contains(source.Id))
+        // A removed source still names what it raised or yielded (L2-003 AC3).
+        var sources = await db.Sources.AsNoTracking().IgnoreQueryFilters().Where(source => sourceIds.Contains(source.Id))
             .ToDictionaryAsync(source => source.Id, cancellationToken).ConfigureAwait(false);
         var first = article.SourceId is { } id && sources.TryGetValue(id, out var source) ? new ArticleSourceDto(source.PublicId, source.OrganizationName) : null;
         return new AdminArticleDto(

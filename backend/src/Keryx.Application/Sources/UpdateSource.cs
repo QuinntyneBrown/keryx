@@ -66,6 +66,6 @@ internal sealed class UpdateSourceHandler(IAppDbContext db, SourceTester tester)
         }
 
         var test = await tester.TestStoredAsync(source, cancellationToken).ConfigureAwait(false);
-        return new SourceSaved(SourceDto.From(source), test);
+        return new SourceSaved(await SourceDto.ReadAsync(db, source, cancellationToken).ConfigureAwait(false), test);
     }
 }

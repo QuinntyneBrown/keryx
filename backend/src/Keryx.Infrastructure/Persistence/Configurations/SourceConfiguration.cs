@@ -24,8 +24,11 @@ internal sealed class SourceConfiguration : IEntityTypeConfiguration<Source>
         builder.HasOne<Region>().WithMany().HasForeignKey(source => source.RegionSlug).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(source => source.SeedKey).IsUnique();
         builder.Property(source => source.NormalizedAddress).HasMaxLength(2048);
-        // One source per kind and normalized address; a concurrent duplicate fails here (L2-001 AC3).
-        builder.HasIndex(source => new { source.Kind, source.NormalizedAddress }).IsUnique();
+        // One active source per kind and normalized address; a concurrent duplicate fails here
+        // (L2-001 AC3). A removed source frees its address (L2-003 AC4).
+        builder.HasIndex(source => new { source.Kind, source.NormalizedAddress }).IsUnique().HasFilter("\"RemovedAt\" IS NULL");
+        // Only active sources are fetched, listed or matched; a lookup by id for a name ignores this.
+        builder.HasQueryFilter(source => source.RemovedAt == null);
         builder.Property(source => source.PublicId).HasMaxLength(PublicIdLength);
         builder.HasIndex(source => source.PublicId).IsUnique();
         builder.Property(source => source.Health).HasConversion(health => SourceWords.Health(health), word => SourceWords.HealthOf(word)!.Value).HasMaxLength(16);

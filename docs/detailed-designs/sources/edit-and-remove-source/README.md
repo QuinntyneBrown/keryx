@@ -40,8 +40,8 @@ The feature is a vertical slice from the two dialogs to the database.
 - `DELETE /admin/v1/sources/{id}` — `204`. The source is no longer fetched or listed.
 - `POST /admin/v1/sources/{id}/restore` — the Undo of a removal; `200` with the source, or `409`
   `source_exists` when an active source with the same kind and address was added meanwhile. The
-  specs name no endpoint for Undo, so this path is this design's proposal and is `<TO SUPPLY>`
-  for confirmation. A restore is used rather than a new create because `news_query` sources are
+  specs name no endpoint for Undo, so this path is this design's proposal; journey 17 confirmed
+  it. A restore is used rather than a new create because `news_query` sources are
   removable but not creatable (`kind_not_creatable`).
 - Every one of these answers `404` `source_not_found` for an unknown or malformed id, requires the
   staff policy, and (except `GET`) writes an `AuditEntry` on success (L2-085).
@@ -100,6 +100,19 @@ The feature is a vertical slice from the two dialogs to the database.
   `GET /v1/sources`, and in the uniqueness check on kind and normalized address.
 - **`RestoreSourceCommandHandler`** — calls `Source.Restore()` unless an active duplicate exists.
 - **Open issues** — what happens to a removed source's open issues (L2-020) is `<TO SUPPLY>`.
+  - As built (journey 17): removing a source closes every issue it raised, open or muted, since
+    no run will raise or clear them again and they would count on Overview and in alerts
+    forever. Undo leaves them closed; the next run raises any that still apply.
+- **As built (journey 17)** — "active" is a global query filter on `Source`
+  (`RemovedAt == null`), so every fetch, list, count and duplicate check leaves a removed source
+  out without each query saying so; the lookups that name a source for a run's issues and an
+  article's first source use `IgnoreQueryFilters()`, so a removed source still names what it
+  raised or yielded. The unique index on kind and normalized address is filtered to active
+  sources (`"RemovedAt" IS NULL`, migration `SourceRemoval`). A removed source answers
+  `404 source_not_found` to read, edit, test and remove; only restore finds it.
+  `GET /admin/v1/sources/{id}` (and the edit and restore responses) add `failure_reason`,
+  `consecutive_failures` and `article_count`: the articles with a provenance entry for the
+  source. The restore path `POST /admin/v1/sources/{id}/restore` is confirmed.
 
 ## Requirements
 

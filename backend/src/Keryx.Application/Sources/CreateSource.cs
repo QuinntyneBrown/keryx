@@ -44,7 +44,7 @@ internal sealed class CreateSourceHandler(IAppDbContext db, TimeProvider time) :
             throw new SourceExistsException();
         }
 
-        return SourceDto.From(source);
+        return SourceDto.From(source, articleCount: 0);
     }
 }
 

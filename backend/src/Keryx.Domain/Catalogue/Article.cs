@@ -216,7 +216,7 @@ public sealed class Provenance
     {
     }
 
-    /// <summary>Null once the source is removed; the name and URL stay.</summary>
+    /// <summary>The source it was seen at; a removed source is kept, so this keeps resolving (L2-003 AC3).</summary>
     public long? SourceId { get; private set; }
 
     public string SourceName { get; private set; } = string.Empty;

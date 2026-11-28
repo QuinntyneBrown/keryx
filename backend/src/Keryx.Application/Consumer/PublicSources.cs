@@ -38,7 +38,7 @@ internal sealed class ListPublicSourcesValidator : AbstractValidator<ListPublicS
 /// <summary>
 /// One keyset query over sources ordered by (name, id). It selects four columns and the source's
 /// listed organization, so health, failure, address and query text cannot reach the response.
-/// Every stored source is active until staff can remove one (journey 17), which filters here.
+/// A removed source is not listed: the query filter on sources leaves it out (L2-003 AC3).
 /// </summary>
 internal sealed class ListPublicSourcesHandler(IAppDbContext db, ICursorCodec cursors) : IRequestHandler<ListPublicSources, PageDto<PublicSourceDto>>
 {

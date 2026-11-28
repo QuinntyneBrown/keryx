@@ -35,7 +35,7 @@ public sealed class CreateSourceTests(ApiFactory factory) : IClassFixture<ApiFac
 
         var read = await client.GetFromJsonAsync<JsonElement>(created.Headers.Location, TestContext.Current.CancellationToken);
         Assert.Equal(
-            ["id", "kind", "address", "organization_name", "region", "health", "created_at", "last_fetched_at", "last_succeeded_at"],
+            ["id", "kind", "address", "organization_name", "region", "health", "failure_reason", "consecutive_failures", "article_count", "created_at", "last_fetched_at", "last_succeeded_at"],
             read.EnumerateObject().Select(property => property.Name));
         Assert.Equal(id, read.GetProperty("id").GetString());
         Assert.Equal("rss", read.GetProperty("kind").GetString());

@@ -79,7 +79,8 @@ internal sealed class GetRunHandler(IAppDbContext db) : IRequestHandler<GetRun, 
             .Select(occurrence => new { occurrence.Detail, occurrence.Issue })
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         var sourceIds = occurrences.Select(occurrence => occurrence.Issue.SourceId).OfType<long>().Distinct().ToList();
-        var sources = await db.Sources.AsNoTracking().Where(source => sourceIds.Contains(source.Id))
+        // A removed source still names what it raised or yielded (L2-003 AC3).
+        var sources = await db.Sources.AsNoTracking().IgnoreQueryFilters().Where(source => sourceIds.Contains(source.Id))
             .ToDictionaryAsync(source => source.Id, cancellationToken).ConfigureAwait(false);
         return RunDto.From(run, [.. occurrences.Select(occurrence => IssueOf(occurrence.Issue, occurrence.Detail, sources))]);
     }
