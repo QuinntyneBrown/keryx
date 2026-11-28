@@ -72,6 +72,26 @@ export class SourcesStore {
   }
 
   /**
+   * Reads the shown page again in place, after a change made in a dialog (L2-065 AC2): the rows
+   * stay until the answer replaces them, so the row and the focus on it remain. If the read
+   * fails, the list loads as on opening, and says so if that fails too.
+   */
+  async refresh(): Promise<void> {
+    this.controller?.abort();
+    const controller = new AbortController();
+    this.controller = controller;
+    try {
+      const result = await this.api.list(
+        { page: this.page, pageSize: SOURCES_PAGE_SIZE, ...(this.kind ? { kind: this.kind } : {}) },
+        controller.signal,
+      );
+      if (!controller.signal.aborted) this.current.set({ status: 'ready', page: result });
+    } catch {
+      if (!controller.signal.aborted) await this.load();
+    }
+  }
+
+  /**
    * "Test fetch now" (L2-063 AC3): tests the source and says how it went, leaving the rows as
    * they are. A source removed meanwhile is said, and the list read again; any other refusal
    * says the test did not run, with "Try again".

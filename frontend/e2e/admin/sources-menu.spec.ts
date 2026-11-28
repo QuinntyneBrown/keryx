@@ -76,6 +76,7 @@ test.describe('Source row menu', () => {
 
     await expect(sources.menu).toHaveAccessibleName('Actions for Redeemed Run Club Toronto');
     await expect(sources.menuItems).toHaveText([
+      'Edit source',
       'Test fetch now',
       'Open redeemedrun.ca (opens in a new tab)',
     ]);
@@ -85,13 +86,15 @@ test.describe('Source row menu', () => {
     await page.keyboard.press('ArrowDown');
     await expect(sources.menuItems.nth(1)).toBeFocused();
     await page.keyboard.press('ArrowDown');
+    await expect(sources.menuItems.nth(2)).toBeFocused();
+    await page.keyboard.press('ArrowDown');
     await expect(sources.menuItems.nth(0)).toBeFocused();
     await page.keyboard.press('ArrowUp');
-    await expect(sources.menuItems.nth(1)).toBeFocused();
+    await expect(sources.menuItems.nth(2)).toBeFocused();
     await page.keyboard.press('Home');
     await expect(sources.menuItems.nth(0)).toBeFocused();
     await page.keyboard.press('End');
-    await expect(sources.menuItems.nth(1)).toBeFocused();
+    await expect(sources.menuItems.nth(2)).toBeFocused();
 
     await page.keyboard.press('Escape');
 
@@ -117,7 +120,7 @@ test.describe('Source row menu', () => {
     // The lowest row's menu opens below it, clear of the rows above.
     await sources.row(2).actions.click();
 
-    await expect(sources.menuItems).toHaveText(['Test fetch now']);
+    await expect(sources.menuItems).toHaveText(['Edit source', 'Test fetch now']);
 
     await sources.row(0).actions.click();
 
@@ -129,7 +132,7 @@ test.describe('Source row menu', () => {
     await sources.row(1).actions.click();
 
     await expect(sources.menu).toHaveAccessibleName('Actions for Toronto church fitness');
-    await expect(sources.menuItems).toHaveText(['Test fetch now']);
+    await expect(sources.menuItems).toHaveText(['Edit source', 'Test fetch now']);
 
     // Its own button closes it again.
     await sources.row(1).actions.click();
@@ -170,6 +173,7 @@ test.describe('Source row menu', () => {
     const button = sources.row(0).actions;
 
     await button.click();
+    await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
 
     await expect(sources.toastTitle).toHaveText('Tested Redeemed Run Club Toronto');

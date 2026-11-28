@@ -103,3 +103,16 @@ export function sourceTestNotice(kind: SourceKind, name: string, result: SourceT
       : `${summary.text} Its health changes when a run fetches it.`,
   };
 }
+
+/**
+ * The notification after "Save source" (L2-065 AC2): "Source saved", with how the test of the
+ * saved address went and when the change applies, in the test's tone.
+ */
+export function sourceSavedNotice(kind: SourceKind, test: SourceTestResult): Notice {
+  const summary = testFetchSummary(kind, test);
+  return {
+    tone: summary.tone,
+    title: 'Source saved',
+    text: `${summary.text} Changes apply from the next scheduled run.`,
+  };
+}

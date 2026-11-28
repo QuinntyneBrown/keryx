@@ -56,6 +56,16 @@ The feature is a vertical slice from the two dialogs to the database.
   `sourceFormValidation` messages, and on failure the `alert` "Keryx couldn’t save your changes"
   with "Reference req_…" and every entry kept. `source_exists` marks the URL field. The success
   notification copy for an edit is `<TO SUPPLY>`; no source-toast mock covers it.
+  - As built (journey 17): the success notification is "Source saved", with the test fetch's
+    sentence (`testFetchSummary`) and "Changes apply from the next scheduled run.", in the test's
+    tone (`sourceSavedNotice`). The Type fieldset shows only the source's kind, checked, since the
+    kind is not editable; the mocks were corrected to match. A news query's field is labelled
+    "Query" and needs only its text, at most 2,048 characters. The alert text is
+    `lastFetchFailure`: "GET <address> → <reason>. Check the address below.". The dialog reads
+    the source from the row it was opened on (`EditSourceData`), so it needs no `GET` of its own.
+    After a save, `SourcesStore.refresh()` reads the shown page again in place rather than
+    `replaceRow`. The `PUT` answer has no region name, and keeping the rows keeps focus on the
+    row's menu button.
 - **Opening from Runs** — `RunsPage` opens the same `EditSourceDialog` for an issue's source and
   binds `SOURCES_API` in the dialog's injector; on save it refreshes its own data.
 - **`RemoveSourceDialog`** — CDK Dialog titled "Remove Redeemed Run Club Toronto?" (the

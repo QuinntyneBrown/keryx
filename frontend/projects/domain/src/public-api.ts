@@ -3,6 +3,7 @@
 export { viewportClass, type ViewportClass } from './viewport/viewport-class';
 export {
   formatSourceAddress,
+  lastFetchFailure,
   sourceHealthLabel,
   SOURCE_KINDS,
   sourceKindLabel,
@@ -17,12 +18,14 @@ export {
 } from './sources/source-words';
 export {
   isAcceptableAddress,
+  SOURCE_URL_REFUSALS,
   sourceFormValidation,
   type SourceFormEntries,
   type SourceFormErrors,
 } from './sources/source-form-validation';
 export {
   nothingRelevantNotice,
+  sourceSavedNotice,
   sourceTestNotice,
   testFetchSummary,
   type TestFetchSummary,

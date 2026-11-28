@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
   type NewSource,
+  type SourceChanges,
+  type SourceSaved,
   type Region,
   type SourceDetail,
   type SourceKind,
@@ -55,6 +57,15 @@ export class HttpSourcesApi implements SourcesApi {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
       body: JSON.stringify(source),
+    });
+  }
+
+  async update(id: string, changes: SourceChanges, signal: AbortSignal): Promise<SourceSaved> {
+    const token = await antiforgeryToken(signal);
+    return readJson<SourceSaved>(`/admin/v1/sources/${encodeURIComponent(id)}`, signal, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
+      body: JSON.stringify(changes),
     });
   }
 }

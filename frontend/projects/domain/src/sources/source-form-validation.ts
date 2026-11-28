@@ -1,12 +1,14 @@
-/** What staff entered in "Add a source". */
+/** What staff entered in "Add a source" or "Edit source". */
 export interface SourceFormEntries {
   url: string;
   organisation: string;
   region: string;
+  /** A news query's address is its query text, not a URL (L2-003); every other kind's is a URL. */
+  newsQuery?: boolean;
 }
 
 /** The message for each field that is wrong, in the order of the form; empty when all are right. */
-export type SourceFormErrors = Partial<Record<keyof SourceFormEntries, string>>;
+export type SourceFormErrors = Partial<Record<'url' | 'organisation' | 'region', string>>;
 
 const MAX_ADDRESS = 2048;
 const MAX_ORGANISATION = 120;
@@ -18,7 +20,10 @@ const MAX_ORGANISATION = 120;
  */
 export function sourceFormValidation(entries: SourceFormEntries): SourceFormErrors {
   const errors: SourceFormErrors = {};
-  if (!isAcceptableAddress(entries.url.trim())) {
+  const address = entries.url.trim();
+  if (entries.newsQuery) {
+    if (address.length === 0 || address.length > MAX_ADDRESS) errors.url = 'Enter the news query.';
+  } else if (!isAcceptableAddress(address)) {
     errors.url = 'Enter a full URL starting with https://, like https://lifepointfit.ca/events.';
   }
   const organisation = entries.organisation.trim();
@@ -48,3 +53,9 @@ export function isAcceptableAddress(address: string): boolean {
     (url.port === '' || url.port === '80' || url.port === '443')
   );
 }
+
+/** The URL field's message for a refusal the API words by its code (L2-064 AC7, L2-024). */
+export const SOURCE_URL_REFUSALS: Readonly<Record<string, string>> = {
+  source_exists: 'This source is already in the list.',
+  unsafe_address: 'Keryx can’t fetch this address: it isn’t on the public internet.',
+};

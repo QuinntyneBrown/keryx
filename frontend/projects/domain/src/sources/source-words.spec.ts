@@ -1,5 +1,6 @@
 import {
   formatSourceAddress,
+  lastFetchFailure,
   sourceHealthLabel,
   sourceKindLabel,
   sourceKindOf,
@@ -182,5 +183,54 @@ describe('sourceSiteLink', () => {
     ['"church" AND fitness near:Toronto', null],
   ] as const)('%s', (address, link) => {
     expect(sourceSiteLink(address)).toEqual(link);
+  });
+});
+
+describe('lastFetchFailure', () => {
+  // L2-065 AC1, as dialogs/edit-source/default.html shows it.
+  const now = new Date('2026-11-28T14:46:00Z');
+  const source = (fields: Record<string, unknown>) =>
+    ({
+      kind: 'rss',
+      address: 'https://redeemedrun.ca/feed',
+      health: 'failing',
+      failure_reason: 'not_found',
+      last_fetched_at: '2026-11-28T11:01:00Z',
+      ...fields,
+    }) as Parameters<typeof lastFetchFailure>[0];
+  it.each([
+    [
+      {},
+      {
+        title: 'Last fetch failed today at 6:01 AM',
+        text: 'GET https://redeemedrun.ca/feed → 404 Not Found. Check the address below.',
+      },
+    ],
+    [
+      { last_fetched_at: '2026-11-27T22:15:00Z', failure_reason: 'timeout' },
+      {
+        title: 'Last fetch failed yesterday at 5:15 PM',
+        text: 'GET https://redeemedrun.ca/feed → Timeout. Check the address below.',
+      },
+    ],
+    [
+      { last_fetched_at: '2026-11-20T15:00:00Z', failure_reason: 'gremlins' },
+      {
+        title: 'Last fetch failed on Fri, Nov 20 at 10:00 AM',
+        text: 'GET https://redeemedrun.ca/feed failed. Check the address below.',
+      },
+    ],
+    [
+      { kind: 'news_query', address: 'church near:Toronto', failure_reason: 'refused' },
+      {
+        title: 'Last fetch failed today at 6:01 AM',
+        text: 'The news search → Refused. Check the query below.',
+      },
+    ],
+    [{ health: 'healthy' }, null],
+    [{ health: 'needs_look' }, null],
+    [{ last_fetched_at: null }, null],
+  ])('%o', (fields, expected) => {
+    expect(lastFetchFailure(source(fields), now, 'America/Toronto')).toEqual(expected);
   });
 });

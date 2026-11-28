@@ -13,7 +13,12 @@ export {
   type SourceQuery,
   type SourcesApi,
 } from './sources/sources-api';
-export { type NewSource, type SourceDetail } from './sources/new-source';
+export {
+  type NewSource,
+  type SourceChanges,
+  type SourceDetail,
+  type SourceSaved,
+} from './sources/new-source';
 export { NOTIFIER, type Notice, type Notifier } from './notifier/notifier';
 export {
   API_CLIENTS_API,

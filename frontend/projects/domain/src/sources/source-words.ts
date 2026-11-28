@@ -1,5 +1,5 @@
 import type { SourceHealth, SourceKind } from '@kx/api';
-import { formatCollectedAt, pageRange } from '../articles/article-words';
+import { dayAndTime, formatCollectedAt, pageRange } from '../articles/article-words';
 
 const NUMBER = new Intl.NumberFormat('en-CA');
 
@@ -162,4 +162,33 @@ export function sourceSiteLink(address: string): { host: string; url: string } |
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
   return { host: url.hostname.replace(/^www\./, ''), url: url.href };
+}
+
+/**
+ * The alert above "Edit source" for a failing source (L2-065 AC1): "Last fetch failed today at
+ * 6:01 AM" and "GET https://redeemedrun.ca/feed → 404 Not Found. Check the address below.";
+ * null for a source that is not failing or was never fetched.
+ */
+export function lastFetchFailure(
+  source: {
+    kind: SourceKind;
+    address: string;
+    health: SourceHealth;
+    failure_reason: string | null;
+    last_fetched_at: string | null;
+  },
+  now: Date,
+  timeZone: string,
+): { title: string; text: string } | null {
+  if (source.health !== 'failing' || !source.last_fetched_at) return null;
+  const { day, time } = dayAndTime(source.last_fetched_at, now, timeZone);
+  const when = day === 'Today' || day === 'Yesterday' ? day.toLowerCase() : `on ${day}`;
+  const words = source.failure_reason ? FAILURE_WORDS[source.failure_reason] : undefined;
+  const query = source.kind === 'news_query';
+  const what = query ? 'The news search' : `GET ${source.address}`;
+  const failed = words ? `${what} → ${words}.` : `${what} failed.`;
+  return {
+    title: `Last fetch failed ${when} at ${time}`,
+    text: `${failed} Check the ${query ? 'query' : 'address'} below.`,
+  };
 }

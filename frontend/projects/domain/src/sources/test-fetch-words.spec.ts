@@ -1,5 +1,10 @@
 import type { SourceKind, SourceTestResult } from '@kx/api';
-import { nothingRelevantNotice, sourceTestNotice, testFetchSummary } from '../public-api';
+import {
+  nothingRelevantNotice,
+  sourceSavedNotice,
+  sourceTestNotice,
+  testFetchSummary,
+} from '../public-api';
 
 const reached = (found: number, relevant: number): SourceTestResult => ({
   reachable: true,
@@ -84,5 +89,24 @@ describe('sourceTestNotice', () => {
       title: 'Tested Redeemed Run Club Toronto',
       text,
     });
+  });
+});
+
+describe('sourceSavedNotice', () => {
+  const result = (reachable: boolean, reason: string | null, found: number, relevant: number) =>
+    ({ reachable, reason, items_found: found, items_relevant: relevant }) as SourceTestResult;
+  it.each([
+    [
+      result(true, null, 12, 3),
+      'success',
+      'Test fetch found 12 items — 3 look relevant. Changes apply from the next scheduled run.',
+    ],
+    [
+      result(false, 'not_found', 0, 0),
+      'warning',
+      'Test fetch found nothing at this address (not found). Changes apply from the next scheduled run.',
+    ],
+  ] as const)('%o', (test, tone, text) => {
+    expect(sourceSavedNotice('rss', test)).toEqual({ tone, title: 'Source saved', text });
   });
 });

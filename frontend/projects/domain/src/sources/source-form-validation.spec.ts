@@ -58,3 +58,21 @@ describe('sourceFormValidation', () => {
     ]);
   });
 });
+
+describe('sourceFormValidation of a news query', () => {
+  // A news query's address is its text (L2-003), which the API bounds at 2,048 characters.
+  const entries = (url: string): SourceFormEntries => ({
+    url,
+    organisation: 'Toronto church fitness',
+    region: 'toronto',
+    newsQuery: true,
+  });
+  it.each([
+    ['"church" AND fitness near:Toronto', {}],
+    ['  ', { url: 'Enter the news query.' }],
+    ['q'.repeat(2048), {}],
+    ['q'.repeat(2049), { url: 'Enter the news query.' }],
+  ])('%s', (url, errors) => {
+    expect(sourceFormValidation(entries(url))).toEqual(errors);
+  });
+});

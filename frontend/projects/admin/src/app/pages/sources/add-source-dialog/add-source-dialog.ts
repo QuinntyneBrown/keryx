@@ -22,6 +22,7 @@ import {
 } from '@kx/components';
 import {
   isAcceptableAddress,
+  SOURCE_URL_REFUSALS,
   sourceFormValidation,
   testFetchSummary,
   type SourceFormErrors,
@@ -53,12 +54,6 @@ type Hint =
   | { state: 'idle' }
   | { state: 'invalid' }
   | { state: 'tested'; kind: SourceKind; address: string; result: SourceTestResult };
-
-/** The URL field's message for a refusal the API words by its code (L2-064 AC7, L2-024). */
-const URL_REFUSALS: Readonly<Record<string, string>> = {
-  source_exists: 'This source is already in the list.',
-  unsafe_address: 'Keryx can’t fetch this address: it isn’t on the public internet.',
-};
 
 /** The ids the CDK container is labelled and described by. */
 export const ADD_SOURCE_TITLE_ID = 'add-source-title';
@@ -218,7 +213,7 @@ export class AddSourceDialog {
       this.ref.disableClose = false;
       this.busy.set(false);
       const message =
-        error instanceof ApiProblem && error.code ? URL_REFUSALS[error.code] : undefined;
+        error instanceof ApiProblem && error.code ? SOURCE_URL_REFUSALS[error.code] : undefined;
       if (message) {
         this.refusedUrl.set({ url: this.url(), message });
         // The URL is enabled again before focus moves to it.

@@ -1,0 +1,86 @@
+<kx-dialog
+  title="Edit source"
+  description="Changes apply from the next scheduled run."
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  [closeDisabled]="busy()"
+  (dismiss)="close()"
+  (submitted)="submit(urlInput, organisationInput, regionSelect)"
+>
+  @if (failure(); as failure) {
+    <kx-alert tone="danger" announcement="alert" title="Keryx couldn’t save your changes"
+      >Nothing was saved and your entries are still here. Try again; if it keeps failing, check the
+      Runs screen for a database problem.
+      @if (failure.reference; as reference) {
+        <span class="mono">Reference {{ reference }}</span>
+      }
+    </kx-alert>
+  } @else if (data.lastFetch; as lastFetch) {
+    <kx-alert tone="danger" [title]="lastFetch.title">{{ lastFetch.text }}</kx-alert>
+  }
+  <fieldset>
+    <legend>Type</legend>
+    <kx-choice-grid>
+      <kx-choice-card name="source-type" [value]="kind" checked [disabled]="busy()"
+        ><kx-icon [name]="kindIcon" size="sm" />{{ kindLabel }}</kx-choice-card
+      >
+    </kx-choice-grid>
+  </fieldset>
+  <kx-field
+    [label]="newsQuery ? 'Query' : 'URL'"
+    for="source-url"
+    [error]="errors().url"
+    errorId="source-url-error"
+  >
+    <kx-input
+      #urlInput
+      controlId="source-url"
+      [type]="newsQuery ? 'text' : 'url'"
+      [inputmode]="newsQuery ? 'text' : 'url'"
+      mono
+      [invalid]="!!errors().url"
+      [describedBy]="errors().url ? 'source-url-error' : undefined"
+      [disabled]="busy()"
+      [(value)]="url"
+    />
+  </kx-field>
+  <kx-field-grid>
+    <kx-field
+      label="Organisation"
+      for="source-org"
+      [error]="errors().organisation"
+      errorId="source-org-error"
+    >
+      <kx-input
+        #organisationInput
+        controlId="source-org"
+        [invalid]="!!errors().organisation"
+        [describedBy]="errors().organisation ? 'source-org-error' : undefined"
+        [disabled]="busy()"
+        [(value)]="organisation"
+      />
+    </kx-field>
+    <kx-field
+      label="Region"
+      for="source-region"
+      [error]="errors().region"
+      errorId="source-region-error"
+    >
+      <kx-select
+        #regionSelect
+        controlId="source-region"
+        [invalid]="!!errors().region"
+        [describedBy]="errors().region ? 'source-region-error' : undefined"
+        placeholder="Choose a region"
+        [options]="regionOptions()"
+        [disabled]="busy()"
+        [(value)]="region"
+      />
+    </kx-field>
+  </kx-field-grid>
+  <kx-alert tone="neutral">Keryx tests the address again when you save.</kx-alert>
+  <kx-btn slot="actions" variant="ghost" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="primary" submit [busy]="busy()">{{
+    busy() ? 'Saving…' : 'Save source'
+  }}</kx-btn>
+</kx-dialog>

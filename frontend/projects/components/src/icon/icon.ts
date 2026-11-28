@@ -3,6 +3,7 @@ import { Component, input } from '@angular/core';
 /** The icons drawn so far; each is added from the design system's set when a screen needs it. */
 export type IconName =
   | 'more'
+  | 'pencil'
   | 'refresh'
   | 'sign-in'
   | 'success'
