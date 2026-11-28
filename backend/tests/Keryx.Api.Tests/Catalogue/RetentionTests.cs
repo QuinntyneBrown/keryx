@@ -27,7 +27,9 @@ namespace Keryx.Api.Tests.Catalogue;
 // it, and goes when none does. A finished run started before the cutoff goes with its stages,
 // issue occurrences, staged items and alert records, and a closed issue left with no occurrence
 // goes with it; a running run, an open issue and an issue that still occurs are kept. API usage
-// hours go after 30 days, whatever the period.
+// hours go after 30 days, whatever the period. Deletes go in batches of at most 1,000, each
+// saved on its own: a failure keeps the batches saved, fails the run with a generic reason, and
+// the next run deletes the rest.
 // The run is sent as the worker sends it; the worker's schedule is proven on its own.
 public sealed class RetentionTests
 {
@@ -191,6 +193,55 @@ public sealed class RetentionTests
         using var staff = await StaffClient.OpenAsync(factory);
         // One run, one issue and one hour of usage.
         Assert.Equal(3, await DeletedAsync(staff, runId));
+    }
+
+    [Fact]
+    public async Task Given_2_500_expired_articles_When_retention_runs_Then_they_are_deleted_in_batches_of_at_most_1_000()
+    {
+        using var factory = new BatchFactory();
+        await StaffClient.SeedAsync(factory);
+        await CollectAsync(factory, [.. Enumerable.Repeat(Cutoff.AddDays(-1), 2_500)]);
+
+        var runId = await RetainAsync(factory);
+
+        Assert.Equal([1_000, 1_000, 500], factory.Fault.ArticleDeletes);
+        using var staff = await StaffClient.OpenAsync(factory);
+        Assert.Equal(2_500, await DeletedAsync(staff, runId));
+    }
+
+    [Fact]
+    public async Task Given_the_third_batch_fails_When_retention_runs_Then_the_first_two_stay_deleted_the_run_fails_and_the_next_deletes_the_rest()
+    {
+        using var factory = new BatchFactory();
+        await StaffClient.SeedAsync(factory);
+        await CollectAsync(factory, [.. Enumerable.Repeat(Cutoff.AddDays(-1), 2_500)]);
+        factory.Fault.ArticleDeletesBeforeFailing = 2;
+
+        var failed = await RetainAsync(factory);
+
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            Assert.Equal(500, await store.Articles.CountAsync(TestContext.Current.CancellationToken));
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory);
+        var run = await staff.GetFromJsonAsync<JsonElement>(new Uri($"/admin/v1/runs/{failed}", UriKind.Relative), TestContext.Current.CancellationToken);
+        Assert.Equal(
+            ("failed", "The run stopped unexpectedly."),
+            (run.GetProperty("outcome").GetString(), run.GetProperty("failure_reason").GetString()));
+
+        var next = await RetainAsync(factory);
+
+        Assert.NotEqual(failed, next);
+        Assert.Equal(500, await DeletedAsync(staff, next));
+    }
+
+    private sealed class BatchFactory : ApiFactory
+    {
+        public SaveFault.Switch Fault { get; } = new();
+
+        protected override void ConfigureServices(IServiceCollection services) =>
+            services.AddScoped<Keryx.Application.Abstractions.IAppDbContext>(provider => new SaveFault(provider.GetRequiredService<KeryxDbContext>(), Fault));
     }
 
     private static Run Finished(DateTimeOffset startedAt)

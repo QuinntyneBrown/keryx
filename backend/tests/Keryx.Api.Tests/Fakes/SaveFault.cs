@@ -62,6 +62,19 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
             throw new DbUpdateConcurrencyException("The lease was changed by another request.");
         }
 
+        // A save that deletes articles is a retention batch: its size is recorded, and the fault
+        // fails it once the batches allowed have been saved.
+        var deleting = inner.ChangeTracker.Entries<Keryx.Domain.Catalogue.Article>().Count(entry => entry.State == EntityState.Deleted);
+        if (deleting > 0)
+        {
+            if (fault.ArticleDeletesBeforeFailing-- == 0)
+            {
+                throw new DbUpdateException("could not connect to server: Connection refused (10.0.0.12:5432)");
+            }
+
+            fault.ArticleDeletes.Add(deleting);
+        }
+
         return await Saved(cancellationToken).ConfigureAwait(false);
     }
 
@@ -89,6 +102,12 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
         /// <summary>A read of API usage fails, as when the database drops during a flush, before its save.</summary>
         public bool UsageReadArmed { get; set; }
+
+        /// <summary>How many saves that delete articles succeed before one fails; negative never fails.</summary>
+        public int ArticleDeletesBeforeFailing { get; set; } = -1;
+
+        /// <summary>How many articles each successful save that deleted any deleted, in order.</summary>
+        public List<int> ArticleDeletes { get; } = [];
 
         /// <summary>How many saves that stage records succeed before the store fault fires.</summary>
         public int StoreSavesBeforeFailing { get; set; }

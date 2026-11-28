@@ -112,10 +112,6 @@ internal sealed class ApplyRetentionCommandHandler(IAppDbContext db, TimeProvide
             rows.RemoveRange(batch);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             total += batch.Count;
-            if (batch.Count < BatchSize)
-            {
-                return total;
-            }
         }
     }
 }
