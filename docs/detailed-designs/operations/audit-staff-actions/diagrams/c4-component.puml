@@ -6,8 +6,8 @@ title Components — Audit staff actions
 Container_Boundary(api, "Keryx API") {
   Component(ctrl, "Admin…Controller", "ASP.NET Core controller", "Sends one command")
   Component(cur, "HttpContextCurrentStaff", "ICurrentStaff", "Subject id from the sub claim")
-  Component(ref, "AccessRefusalMetrics", "Auth event observer", "Counts and logs 401, 403, failed sign-in")
-  Component(authn, "OIDC handler, ApiKeyAuthenticationHandler, authorization result handler", "ASP.NET Core auth", "Raise refusal events")
+  Component(ref, "AccessRefusals", "Meter and logger", "Counts and logs 401, 403, failed sign-in")
+  Component(authn, "AccessRefusalMiddleware, OIDC failure events", "ASP.NET Core middleware and events", "Report refusals")
 }
 Container_Boundary(app, "Keryx Application and Domain") {
   Component(h, "…Handler", "MediatR handler", "Applies the change and records it")

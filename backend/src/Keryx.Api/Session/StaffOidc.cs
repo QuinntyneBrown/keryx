@@ -11,6 +11,9 @@ namespace Keryx.Api.Session;
 
 internal static class StaffOidc
 {
+    /// <summary>Where the provider returns; it has no endpoint of its own, so it is also the refusal's route.</summary>
+    private const string CallbackPath = "/admin/v1/auth/callback";
+
     public static void AddStaffOidc(this IServiceCollection services)
     {
         services.AddOptions<ProviderSettings>().BindConfiguration("Keryx:Oidc")
@@ -25,7 +28,7 @@ internal static class StaffOidc
                 options.Authority = settings.Value.Authority;
                 options.ClientId = settings.Value.ClientId;
                 options.ClientSecret = settings.Value.ClientSecret;
-                options.CallbackPath = "/admin/v1/auth/callback";
+                options.CallbackPath = CallbackPath;
                 options.ResponseType = OpenIdConnectResponseType.Code;
                 options.ResponseMode = OpenIdConnectResponseMode.Query;
                 options.UsePkce = true;
@@ -33,6 +36,7 @@ internal static class StaffOidc
                 options.MapInboundClaims = false;
                 options.Events.OnRemoteFailure = context =>
                 {
+                    SignInFailed(context.HttpContext);
                     context.HandleResponse();
                     context.Response.Redirect($"/sign-in?state=error&ref={Activity.Current?.TraceId.ToHexString() ?? context.HttpContext.TraceIdentifier}");
                     return Task.CompletedTask;
@@ -44,6 +48,7 @@ internal static class StaffOidc
                     var subject = identity?.FindFirst("sub")?.Value;
                     if (string.IsNullOrWhiteSpace(subject) || subject.Length > 255)
                     {
+                        SignInFailed(context.HttpContext);
                         context.HandleResponse();
                         context.Response.Redirect($"/sign-in?state=error&ref={context.HttpContext.TraceIdentifier}");
                         return;
@@ -64,6 +69,11 @@ internal static class StaffOidc
                 };
             });
     }
+
+    /// <summary>A sign-in the provider or the callback refused: counted and logged by route, never by its state or code (L2-085 AC3).</summary>
+    private static void SignInFailed(HttpContext context) =>
+        context.RequestServices.GetRequiredService<AccessRefusals>()
+            .Record(StatusCodes.Status401Unauthorized, "signin_failed", CallbackPath.TrimStart('/'));
 
     private sealed class ProviderSettings
     {

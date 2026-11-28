@@ -34,7 +34,8 @@ public static class ApiHost
             builder.Configuration,
             KeryxTelemetry.ApiServiceName,
             tracing => tracing.AddAspNetCoreInstrumentation(),
-            metrics => metrics.AddAspNetCoreInstrumentation());
+            metrics => metrics.AddAspNetCoreInstrumentation().AddMeter(AccessRefusals.MeterName));
+        builder.Services.AddSingleton<AccessRefusals>();
 
         // JSON property names are snake_case, in requests and in answers (L2 conventions).
         builder.Services.AddControllers().AddJsonOptions(options =>
@@ -118,6 +119,7 @@ public static class ApiHost
         app.UseStatusCodePages();
         app.Use(AdminBodyLimit.EnforceAsync);
         app.UseRouting();
+        app.UseMiddleware<AccessRefusalMiddleware>();
         app.UseAuthentication();
         // A missing route has no resource to authorize. Keep its documented 404 response.
         app.Use(async (context, next) =>

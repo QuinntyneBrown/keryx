@@ -17,23 +17,29 @@ skinparam package {
 participant "Caller" as caller
 participant "Identity provider" as idp
 box "Backend — Keryx API application" #D1FADF
-  participant "ApiKeyAuthenticationHandler / OIDC handler / authorization result handler" as auth
-  participant "AccessRefusalMetrics" as metrics
+  participant "AccessRefusalMiddleware" as mw
+  participant "Authentication and authorization" as auth
+  participant "OIDC failure events" as oidc
+  participant "AccessRefusals" as refusals
 end box
 participant "OTLP collector" as otel
-alt invalid or missing API key on /v1
-  caller -> auth : Request with Authorization header
-  auth -> metrics : Record(401, invalid_api_key, route template)
-  auth --> caller : 401 invalid_api_key
-else signed-in person without the staff claim
-  caller -> auth : Request to /admin/v1
-  auth -> metrics : Record(403, not_staff, route template)
-  auth --> caller : 403 not_staff
+alt invalid or missing API key on /v1, or a key without the scope
+  caller -> mw : Request with Authorization header
+  mw -> auth : Next
+  auth --> mw : 401 invalid_api_key, or 403 insufficient_scope
+  mw -> refusals : Record(status, reason, route template)
+  mw --> caller : The refusal
+else no session, an expired one, or no staff claim on /admin/v1
+  caller -> mw : Request to /admin/v1
+  mw -> auth : Next
+  auth --> mw : 401 not_signed_in or session_expired, or 403 not_staff
+  mw -> refusals : Record(status, reason, route template)
+  mw --> caller : The refusal
 else failed sign-in callback
-  idp --> auth : Callback with error or mismatched state
-  auth -> metrics : Record(401, signin_failed, callback route template)
-  auth --> caller : Sign in error state
+  idp --> oidc : Callback with an error, a forged state, or an identity Keryx refuses
+  oidc -> refusals : Record(401, signin_failed, admin/v1/auth/callback)
+  oidc --> caller : Redirect to the sign-in error state
 end
-metrics -> metrics : Log refusal without credential, key, prefix, cookie or token (L2-085)
-metrics -> otel : Export keryx.auth.refused
+refusals -> refusals : Log status, reason and route only: no credential, key, prefix, cookie, state or token (L2-085)
+refusals -> otel : Export keryx.auth.refused
 @enduml

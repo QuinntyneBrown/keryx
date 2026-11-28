@@ -27,5 +27,5 @@ The Settings percentage includes completed slices on `journey/18-change-settings
 | 21 | Staff monitors API usage | Staff see traffic, latency, errors and per-product usage | 3 | 100 |
 | 22 | Staff exports articles | Staff download filtered articles as CSV | 2 | 100 |
 | 23 | Worker applies retention | Records past the retention period are deleted | 2 | 100 |
-| 24 | Staff actions are audited | Every state-changing staff action is recorded | 2 | 65 |
+| 24 | Staff actions are audited | Every state-changing staff action is recorded | 2 | 80 |
 | 25 | Operator observes the system | Traces, metrics and logs exported without private data | 2 | 40 |

@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -52,6 +53,59 @@ public sealed class StaffCallbackTests(StaffProviderFactory factory) : IClassFix
         Assert.Equal("session_expired", problem.GetProperty("code").GetString());
     }
 
+    // L2-085 AC3: a callback refused for its identity is a failed sign-in, counted by route only.
+    [Fact]
+    public async Task Given_an_identity_with_a_subject_too_long_When_the_provider_returns_Then_sign_in_fails_and_is_counted()
+    {
+        using var browser = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"),
+            AllowAutoRedirect = false,
+            HandleCookies = false,
+        });
+        var ct = TestContext.Current.CancellationToken;
+        var refusals = new List<(string? Reason, string? Route)>();
+        var meters = factory.Services.GetRequiredService<IMeterFactory>();
+        using var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, listening) =>
+            {
+                if (instrument.Name == "keryx.auth.refused" && instrument.Meter.Scope == meters)
+                {
+                    listening.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((_, _, tags, _) =>
+        {
+            var named = tags.ToArray().ToDictionary(tag => tag.Key, tag => $"{tag.Value}", StringComparer.Ordinal);
+            lock (refusals)
+            {
+                refusals.Add((named["reason"], named["http.route"]));
+            }
+        });
+        listener.Start();
+        factory.Provider.Subject = new string('s', 256);
+        try
+        {
+            using var challenge = await browser.GetAsync(new Uri("/admin/v1/auth/sign-in?return=/articles", UriKind.Relative), ct);
+            var parameters = QueryHelpers.ParseQuery(challenge.Headers.Location!.Query);
+            factory.Provider.Nonce = parameters["nonce"].ToString();
+            var callbackPath = QueryHelpers.AddQueryString("/admin/v1/auth/callback", "state", parameters["state"].ToString());
+            using var callbackRequest = new HttpRequestMessage(HttpMethod.Get, new Uri(callbackPath + "&code=example-code", UriKind.Relative));
+            callbackRequest.Headers.Add("Cookie", CookiesFrom(challenge));
+            using var callback = await browser.SendAsync(callbackRequest, ct);
+
+            Assert.Equal(HttpStatusCode.Redirect, callback.StatusCode);
+            Assert.StartsWith("/sign-in?state=error", callback.Headers.Location?.OriginalString, StringComparison.Ordinal);
+            Assert.Equal([("signin_failed", "admin/v1/auth/callback")], refusals);
+        }
+        finally
+        {
+            factory.Provider.Subject = "subject-42";
+        }
+    }
+
     /// <summary>The <c>name=value</c> pairs a response sets, as one <c>Cookie</c> header.</summary>
     private static string CookiesFrom(HttpResponseMessage response) =>
         string.Join("; ", response.Headers.GetValues("Set-Cookie").Select(cookie => cookie.Split(';', 2)[0]));
@@ -86,6 +140,9 @@ public sealed class ProviderBackchannel : HttpMessageHandler
 {
     private readonly RSA _rsa = RSA.Create(2048);
     public string Nonce { private get; set; } = string.Empty;
+
+    /// <summary>The identity's subject; a test may make it one the callback refuses.</summary>
+    public string Subject { private get; set; } = "subject-42";
     public RsaSecurityKey Key => new(_rsa) { KeyId = "test-issuer" };
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -98,7 +155,7 @@ public sealed class ProviderBackchannel : HttpMessageHandler
             SigningCredentials = new SigningCredentials(Key, SecurityAlgorithms.RsaSha256),
             Claims = new Dictionary<string, object>
             {
-                ["sub"] = "subject-42",
+                ["sub"] = Subject,
                 ["name"] = "Daniel Adeyemi",
                 ["roles"] = "KeryxStaff",
                 ["nonce"] = Nonce

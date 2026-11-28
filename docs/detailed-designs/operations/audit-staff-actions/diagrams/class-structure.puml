@@ -58,7 +58,7 @@ enum AuditAction {
 class SettingsDiff {
   +ChangedFields(saved: SettingsValues, submitted: SettingsValues): IReadOnlyList<string>
 }
-class AccessRefusalMetrics {
+class AccessRefusals {
   -Counter<long> refused
   +Record(status: int, reason: string, routeTemplate: string): void
 }

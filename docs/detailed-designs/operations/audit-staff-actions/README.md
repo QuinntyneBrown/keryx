@@ -63,11 +63,14 @@ their values. Entries older than the retention period are deleted by the retenti
 
 - **`HttpContextCurrentStaff`** — implements `ICurrentStaff` from the authenticated principal's
   `sub` claim.
-- **`AccessRefusalMetrics`** — counts refused requests in the counter `keryx.auth.refused` with
-  the tags `status` (`401` or `403`), `reason` (for example `invalid_api_key`, `not_staff`,
-  `session_expired`, `signin_failed`) and the route template. It is fed by the
-  `OnRemoteFailure` event of the OpenID Connect handler, by `ApiKeyAuthenticationHandler` and
-  by an `IAuthorizationMiddlewareResultHandler`. Each refusal is logged with the same fields and
+- **`AccessRefusals`** — counts refused requests in the counter `keryx.auth.refused` with the
+  tags `status` (`401` or `403`), `reason` and `http.route` (the route template). The reasons:
+  `invalid_api_key` and `insufficient_scope` on `/v1`; `not_signed_in`, `session_expired` and
+  `not_staff` on `/admin/v1`; `signin_failed` for a sign-in callback the provider or Keryx
+  refused. It is fed by `AccessRefusalMiddleware`, which sits around authentication and
+  authorization and records every response that ends `401` or `403`, and by the OpenID Connect
+  handler's `OnRemoteFailure` and refused `OnTicketReceived`. One place sees every refusal,
+  whichever handler made it. Its meter is made by `IMeterFactory`. Each refusal is logged with the same fields and
   without the credential, cookie, key, key prefix or token presented. The metric is named
   `keryx.auth.refused`, unit `{request}`, after the OpenTelemetry convention of a
   dot-separated namespace; the route template's tag is `http.route`. `L2-094` names no
@@ -117,7 +120,7 @@ deletes old entries.
 ### Components
 
 Each handler records through `AuditTrail`, which adds the entry to the handler's own save.
-`AccessRefusalMetrics` observes the authentication handlers.
+`AccessRefusalMiddleware` and the sign-in callback's failure events report to `AccessRefusals`.
 
 ![C4 component view for auditing staff actions](diagrams/c4-component.png)
 
