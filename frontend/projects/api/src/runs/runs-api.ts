@@ -75,6 +75,8 @@ export interface RunIssue {
   consecutive_runs: number;
   since: string;
   muted: boolean;
+  /** Open, muted by staff, or over because its source recovered (L2-020). */
+  state: 'open' | 'muted' | 'closed';
 }
 
 /** A run as staff read it (L2-019): every count a number, its six stages and its issues. */
@@ -120,6 +122,10 @@ export interface RunsApi {
   get(id: string, signal: AbortSignal): Promise<RunDetail>;
   /** The `pageSize` most severe open issues: errors first, then the longest streak. */
   openIssues(pageSize: number, signal: AbortSignal): Promise<OpenIssuePage>;
+  /** Mutes an open issue; refuses `issue_not_found` and `issue_closed` (L2-020 AC2). */
+  muteIssue(id: string, signal: AbortSignal): Promise<RunIssue>;
+  /** Opens a muted issue again; refuses as `muteIssue` does (L2-020 AC3). */
+  unmuteIssue(id: string, signal: AbortSignal): Promise<RunIssue>;
 }
 
 export const RUNS_API = new InjectionToken<RunsApi>('Keryx runs');

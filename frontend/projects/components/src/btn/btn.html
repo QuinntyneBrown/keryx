@@ -9,7 +9,7 @@
     [attr.class]="classes()"
     [disabled]="disabled() || busy()"
     [attr.aria-busy]="busy() || null"
-    [attr.aria-label]="label() ?? null"
+    [attr.aria-label]="label() ?? name() ?? null"
     (click)="activated.emit()"
   >
     <ng-container [ngTemplateOutlet]="content" />

@@ -163,6 +163,26 @@ export class RunsPage {
     return this.detail.getByRole('button', { name: `Edit source for ${source}`, exact: true });
   }
 
+  /** The issue's "Mute", named by its title and what it concerns. */
+  issueMute(name: string): Locator {
+    return this.detail.getByRole('button', { name: `Mute ${name}`, exact: true });
+  }
+
+  /** The muted issue's "Unmute". */
+  issueUnmute(name: string): Locator {
+    return this.detail.getByRole('button', { name: `Unmute ${name}`, exact: true });
+  }
+
+  /** Every "Mute" in the run's issues. */
+  issueMutes(): Locator {
+    return this.detail.getByRole('button', { name: /^Mute / });
+  }
+
+  /** The "Muted" badges, one on each muted issue. */
+  get mutedBadges(): Locator {
+    return this.issues.locator('.badge');
+  }
+
   /** Every issue's "Edit source" button. */
   issueEdits(): Locator {
     return this.detail.getByRole('button', { name: /^Edit source for / });

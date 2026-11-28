@@ -42,7 +42,7 @@
     </li>
   }
   @for (issue of issues(); track issue.id) {
-    <li class="list__item list__item--wrap">
+    <li class="list__item list__item--wrap" [attr.data-issue]="issue.id">
       <div class="issue">
         <span class="issue__icon" [attr.data-tone]="issue.tone"
           ><kx-icon [name]="issue.tone" size="lg"
@@ -53,6 +53,9 @@
             @if (issue.subject; as subject) {
               <span class="text-muted text-regular">· {{ subject }}</span>
             }
+            @if (issue.muting === 'muted') {
+              &ngsp;<kx-badge>Muted</kx-badge>
+            }
           </p>
           <p class="issue__detail">{{ issue.detail }}</p>
           @if (issue.streak; as streak) {
@@ -60,14 +63,37 @@
           }
         </div>
       </div>
-      @if (issue.editable) {
+      @if (issue.editable || issue.muting) {
         <div class="list__actions">
-          <kx-btn
-            small
-            [label]="'Edit source for ' + (issue.subject ?? 'this source')"
-            (activated)="editSource.emit(issue.id)"
-            >Edit source</kx-btn
-          >
+          @if (issue.muting === 'open') {
+            <kx-btn
+              class="list__toggle"
+              variant="ghost"
+              small
+              [busy]="!!issue.busy"
+              [name]="'Mute ' + issue.name"
+              (activated)="mute.emit(issue.id)"
+              >Mute</kx-btn
+            >
+          } @else if (issue.muting === 'muted') {
+            <kx-btn
+              class="list__toggle"
+              variant="ghost"
+              small
+              [busy]="!!issue.busy"
+              [name]="'Unmute ' + issue.name"
+              (activated)="unmute.emit(issue.id)"
+              >Unmute</kx-btn
+            >
+          }
+          @if (issue.editable) {
+            <kx-btn
+              small
+              [name]="'Edit source for ' + (issue.subject ?? 'this source')"
+              (activated)="editSource.emit(issue.id)"
+              >Edit source</kx-btn
+            >
+          }
         </div>
       }
     </li>

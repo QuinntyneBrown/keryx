@@ -46,6 +46,15 @@ export interface IssueListItem {
   streak: string | null;
   /** It concerns a source, so it offers "Edit source" (L2-057 AC4); a stage's issue does not. */
   editable?: boolean;
+  /**
+   * An open issue offers "Mute"; a muted one shows a "Muted" badge and offers "Unmute" (L2-020).
+   * One that is over offers neither.
+   */
+  muting?: 'open' | 'muted';
+  /** What the issue is called in its buttons' names: "“Source timed out” for Covenant Cycling". */
+  name?: string;
+  /** Its mute or unmute is waiting for the API's answer. */
+  busy?: boolean;
 }
 
 /**
@@ -69,6 +78,10 @@ export class List {
   readonly navigate = output<string>();
   /** An issue's "Edit source" was pressed: its id. */
   readonly editSource = output<string>();
+  /** An open issue's "Mute" was pressed: its id. */
+  readonly mute = output<string>();
+  /** A muted issue's "Unmute" was pressed: its id. */
+  readonly unmute = output<string>();
   /** Skeleton rows standing in while the entries load, in place of them. */
   readonly placeholders = input(0);
   /** Skeleton run rows standing in while the history loads. */

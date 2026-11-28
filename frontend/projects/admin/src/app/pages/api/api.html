@@ -105,7 +105,7 @@
                   <kx-btn
                     variant="ghost"
                     small
-                    [label]="'Revoke the key for ' + row.client.product_name"
+                    [name]="'Revoke the key for ' + row.client.product_name"
                     (activated)="revoke(row.client, newKeyButton)"
                     >Revoke</kx-btn
                   >

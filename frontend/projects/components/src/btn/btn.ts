@@ -30,7 +30,13 @@ export class Btn {
   readonly small = input(false, { transform: booleanAttribute });
   readonly block = input(false, { transform: booleanAttribute });
   readonly grow = input(false, { transform: booleanAttribute });
+  /** The name of an icon-only button: it is drawn square. */
   readonly label = input<string>();
+  /**
+   * A fuller name for a button with visible text, which the name begins with ("Mute “Source timed
+   * out” for Covenant Cycling"), when its text alone does not say which row it acts on.
+   */
+  readonly name = input<string>();
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly busy = input(false, { transform: booleanAttribute });
   /** Submits the form it is in: Enter in a field presses it too. */

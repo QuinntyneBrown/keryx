@@ -1,8 +1,16 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { ApiProblem, NOTIFIER, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
+import {
+  ApiProblem,
+  NOTIFIER,
+  RUNS_API,
+  type RunDetail,
+  type RunIssue,
+  type RunPage,
+} from '@kx/api';
 import {
   canRetryFailedSources,
   failedSources,
+  issueMutedNotice,
   retryStartedNotice,
   skeletonDelay,
 } from '@kx/domain';
@@ -56,6 +64,8 @@ export class RunsStore {
   readonly detailLoading = computed(
     () => !!this.selected() && !this.detail() && !this.detailFailed(),
   );
+  /** The issues whose mute or unmute is waiting for the API's answer. */
+  readonly changingIssues = signal<ReadonlySet<string>>(new Set());
   /** A read has taken over 300 ms: skeletons stand in for what is loading (L2-061 AC1). */
   readonly slow = signal(false);
   /** "Retry failed sources" is waiting for the API's answer. */
@@ -153,6 +163,52 @@ export class RunsStore {
       });
     } finally {
       this.retryingSources.set(false);
+    }
+  }
+
+  /**
+   * Mutes an open issue (L2-020 AC2). Nothing changes on screen until the API answers; then the
+   * issue shows muted, `settled` is told, and a notice says it no longer raises alerts, with
+   * Undo, which opens it again.
+   */
+  async muteIssue(id: string, settled: (id: string) => void): Promise<void> {
+    const issue = await this.changeIssue(id, 'mute');
+    if (!issue) return;
+    settled(id);
+    this.notifier.notify({
+      tone: 'success',
+      ...issueMutedNotice(issue.kind, issue.subject_name),
+      action: { label: 'Undo', run: () => void this.unmuteIssue(id, settled) },
+    });
+  }
+
+  /** Opens a muted issue again (L2-020 AC3); `settled` is told once the API has answered. */
+  async unmuteIssue(id: string, settled: (id: string) => void): Promise<void> {
+    if (await this.changeIssue(id, 'unmute')) settled(id);
+  }
+
+  /** One request per issue while one is out; the answer's state replaces the shown one. */
+  private async changeIssue(id: string, action: 'mute' | 'unmute'): Promise<RunIssue | null> {
+    if (this.changingIssues().has(id)) return null;
+    this.changingIssues.update((ids) => new Set([...ids, id]));
+    try {
+      const issue = await (action === 'mute'
+        ? this.api.muteIssue(id, this.controller.signal)
+        : this.api.unmuteIssue(id, this.controller.signal));
+      this.detail.update(
+        (run) =>
+          run && {
+            ...run,
+            issues: run.issues.map((shown) =>
+              shown.id === id ? { ...shown, state: issue.state, muted: issue.muted } : shown,
+            ),
+          },
+      );
+      return issue;
+    } catch {
+      return null;
+    } finally {
+      this.changingIssues.update((ids) => new Set([...ids].filter((other) => other !== id)));
     }
   }
 

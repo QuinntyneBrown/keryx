@@ -88,7 +88,13 @@ export {
   type RunSummaryView,
 } from './overview/run-words';
 export { runBars, type RunBar, type RunPoint } from './overview/run-bars';
-export { issueSeverityWord, issueTitle, issueWhen } from './overview/issue-words';
+export {
+  issueMutedNotice,
+  issueName,
+  issueSeverityWord,
+  issueTitle,
+  issueWhen,
+} from './overview/issue-words';
 export {
   issueStreakLabel,
   runFailedFlag,

@@ -1,4 +1,10 @@
-import { issueSeverityWord, issueTitle, issueWhen } from '../public-api';
+import {
+  issueMutedNotice,
+  issueName,
+  issueSeverityWord,
+  issueTitle,
+  issueWhen,
+} from '../public-api';
 
 const ZONE = 'America/Toronto';
 const NOW = new Date('2026-11-28T14:46:00Z'); // Saturday 9:46 AM in Toronto
@@ -16,6 +22,32 @@ describe('issueTitle', () => {
     ['something_new', 'Something needs attention'],
   ])('%s reads %s', (kind, title) => {
     expect(issueTitle(kind)).toBe(title);
+  });
+});
+
+describe('issueName', () => {
+  it.each([
+    [
+      'source_timeout',
+      'Covenant Cycling Collective',
+      '“Source timed out” for Covenant Cycling Collective',
+    ],
+    ['stage_failed', null, '“A stage failed”'],
+  ])('%s about %s is %s', (kind, subject, name) => {
+    expect(issueName(kind, subject)).toBe(name);
+  });
+});
+
+describe('issueMutedNotice', () => {
+  it.each([
+    [
+      'source_timeout',
+      'Covenant Cycling Collective',
+      '“Source timed out” no longer raises alerts for Covenant Cycling Collective.',
+    ],
+    ['stage_failed', null, '“A stage failed” no longer raises alerts.'],
+  ])('%s about %s says %s', (kind, subject, text) => {
+    expect(issueMutedNotice(kind, subject)).toEqual({ title: 'Issue muted', text });
   });
 });
 

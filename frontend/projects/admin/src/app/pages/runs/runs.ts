@@ -34,6 +34,7 @@ import {
   collectionRunningLine,
   formatClockTime,
   formatCollectedAt,
+  issueName,
   issueSeverityWord,
   issueStreakLabel,
   issueTitle,
@@ -200,6 +201,9 @@ export default class Runs {
         detail: issue.detail,
         streak: issueStreakLabel(issue.severity, issue.consecutive_runs),
         editable: issue.subject_type === 'source' && issue.subject_id !== null,
+        muting: issue.state === 'closed' ? undefined : issue.state,
+        name: issueName(issue.kind, issue.subject_name),
+        busy: this.store.changingIssues().has(issue.id),
       })),
     };
   });
@@ -254,6 +258,29 @@ export default class Runs {
       issue.subject_name ?? 'The source',
     );
     if (saved) this.store.reload();
+  }
+
+  /** Mutes an open issue; focus moves to "Unmute", which takes its place (L2-020 AC2). */
+  protected mute(issueId: string): void {
+    void this.store.muteIssue(issueId, (id) => this.focusToggle(id));
+  }
+
+  /** Opens a muted issue again; focus moves to "Mute" (L2-020 AC3). */
+  protected unmute(issueId: string): void {
+    void this.store.unmuteIssue(issueId, (id) => this.focusToggle(id));
+  }
+
+  /** Focuses the issue's "Mute" or "Unmute" once it is drawn, as the other replaces it. */
+  private focusToggle(issueId: string): void {
+    afterNextRender(
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>(
+            `li[data-issue="${CSS.escape(issueId)}"] .list__toggle button`,
+          )
+          ?.focus(),
+      { injector: this.injector },
+    );
   }
 
   protected navigate(href: string): void {

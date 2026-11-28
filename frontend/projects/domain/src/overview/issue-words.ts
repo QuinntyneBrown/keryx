@@ -16,6 +16,23 @@ export function issueTitle(kind: string): string {
   return Object.hasOwn(TITLES, kind) ? TITLES[kind] : 'Something needs attention';
 }
 
+/**
+ * How an issue is named in its buttons: its title in quotes, and what it concerns when that is a
+ * source ("“Source timed out” for Covenant Cycling Collective").
+ */
+export function issueName(kind: string, subject: string | null): string {
+  return subject ? `“${issueTitle(kind)}” for ${subject}` : `“${issueTitle(kind)}”`;
+}
+
+/** The notice that an issue was muted (notifications/run-toast/success.html). */
+export function issueMutedNotice(
+  kind: string,
+  subject: string | null,
+): { title: string; text: string } {
+  const what = `“${issueTitle(kind)}” no longer raises alerts`;
+  return { title: 'Issue muted', text: subject ? `${what} for ${subject}.` : `${what}.` };
+}
+
 /** The word a screen reader hears before an issue, since its icon is not read. */
 export function issueSeverityWord(severity: 'error' | 'warning'): string {
   return severity === 'error' ? 'Error:' : 'Warning:';

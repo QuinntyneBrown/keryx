@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import type { OpenIssuePage, RunDetail, RunPage, RunQuery, RunsApi, RunStarted } from '@kx/api';
+import type {
+  OpenIssuePage,
+  RunDetail,
+  RunIssue,
+  RunPage,
+  RunQuery,
+  RunsApi,
+  RunStarted,
+} from '@kx/api';
 import { antiforgeryToken } from '../session/antiforgery';
 import { readJson } from '../session/read-json';
 
@@ -37,5 +45,24 @@ export class HttpRunsApi implements RunsApi {
   openIssues(pageSize: number, signal: AbortSignal): Promise<OpenIssuePage> {
     const params = new URLSearchParams({ state: 'open', page_size: String(pageSize) });
     return readJson<OpenIssuePage>(`/admin/v1/issues?${params}`, signal);
+  }
+
+  muteIssue(id: string, signal: AbortSignal): Promise<RunIssue> {
+    return this.changeIssue(id, 'mute', signal);
+  }
+
+  unmuteIssue(id: string, signal: AbortSignal): Promise<RunIssue> {
+    return this.changeIssue(id, 'unmute', signal);
+  }
+
+  private async changeIssue(
+    id: string,
+    action: 'mute' | 'unmute',
+    signal: AbortSignal,
+  ): Promise<RunIssue> {
+    return readJson<RunIssue>(`/admin/v1/issues/${encodeURIComponent(id)}/${action}`, signal, {
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': await antiforgeryToken(signal) },
+    });
   }
 }

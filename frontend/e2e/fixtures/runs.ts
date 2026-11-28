@@ -124,6 +124,7 @@ export function runIssue(
   detail: string,
   consecutive_runs = 1,
   subject_type = 'source',
+  state: 'open' | 'muted' | 'closed' = 'open',
 ): Record<string, unknown> {
   return {
     id,
@@ -135,7 +136,8 @@ export function runIssue(
     detail,
     consecutive_runs,
     since: '2026-11-28T11:01:00Z',
-    muted: false,
+    muted: state === 'muted',
+    state,
   };
 }
 
