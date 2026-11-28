@@ -71,6 +71,25 @@ public sealed class ApiUsageFlushTests
         Assert.Equal(2, await RequestsAsync(factory));
     }
 
+    [Fact]
+    public async Task Given_a_flush_whose_read_fails_When_the_next_one_runs_Then_the_call_is_still_counted()
+    {
+        using var factory = new FlushFactory();
+        await ArrangeAsync(factory);
+        await factory.Time.TimerAsync(Minute, Within);
+        await CallAsync(factory);
+        factory.Fault.UsageReadArmed = true;
+
+        factory.Time.Advance(Minute);
+        await factory.Time.TimerAsync(Minute, Within);
+        factory.Fault.UsageReadArmed = false;
+        Assert.Equal(0, await RequestsAsync(factory));
+        factory.Time.Advance(Minute);
+        await factory.Time.TimerAsync(Minute, Within);
+
+        Assert.Equal(1, await RequestsAsync(factory));
+    }
+
     private static async Task ArrangeAsync(FlushFactory factory)
     {
         factory.Time.SetUtcNow(new DateTimeOffset(2026, 11, 28, 14, 46, 0, TimeSpan.Zero));

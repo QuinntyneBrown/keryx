@@ -53,6 +53,21 @@ internal sealed class FlushApiUsageHandler(IAppDbContext db, IApiUsageAccumulato
             return;
         }
 
+        // Everything after the drain is inside the try: a read, a save or a cancellation that
+        // fails puts the counts back for the next flush, so none is lost (L2-037).
+        try
+        {
+            await SaveAsync(tallies, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            usage.Restore(tallies);
+            throw;
+        }
+    }
+
+    private async Task SaveAsync(IReadOnlyList<ApiUsageTally> tallies, CancellationToken cancellationToken)
+    {
         var publicIds = tallies.Select(tally => tally.ClientId).Distinct().ToList();
         var clients = await db.ApiClients.Where(client => publicIds.Contains(client.PublicId))
             .ToDictionaryAsync(client => client.PublicId, cancellationToken).ConfigureAwait(false);
@@ -79,14 +94,6 @@ internal sealed class FlushApiUsageHandler(IAppDbContext db, IApiUsageAccumulato
             client.Called(tally.LastCallAt);
         }
 
-        try
-        {
-            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        }
-        catch
-        {
-            usage.Restore(tallies);
-            throw;
-        }
+        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

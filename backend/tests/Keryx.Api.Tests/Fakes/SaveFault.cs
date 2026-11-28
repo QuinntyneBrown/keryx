@@ -47,7 +47,9 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
     public DbSet<Keryx.Domain.Clients.ApiClient> ApiClients => inner.ApiClients;
 
-    public DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours => inner.ApiUsageHours;
+    public DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours => fault.UsageReadArmed
+        ? throw new InvalidOperationException("could not connect to server: Connection refused (10.0.0.12:5432)")
+        : inner.ApiUsageHours;
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -84,6 +86,9 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
         /// <summary>A save of API usage fails, as when the database cannot be reached during a flush.</summary>
         public bool UsageArmed { get; set; }
+
+        /// <summary>A read of API usage fails, as when the database drops during a flush, before its save.</summary>
+        public bool UsageReadArmed { get; set; }
 
         /// <summary>How many saves that stage records succeed before the store fault fires.</summary>
         public int StoreSavesBeforeFailing { get; set; }

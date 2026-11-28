@@ -944,6 +944,21 @@ Lessons:
 - **A redundant flush is code no test can see.** `StreamWriter` hands each full buffer on, so a
   flush every 500 rows added nothing. It was removed.
 
+After the push, CI failed once in journey 21's flush test: the flush on stop saved nothing. It
+did not fail in 40 runs alone or 6 full runs locally. Delaying the count in the middleware by
+300 ms did not break the test either, so the first guess, that the client gets its answer before
+the count, was wrong, and the barrier written for it was removed. Reading the flush handler found
+a real loss: it drained the counts before two reads, and put them back only when the save failed.
+A stop that cancels a timer flush between its drain and its save loses the counts, and the
+cancellation is not logged. That fits the failure. A failed read is the deterministic case, so a
+new test arms a read fault (red: 0 counted); the handler now puts the counts back on any failure
+after the drain. The CI failure itself was not reproduced.
+
+- **Put everything after a drain inside the restore.** A buffer taken before a read loses its
+  contents when the read fails or is cancelled. Wrap every step from the take to the save.
+- **Test a timing guess by forcing the timing.** A 300 ms delay showed that the client waited for
+  the count. That killed the guess before a barrier for it was kept.
+
 **How earlier lessons worked.**
 - "Add a missing mock state, or record a stand-in, rather than invent": both export notifications
   had mocks before the code, and their copy was not argued over again.
