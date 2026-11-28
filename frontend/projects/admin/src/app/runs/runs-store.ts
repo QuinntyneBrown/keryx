@@ -1,6 +1,11 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, NOTIFIER, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
-import { canRetryFailedSources, retryStartedNotice, skeletonDelay } from '@kx/domain';
+import {
+  canRetryFailedSources,
+  failedSources,
+  retryStartedNotice,
+  skeletonDelay,
+} from '@kx/domain';
 import { CollectionWatcher } from '../schedule/collection-watcher';
 
 /** A failed read's reference, the response's trace id, for staff to quote. */
@@ -108,12 +113,17 @@ export class RunsStore {
     this.retryingSources.set(true);
     try {
       const { id } = await this.api.retry(run.id, this.controller.signal);
-      const names = run.issues
-        .filter((i) => i.severity === 'error' && i.subject_type === 'source' && i.subject_name)
-        .map((i) => i.subject_name as string);
+      const failing = failedSources(run.issues);
+      if (id === run.id) this.watcher.expectRetry(id, failing);
       this.notifier.notify(
         id === run.id
-          ? { tone: 'info', ...retryStartedNotice(run.sources_failed, names) }
+          ? {
+              tone: 'info',
+              ...retryStartedNotice(
+                run.sources_failed,
+                failing.map((s) => s.name),
+              ),
+            }
           : {
               tone: 'info',
               title: 'Collection started',

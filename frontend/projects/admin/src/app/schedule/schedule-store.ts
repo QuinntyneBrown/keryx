@@ -9,7 +9,12 @@ import {
   type RunDetail,
   type ShellSchedule,
 } from '@kx/api';
-import { collectionEndedNotice, collectionStartedText } from '@kx/domain';
+import {
+  collectionEndedNotice,
+  collectionStartedText,
+  failedSources,
+  summarizeRetry,
+} from '@kx/domain';
 import { CollectionWatcher } from './collection-watcher';
 
 /** How often the countdown to the next run is worked out again. */
@@ -57,6 +62,28 @@ export class ScheduleStore {
    * closes any dialog and opens the run; "Retry now" starts another, which the watcher follows.
    */
   private announce(run: RunDetail): void {
+    const retried = this.watcher.takeRetry(run.id);
+    if (retried) {
+      // A retry says which of its sources recovered; "Edit source" opens Sources (ADR 0012).
+      const summary = summarizeRetry(retried, failedSources(run.issues));
+      this.notifier.notify({
+        tone: summary.tone,
+        title: summary.title,
+        text: summary.text,
+        ...(summary.action
+          ? {
+              action: {
+                label: summary.action,
+                run: () => {
+                  this.dialog.closeAll();
+                  void this.router.navigateByUrl('/sources');
+                },
+              },
+            }
+          : {}),
+      });
+      return;
+    }
     const notice = collectionEndedNotice(run);
     this.notifier.notify({
       tone: notice.tone,

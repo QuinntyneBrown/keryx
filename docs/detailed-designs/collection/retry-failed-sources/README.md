@@ -56,9 +56,19 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
 - **`summarizeRetry`** — pure helper in the `domain` library with unit tests. One of two
   recovered gives a warning titled "1 of 2 sources recovered" naming which responded and which
   still fails, with the action "Edit source". None recovered gives a danger notification "Both
-  sources failed again" with the reasons and "Edit sources". The titles for any other count of
-  failed sources, the notice when all recover, and the target of "Edit sources" (more than one
-  sources, while `EditSourceDialog` edits one) are `<TO SUPPLY>`.
+  sources failed again" with the reasons and "Edit sources".
+  - As built (journey 16): `summarizeRetry(before, after)` takes the failed sources before and
+    after the retry (`failedSources(issues)`: a run's `error` issues about a named source).
+    Partial recovery reads "k of n sources recovered", naming up to two of each side; none
+    recovered reads "The source failed again", "Both sources failed again" or "All n sources
+    failed again" with each source's failure ("returned 404", "timed out", "was blocked",
+    "answered with nothing Keryx can read"); all recovered is a success, "The source
+    recovered" or "All n sources recovered", with no action. "Edit source" (one still fails)
+    and "Edit sources" (more) open Sources until journey 17 builds the edit dialog (ADR 0012).
+  - The summary is raised by the shell, not `RunsStore`: the store tells `CollectionWatcher`
+    the run is a retry of those sources (`expectRetry`), and `ScheduleStore` announces that
+    run's end with `summarizeRetry` in place of the collection outcome notice, once. So the
+    summary arrives on any screen, and the run's tiles update through the watcher's reads.
 - **`Btn`**, **`Toast`** — presentation components from the `components` library.
 - **`RunsApi`** / **`RUNS_API`** — `retryFailedSources(id)` and `getRun(id)`, implemented by
   `HttpRunsApi` and bound in `app.config.ts`.

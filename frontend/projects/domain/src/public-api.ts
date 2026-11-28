@@ -109,4 +109,11 @@ export {
   type EndedNotice,
   type EndedRun,
 } from './runs/run-now-words';
-export { canRetryFailedSources, namedFew, retryStartedNotice } from './runs/retry-words';
+export {
+  canRetryFailedSources,
+  failedSources,
+  namedFew,
+  retryStartedNotice,
+  summarizeRetry,
+  type FailedSource,
+} from './runs/retry-words';

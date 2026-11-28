@@ -1,5 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { RUNS_API, type RunDetail } from '@kx/api';
+import type { FailedSource } from '@kx/domain';
 
 /** A run in progress is read again no sooner than this after its last answer (L2-058 AC2). */
 export const FOLLOW_MS = 3000;
@@ -25,6 +26,8 @@ export class CollectionWatcher {
   private readonly ends = new Set<(run: RunDetail) => void>();
   private readonly reads = new Set<(run: RunDetail) => void>();
   private timer: ReturnType<typeof setTimeout> | undefined;
+  /** Runs whose failed sources are being fetched again, with those sources (L2-059). */
+  private readonly retries = new Map<string, readonly FailedSource[]>();
 
   /** The run in progress, or null when none is known to be. */
   readonly active = signal<ActiveRun | null>(null);
@@ -56,6 +59,18 @@ export class CollectionWatcher {
     }
     this.active.set(null);
     for (const ended of this.ends) ended(run);
+  }
+
+  /** The run is a retry of `failing`: its end says which of them recovered (L2-059 AC2, AC3). */
+  expectRetry(runId: string, failing: readonly FailedSource[]): void {
+    this.retries.set(runId, failing);
+  }
+
+  /** The sources a run's retry set out to fetch again, once, or null when it was no retry. */
+  takeRetry(runId: string): readonly FailedSource[] | null {
+    const failing = this.retries.get(runId) ?? null;
+    this.retries.delete(runId);
+    return failing;
   }
 
   /** Calls `ended` with the final run each time the run in progress ends, until `destroyRef`. */
