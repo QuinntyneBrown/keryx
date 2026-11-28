@@ -1,8 +1,9 @@
 // Acceptance Test
-// Traces to: L2-088, L2-091, L2-092, L2-097, L2-098
+// Traces to: L2-042, L2-088, L2-091, L2-092, L2-097, L2-098
 // Description: The admin app opens on Overview inside the shell, built only from design-system components
 
 import { expect, test } from '../fixtures/test';
+import { shellSchedule } from '../fixtures/runs';
 import { ShellPage } from '../page-objects/admin/shell.page';
 
 // Overview's description: text only its own lazy chunk holds.
@@ -33,7 +34,8 @@ test.describe('Admin shell', () => {
       await expect(shell.navigation.getByRole('link')).toHaveText([
         'Overview',
         'Articles',
-        'Runs',
+        // The shared fixture's schedule has 2 sources failing (L2-042 AC3).
+        'Runs 2',
         'Sources',
         'API',
         'Settings',
@@ -137,5 +139,64 @@ test.describe('Signed-in person', () => {
     await expect(shell.userName).toBeHidden();
     await shell.resize(1024);
     await expect(shell.userName).toHaveText('Daniel Adeyemi');
+  });
+});
+
+test.describe('Failing sources on Runs', () => {
+  // L2-042 AC3: the shared fixture's schedule has 2 sources failing.
+  for (const path of ['/', '/settings']) {
+    test(`the Runs link counts 2 failing sources on ${path}`, async ({ page }) => {
+      const shell = new ShellPage(page);
+
+      await shell.open(path);
+
+      await expect(shell.runsBadge).toHaveText('2');
+      await expect(shell.runsBadge).toHaveAccessibleName('2 failing sources');
+    });
+  }
+
+  // L2-042 AC2 and AC3: on Runs the link is still the current page, and still counts.
+  test('the Runs link keeps its count while it is the current page', async ({ page }) => {
+    const shell = new ShellPage(page);
+
+    await shell.open('/runs');
+
+    await expect(shell.runsLink).toHaveAttribute('aria-current', 'page');
+    await expect(shell.runsBadge).toHaveText('2');
+  });
+
+  // L2-042 AC3 and AC7: the narrow top bar carries the same count.
+  test('the count is on the Runs link in the narrow top bar', async ({ page }) => {
+    const shell = new ShellPage(page);
+    await shell.resize(600);
+
+    await shell.open('/settings');
+
+    await expect(shell.runsBadge).toBeVisible();
+    await expect(shell.runsBadge).toHaveAccessibleName('2 failing sources');
+  });
+
+  test('one failing source is named in the singular', async ({ page, api }) => {
+    api.on('GET', '/admin/v1/overview/schedule', () => ({
+      json: shellSchedule({ failing_sources: 1 }),
+    }));
+    const shell = new ShellPage(page);
+
+    await shell.open('/settings');
+
+    await expect(shell.runsBadge).toHaveText('1');
+    await expect(shell.runsBadge).toHaveAccessibleName('1 failing source');
+  });
+
+  test('with no failing source the Runs link has no badge', async ({ page, api }) => {
+    api.on('GET', '/admin/v1/overview/schedule', () => ({
+      json: shellSchedule({ failing_sources: 0 }),
+    }));
+    const shell = new ShellPage(page);
+
+    await shell.open('/settings');
+
+    await expect(shell.runsLink).toHaveText('Runs');
+    await expect(shell.runsBadge).toHaveCount(0);
   });
 });

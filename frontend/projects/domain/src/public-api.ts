@@ -165,3 +165,4 @@ export {
   exportTooLargeNotice,
   type ExportNotice,
 } from './articles/export-words';
+export { failingSourcesLabel } from './shell/shell-words';

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { CURRENT_STAFF, NOTIFIER } from '@kx/api';
 import {
@@ -12,6 +12,7 @@ import {
   Toast,
   ToastRegion,
 } from '@kx/components';
+import { failingSourcesLabel } from '@kx/domain';
 import { NotifierStore } from '../notifier/notifier-store';
 import { CollectionWatcher } from '../schedule/collection-watcher';
 import { ScheduleStore } from '../schedule/schedule-store';
@@ -45,9 +46,18 @@ export default class AppShell {
   /** The path shown, without its query or fragment; it marks the current navigation link. */
   private readonly path = signal(this.pathOf(this.router.url));
 
+  private readonly schedule = inject(ScheduleStore);
+  /** The sources whose last fetch failed, counted on the Runs link (L2-042 AC3). */
+  protected readonly failingSources = computed(
+    () => this.schedule.schedule()?.failing_sources ?? 0,
+  );
+  protected readonly failingSourcesLabel = computed(
+    () => failingSourcesLabel(this.failingSources()) ?? undefined,
+  );
+
   constructor() {
     // The schedule is read on any screen, so the shell learns when a scheduled run begins.
-    inject(ScheduleStore).load();
+    this.schedule.load();
     const navigations = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) this.path.set(this.pathOf(event.urlAfterRedirects));
     });
