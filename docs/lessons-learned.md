@@ -755,3 +755,49 @@ Lessons:
   An earlier loop, though, wrote files before its assert failed, and a second script had to
   finish it. Assert every file before writing any.
 
+## Journey 19: Staff receives alerts
+
+Five backend slices:
+- the source-failing alert, once per streak;
+- the failed-run alert;
+- a refused send as an `alert_not_sent` warning, retried once on the next run;
+- the 08:00 digest worker;
+- the MailKit sender with its startup settings.
+
+The admin app gained only the new issue kind's title. The design's four `<TO SUPPLY>`s were
+settled in the design before the first test: the mail-failure kind (added to L2-020), the
+digest's counts and outcome, the e-mail wording, and the timeout.
+
+What slowed it:
+- A mutant that made the digest schedule fire at exactly 08:00 put the worker in a tight loop.
+  The worker test hung and had to be stopped by hand.
+- `AddMail` first chose the sender from configuration at registration, before the test host's
+  settings were added. The worker built with the wrong sender.
+- A validator that read another options type validated that type a second time, so the startup
+  error named one setting twice.
+- MailKit 5 sends a `SendRequest`, not a `MimeMessage`.
+
+Lessons:
+- **Run a schedule's mutants against its case table, not the worker.** A rule that decides when a
+  loop wakes can, mutated, make it never wait. Keep the rule pure (`DigestSchedule.NextAfter`),
+  table it, and mutate it under the table alone.
+- **Choose a service from options when it is resolved, not from configuration when it is
+  registered.** A factory over `IOptions` sees every source the host adds, test sources included.
+- **Put a cross-options check on the options that depend.** `Validate<IOptions<T>>` on one type
+  reads `T`'s value, and that runs `T`'s validators again. The origin is checked on the mail
+  settings, and the alert options carry no validator.
+- **Compose before you send.** A message composed inside the send's `try` turned a configuration
+  fault into a "mail refused" warning. Only the transport's call belongs in the `try`.
+- **An idle staff session expires when the test clock moves hours.** Open a new client after
+  advancing past the idle timeout.
+- **Delete a guard that can never fire.** The "alert a failed run once" check was dead, because a
+  failed run is never executed again. Mutation showed it, and it was removed, not tested.
+
+**How earlier lessons worked.**
+- "Name the open decision when you close it" set the design right before any test. All four
+  decisions are in its README.
+- "Faults injected through `IAppDbContext`": `SaveFault`'s store switch failed a run at its store
+  stage for the failed-run and retry tests, with no new fake.
+- "A worker's schedule is proven by advancing `FakeTimeProvider`" carried over unchanged: the
+  test waits for the 22-hour timer, advances it, then waits for the next day's 24-hour timer.
+
