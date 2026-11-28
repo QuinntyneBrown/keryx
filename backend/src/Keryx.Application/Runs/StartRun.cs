@@ -2,9 +2,9 @@ using Keryx.Application.Abstractions;
 using Keryx.Application.Audit;
 using Keryx.Application.Collection;
 using Keryx.Application.Errors;
+using Keryx.Domain;
 using Keryx.Domain.Audit;
 using Keryx.Domain.Collection;
-using Keryx.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
