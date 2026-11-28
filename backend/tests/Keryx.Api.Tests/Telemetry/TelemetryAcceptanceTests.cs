@@ -90,6 +90,26 @@ public sealed class TelemetryAcceptanceTests(TelemetryAcceptanceTests.Factory fa
         AssertNothingOfTheUrl(span);
     }
 
+    // L2-094 AC6: the line an unhandled exception writes names its type and the trace, never its
+    // message or stack, which may quote a connection string, fetched text or a secret.
+    [Fact]
+    public async Task Given_an_unhandled_exception_When_it_is_logged_Then_the_line_names_its_type_and_trace_and_nothing_of_its_message()
+    {
+        var span = await RequestAndAwaitSpanAsync("/test/probe/throw", HttpStatusCode.InternalServerError);
+
+        var line = await factory.ExportedLogs.WaitForAsync(
+            log => log.CategoryName == "Keryx.Api.Errors.ProblemDetailsMapper" && Describe(log).Contains(span.TraceId.ToHexString(), StringComparison.Ordinal),
+            Describe, "the line the unhandled exception of that request wrote");
+
+        Assert.Null(line.Exception);
+        Assert.Contains(nameof(InvalidOperationException), Describe(line), StringComparison.Ordinal);
+        foreach (var leak in new[] { "hunter2", "db.internal", "/srv/keryx" })
+        {
+            Assert.DoesNotContain(leak, Describe(line), StringComparison.Ordinal);
+        }
+        Assert.DoesNotContain(" at ", Describe(line), StringComparison.Ordinal);
+    }
+
     // L2-094 AC5: the reference an error carries is the id of the trace that was recorded.
     [Fact]
     public async Task Given_an_error_response_When_its_trace_is_recorded_Then_trace_id_names_that_trace()

@@ -52,10 +52,16 @@ as `trace_id`.
   through `ISourceFetcher`, so the `source.fetch` span above is the fetch's span. It is named by
   the source's id, so no URL can reach it. A client span per attempt would carry only a method
   and a status after redaction, and adds no answer that the run's stage record lacks.
-- **`LogRedaction`** — the logging rules. Log calls use source-generated `LoggerMessage`
-  methods whose parameters are ids, counts, kinds and durations only. Scopes and state that
-  carry request data are not logged. Exceptions are logged by type and correlation id, never by
-  message, where the message may hold fetched text.
+- **Log rules** — enforced where each line is written rather than by a separate component. Log
+  calls use source-generated `LoggerMessage` methods whose parameters are ids, counts, kinds
+  and durations only. Scopes and state that carry request data are not logged. An exception is
+  logged by its type and a correlation id, never passed to the logger, because the exporter
+  would send its message and stack, which may quote a connection string, fetched text or a
+  secret. The API's unhandled-exception line names the type and the trace id; each worker names
+  the type and its run's correlation id, which is the run's trace id. The frameworks' own lines
+  carry no values: EF Core logs no parameter values (sensitive data logging stays off), Npgsql
+  adds no error detail, and the source fetcher drives its own sockets, so no `HttpClient`
+  logger prints a URL.
 
 **API (`Keryx.Api`)**
 
@@ -123,8 +129,8 @@ as `trace_id`.
   (`L2-094` criteria 1 and 5, and the span half of criterion 2).
 - Journey 25 adds the run traces (`RunTelemetry`), the run metrics, the consumer API's metrics
   by client, and the log rules.
-- Journey 25 completes the feature: the run traces and run metrics, the `LogRedaction` rules
-  for exceptions, and the acceptance tests of criteria 3, 4 and 6.
+- Journey 25 completes the feature: the run traces and run metrics, the client on consumer
+  requests, the log rules for exceptions, and the acceptance tests of criteria 3, 4 and 6.
 
 ## Requirements
 

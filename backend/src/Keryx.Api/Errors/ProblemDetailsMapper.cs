@@ -90,7 +90,8 @@ internal sealed partial class ProblemDetailsMapper(IProblemDetailsService proble
 
     private ProblemDetails Unhandled(Exception exception)
     {
-        LogUnhandled(logger, exception);
+        // By type and trace only: the message or stack may quote a connection string, fetched text or a secret (L2-094 AC6).
+        LogUnhandled(logger, exception.GetType().FullName ?? exception.GetType().Name, Activity.Current?.TraceId.ToHexString() ?? "none");
         return new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
@@ -99,6 +100,6 @@ internal sealed partial class ProblemDetailsMapper(IProblemDetailsService proble
         };
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "An unhandled exception reached the API")]
-    private static partial void LogUnhandled(ILogger logger, Exception exception);
+    [LoggerMessage(Level = LogLevel.Error, Message = "An unhandled {ExceptionType} reached the API; trace {TraceId}.")]
+    private static partial void LogUnhandled(ILogger logger, string exceptionType, string traceId);
 }
