@@ -63,7 +63,7 @@ public sealed class ScheduleCollectionTests
         var body = await client.GetFromJsonAsync<JsonElement>(new Uri($"/admin/v1/runs/{running.PublicId}", UriKind.Relative), TestContext.Current.CancellationToken);
         var issue = Assert.Single(body.GetProperty("issues").EnumerateArray());
         Assert.Equal(
-            ["id", "severity", "kind", "subject_type", "subject_id", "subject_name", "detail", "consecutive_runs", "since", "muted"],
+            ["id", "severity", "kind", "subject_type", "subject_id", "subject_name", "detail", "consecutive_runs", "since", "muted", "state"],
             issue.EnumerateObject().Select(property => property.Name));
         Assert.StartsWith("iss_", issue.GetProperty("id").GetString(), StringComparison.Ordinal);
         Assert.Equal("warning", issue.GetProperty("severity").GetString());

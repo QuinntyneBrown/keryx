@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run toast · mute-failed — Keryx mocks</title>
+<meta name="mock:kind" content="notification">
+<meta name="mock:screen" content="run-toast">
+<meta name="mock:state" content="mute-failed">
+<meta name="mock:requirements" content="L2-059, L2-060, L2-075">
+<meta name="description" content="Muting or unmuting an issue failed: nothing changed, and Try again sends it again.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar__head">
+    <a class="brand" href="../../pages/overview/default.html" aria-label="Keryx, go to overview"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word">keryx</span></a>
+    <span class="sidebar__tag">Admin</span>
+  </div>
+  <nav class="sidebar__nav" aria-label="Primary">
+    <a class="nav-link" href="../../pages/overview/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+    <a class="nav-link" href="../../pages/articles/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>Articles</a>
+    <a class="nav-link" href="../../pages/runs/default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>Runs<span class="nav-link__badge" aria-label="2 failing sources">2</span></a>
+    <a class="nav-link" href="../../pages/sources/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>Sources</a>
+    <a class="nav-link" href="../../pages/api/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>API</a>
+    <a class="nav-link" href="../../pages/settings/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar__foot">
+    <p class="sidebar__caption">Next collection</p>
+    <p class="sidebar__value num">12:00 PM <span>· in 2h 14m</span></p>
+    <p class="sidebar__caption">Every 6 hours, Toronto time</p>
+    <div class="sidebar__user">
+      <span class="avatar" aria-hidden="true">DA</span>
+      <div>
+        <p class="sidebar__user-name truncate">Daniel Adeyemi</p>
+        <p class="sidebar__caption truncate">Owner</p>
+      </div>
+    </div>
+  </div>
+</aside>
+<main id="main" class="app__main">
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>Runs</h1>
+      <p class="page-header__description">Scheduled every 6 hours · next at 12:00 PM (in 2h 14m)</p>
+    </div>
+    <div class="page-header__actions"><a class="btn btn--primary" role="button" href="../../pages/overview/running.html"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3l14 9-14 9z"/></svg>Run now</a></div>
+  </header>
+  <div class="page-body layout-rail layout-rail--start">
+    <section aria-label="Run history">
+      <div class="segmented" role="group" aria-label="Filter runs" style="margin-bottom: var(--space-3)">
+          <a class="segmented__option" href="../../pages/runs/default.html" aria-current="true">All runs</a>
+          <a class="segmented__option" href="../../pages/runs/problems.html">With problems</a>
+        </div>
+      <ul class="list">
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/default.html" aria-current="true">
+            <svg class="icon icon--warning" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Completed with issues: </span>
+              <span class="list__title">Today, 6:00 AM</span>
+              <span class="list__meta">47 new · 4m 12s</span>
+            </span>
+            <span class="run-item__flag">2 failed</span>
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Today, 12:00 AM</span>
+              <span class="list__meta">12 new · 3m 51s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Yesterday, 6:00 PM</span>
+              <span class="list__meta">31 new · 4m 03s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Yesterday, 2:37 PM</span>
+              <span class="list__meta">8 new · 3m 40s · manual</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/failed.html">
+            <svg class="icon icon--danger" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Failed: </span>
+              <span class="list__title">Yesterday, 12:00 PM</span>
+              <span class="list__meta">Failed · 0m 48s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Yesterday, 6:00 AM</span>
+              <span class="list__meta">39 new · 4m 22s</span>
+            </span>
+            <span class="run-item__flag">1 failed</span>
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Yesterday, 12:00 AM</span>
+              <span class="list__meta">6 new · 3m 58s</span>
+            </span>
+            <span class="run-item__flag">1 failed</span>
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Mon, Mar 9, 6:00 PM</span>
+              <span class="list__meta">28 new · 4m 10s</span>
+            </span>
+            <span class="run-item__flag">1 failed</span>
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--warning" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Completed with issues: </span>
+              <span class="list__title">Mon, Mar 9, 12:00 PM</span>
+              <span class="list__meta">22 new · 4m 31s</span>
+            </span>
+            <span class="run-item__flag">4 failed</span>
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Mon, Mar 9, 6:00 AM</span>
+              <span class="list__meta">41 new · 4m 05s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Mon, Mar 9, 12:00 AM</span>
+              <span class="list__meta">9 new · 3m 49s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Sun, Mar 8, 6:00 PM</span>
+              <span class="list__meta">35 new · 4m 14s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Sun, Mar 8, 12:00 PM</span>
+              <span class="list__meta">26 new · 4m 19s</span>
+            </span>
+            
+          </a></li>
+          <li><a class="list__item list__item--interactive run-item" href="../../pages/runs/success.html">
+            <svg class="icon icon--success" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="list__body">
+              <span class="visually-hidden">Succeeded: </span>
+              <span class="list__title">Sun, Mar 8, 6:00 AM</span>
+              <span class="list__meta">19 new · 4m 02s</span>
+            </span>
+            
+          </a></li>
+        </ul>
+    </section>
+    <section class="stack stack--lg" aria-labelledby="run-title">
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <div class="card__title-row">
+                <h2 id="run-title">Today, 6:00 AM</h2>
+                <span class="badge badge--dot badge--warning">Completed with issues</span>
+              </div>
+              <p class="card__meta"><span class="mono">run_2418</span> · Schedule · took 4m 12s</p>
+            </div>
+            <a class="btn" role="button" href="../../notifications/run-toast/info.html"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Retry failed sources</a>
+          </div>
+          <dl class="stats stats--4 stats--ruled">
+            <div class="stat"><dt class="stat__label">New articles</dt><dd class="stat__value">47</dd></div><div class="stat"><dt class="stat__label">Duplicates skipped</dt><dd class="stat__value">18</dd></div><div class="stat"><dt class="stat__label">Sources OK</dt><dd class="stat__value">62</dd></div><div class="stat"><dt class="stat__label">Sources failed</dt><dd class="stat__value stat__value--danger">2</dd></div>
+          </dl>
+        </div>
+        <section aria-labelledby="pipeline-title">
+          <h3 id="pipeline-title" style="margin-bottom: var(--space-3)">Pipeline</h3>
+          <ol class="timeline">
+          <li class="timeline__step" data-state="warn">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done with warnings: </span>Fetch sources</p><span class="timeline__time">2:48</span></div>
+              <p class="timeline__detail">62 of 64 sources fetched · 2 failed</p>
+            </div>
+          </li>
+          <li class="timeline__step" data-state="ok">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done: </span>Parse &amp; extract</p><span class="timeline__time">0:21</span></div>
+              <p class="timeline__detail">189 candidate items from feeds, pages and posts</p>
+            </div>
+          </li>
+          <li class="timeline__step" data-state="warn">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done with warnings: </span>Classify relevance</p><span class="timeline__time">0:38</span></div>
+              <p class="timeline__detail">53 relevant · 6 held for review · 130 off-topic</p>
+            </div>
+          </li>
+          <li class="timeline__step" data-state="ok">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done: </span>Deduplicate</p><span class="timeline__time">0:06</span></div>
+              <p class="timeline__detail">18 duplicates merged with existing articles</p>
+            </div>
+          </li>
+          <li class="timeline__step" data-state="ok">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done: </span>Store</p><span class="timeline__time">0:03</span></div>
+              <p class="timeline__detail">Saved to articles table</p>
+            </div>
+          </li>
+          <li class="timeline__step" data-state="ok">
+            <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="timeline__body">
+              <div class="timeline__row"><p class="timeline__name"><span class="visually-hidden">Done: </span>Publish to API</p><span class="timeline__time">0:01</span></div>
+              <p class="timeline__detail">47 new articles available at /v1/articles</p>
+            </div>
+          </li>
+        </ol>
+        </section>
+        <section aria-labelledby="issues-title">
+          <h3 id="issues-title" style="margin-bottom: var(--space-3)">Issues in this run</h3>
+          <ul class="list">
+          <li class="list__item list__item--wrap">
+            <div class="cluster" style="align-items:flex-start; flex-wrap:nowrap; flex:1; min-width:0; gap: var(--space-3)">
+            <svg class="icon icon--danger" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <div class="list__body">
+              <p class="list__title"><span class="visually-hidden">Error: </span>Feed returned 404 <span class="text-muted" style="font-weight: var(--font-weight-regular)">· Redeemed Run Club Toronto</span></p>
+              <p class="issue__detail">GET https://redeemedrun.ca/feed → 404 Not Found. The site may have moved its blog.</p>
+            </div>
+            </div>
+            <div class="list__actions"><a class="btn btn--ghost btn--sm" role="button" href="../../notifications/run-toast/success.html">Mute</a><a class="btn btn--sm" role="button" href="../../dialogs/edit-source/default.html">Edit source</a></div>
+          </li><li class="list__item list__item--wrap">
+            <div class="cluster" style="align-items:flex-start; flex-wrap:nowrap; flex:1; min-width:0; gap: var(--space-3)">
+            <svg class="icon icon--danger" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <div class="list__body">
+              <p class="list__title"><span class="visually-hidden">Error: </span>Timed out after 30s <span class="text-muted" style="font-weight: var(--font-weight-regular)">· Covenant Cycling Collective</span></p>
+              <p class="issue__detail">Events page did not respond within 30s on 3 retries.</p>
+              <p class="issue__streak">Failing 4 runs in a row</p>
+            </div>
+            </div>
+            <div class="list__actions"><a class="btn btn--ghost btn--sm" role="button" href="../../notifications/run-toast/success.html">Mute</a><a class="btn btn--sm" role="button" href="../../dialogs/edit-source/default.html">Edit source</a></div>
+          </li><li class="list__item list__item--wrap">
+            <div class="cluster" style="align-items:flex-start; flex-wrap:nowrap; flex:1; min-width:0; gap: var(--space-3)">
+            <svg class="icon icon--warning" aria-hidden="true" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div class="list__body">
+              <p class="list__title"><span class="visually-hidden">Warning: </span>6 articles held for review <span class="text-muted" style="font-weight: var(--font-weight-regular)">· Google News · “Toronto church fitness”</span></p>
+              <p class="issue__detail">Relevance score between 0.45 and 0.60 — may not be Christian fitness content.</p>
+            </div>
+            </div>
+            <div class="list__actions"><a class="btn btn--ghost btn--sm" role="button" href="../../notifications/run-toast/success.html">Mute</a><a class="btn btn--sm" role="button" href="../../dialogs/edit-source/default.html">Edit source</a></div>
+          </li>
+          </ul>
+        </section>
+      </section>
+  </div>
+</main>
+</div>
+
+<div class="toast-region" role="status" aria-live="polite">
+  <div class="toast toast--danger" role="alert">
+    <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+    <div class="toast__body">
+      <p class="toast__title">Issue not muted</p>
+      <p class="toast__text">Keryx couldn’t reach its API just now, so the issue still raises alerts. Try again.</p>
+      <button class="toast__action" type="button">Try again</button>
+    </div>
+    <button class="icon-btn" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+</div>
+
+<p class="mock-note" style="top: 1rem; right: 1rem;">Unmute that fails reads “Issue not unmuted” and “…so the issue is still muted. Try again.”</p>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Run toast</span>
+  <ul class="mock-bar__states">
+    <li><a href="info.html">info</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="warning.html">warning</a></li>
+    <li><a href="danger.html">danger</a></li>
+    <li><a href="mute-failed.html" aria-current="page">mute-failed</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

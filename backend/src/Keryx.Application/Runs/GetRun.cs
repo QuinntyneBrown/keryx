@@ -64,7 +64,8 @@ public sealed record RunIssueDto(
     string Detail,
     int ConsecutiveRuns,
     DateTimeOffset Since,
-    bool Muted);
+    bool Muted,
+    string State);
 
 internal sealed class GetRunHandler(IAppDbContext db) : IRequestHandler<GetRun, RunDto>
 {
@@ -86,11 +87,11 @@ internal sealed class GetRunHandler(IAppDbContext db) : IRequestHandler<GetRun, 
     }
 
     /// <summary>An issue as listed on a run: that run's detail, and what it concerns.</summary>
-    private static RunIssueDto IssueOf(RunIssue issue, string detail, Dictionary<long, Keryx.Domain.Sources.Source> sources)
+    internal static RunIssueDto IssueOf(RunIssue issue, string detail, Dictionary<long, Keryx.Domain.Sources.Source> sources)
     {
         var (type, id, name) = IssueSubject.Of(issue, sources);
         return new RunIssueDto(issue.PublicId, RunWords.Severity(issue.Severity), RunWords.Kind(issue.Kind), type, id, name, detail,
-            issue.ConsecutiveRuns, issue.Since, issue.State == IssueState.Muted);
+            issue.ConsecutiveRuns, issue.Since, issue.State == IssueState.Muted, RunWords.State(issue.State));
     }
 }
 

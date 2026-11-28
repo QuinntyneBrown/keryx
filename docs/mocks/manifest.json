@@ -82,6 +82,7 @@
       "route": "/runs",
       "states": [
         "default",
+        "muted",
         "success",
         "failed",
         "running",
@@ -336,7 +337,8 @@
         "info",
         "success",
         "warning",
-        "danger"
+        "danger",
+        "mute-failed"
       ],
       "not_applicable": {},
       "requirements": [

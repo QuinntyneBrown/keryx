@@ -18,4 +18,14 @@ public sealed class AdminIssuesController(ISender sender) : ControllerBase
         [FromQuery(Name = "page_size")] string? pageSize,
         CancellationToken cancellationToken) =>
         sender.Send(new ListOpenIssues(state, pageSize), cancellationToken);
+
+    /// <summary>Mutes an open issue: it stops counting as open and raising alerts (L2-020 AC2).</summary>
+    [HttpPost("{id}/mute")]
+    public Task<RunIssueDto> Mute(string id, CancellationToken cancellationToken) =>
+        sender.Send(new MuteIssueCommand(id), cancellationToken);
+
+    /// <summary>Unmutes a muted issue: it is open again (L2-020 AC3).</summary>
+    [HttpPost("{id}/unmute")]
+    public Task<RunIssueDto> Unmute(string id, CancellationToken cancellationToken) =>
+        sender.Send(new UnmuteIssueCommand(id), cancellationToken);
 }

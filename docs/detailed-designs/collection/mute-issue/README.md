@@ -37,17 +37,19 @@ entity.
     for Covenant Cycling Collective." and the action "Undo".
   - "Undo" calls `unmuteIssue(issue)`, which sends the unmute request and marks the issue open
     again.
-  - On failure, the issue stays unchanged and a danger toast offers "Try again". No mock shows
-    this toast; its copy is `<TO SUPPLY>`. A `404` `issue_not_found` shows the same generic
-    message.
+  - On failure, the issue stays unchanged and a danger toast offers "Try again":
+    `notifications/run-toast/mute-failed.html` ("Issue not muted", or "Issue not unmuted" for
+    Unmute). A `404` `issue_not_found` or a `409` `issue_closed` shows the same generic message,
+    and a `409` also reads the run again, so the issue shows as it now is.
 - **`issueTitle`** — pure helper in the `domain` library that turns an issue's `kind` and its
   numeric fields into the title used in the list and the toast ("Timed out after 30s", "Feed
-  returned 404"). Which numeric fields carry the status code and the time-out is `<TO SUPPLY>`;
-  the source name comes from the issue's subject. Both are rendered as text.
+  returned 404"). An issue carries no numeric fields (`L2-020`), so the title is by kind alone ("Feed returned
+  404", "Source timed out"), as Overview and Runs already show it; the source name comes from
+  the issue's subject. Both are rendered as text.
 - **`ScheduleStore`** — the app-wide shell state (L2-089). `refresh()` re-reads the open issue
-  count that Overview and the navigation badge show. The Overview mock note says the Runs badge
-  counts failing sources (2), while L2-060 says it counts open issues; which count the badge shows
-  is `<TO SUPPLY>`.
+  count that Overview and the navigation badge show. The shell shows no Runs badge, and its count is of failing sources, which a mute does not
+  change; Overview reads the open issues again on each visit. So a mute asks nothing of
+  `ScheduleStore`.
 - **`Btn`**, **`Toast`** — presentation components in the `components` library.
 - **`RunsApi`** / **`RUNS_API`** — `muteIssue(id)` and `unmuteIssue(id)`, implemented by
   `HttpRunsApi` and bound in `app.config.ts`.
@@ -57,10 +59,18 @@ entity.
   unknown or malformed id.
 - **`MuteIssueCommandHandler`** and **`UnmuteIssueCommandHandler`** — load the `RunIssue`, call
   `Mute(now)` (time from `TimeProvider`) or `Unmute()`, and save. Muting an already muted issue,
-  or unmuting an open one, changes nothing and answers `200`. The answer for a closed issue is
-  `<TO SUPPLY>`. Each change is a staff action recorded by the audit design (L2-085).
+  or unmuting an open one, changes nothing and answers `200`. A closed issue answers `409` with `code` `issue_closed` and is not changed. Each change is a staff action recorded by the audit design (L2-085).
 - **`RunIssue`** — domain entity; `Mute` moves `open` to `muted` and sets `MutedAt`, and
   `Unmute` moves `muted` to `open`. The alert design (L2-077) reads only `open` issues.
+
+## Implementation notes (journey 20)
+
+- Each issue served on a run gains `state` (`open`, `muted` or `closed`), an addition to the
+  admin contract alongside `muted`. The run detail offers "Mute" only on an open issue. A muted
+  issue shows a "Muted" badge and "Unmute" (`pages/runs/muted.html`). An issue that is over
+  shows neither.
+- `Mute` records no time of its own: the audit design (journey 24) records who muted an issue
+  and when.
 
 ## Requirements
 

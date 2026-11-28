@@ -118,6 +118,15 @@ public sealed class RunIssue
         }
     }
 
+    /// <summary>Staff hear of it again: a muted issue is open, and raises alerts, once more (L2-020 AC3).</summary>
+    public void Unmute()
+    {
+        if (State == IssueState.Muted)
+        {
+            State = IssueState.Open;
+        }
+    }
+
     /// <summary>The problem is over; a later recurrence is a new issue. Closing clears a mute.</summary>
     public void Close() => State = IssueState.Closed;
 }
