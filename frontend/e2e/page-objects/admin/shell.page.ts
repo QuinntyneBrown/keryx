@@ -18,6 +18,9 @@ export class ShellPage {
   readonly wordmark: Locator;
   readonly tag: Locator;
   readonly navigation: Locator;
+  /** The Runs link and the count of failing sources on it. */
+  readonly runsLink: Locator;
+  readonly runsBadge: Locator;
   readonly headings: Locator;
   readonly description: Locator;
   /** The card's icon disc and action row, which take no room while nothing is in them. */
@@ -41,6 +44,8 @@ export class ShellPage {
     this.wordmark = this.brand.locator('.brand__word');
     this.tag = this.sidebar.locator('.sidebar__tag');
     this.navigation = page.getByRole('navigation');
+    this.runsLink = this.navigation.locator('a.nav-link[href="/runs"]');
+    this.runsBadge = this.runsLink.locator('.nav-link__badge');
     this.headings = page.locator('h1');
     this.description = this.main.locator('.page-header__description');
     this.footer = this.sidebar.locator('.sidebar__foot');

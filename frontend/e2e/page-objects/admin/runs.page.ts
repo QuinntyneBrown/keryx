@@ -76,7 +76,10 @@ export class RunsPage {
     this.toastText = this.toast.locator('.toast__text');
     this.toastAction = this.toast.locator('.toast__action');
     this.description = main.locator('.page-header__description');
-    this.navLink = page.getByRole('link', { name: 'Runs', exact: true });
+    // Its accessible name carries the failing-source count ("Runs 2 failing sources").
+    this.navLink = page
+      .getByRole('navigation', { name: 'Primary' })
+      .locator('a.nav-link[href="/runs"]');
     this.overviewLink = page.getByRole('link', { name: 'Overview', exact: true });
     this.history = main.getByRole('region', { name: 'Run history' });
     this.runs = this.history.locator('a.run-item');

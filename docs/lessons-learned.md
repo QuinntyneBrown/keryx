@@ -1133,3 +1133,29 @@ Lessons:
   `HostMeasurements` helper. It was needed again the same day.
 - "A presence check proves the exporter is wired": each meter's `AddMeter` has a mutant that a
   by-name export check kills.
+
+## Issue 5: The Runs link counts failing sources
+
+One slice, frontend only. `NavLink` already took a count and its accessible name, and the shell's
+`ScheduleStore` already read `failing_sources`; the shell had never bound one to the other. The
+badge now shows on every signed-in route and in the narrow top bar, through the new domain
+helper `failingSourcesLabel`.
+
+What slowed it:
+- The shared fixture's schedule has 2 failing sources, so the badge appeared in every spec at
+  once. The shell's critical test listed the links by text and now reads "Runs 2", which is
+  what the mock shows. The Runs page object found its link by the exact name "Runs" and no
+  longer matched; it now finds the link by its class and `href`.
+- A first draft opened the badge spec on Sources and API, which read endpoints the shared
+  fixture does not answer. The badge belongs to the shell, so routes the fixture answers prove
+  it.
+
+Lessons:
+- **Find a navigation link by its `href`, never by its accessible name.** The name carries
+  whatever the link counts.
+- **A component input nobody binds is a gap the component's own tests cannot see.** Before
+  building, check whether the library already takes the value and only the app is missing.
+
+**How earlier lessons worked.**
+- "A new default in a shared flow means running the whole suite" found the three Runs specs in
+  one run.
