@@ -1,6 +1,8 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Collection;
 using Keryx.Application.Errors;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +25,7 @@ public sealed class NothingToRetryException()
 /// and merges what it finds into the run. A run that failed at a stage has no useful partial
 /// result, so a new manual run starts instead, as "Run now" starts one.
 /// </summary>
-internal sealed class RetryFailedSourcesHandler(IAppDbContext db, ISender sender) : IRequestHandler<RetryFailedSources, RetryStartedDto>
+internal sealed class RetryFailedSourcesHandler(IAppDbContext db, IAuditTrail audit, ISender sender) : IRequestHandler<RetryFailedSources, RetryStartedDto>
 {
     public async Task<RetryStartedDto> Handle(RetryFailedSources request, CancellationToken cancellationToken)
     {
@@ -42,6 +44,8 @@ internal sealed class RetryFailedSourcesHandler(IAppDbContext db, ISender sender
 
         if (run.Outcome == RunOutcome.Failed)
         {
+            // Recorded before the new run, whose save commits both entries.
+            audit.Record(AuditAction.RunRetried, run.PublicId);
             var started = await sender.Send(new StartRun(), cancellationToken).ConfigureAwait(false);
             return new RetryStartedDto(started.Id);
         }
@@ -54,6 +58,7 @@ internal sealed class RetryFailedSourcesHandler(IAppDbContext db, ISender sender
 
         lease.Claim(run.PublicId);
         run.RequestRetry(failed);
+        audit.Record(AuditAction.RunRetried, run.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

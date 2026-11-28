@@ -35,6 +35,9 @@ their values. Entries older than the retention period are deleted by the retenti
   `UnmuteIssueCommand`; `StartRun` and `RetryFailedSources`; `UpdateSettings`. Undo and Unmute
   are audited although `L2-085` lists neither: each changes state, and the requirement is that
   every state-changing staff action is recorded.
+  Retrying a failed run starts a new one: it records `run_retried` for the failed run and
+  `run_started` for the new run, committed together by the new run's save. Muting a muted
+  issue, unmuting an open one and revoking a revoked key change nothing and record nothing.
 - **Why not a pipeline behaviour.** Every handler saves its own change, and saves only when
   something changed. A behaviour that wrote the entry after the handler would need a second
   save, which could fail alone and leave a change with no entry, and it could not tell a change

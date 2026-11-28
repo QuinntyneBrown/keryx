@@ -1,8 +1,10 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Collection;
 using Keryx.Application.Errors;
-using Keryx.Domain;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Collection;
+using Keryx.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +32,7 @@ public sealed class RunInProgressException(string runId)
 /// Claims the collection lease for a new manual run, which the worker then executes as it would a
 /// scheduled one. It never moves the schedule: the lease's last handled slot is left as it is.
 /// </summary>
-internal sealed class StartRunHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<StartRun, RunStartedDto>
+internal sealed class StartRunHandler(IAppDbContext db, IAuditTrail audit, TimeProvider time) : IRequestHandler<StartRun, RunStartedDto>
 {
     public async Task<RunStartedDto> Handle(StartRun request, CancellationToken cancellationToken)
     {
@@ -52,6 +54,7 @@ internal sealed class StartRunHandler(IAppDbContext db, TimeProvider time) : IRe
         var run = Run.Start(RunWorker.Collection, RunTrigger.Manual, now);
         db.Runs.Add(run);
         lease.Claim(run.PublicId);
+        audit.Record(AuditAction.RunStarted, run.PublicId);
         try
         {
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

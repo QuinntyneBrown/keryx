@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Keryx.Api.Tests.Fakes;
+using Keryx.Api.Tests.Runs;
 using Keryx.Api.Tests.Session;
 using Keryx.Domain.Audit;
 using Keryx.Domain.Catalogue;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Keryx.Api.Tests.Audit;
 
 // Acceptance Test
-// Traces to: L2-085 AC1, AC2; L2-064; L2-065; L2-068; L2-069
+// Traces to: L2-085 AC1, AC2; L2-064; L2-065; L2-068; L2-069; L2-006; L2-008; L2-020
 // Description: Each state-changing staff action that succeeds stores one audit entry: the staff
 // member's subject id, the action, the target's public id and the time, and nothing else. A
 // request that fails, or that changes nothing, stores none. The trail has no endpoint: the test
@@ -111,6 +112,71 @@ public sealed class AuditTests
         Assert.DoesNotContain(
             await store.AuditEntries.Select(entry => entry.SubjectId + " " + entry.TargetId).ToListAsync(ct),
             text => text.Contains(key[..12], StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Given_an_open_issue_When_staff_mute_and_unmute_it_Then_each_change_is_audited_and_a_repeat_or_a_closed_issue_is_not()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var open = RunIssue.AlertNotSent(RunWorker.Collection, "The alert could not be sent.", factory.Time.GetUtcNow());
+        var closed = RunIssue.AlertNotSent(RunWorker.AlertDigest, "The daily digest could not be sent.", factory.Time.GetUtcNow());
+        closed.Close();
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            store.RunIssues.AddRange(open, closed);
+            await store.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory, Subject);
+
+        Assert.Equal(HttpStatusCode.OK, await PostAsync(staff, $"/admin/v1/issues/{open.PublicId}/mute"));
+        Assert.Equal(HttpStatusCode.OK, await PostAsync(staff, $"/admin/v1/issues/{open.PublicId}/mute"));
+        Assert.Equal(HttpStatusCode.OK, await PostAsync(staff, $"/admin/v1/issues/{open.PublicId}/unmute"));
+        Assert.Equal(HttpStatusCode.Conflict, await PostAsync(staff, $"/admin/v1/issues/{closed.PublicId}/mute"));
+
+        var now = factory.Time.GetUtcNow();
+        Assert.Equal(
+            [(Subject, AuditAction.IssueMuted, open.PublicId, now), (Subject, AuditAction.IssueUnmuted, open.PublicId, now)],
+            await EntriesAsync(factory));
+    }
+
+    [Fact]
+    public async Task Given_a_run_with_failed_sources_When_staff_retry_it_Then_the_retry_is_audited_and_a_refused_start_is_not()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var runId = await RetryFailedSourcesTests.RunWithFailuresAsync(factory);
+        using var staff = await StaffClient.OpenAsync(factory, Subject);
+
+        Assert.Equal(HttpStatusCode.Accepted, await PostAsync(staff, $"/admin/v1/runs/{runId}/retry"));
+        Assert.Equal(HttpStatusCode.Conflict, await PostAsync(staff, "/admin/v1/runs"));
+
+        Assert.Equal([(Subject, AuditAction.RunRetried, runId, factory.Time.GetUtcNow())], await EntriesAsync(factory));
+    }
+
+    [Fact]
+    public async Task Given_a_failed_run_When_staff_retry_it_Then_the_retry_of_it_and_the_new_run_it_starts_are_both_audited()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var now = factory.Time.GetUtcNow();
+        var failed = Run.Start(RunWorker.Collection, RunTrigger.Schedule, now.AddMinutes(-30));
+        failed.FailStage(PipelineStage.Store, "The records of this run could not be saved.", now.AddMinutes(-26));
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            store.Runs.Add(failed);
+            await store.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory, Subject);
+        using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+        using var retried = await staff.PostAsync(new Uri($"/admin/v1/runs/{failed.PublicId}/retry", UriKind.Relative), content, TestContext.Current.CancellationToken);
+        var started = (await retried.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("id").GetString()!;
+
+        Assert.Equal(
+            [(Subject, AuditAction.RunRetried, failed.PublicId, now), (Subject, AuditAction.RunStarted, started, now)],
+            await EntriesAsync(factory));
     }
 
     private static async Task<string> HeldArticleAsync(ApiFactory factory)

@@ -1,5 +1,7 @@
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Errors;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,15 +18,15 @@ public sealed record UnmuteIssueCommand(string Id) : IRequest<RunIssueDto>;
 /// Mutes or unmutes one issue and answers it as it now is. Asking for what already holds changes
 /// nothing; an issue that is over is refused, since its source has recovered.
 /// </summary>
-internal sealed class MuteIssueHandler(IAppDbContext db) : IRequestHandler<MuteIssueCommand, RunIssueDto>, IRequestHandler<UnmuteIssueCommand, RunIssueDto>
+internal sealed class MuteIssueHandler(IAppDbContext db, IAuditTrail audit) : IRequestHandler<MuteIssueCommand, RunIssueDto>, IRequestHandler<UnmuteIssueCommand, RunIssueDto>
 {
     public Task<RunIssueDto> Handle(MuteIssueCommand request, CancellationToken cancellationToken) =>
-        ChangeAsync(request.Id, issue => issue.Mute(), cancellationToken);
+        ChangeAsync(request.Id, AuditAction.IssueMuted, issue => issue.Mute(), cancellationToken);
 
     public Task<RunIssueDto> Handle(UnmuteIssueCommand request, CancellationToken cancellationToken) =>
-        ChangeAsync(request.Id, issue => issue.Unmute(), cancellationToken);
+        ChangeAsync(request.Id, AuditAction.IssueUnmuted, issue => issue.Unmute(), cancellationToken);
 
-    private async Task<RunIssueDto> ChangeAsync(string id, Action<RunIssue> change, CancellationToken cancellationToken)
+    private async Task<RunIssueDto> ChangeAsync(string id, AuditAction action, Action<RunIssue> change, CancellationToken cancellationToken)
     {
         var issue = await db.RunIssues.SingleOrDefaultAsync(candidate => candidate.PublicId == id, cancellationToken).ConfigureAwait(false)
             ?? throw new IssueNotFoundException();
@@ -33,7 +35,14 @@ internal sealed class MuteIssueHandler(IAppDbContext db) : IRequestHandler<MuteI
             throw new IssueClosedException();
         }
 
+        // A repeat changes nothing and records nothing (L2-085).
+        var before = issue.State;
         change(issue);
+        if (issue.State != before)
+        {
+            audit.Record(action, issue.PublicId);
+        }
+
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         var sources = await db.Sources.AsNoTracking().IgnoreQueryFilters().Where(source => source.Id == issue.SourceId)
             .ToDictionaryAsync(source => source.Id, cancellationToken).ConfigureAwait(false);
