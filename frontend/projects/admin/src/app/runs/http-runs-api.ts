@@ -23,6 +23,13 @@ export class HttpRunsApi implements RunsApi {
     });
   }
 
+  async retry(id: string, signal: AbortSignal): Promise<{ id: string }> {
+    return readJson<{ id: string }>(`/admin/v1/runs/${encodeURIComponent(id)}/retry`, signal, {
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': await antiforgeryToken(signal) },
+    });
+  }
+
   get(id: string, signal: AbortSignal): Promise<RunDetail> {
     return readJson<RunDetail>(`/admin/v1/runs/${encodeURIComponent(id)}`, signal);
   }

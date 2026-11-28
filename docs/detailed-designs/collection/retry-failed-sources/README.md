@@ -39,8 +39,20 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
     the failed sources before and after to `summarizeRetry`.
   - When the response carries a different run id (a failed run was retried), it selects that new
     run.
-  - On `409` `run_in_progress`, it shows a notification that a collection is already running;
-    no mock shows this notification, and its copy is `<TO SUPPLY>`.
+  - On `409` `run_in_progress`, an info notification reads "Collection already running" and
+    "Retry failed sources once it has finished.", and the watcher follows the run named by
+    `run_id`. No mock shows this notification; its copy is decided here (journey 16).
+  - As built (journey 16): the button shows while `canRetryFailedSources(run)` holds (domain
+    library, case table): a run that `failed`, or a finished run with `sources_failed` above 0.
+    A run completed with issues but no failed source (held items only) shows none, matching
+    the server's `nothing_to_retry`. The info notification's names are the run's `error`
+    issues about a source, up to two and then "and N more" (`namedFew`, shared with the
+    collection outcome notice). When the answer names a new run (the original failed), the
+    notification reads "Collection started" and "The run failed, so a new run checks every
+    source.", and Runs opens that run. Any other refusal reads "Retry didn’t start" with the
+    reference and "Try again". The store does not poll: `CollectionWatcher` follows the run in
+    progress (Run collection now design), which Runs' list now finds wherever it is listed,
+    since a retried run need not be the newest.
 - **`summarizeRetry`** — pure helper in the `domain` library with unit tests. One of two
   recovered gives a warning titled "1 of 2 sources recovered" naming which responded and which
   still fails, with the action "Edit source". None recovered gives a danger notification "Both

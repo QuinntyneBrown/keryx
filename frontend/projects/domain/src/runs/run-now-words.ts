@@ -1,3 +1,4 @@
+import { namedFew } from './retry-words';
 import { formatClockTime } from '../overview/run-words';
 
 /**
@@ -72,14 +73,7 @@ export function collectionEndedNotice(run: EndedRun): EndedNotice {
   const names = run.issues
     .filter((i) => i.severity === 'error' && i.subject_type === 'source' && i.subject_name)
     .map((i) => i.subject_name as string);
-  const named = names.slice(0, 2);
-  const more = failing - named.length;
-  const who =
-    named.length === 0
-      ? ''
-      : more > 0
-        ? ` ${named.join(', ')} and ${more} more didn’t respond.`
-        : ` ${named.join(' and ')} didn’t respond.`;
+  const who = names.length ? ` ${namedFew(names, failing)} didn’t respond.` : '';
   return {
     tone: 'warning',
     title: `Collection finished with ${failing} failing ${failing === 1 ? 'source' : 'sources'}`,

@@ -86,6 +86,14 @@
                 [reference]="shown.reference"
                 [meta]="shown.meta"
               >
+                @if (store.canRetry()) {
+                  <kx-btn
+                    slot="actions"
+                    [busy]="store.retryingSources()"
+                    (activated)="retryFailedSources()"
+                    ><kx-icon slot="icon" name="runs" size="sm" />Retry failed sources</kx-btn
+                  >
+                }
                 <kx-stats four ruled [items]="shown.tiles" />
               </kx-card>
               <section aria-labelledby="pipeline-title">

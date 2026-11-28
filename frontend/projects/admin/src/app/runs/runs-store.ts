@@ -1,6 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { ApiProblem, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
-import { skeletonDelay } from '@kx/domain';
+import { ApiProblem, NOTIFIER, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
+import { canRetryFailedSources, retryStartedNotice, skeletonDelay } from '@kx/domain';
 import { CollectionWatcher } from '../schedule/collection-watcher';
 
 /** A failed read's reference, the response's trace id, for staff to quote. */
@@ -20,6 +20,7 @@ export const HISTORY_RUNS = 14;
 export class RunsStore {
   private readonly api = inject(RUNS_API);
   private readonly watcher = inject(CollectionWatcher);
+  private readonly notifier = inject(NOTIFIER);
   private readonly controller = new AbortController();
   private readonly skeleton = skeletonDelay();
   /** The run the URL names, or null for the newest. */
@@ -52,6 +53,13 @@ export class RunsStore {
   );
   /** A read has taken over 300 ms: skeletons stand in for what is loading (L2-061 AC1). */
   readonly slow = signal(false);
+  /** "Retry failed sources" is waiting for the API's answer. */
+  readonly retryingSources = signal(false);
+  /** The chosen run offers "Retry failed sources" (L2-059 AC4). */
+  readonly canRetry = computed(() => {
+    const run = this.detail();
+    return !!run && canRetryFailedSources(run);
+  });
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -86,6 +94,63 @@ export class RunsStore {
   /** Reads the list again, as when a run has just started, keeping the run chosen. */
   refresh(): void {
     void this.load();
+  }
+
+  /**
+   * Fetches the chosen run's failed sources again (L2-059 AC1), sending one request while one is
+   * out: says which, then hands the run it runs as to `shown` while the watcher follows it. A run
+   * that failed starts a new run instead (L2-008 AC5). Another run in progress is said, and
+   * followed (AC5); any other refusal says the retry did not start, with "Try again".
+   */
+  async retryFailedSources(shown: (runId: string) => unknown): Promise<void> {
+    const run = this.detail();
+    if (!run || this.retryingSources()) return;
+    this.retryingSources.set(true);
+    try {
+      const { id } = await this.api.retry(run.id, this.controller.signal);
+      const names = run.issues
+        .filter((i) => i.severity === 'error' && i.subject_type === 'source' && i.subject_name)
+        .map((i) => i.subject_name as string);
+      this.notifier.notify(
+        id === run.id
+          ? { tone: 'info', ...retryStartedNotice(run.sources_failed, names) }
+          : {
+              tone: 'info',
+              title: 'Collection started',
+              text: 'The run failed, so a new run checks every source.',
+            },
+      );
+      // The list read that follows finds the run in progress, for the watcher to follow.
+      shown(id);
+    } catch (error) {
+      if (this.controller.signal.aborted) return;
+      if (error instanceof ApiProblem && error.code === 'run_in_progress') {
+        this.notifier.notify({
+          tone: 'info',
+          title: 'Collection already running',
+          text: 'Retry failed sources once it has finished.',
+        });
+        if (error.runId)
+          this.watcher.track({ id: error.runId, started_at: new Date().toISOString() });
+        return;
+      }
+      const reference = referenceOf(error);
+      this.notifier.notify({
+        tone: 'danger',
+        title: 'Retry didn’t start',
+        text: `Keryx couldn’t reach its API just now, so no source was fetched again.${reference ? ` Reference ${reference}` : ''}`,
+        action: { label: 'Try again', run: () => void this.retryFailedSources(shown) },
+      });
+    } finally {
+      this.retryingSources.set(false);
+    }
+  }
+
+  /** Reads the list and the chosen run again, as when its failed sources are being retried. */
+  reload(): void {
+    void this.load();
+    const id = this.selected();
+    if (id) void this.readDetail(id);
   }
 
   /** Reads the list again after the page error, busy meanwhile (L2-073 AC3). */
@@ -136,10 +201,10 @@ export class RunsStore {
       this.listFailed.set(null);
       this.opening.set(false);
       this.page.set(page);
-      // The full history's newest run says whether one is in progress; a filtered list cannot.
+      // The full history says whether a run is in progress, the newest or one retried; a
+      // filtered list cannot.
       if (!this.problems()) {
-        const newest = page.items[0];
-        this.watcher.track(newest?.outcome === 'running' ? newest : null);
+        this.watcher.track(page.items.find((item) => item.outcome === 'running') ?? null);
       }
       if (!this.requested) this.choose(page.items[0]?.id ?? null);
     } catch (error) {

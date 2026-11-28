@@ -243,6 +243,18 @@ export default class Runs {
     void this.router.navigateByUrl(href);
   }
 
+  /** Fetches the chosen run's failed sources again and shows the run it runs as (L2-059 AC1). */
+  protected retryFailedSources(): void {
+    void this.store.retryFailedSources((id) => {
+      if (id === this.store.selected()) {
+        this.store.reload();
+        return;
+      }
+      this.store.refresh();
+      void this.router.navigateByUrl(`/runs?run=${encodeURIComponent(id)}`);
+    });
+  }
+
   /** Starts a run and shows it, first in the list and chosen (L2-047 AC1). */
   protected runNow(): void {
     void this.schedule.runNow(async (id) => {

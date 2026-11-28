@@ -21,6 +21,8 @@ export class RunsPage {
   readonly detailMeta: Locator;
   readonly tileLabels: Locator;
   readonly tileValues: Locator;
+  /** The run card's "Retry failed sources" (L2-059). */
+  readonly retry: Locator;
   readonly pipelineHeading: Locator;
   readonly steps: Locator;
   readonly stepNames: Locator;
@@ -90,6 +92,7 @@ export class RunsPage {
     this.detailMeta = this.detail.locator('.card__meta');
     this.tileLabels = this.detail.locator('.stats .stat__label');
     this.tileValues = this.detail.locator('.stats .stat__value');
+    this.retry = this.detail.locator('.card__head .btn');
     this.pipelineHeading = this.detail.locator('#pipeline-title');
     this.steps = this.detail.locator('ol.timeline > li.timeline__step');
     this.stepNames = this.steps.locator('.timeline__name');

@@ -110,6 +110,12 @@ export interface RunsApi {
   list(query: RunQuery, signal: AbortSignal): Promise<RunPage>;
   /** Starts a collection run now; refuses `run_in_progress` with the running run's id (L2-006). */
   start(signal: AbortSignal): Promise<RunStarted>;
+  /**
+   * Fetches a finished run's failed sources again, answering the run it runs as: the same one, or
+   * a new run when the original failed. Refuses `run_in_progress` with the running run's id,
+   * `run_not_found` and `nothing_to_retry` (L2-008).
+   */
+  retry(id: string, signal: AbortSignal): Promise<{ id: string }>;
   /** One run with its stages and issues; refuses `run_not_found`. */
   get(id: string, signal: AbortSignal): Promise<RunDetail>;
   /** The `pageSize` most severe open issues: errors first, then the longest streak. */
