@@ -8,6 +8,7 @@ const TITLES: Record<string, string> = {
   items_held: 'Items held for review',
   stage_failed: 'A stage failed',
   run_skipped: 'Scheduled run skipped',
+  alert_not_sent: 'Alert e-mail not sent',
 };
 
 /** An open issue's title by its kind (Overview design); a kind Keryx does not know reads generally. */

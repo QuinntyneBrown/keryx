@@ -12,6 +12,7 @@ describe('issueTitle', () => {
     ['items_held', 'Items held for review'],
     ['stage_failed', 'A stage failed'],
     ['run_skipped', 'Scheduled run skipped'],
+    ['alert_not_sent', 'Alert e-mail not sent'],
     ['something_new', 'Something needs attention'],
   ])('%s reads %s', (kind, title) => {
     expect(issueTitle(kind)).toBe(title);

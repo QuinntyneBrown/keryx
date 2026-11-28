@@ -158,8 +158,13 @@ Review them: {origin}/articles?status=needs_review
   does the run-recording behaviour after it records a run that threw; alerts are raised only for
   collection runs. A digest run never raises alerts, so a mail failure cannot cause an e-mail.
 - A retried alert is composed again from the issue or run when it is retried, so it states the
-  streak as it is then. A retry that fails too adds its own `alert_not_sent` warning, and the
+  streak as it is then, and links to the latest run. An issue that is no longer open (muted or
+  closed) is not retried. A retry that fails too is recorded like any refused send, and the
   record is not tried again.
+- Refused sends are one `alert_not_sent` issue per worker, continued run after run while they
+  happen (`L2-020` AC1) and closed by the next send the mail service takes. A run with nothing
+  to send leaves it open, since nothing shows the mail service has recovered; a refusal after
+  such a gap is a new issue.
 - The mail settings are read only by the worker: `Keryx__Mail__Host`, `Keryx__Mail__Port`,
   `Keryx__Mail__Username`, `Keryx__Mail__Password`, `Keryx__Mail__From` and
   `Keryx__AdminApp__Origin` (`tools/deploy/configuration.md`).

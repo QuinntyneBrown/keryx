@@ -59,6 +59,7 @@ public static class RunWords
         IssueKind.ItemsHeld => "items_held",
         IssueKind.StageFailed => "stage_failed",
         IssueKind.RunSkipped => "run_skipped",
+        IssueKind.AlertNotSent => "alert_not_sent",
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 

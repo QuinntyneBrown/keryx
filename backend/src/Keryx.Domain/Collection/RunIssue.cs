@@ -17,6 +17,7 @@ public enum IssueKind
     ItemsHeld,
     StageFailed,
     RunSkipped,
+    AlertNotSent,
 }
 
 /// <summary>Whether an issue is open, muted by staff, or over.</summary>
@@ -72,6 +73,18 @@ public sealed class RunIssue
         Severity = IssueSeverity.Warning,
         Kind = IssueKind.RunSkipped,
         Detail = "A scheduled start was skipped because this run was still in progress.",
+        ConsecutiveRuns = 1,
+        Since = now,
+    };
+
+    /// <summary>An alert e-mail the mail service did not take (L2-077 AC5).</summary>
+    public static RunIssue AlertNotSent(RunWorker worker, string detail, DateTimeOffset now) => new()
+    {
+        PublicId = PublicIds.New("iss"),
+        Worker = worker,
+        Severity = IssueSeverity.Warning,
+        Kind = IssueKind.AlertNotSent,
+        Detail = detail,
         ConsecutiveRuns = 1,
         Since = now,
     };

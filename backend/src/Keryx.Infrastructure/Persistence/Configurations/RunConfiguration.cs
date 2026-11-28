@@ -110,5 +110,6 @@ internal sealed class AlertRecordConfiguration : IEntityTypeConfiguration<Keryx.
         builder.HasIndex(record => record.IssueId).IsUnique();
         builder.HasOne<Run>().WithMany().HasForeignKey(record => record.RunId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(record => record.RunId).IsUnique();
+        builder.Ignore(record => record.RetryDue);
     }
 }

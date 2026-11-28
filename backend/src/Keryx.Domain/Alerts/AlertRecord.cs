@@ -16,6 +16,9 @@ public enum AlertKind
 /// </summary>
 public sealed class AlertRecord
 {
+    /// <summary>The first attempt and the one retry on the next run (L2-077 AC5).</summary>
+    public const int MaxAttempts = 2;
+
     private AlertRecord()
     {
     }
@@ -34,6 +37,9 @@ public sealed class AlertRecord
 
     public DateTimeOffset? SentAt { get; private set; }
 
+    /// <summary>Not sent, and one more attempt is allowed.</summary>
+    public bool RetryDue => SentAt is null && Attempts < MaxAttempts;
+
     public static AlertRecord ForIssue(RunIssue issue)
     {
         ArgumentNullException.ThrowIfNull(issue);
@@ -51,6 +57,8 @@ public sealed class AlertRecord
         Attempts++;
         SentAt = now;
     }
+
+    public void Failed() => Attempts++;
 }
 
 /// <summary>Whether a source's issue raises its alert now (L2-077 AC1–AC3).</summary>
