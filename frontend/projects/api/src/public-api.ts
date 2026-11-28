@@ -54,5 +54,6 @@ export {
   type RunQuery,
   type RunSummary,
   type RunsApi,
+  type RunStarted,
   type StageResult,
 } from './runs/runs-api';

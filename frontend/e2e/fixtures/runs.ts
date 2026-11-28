@@ -182,3 +182,6 @@ export function runningDetail(): Record<string, unknown> {
     ],
   });
 }
+
+/** `POST /admin/v1/runs` answering 202: run_2419 will check 64 sources; the last took 4m 12s. */
+export const RUN_STARTED = { id: 'run_2419', sources_total: 64, estimated_duration_ms: 252_000 };

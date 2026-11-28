@@ -58,9 +58,21 @@ export class RunsPage {
   readonly cardSkeleton: Locator;
   readonly stepSkeletons: Locator;
 
+  /** The header's "Run now", and the notifications the shell shows (newest last). */
+  readonly runNow: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
+  readonly toastAction: Locator;
+
   constructor(private readonly page: Page) {
     const main = page.locator('main');
     this.heading = main.getByRole('heading', { level: 1 });
+    this.runNow = page.locator('main .page-header__actions .btn');
+    this.toast = page.locator('.toast-region .toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
+    this.toastAction = this.toast.locator('.toast__action');
     this.description = main.locator('.page-header__description');
     this.navLink = page.getByRole('link', { name: 'Runs', exact: true });
     this.overviewLink = page.getByRole('link', { name: 'Overview', exact: true });

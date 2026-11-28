@@ -27,6 +27,7 @@ export type IconName =
   | 'inbox'
   | 'chevron-left'
   | 'chevron-right'
+  | 'play'
   | 'external'
   | 'eye'
   | 'eye-off';

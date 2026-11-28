@@ -85,7 +85,7 @@ const TORONTO = 'America/Toronto';
 })
 export default class Runs {
   protected readonly store = inject(RunsStore);
-  private readonly schedule = inject(ScheduleStore);
+  protected readonly schedule = inject(ScheduleStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -237,6 +237,14 @@ export default class Runs {
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);
+  }
+
+  /** Starts a run and shows it, first in the list and chosen (L2-047 AC1). */
+  protected async runNow(): Promise<void> {
+    const id = await this.schedule.runNow();
+    if (!id) return;
+    this.store.refresh();
+    await this.router.navigateByUrl(`/runs?run=${encodeURIComponent(id)}`);
   }
 
   /** Opens a run; below 1024 px focus moves to the way back, the first thing in its place. */

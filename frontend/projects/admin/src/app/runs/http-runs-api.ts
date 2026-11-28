@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import type { OpenIssuePage, RunDetail, RunPage, RunQuery, RunsApi } from '@kx/api';
+import type { OpenIssuePage, RunDetail, RunPage, RunQuery, RunsApi, RunStarted } from '@kx/api';
+import { antiforgeryToken } from '../session/antiforgery';
 import { readJson } from '../session/read-json';
 
 /** The run history reads over fetch, with the staff session's cookie (ADR 0005). */
@@ -13,6 +14,13 @@ export class HttpRunsApi implements RunsApi {
       page_size: String(query.pageSize),
     });
     return readJson<RunPage>(`/admin/v1/runs?${params}`, signal);
+  }
+
+  async start(signal: AbortSignal): Promise<RunStarted> {
+    return readJson<RunStarted>('/admin/v1/runs', signal, {
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': await antiforgeryToken(signal) },
+    });
   }
 
   get(id: string, signal: AbortSignal): Promise<RunDetail> {

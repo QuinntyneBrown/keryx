@@ -96,8 +96,20 @@ export interface RunDetail extends RunSummary {
 }
 
 /** The run history reads (View run history design, L2-044, L2-045, L2-056, L2-057). */
+/**
+ * A run staff started: its id, how many sources it will check, and how long the last finished run
+ * took (null when none has), for "Collection started" (L2-047 AC1).
+ */
+export interface RunStarted {
+  id: string;
+  sources_total: number;
+  estimated_duration_ms: number | null;
+}
+
 export interface RunsApi {
   list(query: RunQuery, signal: AbortSignal): Promise<RunPage>;
+  /** Starts a collection run now; refuses `run_in_progress` with the running run's id (L2-006). */
+  start(signal: AbortSignal): Promise<RunStarted>;
   /** One run with its stages and issues; refuses `run_not_found`. */
   get(id: string, signal: AbortSignal): Promise<RunDetail>;
   /** The `pageSize` most severe open issues: errors first, then the longest streak. */

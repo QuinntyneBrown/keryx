@@ -81,6 +81,12 @@ hands execution to the worker.
   it first; the handler reads the lease's run (a projection, from the store) and refuses with
   `run_in_progress` and that run's id, saving nothing of its own. Tests inject the conflict
   through `IAppDbContext` (`SaveFault.LeaseRace`), since EF Core InMemory checks no token.
+- **How it is built (journey 15)** — `ScheduleStore` is provided on the shell component beside
+  `NotifierStore` (it raises the start notification through `NOTIFIER`, which the shell binds),
+  and `RUNS_API` is bound on the shell's route. The store's `runNow()` resolves with the new
+  run's id; Runs then reads its list again and opens `/runs?run=<id>`, and Overview reads its
+  status and chart again, whose `current_run` shows the running state. The button is a primary
+  `btn` with the `play` icon, busy while the request is out.
 - **First start** — when no worker has looked at the schedule yet, the handler creates the lease
   as the worker's first look would, with the latest slot already past counted as handled, so a
   manual run never makes the schedule start a second run for that slot.

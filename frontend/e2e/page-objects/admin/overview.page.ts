@@ -57,8 +57,20 @@ export class OverviewPage {
   readonly latestSkeletonRows: Locator;
   readonly issueSkeletons: Locator;
 
+  /** The header's "Run now", and the notifications the shell shows (newest last). */
+  readonly runNow: Locator;
+  readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
+  readonly toastAction: Locator;
+
   constructor(private readonly page: Page) {
     this.heading = page.locator('main h1');
+    this.runNow = page.locator('main .page-header__actions .btn');
+    this.toast = page.locator('.toast-region .toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
+    this.toastAction = this.toast.locator('.toast__action');
     this.statusCard = page.locator('main .status-card');
     this.statusIcon = this.statusCard.locator('.status-card__icon');
     this.eyebrow = this.statusCard.locator('.status-card__eyebrow');

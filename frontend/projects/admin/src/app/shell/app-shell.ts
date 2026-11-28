@@ -13,6 +13,7 @@ import {
   ToastRegion,
 } from '@kx/components';
 import { NotifierStore } from '../notifier/notifier-store';
+import { ScheduleStore } from '../schedule/schedule-store';
 
 /**
  * The admin shell: the frame every screen sits in. It orchestrates and composes; it draws
@@ -25,7 +26,7 @@ import { NotifierStore } from '../notifier/notifier-store';
 @Component({
   selector: 'kx-app-shell',
   imports: [App, Avatar, Brand, Icon, NavLink, RouterOutlet, Sidebar, SkipLink, Toast, ToastRegion],
-  providers: [NotifierStore, { provide: NOTIFIER, useExisting: NotifierStore }],
+  providers: [NotifierStore, { provide: NOTIFIER, useExisting: NotifierStore }, ScheduleStore],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })

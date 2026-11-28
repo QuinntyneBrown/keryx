@@ -37,6 +37,7 @@ import {
 } from '@kx/domain';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
 import { HttpOverviewApi } from '../../overview/http-overview-api';
+import { ScheduleStore } from '../../schedule/schedule-store';
 import { OverviewStore, type Section, type SectionName } from '../../overview/overview-store';
 import { HttpRunsApi } from '../../runs/http-runs-api';
 
@@ -77,6 +78,7 @@ function ready<T>(section: Section<T>): T | null {
 })
 export default class Overview {
   protected readonly store = inject(OverviewStore);
+  protected readonly schedule = inject(ScheduleStore);
   private readonly router = inject(Router);
 
   /**
@@ -214,6 +216,11 @@ export default class Overview {
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);
+  }
+
+  /** Starts a run; the status, read again, shows it in progress (L2-047 AC1). */
+  protected async runNow(): Promise<void> {
+    if (await this.schedule.runNow()) await this.store.load(['status', 'chart']);
   }
 
   constructor() {

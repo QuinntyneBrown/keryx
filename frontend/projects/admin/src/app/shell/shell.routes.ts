@@ -1,7 +1,7 @@
 import type { Routes } from '@angular/router';
-import { OVERVIEW_API } from '@kx/api';
+import { OVERVIEW_API, RUNS_API } from '@kx/api';
 import { HttpOverviewApi } from '../overview/http-overview-api';
-import { ScheduleStore } from '../schedule/schedule-store';
+import { HttpRunsApi } from '../runs/http-runs-api';
 import AppShell from './app-shell';
 
 /**
@@ -12,7 +12,10 @@ export default [
   {
     path: '',
     component: AppShell,
-    providers: [{ provide: OVERVIEW_API, useClass: HttpOverviewApi }, ScheduleStore],
+    providers: [
+      { provide: OVERVIEW_API, useClass: HttpOverviewApi },
+      { provide: RUNS_API, useClass: HttpRunsApi },
+    ],
     children: [
       {
         path: '',

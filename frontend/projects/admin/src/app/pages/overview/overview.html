@@ -1,7 +1,11 @@
 <kx-page-header
   title="Overview"
   description="Christian fitness news collected across Toronto & the GTA."
-/>
+>
+  <kx-btn slot="actions" variant="primary" [busy]="schedule.starting()" (activated)="runNow()"
+    ><kx-icon name="play" size="sm" />Run now</kx-btn
+  >
+</kx-page-header>
 <kx-page-body [busy]="store.loading()">
   @if (store.slow()) {
     <p class="visually-hidden" role="status">Loading the overview…</p>

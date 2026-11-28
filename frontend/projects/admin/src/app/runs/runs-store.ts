@@ -76,6 +76,11 @@ export class RunsStore {
     this.settle();
   }
 
+  /** Reads the list again, as when a run has just started, keeping the run chosen. */
+  refresh(): void {
+    void this.load();
+  }
+
   /** Reads the list again after the page error, busy meanwhile (L2-073 AC3). */
   async retry(): Promise<void> {
     this.retrying.set(true);
