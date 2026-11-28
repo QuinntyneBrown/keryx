@@ -521,3 +521,46 @@ navigation-target `<TO SUPPLY>`s, recording what waits for the Runs screen (jour
 following a run live (journey 15). "A line whose removal no test notices is either missing a
 test or dead" removed a redundant `Math.max` seed, a rounding of an exact division, a dead
 `min-width` and the progress bar's unreachable clamp.
+
+## Journey 14: Staff reviews run history
+
+Twelve slices: the shell's schedule endpoint, the list, the detail card, the pipeline, the
+issues, a failed run, the problems filter, the empty and error states, loading, narrow screens, a
+run in progress and Overview's links into Runs. The list and detail endpoints existed from
+journey 4, so the backend was one new endpoint and two additive list fields. What slowed it:
+Prettier rewrapping templates under edit scripts (four failed asserts, each reread), a
+mutation loop whose control run failed on a flaky check, so its results meant nothing until the
+check was fixed, and three `<TO SUPPLY>`s (detail error, the narrow way back, the running
+publish line) that needed a mock state or a rule before code.
+
+- **Run the control first and read it.** A mutation loop's unchanged run (`s/ZZZ//`) must pass;
+  when it failed, every "killed" mutant beside it was noise. A check that raced a 300 ms timer
+  under Playwright's clock was removed; the timer's delay is proven by its unit test.
+- **A store that clears what a new choice replaces** shows the right thing while the next answer
+  is pending: choosing a run clears the previous detail and its error, or the old run's heading
+  (or its error) stays on screen under the new run's highlighted row.
+- **Settle each read in `finally`.** Starting and stopping a skeleton timer from both the success
+  and failure paths left gaps a mutant found; one `settle()` in `finally`, which does nothing
+  once the visit has ended, covers both and never outlives the screen.
+- **Disable a control only while it cannot work.** Disabling the filter whenever the list
+  reloaded trapped a person who switched filters mid-load; the loading mock disables it only
+  before the first list, and so does the screen.
+- **A rotating element's bounding box grows.** Compare a spinner's `offsetWidth`, not its
+  `getBoundingClientRect`, against the icons beside it.
+- **A link can be narrower than 44 px only beside a full-size way to the same place.** The run
+  chart's bars at 360 px are about 20 px wide; WCAG 2.5.8's equivalent-control exception and
+  "All runs" carry it, written down in ADR 0011, rather than the 44 px rule being broken
+  silently.
+- **A taller control changes the skeleton it replaces.** Adding the 44 px "All runs" link made
+  the chart's caption row taller, and the loading spec caught a 26 px shift; the loading card's
+  caption line is now as tall as the link's target.
+- **`afterNextRender` with an injector** moved focus after a route change (to "Back to runs", and
+  back to the run left) without growing the initial bundle (253.71 kB before and after).
+
+**How earlier lessons worked.** "Put a skeleton inside the element it stands for" made the Runs
+skeletons line up first time at every width; the no-shift checks passed without tuning. "Avoid
+`[class.x]` bindings" kept every new variant (stats, rail, spinner, section head) on attribute
+bindings, and the initial total stayed at 253.71 kB through all twelve slices. "A count that
+equals another hides which one a field reads" shaped the fixtures: the running run's sources
+checked (38) differ from its total (64) and from its added count (21).
+
