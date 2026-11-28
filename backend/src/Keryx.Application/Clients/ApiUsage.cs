@@ -24,6 +24,9 @@ public interface IApiUsageAccumulator
 
     /// <summary>Takes everything counted so far, leaving nothing behind.</summary>
     IReadOnlyList<ApiUsageTally> Drain();
+
+    /// <summary>Puts back tallies a flush could not save, to join the next flush.</summary>
+    void Restore(IReadOnlyList<ApiUsageTally> tallies);
 }
 
 internal sealed class RecordApiUsageHandler(IApiUsageAccumulator usage) : IRequestHandler<RecordApiUsage>
@@ -37,7 +40,8 @@ internal sealed class RecordApiUsageHandler(IApiUsageAccumulator usage) : IReque
 
 /// <summary>
 /// Adds each tally to its client's row for that hour, creating it when absent, and moves the
-/// client's last call forward, in one unit of work. A client deleted meanwhile is skipped.
+/// client's last call forward, in one unit of work. A client deleted meanwhile is skipped. A save
+/// that fails puts the tallies back, so they join the next flush.
 /// </summary>
 internal sealed class FlushApiUsageHandler(IAppDbContext db, IApiUsageAccumulator usage) : IRequestHandler<FlushApiUsage>
 {
@@ -75,6 +79,14 @@ internal sealed class FlushApiUsageHandler(IAppDbContext db, IApiUsageAccumulato
             client.Called(tally.LastCallAt);
         }
 
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            usage.Restore(tallies);
+            throw;
+        }
     }
 }

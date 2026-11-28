@@ -70,6 +70,8 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
             : fault.StoreArmed && inner.ChangeTracker.Entries<Keryx.Domain.Catalogue.StagedArticle>().Any(entry => entry.State == EntityState.Added)
                 && fault.StoreSavesBeforeFailing-- <= 0
             ? throw new DbUpdateException("could not connect to server: Connection refused (10.0.0.12:5432)")
+            : fault.UsageArmed && inner.ChangeTracker.Entries<Keryx.Domain.Clients.ApiUsageHour>().Any(entry => entry.State is EntityState.Added or EntityState.Modified)
+            ? throw new DbUpdateException("could not connect to server: Connection refused (10.0.0.12:5432)")
             : inner.SaveChangesAsync(cancellationToken);
 
     /// <summary>Off while a test arranges its data; a test arms it before the request under test.</summary>
@@ -79,6 +81,9 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
         /// <summary>A save that stages a run's records fails, as when the database cannot be reached during the store stage.</summary>
         public bool StoreArmed { get; set; }
+
+        /// <summary>A save of API usage fails, as when the database cannot be reached during a flush.</summary>
+        public bool UsageArmed { get; set; }
 
         /// <summary>How many saves that stage records succeed before the store fault fires.</summary>
         public int StoreSavesBeforeFailing { get; set; }

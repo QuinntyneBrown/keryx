@@ -11,19 +11,11 @@ internal sealed class InMemoryApiUsageAccumulator : IApiUsageAccumulator
 
     public void Add(string clientId, DateTimeOffset at, bool failed, int latencyBucket)
     {
+        var buckets = new int[LatencyBuckets.Count];
+        buckets[latencyBucket] = 1;
         lock (gate)
         {
-            var key = (clientId, ApiUsageHour.HourOf(at));
-            if (!tallies.TryGetValue(key, out var tally))
-            {
-                tally = new Tally();
-                tallies[key] = tally;
-            }
-
-            tally.Requests++;
-            tally.Errors += failed ? 1 : 0;
-            tally.Buckets[latencyBucket]++;
-            tally.LastCallAt = at > tally.LastCallAt ? at : tally.LastCallAt;
+            Merge(new ApiUsageTally(clientId, ApiUsageHour.HourOf(at), 1, failed ? 1 : 0, buckets, at));
         }
     }
 
@@ -37,6 +29,38 @@ internal sealed class InMemoryApiUsageAccumulator : IApiUsageAccumulator
         }
 
         return [.. taken.Select(pair => new ApiUsageTally(pair.Key.ClientId, pair.Key.Hour, pair.Value.Requests, pair.Value.Errors, pair.Value.Buckets, pair.Value.LastCallAt))];
+    }
+
+    public void Restore(IReadOnlyList<ApiUsageTally> tallies)
+    {
+        ArgumentNullException.ThrowIfNull(tallies);
+        lock (gate)
+        {
+            foreach (var tally in tallies)
+            {
+                Merge(tally);
+            }
+        }
+    }
+
+    /// <summary>Adds counts to the client's tally for that hour; the caller holds the lock.</summary>
+    private void Merge(ApiUsageTally counts)
+    {
+        var key = (counts.ClientId, counts.HourStart);
+        if (!tallies.TryGetValue(key, out var tally))
+        {
+            tally = new Tally();
+            tallies[key] = tally;
+        }
+
+        tally.Requests += counts.Requests;
+        tally.Errors += counts.Errors;
+        for (var index = 0; index < tally.Buckets.Length; index++)
+        {
+            tally.Buckets[index] += counts.LatencyBucketCounts[index];
+        }
+
+        tally.LastCallAt = counts.LastCallAt > tally.LastCallAt ? counts.LastCallAt : tally.LastCallAt;
     }
 
     private sealed class Tally

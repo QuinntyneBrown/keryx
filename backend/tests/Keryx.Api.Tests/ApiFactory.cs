@@ -1,4 +1,5 @@
 using FluentValidation;
+using Keryx.Api.Consumer;
 using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Probes;
 using Keryx.Application.Sources;
@@ -84,9 +85,19 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddValidatorsFromAssembly(probes, includeInternalTypes: true);
             services.AddSingleton<ProbeCounter>();
 
+            // The usage flush runs on its own timer; only a fixture that proves it keeps it, so no
+            // other test's clock moves trigger a flush beside its own.
+            if (!RunsUsageFlush)
+            {
+                services.Remove(services.Single(descriptor => descriptor.ImplementationType == typeof(ApiUsageFlushService)));
+            }
+
             ConfigureServices(services);
         });
     }
+
+    /// <summary>Whether the host keeps its usage flush timer: off, unless a fixture proves it.</summary>
+    protected virtual bool RunsUsageFlush => false;
 
     /// <summary>The host environment: Production, as deployed, unless a fixture proves a rule of another.</summary>
     protected virtual string EnvironmentName => "Production";

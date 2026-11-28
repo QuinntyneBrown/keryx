@@ -25,6 +25,7 @@ public static class ApiHost
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddSourceFetching();
         builder.Services.AddHostedService<SchemaStatusLogger>();
+        builder.Services.AddHostedService<ApiUsageFlushService>();
 
         // Traces, metrics and logs (L2-094). ASP.NET Core's own request logs print the full URL,
         // query string included, so they stay out of every log.

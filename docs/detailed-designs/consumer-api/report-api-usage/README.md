@@ -175,6 +175,10 @@ beside the three L2-037 names.
 
 - **Base URL.** The base URL is the new setting `Keryx__Api__PublicBaseUrl` (`Keryx.Api`): an
   absolute `http(s)` address ending in `/v1`. It is required: startup stops without it (L2-096).
+- **A refused flush.** A flush the database refuses puts its counts back in the accumulator, to
+  join the next flush, and the timer goes on; the failure is logged by its exception type alone.
+- **Tests.** The shared test host leaves the flush service out, so no other test's clock moves
+  flush beside it; the flush tests keep it and advance its timer.
 - **Retention.** No retention worker exists yet. Deleting usage hours older than 30 days arrives
   with the retention design (journey 23).
 - **Errors column.** The table's "Errors" column shows each client's error rate, as the mock
