@@ -643,3 +643,58 @@ presence. "Delete what a mutant shows is unreachable" removed `Distinct()` and a
 `track`; two survivors were kept on purpose (a persisted flag cleared, a map entry forgotten),
 and the designs say why.
 
+## Journey 17: Staff maintains sources
+
+Nine slices:
+- the edit, remove and restore endpoints;
+- the "Articles · 30d" and "Last fetched" columns with paging;
+- the kind chips;
+- the skeleton;
+- the row menu;
+- the edit dialog;
+- the remove dialog with Undo;
+- "Edit source" from Runs and from notifications, which superseded ADR 0012.
+
+What slowed it:
+- The row menu first added 7 kB to the initial bundle. Finding why took a diff of `main`'s inputs
+  against a base build and a bisection by stubbing references. The cost was a first `[class.x]`
+  binding (4.3 kB, Angular's styling algorithm) and the CDK focus key manager (1.7 kB), not the
+  overlay (ADR 0013).
+- The edit mock offered every kind as choosable, against L2-003.
+- A zsh variable holding several spec paths ran no tests in one mutation loop, so every mutant
+  read as killed.
+
+Lessons:
+- **Bisect bundle growth by stubbing, not by guessing.** First diff `--stats-json` inputs of `main`
+  against a base worktree built the same way. Then replace a component's body with references
+  (`console.log(MenuPanel)`) until the growth goes. Two guesses (a view query, `afterNextRender`)
+  changed nothing; the stubs found the cause in four builds.
+- **Bind BEM modifiers with `[attr.class]`.** Angular's styling algorithm lives in core, so a
+  first `[class.name]` anywhere puts it in `main`. The library already used computed
+  `[attr.class]` strings; keep to them.
+- **Close an overlay before disposing it.** Removing the panel blurs its focused item, and the
+  `focusout` handler then calls `close()` again mid-dispose ("node to be removed is no longer a
+  child"). Clear the ref, move focus to the button, then dispose.
+- **Let mutants prune the event wiring.** A module-level "one menu open" registry and an
+  outside-press subscription both survived: `focusout` already closes the menu on Tab and on any
+  press elsewhere. A third survivor showed a missing test, not dead code: no test pressed the
+  menu's own button to close it.
+- **Keep the rows to keep the focus.** Reloading a list through its loading state replaces the
+  table, and focus on a row's button is lost. `refresh()` reads the page in place, and rows
+  tracked by id keep their elements. A removed row's focus goes to the table's caption.
+- **Correct a mock that contradicts a requirement.** The edit mock's four Type cards contradicted
+  L2-003 and the design; mocks are exempt, so they now show the source's one kind, and the design
+  says why. The mock's source-specific copy ("may have moved its blog") became the general rule
+  the helper words.
+- **Use an array for a list of paths in a zsh loop.** `$SPECS` is one argument in zsh, so
+  Playwright found no tests and exited 1, which the loop read as "killed". Check that a killed
+  mutant names how many tests failed.
+
+**How earlier lessons worked.**
+- "Read the initial total after each new Angular or CDK API" caught the menu's growth on the
+  first build, before any spec ran.
+- "Assert every file's anchors before writing any" meant four aborted edit scripts (anchors
+  Prettier had rewrapped) left nothing half-written.
+- "Make the fixture's before differ from what a mutant leaves" shaped the Undo tests: the list
+  answers with or without the source by a flag the handlers set, so a missing reload shows.
+
