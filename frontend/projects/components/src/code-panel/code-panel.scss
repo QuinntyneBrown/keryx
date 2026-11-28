@@ -1,0 +1,47 @@
+// The code panel (docs/design-system/components/code-panel.html): shell tokens only.
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.code-panel {
+  --color-focus-ring: var(--color-brand);
+
+  min-width: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-shell-bg);
+  color: var(--color-shell-fg);
+  overflow: hidden;
+}
+
+.code-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2-5) var(--space-4);
+  border-bottom: var(--border-width-hairline) solid var(--color-shell-border);
+  font: var(--text-code);
+  color: var(--color-shell-fg-muted);
+}
+
+.code-panel__status {
+  color: var(--color-brand);
+}
+
+// Long lines scroll inside the block; the panel never widens the page.
+.code-panel__block {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font: var(--text-code);
+  overflow-x: auto;
+  user-select: text;
+}
+
+.code-panel__block + .code-panel__block {
+  border-top: var(--border-width-hairline) solid var(--color-shell-border);
+  color: var(--color-shell-fg-muted);
+}

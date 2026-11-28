@@ -44,6 +44,7 @@ export class ApiStore {
   private readonly usageState = signal<ApiUsageState>({ status: 'loading' });
   private readonly revealed = signal<RevealedKey | null>(null);
   private readonly newest = signal<string | null>(null);
+  private readonly endpoint = signal<string | null>(null);
 
   readonly state = this.current.asReadonly();
   /** The whole API's usage, read beside the clients: either can fail on its own. */
@@ -51,6 +52,12 @@ export class ApiStore {
   readonly revealedKey = this.revealed.asReadonly();
   /** The id of the client created on this visit, badged "New". */
   readonly newClientId = this.newest.asReadonly();
+  /** The id of the endpoint whose example is shown; `null` until one is chosen (the first). */
+  readonly chosenEndpoint = this.endpoint.asReadonly();
+
+  chooseEndpoint(id: string): void {
+    this.endpoint.set(id);
+  }
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {

@@ -157,3 +157,4 @@ export {
   formatLatency,
   requestsLabel,
 } from './clients/usage-words';
+export { exampleRequest, KEY_PLACEHOLDER } from './clients/example-request';

@@ -58,6 +58,23 @@
   }
 }
 
+// A row that is a button spans the list and reads as the rows that are links.
+button.list__item {
+  width: 100%;
+  border-inline: 0;
+  border-bottom: 0;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+// A row whose content is a component bringing its own padding.
+.list__item--flush {
+  display: block;
+  padding: 0;
+}
+
 li:first-child > .list__item {
   border-top: 0;
 }

@@ -128,6 +128,13 @@
             </kx-table>
           }
         </section>
+        <section aria-labelledby="endpoints-title">
+          <h2 class="text-h3 api__heading" id="endpoints-title">Endpoints</h2>
+          <div class="api__split">
+            <kx-list [endpoints]="endpoints()" (choose)="store.chooseEndpoint($event)" />
+            <kx-code-panel title="Example request" status="200 OK" [blocks]="exampleBlocks()" />
+          </div>
+        </section>
       </div>
     }
   }

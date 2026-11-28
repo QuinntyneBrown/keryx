@@ -1,0 +1,32 @@
+// The endpoint (docs/design-system/components/endpoint.html).
+:host {
+  display: block;
+}
+
+.endpoint {
+  display: block;
+  padding: var(--space-3) var(--space-5);
+  text-align: start;
+}
+
+.endpoint__sig {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font: var(--text-code-md);
+  overflow-wrap: anywhere;
+}
+
+.endpoint__method {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success-fg);
+}
+
+.endpoint__desc {
+  display: block;
+  margin-top: var(--space-0-5);
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

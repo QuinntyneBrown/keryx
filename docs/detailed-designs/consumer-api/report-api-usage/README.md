@@ -181,6 +181,13 @@ beside the three L2-037 names.
   flush beside it; the flush tests keep it and advance its timer.
 - **Retention.** No retention worker exists yet. Deleting usage hours older than 30 days arrives
   with the retention design (journey 23).
+- **Endpoints.** Each endpoint row is a `button` in the `list` (it chooses an example; it goes
+  nowhere), holding the `endpoint` component, and the chosen one carries `aria-current="true"`.
+  The first, `GET /v1/articles`, is chosen when the screen opens. The `curl` line is the usage's
+  `base_url` and the request, from `exampleRequest`; before the usage loads, or when it fails, it
+  is written from `/v1/…`. The sample bodies follow the served shapes, so `organization` is an
+  object with `id` and `name`, not the name the mock shows. The list and the panel sit side by
+  side from 1024 px (L2-067 AC9), not at the 1280 px of the mocks' `.split`.
 - **Last call.** Articles' `formatRelativeAge` reads "3m ago", not the mock's "2 min ago", so the
   Last call text has its own helper, `formatLastCall`: "just now" under a minute, "N min ago"
   under an hour, the time on the same Toronto day, otherwise "Feb 2" (with the year when it is

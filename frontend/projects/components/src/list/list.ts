@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Badge, type BadgeTone } from '../badge/badge';
 import { Btn } from '../btn/btn';
+import { Endpoint } from '../endpoint/endpoint';
 import { Icon } from '../icon/icon';
 import { Skeleton } from '../skeleton/skeleton';
 import { Spinner } from '../spinner/spinner';
@@ -29,6 +30,18 @@ export interface RunListItem {
   title: string;
   meta: string;
   flag: string | null;
+}
+
+/**
+ * An endpoint of the consumer API as a row (`.endpoint`). The whole row is a button that chooses
+ * it; the chosen one is marked `aria-current`.
+ */
+export interface EndpointListItem {
+  id: string;
+  method: string;
+  path: string;
+  description: string;
+  current: boolean;
 }
 
 /**
@@ -64,7 +77,7 @@ export interface IssueListItem {
  */
 @Component({
   selector: 'kx-list',
-  imports: [Badge, Btn, Icon, Skeleton, Spinner],
+  imports: [Badge, Btn, Endpoint, Icon, Skeleton, Spinner],
   templateUrl: './list.html',
   styleUrl: './list.scss',
 })
@@ -72,6 +85,10 @@ export class List {
   readonly entries = input<readonly ListEntry[]>([]);
   /** Runs as interactive rows, in place of entries. */
   readonly runs = input<readonly RunListItem[]>([]);
+  /** Endpoints as rows to choose, in place of entries. */
+  readonly endpoints = input<readonly EndpointListItem[]>([]);
+  /** An endpoint was chosen: its id. */
+  readonly choose = output<string>();
   /** A run's issues, in place of entries. */
   readonly issues = input<readonly IssueListItem[]>([]);
   /** A plain click on a run emits its `href` for the app's router. */

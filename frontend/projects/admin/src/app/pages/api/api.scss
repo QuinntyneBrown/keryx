@@ -47,3 +47,17 @@
   flex-wrap: wrap;
   gap: var(--space-1);
 }
+
+// The endpoints above their example, and beside it from 1024 px (L2-067 AC9).
+.api__split {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+// 1024 px (--layout-breakpoint-lg); a media query cannot read the token.
+@media (min-width: 64rem) {
+  .api__split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}

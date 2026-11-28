@@ -46,7 +46,15 @@ export { StatusCard, type StatusTone } from './status-card/status-card';
 export { SummaryCard } from './summary-card/summary-card';
 export { RunChart, type RunChartBar } from './run-chart/run-chart';
 export { IssueCard } from './issue-card/issue-card';
-export { List, type IssueListItem, type ListEntry, type RunListItem } from './list/list';
+export {
+  List,
+  type EndpointListItem,
+  type IssueListItem,
+  type ListEntry,
+  type RunListItem,
+} from './list/list';
+export { Endpoint } from './endpoint/endpoint';
+export { CodePanel, type CodeBlock } from './code-panel/code-panel';
 export { SectionHead } from './section-head/section-head';
 export { Rail } from './stack/rail';
 export { Stack } from './stack/stack';

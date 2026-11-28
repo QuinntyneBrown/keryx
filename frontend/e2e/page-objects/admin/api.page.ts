@@ -3,7 +3,7 @@ import type { Locator, Page } from '@playwright/test';
 /**
  * API (docs/mocks/pages/api/). Journey 7 builds its header with "New API key", the key-created
  * callout, the empty and error states, and a table of each client's product, key and scopes with
- * Revoke; the usage summary, usage columns and endpoints arrive with journey 21.
+ * Revoke; journey 21 adds the usage summary, the usage columns and the endpoints with their example.
  */
 export class ApiPage {
   readonly heading: Locator;
@@ -30,6 +30,15 @@ export class ApiPage {
   readonly baseUrl: Locator;
   readonly statLabels: Locator;
   readonly statValues: Locator;
+  readonly endpointsHeading: Locator;
+  readonly endpointList: Locator;
+  readonly endpointMethods: Locator;
+  readonly currentEndpoint: Locator;
+  readonly examplePanel: Locator;
+  readonly exampleTitle: Locator;
+  readonly exampleStatus: Locator;
+  readonly exampleRequest: Locator;
+  readonly exampleResponse: Locator;
   readonly toast: Locator;
   readonly toastTitle: Locator;
   readonly toastText: Locator;
@@ -63,6 +72,16 @@ export class ApiPage {
     this.baseUrl = this.usage.locator('.summary-card__value');
     this.statLabels = this.usage.locator('.stat__label');
     this.statValues = this.usage.locator('.stat__value');
+    const endpoints = page.locator('main section[aria-labelledby="endpoints-title"]');
+    this.endpointsHeading = endpoints.locator('h2');
+    this.endpointList = endpoints.locator('ul.list');
+    this.endpointMethods = endpoints.locator('.endpoint__method');
+    this.currentEndpoint = endpoints.locator('.list__item[aria-current="true"]');
+    this.examplePanel = endpoints.locator('.code-panel');
+    this.exampleTitle = this.examplePanel.locator('.code-panel__head > :first-child');
+    this.exampleStatus = this.examplePanel.locator('.code-panel__status');
+    this.exampleRequest = this.examplePanel.locator('.code-panel__block').first();
+    this.exampleResponse = this.examplePanel.locator('.code-panel__block').nth(1);
     const toast = page.locator('.toast-region .toast');
     this.toast = toast;
     this.toastTitle = toast.locator('.toast__title');
@@ -79,6 +98,29 @@ export class ApiPage {
           .map((cell) => cell.textContent?.trim() ?? ''),
       ),
     );
+  }
+
+  /** Each endpoint's path, in order, without its method. */
+  endpointPaths(): Promise<string[]> {
+    return this.endpointList
+      .locator('.endpoint__sig')
+      .evaluateAll((sigs) => sigs.map((sig) => (sig.lastChild?.textContent ?? '').trim()));
+  }
+
+  /** The path of an endpoint row. */
+  pathOf(row: Locator): Promise<string> {
+    return row
+      .locator('.endpoint__sig')
+      .evaluate((sig) => (sig.lastChild?.textContent ?? '').trim());
+  }
+
+  /** The row of an endpoint, by its exact path. */
+  endpoint(path: string): Locator {
+    return this.endpointList.locator('.list__item').filter({
+      has: this.page.locator('.endpoint__sig', {
+        hasText: new RegExp(`GET\\s*${path.replace(/[{}]/g, '\\$&')}$`),
+      }),
+    });
   }
 
   async open(): Promise<void> {

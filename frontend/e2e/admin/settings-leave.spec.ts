@@ -40,6 +40,8 @@ test('asks before leaving with unsaved changes, and Stay loses nothing', async (
   await expect(settings.saveBarText).toHaveText('You have unsaved changes.');
 
   await settings.navigation.getByRole('link', { name: 'Overview' }).click();
+  // The guard opens the dialog after the click: an Escape sent sooner reaches nothing.
+  await expect(dialog.stay).toBeFocused();
   await page.keyboard.press('Escape');
 
   await expect(dialog.root).toHaveCount(0);

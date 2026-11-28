@@ -1,0 +1,13 @@
+<div class="code-panel">
+  <div class="code-panel__head">
+    <span>{{ title() }}</span>
+    @if (status()) {
+      <span class="code-panel__status">{{ status() }}</span>
+    }
+  </div>
+  @for (block of blocks(); track block.label) {
+    <pre class="code-panel__block" tabindex="0" [attr.aria-label]="block.label">{{
+      block.code
+    }}</pre>
+  }
+</div>

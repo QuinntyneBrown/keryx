@@ -12,18 +12,23 @@ import {
   Badge,
   Btn,
   Callout,
+  CodePanel,
   CopyField,
   Empty,
   Icon,
+  List,
   PageBody,
   PageHeader,
   SummaryCard,
   Table,
   Tag,
+  type CodeBlock,
+  type EndpointListItem,
   type StatItem,
   type TableColumn,
 } from '@kx/components';
 import {
+  exampleRequest,
   formatCount,
   formatErrorRate,
   formatLastCall,
@@ -33,6 +38,7 @@ import {
 import { ApiStore } from '../../clients/api-store';
 import { HttpApiClientsApi } from '../../clients/http-api-clients-api';
 import { HttpApiUsageApi } from '../../clients/http-api-usage-api';
+import { CONSUMER_API_EXAMPLES } from './consumer-api-examples';
 
 /** Toronto's zone, which last calls read in. */
 const TORONTO = 'America/Toronto';
@@ -48,9 +54,11 @@ const TORONTO = 'America/Toronto';
     Badge,
     Btn,
     Callout,
+    CodePanel,
     CopyField,
     Empty,
     Icon,
+    List,
     PageBody,
     PageHeader,
     SummaryCard,
@@ -108,6 +116,33 @@ export default class Api {
   protected readonly baseUrl = computed(() => {
     const state = this.store.usage();
     return state.status === 'ready' ? state.usage.base_url : null;
+  });
+
+  /** The endpoint shown: the one chosen, or the first. */
+  private readonly example = computed(
+    () =>
+      CONSUMER_API_EXAMPLES.find((example) => example.id === this.store.chosenEndpoint()) ??
+      CONSUMER_API_EXAMPLES[0],
+  );
+
+  protected readonly endpoints = computed((): EndpointListItem[] => {
+    const current = this.example().id;
+    return CONSUMER_API_EXAMPLES.map(({ id, method, path, description }) => ({
+      id,
+      method,
+      path,
+      description,
+      current: id === current,
+    }));
+  });
+
+  /** Its curl request with the placeholder key, and its sample response (L2-067 AC4, AC5). */
+  protected readonly exampleBlocks = computed((): CodeBlock[] => {
+    const example = this.example();
+    return [
+      { label: 'Example request', code: exampleRequest(this.baseUrl(), example.request) },
+      { label: 'Example response', code: JSON.stringify(example.response, null, 2) },
+    ];
   });
 
   protected readonly usageStats = computed((): StatItem[] => {

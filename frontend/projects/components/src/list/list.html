@@ -98,6 +98,22 @@
       }
     </li>
   }
+  @for (endpoint of endpoints(); track endpoint.id) {
+    <li>
+      <button
+        type="button"
+        class="list__item list__item--interactive list__item--flush"
+        [attr.aria-current]="endpoint.current ? 'true' : null"
+        (click)="choose.emit(endpoint.id)"
+      >
+        <kx-endpoint
+          [method]="endpoint.method"
+          [path]="endpoint.path"
+          [description]="endpoint.description"
+        />
+      </button>
+    </li>
+  }
   @for (entry of entries(); track entry.id) {
     <li class="list__item">
       <div class="list__body">
