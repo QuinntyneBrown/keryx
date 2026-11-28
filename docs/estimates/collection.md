@@ -3,7 +3,7 @@
 | Design | Effort | Complete |
 |---|---|---|
 | ingest-idempotently | 5 days | 90% |
-| mute-issue | 2 days | 0% |
+| mute-issue | 2 days | 100% |
 | record-runs-and-issues | 4 days | 70% |
 | retry-failed-sources | 3 days | 95% |
 | run-collection-now | 3 days | 95% |

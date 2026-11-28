@@ -801,3 +801,43 @@ Lessons:
 - "A worker's schedule is proven by advancing `FakeTimeProvider`" carried over unchanged: the
   test waits for the 22-hour timer, advances it, then waits for the next day's 24-hour timer.
 
+
+## Journey 20: Staff mutes an issue
+
+Three slices:
+- the mute and unmute endpoints, with each issue's `state` on a run;
+- Mute, the Muted badge and Unmute in a run's issues, with the success toast and Undo;
+- the failure toast with Try again, which reads the run again when the issue is over.
+
+The mocks gained the muted run detail and the failed-mute toast before any code. The design
+settled its open points first: the failure message, titles by kind alone, no badge refresh, and
+`409 issue_closed` for an issue that is over.
+
+What slowed it:
+- Mute needed an accessible name that says which issue it acts on. The button's `label` input
+  gives that name, but it also draws the button square as an icon button.
+- A test that pinned an issue's exact keys failed when `state` was added. That failure was
+  intended: a new field on a contract is a change to check.
+- A mutant written against the code as typed did not apply: Prettier had rewrapped the line. The
+  mutation loop reported `NO-CHANGE`, not a pass, so it was caught and run again.
+- The API keys spec failed once while it ran beside the new spec on one port. It passed alone and
+  in two full runs, so the cause is not known. Watch it before calling it flaky.
+
+Lessons:
+- **Give a text button its full name with `name`, not `label`.** `label` is the name of an
+  icon-only button and draws it square. `name` names a button with visible text ("Mute “Source
+  timed out” for Covenant Cycling Collective") and keeps its shape. Revoke and Edit source moved
+  to it too.
+- **Change the shown state from the API's answer, not before it.** The issue shows muted only
+  once the API answers. A refusal then needs nothing undone, and a 409 reads the run again.
+- **Have the mutation loop say when a mutant did not apply.** The `cmp` check turned a silent
+  pass into `NO-CHANGE`. Write a mutant against the file as it is now, after the formatter has
+  run.
+
+**How earlier lessons worked.**
+- "Name the open decision when you close it": the mute design's decisions were in its README
+  before the first test, and nothing about them was asked again.
+- "Prove an absence by exact keys": the pinned-keys test caught the new `state` field, as it
+  should.
+- "Read the initial total after each new Angular API": `afterNextRender` was already paid for,
+  and the total stayed 253.61 kB.
