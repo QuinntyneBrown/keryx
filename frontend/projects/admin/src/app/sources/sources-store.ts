@@ -103,12 +103,7 @@ export class SourcesStore {
     } catch (error) {
       if (this.screen.signal.aborted) return;
       if (error instanceof ApiProblem && error.code === 'source_not_found') {
-        this.notifier.notify({
-          tone: 'danger',
-          title: 'Source not found',
-          text: `${source.organization_name} was removed meanwhile, so the list is read again.`,
-        });
-        void this.load();
+        this.gone(source);
         return;
       }
       const reference = error instanceof ApiProblem ? error.reference : null;
@@ -119,5 +114,81 @@ export class SourcesStore {
         action: { label: 'Try again', run: () => void this.testSource(source) },
       });
     }
+  }
+
+  /**
+   * The source a dialog is about to show, with its article count. One removed meanwhile is said
+   * and the list read again (null); if it cannot be read, the dialog goes ahead without it.
+   */
+  async detail(source: SourceListItem): Promise<{ articles: number | null } | null> {
+    try {
+      const detail = await this.api.source(source.id, this.screen.signal);
+      return { articles: detail.article_count };
+    } catch (error) {
+      if (this.screen.signal.aborted) return null;
+      if (error instanceof ApiProblem && error.code === 'source_not_found') {
+        this.gone(source);
+        return null;
+      }
+      return { articles: null };
+    }
+  }
+
+  /**
+   * Removes a source (L2-065 AC4, AC5): its row goes and the counts follow, with "Undo" in the
+   * notification. A failure is said with "Try again", and its reference is returned for the
+   * dialog; null when it was removed.
+   */
+  async remove(source: SourceListItem): Promise<{ reference: string | null } | null> {
+    try {
+      await this.api.remove(source.id, this.screen.signal);
+    } catch (error) {
+      if (this.screen.signal.aborted) return null;
+      this.notifier.notify({
+        tone: 'danger',
+        title: 'Keryx couldn’t remove the source',
+        text: `${source.organization_name} is still being checked.`,
+        action: { label: 'Try again', run: () => void this.remove(source) },
+      });
+      return { reference: error instanceof ApiProblem ? (error.reference ?? null) : null };
+    }
+    this.notifier.notify({
+      tone: 'info',
+      title: 'Source removed',
+      text: `${source.organization_name} is no longer checked. Its articles stay in Keryx.`,
+      action: { label: 'Undo', run: () => void this.restore(source) },
+    });
+    await this.refresh();
+    return null;
+  }
+
+  /** "Undo" of a removal: the source is listed again, or the notification says why not. */
+  async restore(source: SourceListItem): Promise<void> {
+    try {
+      await this.api.restore(source.id, this.screen.signal);
+    } catch (error) {
+      if (this.screen.signal.aborted) return;
+      const exists = error instanceof ApiProblem && error.code === 'source_exists';
+      this.notifier.notify({
+        tone: 'danger',
+        title: 'Keryx couldn’t add the source back',
+        text: exists
+          ? `${source.organization_name} was added again meanwhile, so it is listed already.`
+          : 'Nothing changed. Try again in a moment.',
+        ...(exists ? {} : { action: { label: 'Try again', run: () => void this.restore(source) } }),
+      });
+      return;
+    }
+    await this.refresh();
+  }
+
+  /** A source that is no longer there: it is said, and the list read again. */
+  private gone(source: SourceListItem): void {
+    this.notifier.notify({
+      tone: 'danger',
+      title: 'Source not found',
+      text: `${source.organization_name} was removed meanwhile, so the list is read again.`,
+    });
+    void this.load();
   }
 }

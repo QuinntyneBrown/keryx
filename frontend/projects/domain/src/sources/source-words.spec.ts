@@ -1,6 +1,7 @@
 import {
   formatSourceAddress,
   lastFetchFailure,
+  removeSourceText,
   sourceHealthLabel,
   sourceKindLabel,
   sourceKindOf,
@@ -232,5 +233,24 @@ describe('lastFetchFailure', () => {
     [{ last_fetched_at: null }, null],
   ])('%o', (fields, expected) => {
     expect(lastFetchFailure(source(fields), now, 'America/Toronto')).toEqual(expected);
+  });
+});
+
+describe('removeSourceText', () => {
+  // L2-065 AC3, as dialogs/remove-source/default.html words it for 31.
+  const again = 'You can add the source again later.';
+  const stays =
+    'already collected from this source stay in the database and in the API, each with its link back to the source.';
+  it.each([
+    [31, `The 31 articles ${stays} ${again}`],
+    [1200, `The 1,200 articles ${stays} ${again}`],
+    [
+      1,
+      `The 1 article already collected from this source stays in the database and in the API, with its link back to the source. ${again}`,
+    ],
+    [0, `No articles have been collected from this source. ${again}`],
+    [null, `The articles ${stays} ${again}`],
+  ])('%s', (articles, text) => {
+    expect(removeSourceText(articles)).toBe(text);
   });
 });

@@ -46,6 +46,7 @@ import { HttpSourcesApi } from '../../sources/http-sources-api';
 import { SourcesStore } from '../../sources/sources-store';
 import type { SourceAdded } from './add-source-dialog/add-source-dialog';
 import type { EditSourceData } from './edit-source-dialog/edit-source-dialog';
+import type { RemoveSourceData } from './remove-source-dialog/remove-source-dialog';
 
 /** What the header says when it cannot count the catalogue: while loading, or after a failure. */
 const PURPOSE = 'Feeds, pages and queries Keryx checks on every run.';
@@ -185,9 +186,40 @@ export default class Sources {
   }
 
   /** A row menu's item was chosen (L2-063). */
-  protected act(action: string, source: SourceListItem): void {
+  protected act(action: string, source: SourceListItem, table: Table): void {
     if (action === 'edit') void this.editSource(source);
     else if (action === 'test') void this.store.testSource(source);
+    else if (action === 'remove') void this.removeSource(source, table);
+  }
+
+  /**
+   * Opens "Remove source" once the source's article count is read (L2-065 AC3), with focus on
+   * Cancel. Closed, focus returns to the row's menu button; removed, the row is gone, so focus
+   * goes to the table.
+   */
+  private async removeSource(source: SourceListItem, table: Table): Promise<void> {
+    const opener = document.activeElement;
+    const [{ Dialog }, dialog, detail] = await Promise.all([
+      import('@angular/cdk/dialog'),
+      import('./remove-source-dialog/remove-source-dialog'),
+      this.store.detail(source),
+    ]);
+    if (!detail) return;
+    const data: RemoveSourceData = { source, articles: detail.articles };
+    const ref = this.injector.get(Dialog).open<boolean>(dialog.RemoveSourceDialog, {
+      injector: this.injector,
+      data,
+      ariaModal: true,
+      ariaLabelledBy: dialog.REMOVE_SOURCE_TITLE_ID,
+      ariaDescribedBy: dialog.REMOVE_SOURCE_DESCRIPTION_ID,
+      autoFocus: dialog.REMOVE_SOURCE_AUTO_FOCUS,
+      restoreFocus: false,
+      backdropClass: 'kx-backdrop',
+    });
+    ref.closed.subscribe((removed) => {
+      if (removed) table.focusCaption();
+      else if (opener instanceof HTMLElement) opener.focus();
+    });
   }
 
   /**
@@ -293,8 +325,8 @@ function pageParam(value: string | null): number {
 }
 
 /**
- * A row's menu: "Edit source", "Test fetch now", then "Open <host>" for an http(s) address
- * (L2-063 AC1, AC4).
+ * A row's menu: "Edit source", "Test fetch now", "Open <host>" for an http(s) address, then
+ * "Remove source" (L2-063 AC1, AC4).
  */
 function rowActions(source: SourceListItem): MenuItem[] {
   const site = sourceSiteLink(source.address);
@@ -305,5 +337,6 @@ function rowActions(source: SourceListItem): MenuItem[] {
     { id: 'edit', label: 'Edit source', icon: 'pencil' },
     { id: 'test', label: 'Test fetch now', icon: 'refresh' },
     ...open,
+    { id: 'remove', label: 'Remove source', icon: 'trash', danger: true },
   ];
 }

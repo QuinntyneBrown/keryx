@@ -192,3 +192,18 @@ export function lastFetchFailure(
     text: `${failed} Check the ${query ? 'query' : 'address'} below.`,
   };
 }
+
+/**
+ * What "Remove source" says stays (L2-065 AC3): "The 31 articles already collected from this
+ * source stay in the database and in the API, …". Without a count, as when it could not be read,
+ * it says the same without the number.
+ */
+export function removeSourceText(articles: number | null): string {
+  const again = 'You can add the source again later.';
+  if (articles === 0) return `No articles have been collected from this source. ${again}`;
+  if (articles === 1) {
+    return `The 1 article already collected from this source stays in the database and in the API, with its link back to the source. ${again}`;
+  }
+  const count = articles === null ? 'The articles' : `The ${NUMBER.format(articles)} articles`;
+  return `${count} already collected from this source stay in the database and in the API, each with its link back to the source. ${again}`;
+}

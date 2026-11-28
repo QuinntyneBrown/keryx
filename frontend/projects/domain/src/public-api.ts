@@ -4,6 +4,7 @@ export { viewportClass, type ViewportClass } from './viewport/viewport-class';
 export {
   formatSourceAddress,
   lastFetchFailure,
+  removeSourceText,
   sourceHealthLabel,
   SOURCE_KINDS,
   sourceKindLabel,

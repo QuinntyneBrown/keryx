@@ -1,0 +1,24 @@
+<kx-dialog
+  small
+  [title]="title"
+  [description]="description"
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  [closeDisabled]="busy()"
+  (dismiss)="close()"
+  (submitted)="confirm()"
+>
+  @if (failure(); as failure) {
+    <kx-alert tone="danger" announcement="alert" title="Keryx couldn’t remove the source"
+      >Nothing changed. Try again in a moment.
+      @if (failure.reference; as reference) {
+        <span class="mono">Reference {{ reference }}</span>
+      }
+    </kx-alert>
+  }
+  <p>{{ text }}</p>
+  <kx-btn slot="actions" [disabled]="busy()" (activated)="close()">Cancel</kx-btn>
+  <kx-btn slot="actions" variant="danger-solid" submit [busy]="busy()">{{
+    busy() ? 'Removing…' : 'Remove source'
+  }}</kx-btn>
+</kx-dialog>

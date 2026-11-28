@@ -10,6 +10,15 @@ export async function readJson<T>(
   signal: AbortSignal,
   init: RequestInit = {},
 ): Promise<T> {
+  return (await (await send(url, signal, init)).json()) as T;
+}
+
+/** The same request, for an answer with no body to read, such as `204 No Content`. */
+export async function send(
+  url: string,
+  signal: AbortSignal,
+  init: RequestInit = {},
+): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(url, { ...init, credentials: 'include', cache: 'no-store', signal });
@@ -18,7 +27,7 @@ export async function readJson<T>(
     throw new ApiProblem(0);
   }
   if (!response.ok) throw await problemOf(response);
-  return (await response.json()) as T;
+  return response;
 }
 
 /** The ProblemDetails of a refusal, or just its status when the body is not one. */

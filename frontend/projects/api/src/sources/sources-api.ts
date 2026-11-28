@@ -78,6 +78,12 @@ export interface SourcesApi {
    * `validation_failed` or `source_not_found`.
    */
   update(id: string, changes: SourceChanges, signal: AbortSignal): Promise<SourceSaved>;
+  /** One source, with its article count; refuses `source_not_found`. */
+  source(id: string, signal: AbortSignal): Promise<SourceDetail>;
+  /** Removes a source: it is no longer fetched or listed, and its articles stay (L2-065 AC4). */
+  remove(id: string, signal: AbortSignal): Promise<void>;
+  /** The Undo of a removal; refuses `source_exists` when it was added again meanwhile. */
+  restore(id: string, signal: AbortSignal): Promise<SourceDetail>;
 }
 
 export const SOURCES_API = new InjectionToken<SourcesApi>('Keryx sources');

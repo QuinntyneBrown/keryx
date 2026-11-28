@@ -12,7 +12,7 @@ import {
   type SourcesApi,
 } from '@kx/api';
 import { antiforgeryToken } from '../session/antiforgery';
-import { readJson } from '../session/read-json';
+import { readJson, send } from '../session/read-json';
 
 /** The source catalogue over fetch, with the staff session's cookie (ADR 0005). */
 @Injectable()
@@ -66,6 +66,26 @@ export class HttpSourcesApi implements SourcesApi {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
       body: JSON.stringify(changes),
+    });
+  }
+
+  source(id: string, signal: AbortSignal): Promise<SourceDetail> {
+    return readJson<SourceDetail>(`/admin/v1/sources/${encodeURIComponent(id)}`, signal);
+  }
+
+  async remove(id: string, signal: AbortSignal): Promise<void> {
+    const token = await antiforgeryToken(signal);
+    await send(`/admin/v1/sources/${encodeURIComponent(id)}`, signal, {
+      method: 'DELETE',
+      headers: { 'X-XSRF-TOKEN': token },
+    });
+  }
+
+  async restore(id: string, signal: AbortSignal): Promise<SourceDetail> {
+    const token = await antiforgeryToken(signal);
+    return readJson<SourceDetail>(`/admin/v1/sources/${encodeURIComponent(id)}/restore`, signal, {
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': token },
     });
   }
 }

@@ -83,6 +83,7 @@ test.describe('Edit source', () => {
       'Edit source',
       'Test fetch now',
       'Open redeemedrun.ca (opens in a new tab)',
+      'Remove source',
     ]);
 
     await sources.menuItem('Edit source').click();

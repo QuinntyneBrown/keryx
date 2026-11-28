@@ -77,6 +77,16 @@ The feature is a vertical slice from the two dialogs to the database.
   failure the dialog shows its failed state ("Keryx couldn’t remove the source", "Nothing
   changed. Try again in a moment.", reference), the source stays listed, and a danger toast
   "Keryx couldn’t remove the source" offers "Try again".
+  - As built (journey 17): Sources reads `GET /admin/v1/sources/{id}` before opening the
+    dialog, for `article_count`. A source removed meanwhile gives "Source not found" and a reload;
+    if the read fails, the dialog says "The articles already collected…" without the number
+    (`removeSourceText`, which also words 1 and 0). The dialog calls `SourcesStore.remove`, which
+    raises both notifications ("<name> is still being checked." on failure) and reads the page
+    again in place. Undo calls `SourcesStore.restore`. When it fails, the danger notification
+    "Keryx couldn’t add the source back" says "<name> was added again meanwhile, so it is listed
+    already." for `source_exists`, and otherwise "Nothing changed. Try again in a moment." with
+    "Try again". After a removal, focus goes to the table's caption; the description is plain text,
+    as the revoke dialog's is.
 - **Closing** — Cancel, Close, Escape or the backdrop close either dialog without change and
   return focus to the control that opened it; while a request is in flight none of them closes
   it (L2-074).

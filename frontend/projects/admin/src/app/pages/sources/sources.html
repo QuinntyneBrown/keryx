@@ -77,6 +77,7 @@
           </kx-empty>
         } @else {
           <kx-table
+            #table
             caption="Sources, failing first"
             [columns]="columns"
             [rows]="rows()"
@@ -119,7 +120,7 @@
               ><kx-menu
                 [label]="'Actions for ' + row.item.organization_name"
                 [items]="row.actions"
-                (chosen)="act($event, row.item)"
+                (chosen)="act($event, row.item, table)"
             /></ng-template>
           </kx-table>
           <kx-pagination

@@ -5,6 +5,7 @@ export type IconName =
   | 'more'
   | 'pencil'
   | 'refresh'
+  | 'trash'
   | 'sign-in'
   | 'success'
   | 'warning'
