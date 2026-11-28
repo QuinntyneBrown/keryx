@@ -1,4 +1,5 @@
 // The list (docs/design-system/components/list.html).
+@use '../breakpoints' as bp;
 :host {
   display: block;
 }
@@ -90,6 +91,54 @@ li:first-child > .list__item {
 
 .run-item__flag {
   flex: none;
+  font: var(--text-caption);
+  color: var(--color-warning-fg);
+}
+
+// A wrapping row: its body above its actions until 640 px.
+.list__item--wrap {
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@include bp.from(640) {
+  .list__item--wrap {
+    flex-direction: row;
+  }
+}
+
+// An issue of a run: its severity icon beside its title, detail and streak.
+.issue {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.issue__icon {
+  display: inline-flex;
+  flex: none;
+
+  &[data-tone='danger'] {
+    color: var(--color-danger-icon);
+  }
+
+  &[data-tone='warning'] {
+    color: var(--color-warning-icon);
+  }
+}
+
+.issue__detail {
+  margin-top: var(--space-1);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.issue__streak {
+  margin-top: var(--space-1-5);
   font: var(--text-caption);
   color: var(--color-warning-fg);
 }

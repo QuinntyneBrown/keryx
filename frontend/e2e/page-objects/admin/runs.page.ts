@@ -25,6 +25,13 @@ export class RunsPage {
   readonly stepWords: Locator;
   readonly stepTimes: Locator;
   readonly stepDetails: Locator;
+  readonly issuesHeading: Locator;
+  readonly issues: Locator;
+  readonly issueTitles: Locator;
+  readonly issueWords: Locator;
+  readonly issueSubjects: Locator;
+  readonly issueDetails: Locator;
+  readonly noIssues: Locator;
 
   constructor(private readonly page: Page) {
     const main = page.locator('main');
@@ -51,6 +58,14 @@ export class RunsPage {
     this.stepWords = this.stepNames.locator('.visually-hidden');
     this.stepTimes = this.steps.locator('.timeline__time');
     this.stepDetails = this.steps.locator('.timeline__detail');
+    const issues = this.detail.locator('section[aria-labelledby="issues-title"]');
+    this.issuesHeading = issues.locator('#issues-title');
+    this.issues = issues.locator('.list > li.list__item');
+    this.issueTitles = this.issues.locator('.list__title');
+    this.issueWords = this.issueTitles.locator('.visually-hidden');
+    this.issueSubjects = this.issueTitles.locator('.text-muted');
+    this.issueDetails = this.issues.locator('.issue__detail');
+    this.noIssues = issues.locator('.empty');
   }
 
   /** Each run's icon tone, in list order. */
@@ -68,6 +83,20 @@ export class RunsPage {
   /** Each stage's `data-state`, in order. */
   async stepStates(): Promise<(string | null)[]> {
     return this.steps.evaluateAll((steps) => steps.map((step) => step.getAttribute('data-state')));
+  }
+
+  /** Each issue's streak, or null where it has none, in order. */
+  async issueStreaks(): Promise<(string | null)[]> {
+    return this.issues.evaluateAll((items) =>
+      items.map((item) => item.querySelector('.issue__streak')?.textContent ?? null),
+    );
+  }
+
+  /** Each issue's icon tone, in order. */
+  async issueTones(): Promise<(string | null)[]> {
+    return this.issues.evaluateAll((items) =>
+      items.map((item) => item.querySelector('[data-tone]')?.getAttribute('data-tone') ?? null),
+    );
   }
 
   async open(query = ''): Promise<void> {

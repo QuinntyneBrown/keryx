@@ -102,3 +102,55 @@ export const RUN_2418_STAGES = [
   stage('store', 'done', 3, { added: 47, updated: 3, unchanged: 120 }),
   stage('publish', 'done', 1, { published: 47 }),
 ];
+
+/** A problem a run raised. */
+export function runIssue(
+  id: string,
+  severity: string,
+  kind: string,
+  subject_name: string | null,
+  detail: string,
+  consecutive_runs = 1,
+  subject_type = 'source',
+): Record<string, unknown> {
+  return {
+    id,
+    severity,
+    kind,
+    subject_type,
+    subject_id: subject_type === 'source' ? `src_${id}` : null,
+    subject_name,
+    detail,
+    consecutive_runs,
+    since: '2026-11-28T11:01:00Z',
+    muted: false,
+  };
+}
+
+/** run_2418's three issues, as the mock shows them. */
+export const RUN_2418_ISSUES = [
+  runIssue(
+    'iss_1',
+    'error',
+    'source_not_found',
+    'Redeemed Run Club Toronto',
+    'GET https://redeemedrun.ca/feed → 404 Not Found. The site may have moved its blog.',
+  ),
+  runIssue(
+    'iss_2',
+    'error',
+    'source_timeout',
+    'Covenant Cycling Collective',
+    'Events page did not respond within 30s on 3 retries.',
+    4,
+  ),
+  runIssue(
+    'iss_3',
+    'warning',
+    'items_held',
+    'Google News · “Toronto church fitness”',
+    'Relevance score between 0.45 and 0.60 — may not be Christian fitness content.',
+    // Held three runs in a row; a warning is not a failure, so it shows no streak.
+    3,
+  ),
+];

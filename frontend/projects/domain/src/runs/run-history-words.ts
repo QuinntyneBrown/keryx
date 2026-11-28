@@ -40,6 +40,19 @@ export function runFailedFlag(sourcesFailed: number): string | null {
   return sourcesFailed > 0 ? `${sourcesFailed} failed` : null;
 }
 
+/**
+ * An issue's streak (L2-057 AC4): "Failing 4 runs in a row" for an error seen in more than one
+ * run in a row; none for a first occurrence, or for a warning, which is not a failure.
+ */
+export function issueStreakLabel(
+  severity: 'error' | 'warning',
+  consecutiveRuns: number,
+): string | null {
+  return severity === 'error' && consecutiveRuns > 1
+    ? `Failing ${consecutiveRuns} runs in a row`
+    : null;
+}
+
 /** The schedule as Runs' header says it. */
 export interface ScheduleView {
   next_run_at: string;

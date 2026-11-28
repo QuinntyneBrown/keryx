@@ -24,7 +24,7 @@ export class Empty {
   /** A request reference a person can send on; shown as "Reference <id>". */
   readonly reference = input<string>();
   /** The heading level: 2 under a page header, 1 on a system page, whose only heading it is. */
-  readonly level = input<1 | 2 | 3>(2);
+  readonly level = input<1 | 2 | 3 | 4>(2);
   /** On a surface of its own, with the card's edge. */
   readonly card = input(false, { transform: booleanAttribute });
   /** Less padding, inside a table or a card. */

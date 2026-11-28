@@ -27,6 +27,27 @@
       </a>
     </li>
   }
+  @for (issue of issues(); track issue.id) {
+    <li class="list__item list__item--wrap">
+      <div class="issue">
+        <span class="issue__icon" [attr.data-tone]="issue.tone"
+          ><kx-icon [name]="issue.tone" size="lg"
+        /></span>
+        <div class="list__body">
+          <p class="list__title">
+            <span class="visually-hidden">{{ issue.word }}&ngsp;</span>{{ issue.title }}
+            @if (issue.subject; as subject) {
+              <span class="text-muted text-regular">· {{ subject }}</span>
+            }
+          </p>
+          <p class="issue__detail">{{ issue.detail }}</p>
+          @if (issue.streak; as streak) {
+            <p class="issue__streak">{{ streak }}</p>
+          }
+        </div>
+      </div>
+    </li>
+  }
   @for (entry of entries(); track entry.id) {
     <li class="list__item">
       <div class="list__body">

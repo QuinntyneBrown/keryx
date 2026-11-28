@@ -129,6 +129,15 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
 - "Run now" and its disabled "Collecting…" (`L2-058` AC4) arrive with journey 15, "Staff starts a
   collection now", as does following a run live (`L2-058` AC2, AC3); "Retry failed sources" and
   "Mute" arrive with journeys 16 and 20, which give them behaviour.
+- An issue's title is derived from its `kind` by the domain's `issueTitle`, as on Overview
+  ("Feed returned 404", "Source timed out", "Items held for review"): the API serves no title,
+  and the mock's "Timed out after 30s" would need a number the API serves only inside a
+  sentence. The streak chip reads "Failing 4 runs in a row" for an error seen in more than one
+  run in a row; a warning, which is not a failure, shows none. "Mute" and "Edit source"
+  (`L2-057` AC4) arrive with journeys 20 and 17, which give them behaviour, rather than as
+  buttons that do nothing.
+- A run with no issues says "No issues in this run" in a compact success state under the
+  section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two
   digits ("4m 03s") as both mocks show; `formatRunStart` is the Articles design's
   `formatCollectedAt`, which reads the same.

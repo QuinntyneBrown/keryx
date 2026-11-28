@@ -1,4 +1,21 @@
-import { runFailedFlag, runLineMeta, runOutcomeLabel, scheduleLine } from './run-history-words';
+import {
+  issueStreakLabel,
+  runFailedFlag,
+  runLineMeta,
+  runOutcomeLabel,
+  scheduleLine,
+} from './run-history-words';
+
+describe('issueStreakLabel', () => {
+  it.each([
+    ['error', 1, null],
+    ['error', 2, 'Failing 2 runs in a row'],
+    ['error', 4, 'Failing 4 runs in a row'],
+    ['warning', 4, null],
+  ] as const)('a %s over %i runs reads %s', (severity, runs, words) => {
+    expect(issueStreakLabel(severity, runs)).toBe(words);
+  });
+});
 
 describe('runOutcomeLabel', () => {
   it.each([

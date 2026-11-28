@@ -79,6 +79,7 @@ export {
 export { runBars, type RunBar, type RunPoint } from './overview/run-bars';
 export { issueSeverityWord, issueTitle, issueWhen } from './overview/issue-words';
 export {
+  issueStreakLabel,
   runFailedFlag,
   runLineMeta,
   runOutcomeLabel,

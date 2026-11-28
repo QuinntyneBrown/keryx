@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RUNS_API } from '@kx/api';
 import {
   Card,
+  Empty,
+  Icon,
   List,
   PageBody,
   PageHeader,
@@ -10,6 +12,7 @@ import {
   Stack,
   Stats,
   Timeline,
+  type IssueListItem,
   type RunListItem,
   type TimelineStep,
   type StatItem,
@@ -18,6 +21,9 @@ import {
   formatCollectedAt,
   formatDuration,
   formatStageDuration,
+  issueSeverityWord,
+  issueStreakLabel,
+  issueTitle,
   PIPELINE_STAGES,
   runFailedFlag,
   runLineMeta,
@@ -42,7 +48,7 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-runs',
-  imports: [Card, List, PageBody, PageHeader, Rail, Stack, Stats, Timeline],
+  imports: [Card, Empty, Icon, List, PageBody, PageHeader, Rail, Stack, Stats, Timeline],
   templateUrl: './runs.html',
   styleUrl: './runs.scss',
   providers: [{ provide: RUNS_API, useClass: HttpRunsApi }, RunsStore],
@@ -117,6 +123,15 @@ export default class Runs {
           },
         ];
       }),
+      issues: run.issues.map((issue): IssueListItem => ({
+        id: issue.id,
+        tone: issue.severity === 'error' ? 'danger' : 'warning',
+        word: issueSeverityWord(issue.severity),
+        title: issueTitle(issue.kind),
+        subject: issue.subject_name,
+        detail: issue.detail,
+        streak: issueStreakLabel(issue.severity, issue.consecutive_runs),
+      })),
     };
   });
 

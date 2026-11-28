@@ -20,6 +20,23 @@
             <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
             <kx-timeline [steps]="shown.steps" />
           </section>
+          <section aria-labelledby="issues-title">
+            <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
+            @if (shown.issues.length) {
+              <kx-list [issues]="shown.issues" />
+            } @else {
+              <kx-empty
+                card
+                compact
+                tone="success"
+                [level]="4"
+                title="No issues in this run"
+                text="Every source responded and nothing was held for review."
+              >
+                <kx-icon slot="icon" name="success" size="lg" />
+              </kx-empty>
+            }
+          </section>
         </kx-stack>
       </section>
     }

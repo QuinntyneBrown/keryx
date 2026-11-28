@@ -29,6 +29,21 @@ export interface RunListItem {
 }
 
 /**
+ * A problem a run raised as a row (`.issue`): its severity as an icon of a tone and as a word, its
+ * title and subject, its detail in mono and its streak. Every text is bound as text: a subject
+ * and a detail came from a source.
+ */
+export interface IssueListItem {
+  id: string;
+  tone: 'danger' | 'warning';
+  word: string;
+  title: string;
+  subject: string | null;
+  detail: string;
+  streak: string | null;
+}
+
+/**
  * A bordered list of rows (docs/design-system/components/list.html). Every text is bound as text:
  * a title from a source is never read as HTML. Long titles wrap inside their row; the meta line
  * is cut with an ellipsis.
@@ -43,6 +58,8 @@ export class List {
   readonly entries = input<readonly ListEntry[]>([]);
   /** Runs as interactive rows, in place of entries. */
   readonly runs = input<readonly RunListItem[]>([]);
+  /** A run's issues, in place of entries. */
+  readonly issues = input<readonly IssueListItem[]>([]);
   /** A plain click on a run emits its `href` for the app's router. */
   readonly navigate = output<string>();
   /** Skeleton rows standing in while the entries load, in place of them. */
