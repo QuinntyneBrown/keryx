@@ -38,6 +38,14 @@ export class RunsPage {
   /** The history's state when no run matches, and the detail's when no run is chosen. */
   readonly noResults: Locator;
   readonly chooseRun: Locator;
+  /** The whole-page empty or error state. */
+  readonly pageState: Locator;
+  readonly pageStateTitle: Locator;
+  readonly pageStateText: Locator;
+  readonly pageStateReference: Locator;
+  readonly pageStateActions: Locator;
+  /** The detail's own error, while the list stays usable. */
+  readonly detailError: Locator;
 
   constructor(private readonly page: Page) {
     const main = page.locator('main');
@@ -77,6 +85,12 @@ export class RunsPage {
     this.withProblems = this.filter.getByRole('link', { name: 'With problems' });
     this.noResults = this.history.locator('.empty');
     this.chooseRun = main.locator('.empty').filter({ hasText: 'Choose a run' });
+    this.pageState = main.locator('.page-body > kx-empty > .empty--card');
+    this.pageStateTitle = this.pageState.locator('.empty__title');
+    this.pageStateText = this.pageState.locator('.empty__text');
+    this.pageStateReference = this.pageState.locator('.empty__ref');
+    this.pageStateActions = this.pageState.locator('.empty__actions .btn');
+    this.detailError = main.locator('section[aria-labelledby="run-title"] .alert');
   }
 
   /** Each run's icon tone, in list order. */

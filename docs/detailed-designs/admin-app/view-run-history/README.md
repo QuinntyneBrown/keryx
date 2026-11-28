@@ -148,6 +148,15 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   match the history shows "No runs with problems" and the detail "Choose a run", as
   `pages/runs/no-results.html`, except its text: the server filters every run on record, not
   the last 30 days, so it reads "Every run Keryx has on record finished cleanly."
+- With no run at all, "No runs yet" names the first scheduled time ("The first one starts at
+  12:00 PM.", or "at the next scheduled time" while the schedule is unread) and offers "Add a
+  source"; its "Run now" and "or you can start it now" arrive with journey 15, with Run now.
+- A failed list shows the page error of `L2-073` with "Try again", busy while it reads, and "Go
+  to overview". A failed detail shows `pages/runs/detail-error.html`, added for this state: a
+  danger alert, "This run didn't load", with the reference and a small "Try again" in the
+  alert's new actions slot, under a visually hidden heading that still names the run. Only the
+  latest read of the list and of a run is shown, failures included, and switching the list
+  clears a run's error.
 - A run with no issues says "No issues in this run" in a compact success state under the
   section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two
@@ -166,9 +175,8 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   empty--success` reads "No runs with problems" and offers "Show all runs"
   (`pages/runs/no-results.html`).
 - **Detail error** — when the list loaded and the selected run's detail fails, the list stays
-  usable and the detail area shows an inline `alert` with "Try again" (`L2-061` criterion 4).
-  The mocks hold no state for this; its markup is `<TO SUPPLY>` as a mock state before it is
-  built.
+  usable and the detail area shows an inline `alert` with "Try again" (`L2-061` criterion 4,
+  `pages/runs/detail-error.html`).
 - **Narrow viewports** — below 1024 px the detail sits below or in place of the list with a
   way back to the list, and nothing scrolls horizontally (`L2-056` criterion 7). The tiles sit
   in two rows of two below 640 px and in one row of four from 640 px (`L2-057` criterion 7).

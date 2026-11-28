@@ -1,72 +1,112 @@
 <kx-page-header title="Runs" [description]="description()" />
 <kx-page-body>
-  <kx-rail start>
-    <section aria-label="Run history">
-      <kx-segmented
-        class="runs__filter"
-        label="Filter runs"
-        [options]="filters()"
-        (navigate)="navigate($event)"
-      />
-      @if (store.page(); as page) {
-        @if (page.items.length) {
-          <kx-list [runs]="runs()" (navigate)="navigate($event)" />
-        } @else {
-          <kx-empty
-            card
-            compact
-            tone="success"
-            title="No runs with problems"
-            text="Every run Keryx has on record finished cleanly."
-          >
-            <kx-icon slot="icon" name="success" size="lg" />
-            <kx-btn slot="actions" href="/runs" (navigate)="navigate($event)">Show all runs</kx-btn>
-          </kx-empty>
-        }
-      }
-    </section>
-    @if (detail(); as shown) {
-      <section aria-labelledby="run-title">
-        <kx-stack gap="lg">
-          <kx-card
-            headingId="run-title"
-            [heading]="shown.heading"
-            [badge]="shown.badge"
-            [reference]="shown.reference"
-            [meta]="shown.meta"
-          >
-            <kx-stats four ruled [items]="shown.tiles" />
-          </kx-card>
-          <section aria-labelledby="pipeline-title">
-            <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
-            <kx-timeline [steps]="shown.steps" />
-          </section>
-          <section aria-labelledby="issues-title">
-            <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
-            @if (shown.issues.length) {
-              <kx-list [issues]="shown.issues" />
-            } @else {
-              <kx-empty
-                card
-                compact
-                tone="success"
-                [level]="4"
-                title="No issues in this run"
-                text="Every source responded and nothing was held for review."
-              >
-                <kx-icon slot="icon" name="success" size="lg" />
-              </kx-empty>
-            }
-          </section>
-        </kx-stack>
-      </section>
-    } @else if (store.page()?.items?.length === 0) {
-      <kx-empty
-        title="Choose a run"
-        text="Pick a run from the list to see its pipeline steps and issues."
+  @if (store.listFailed(); as failure) {
+    <kx-empty
+      card
+      tone="error"
+      announce
+      title="Runs didn't load"
+      text="Keryx couldn't reach its API just now. Collection keeps running on schedule; only this screen is affected. Try again, and if it keeps failing, send the reference below to whoever runs Keryx."
+      [reference]="failure.reference ?? undefined"
+    >
+      <kx-btn slot="actions" variant="primary" [busy]="store.retrying()" (activated)="retry()"
+        >Try again</kx-btn
       >
-        <kx-icon slot="icon" name="runs" size="lg" />
-      </kx-empty>
-    }
-  </kx-rail>
+      <kx-btn slot="actions" href="/" (navigate)="navigate($event)">Go to overview</kx-btn>
+    </kx-empty>
+  } @else if (store.page()?.items?.length === 0 && !store.problems()) {
+    <kx-empty card title="No runs yet" [text]="emptyText()">
+      <kx-icon slot="icon" name="runs" size="lg" />
+      <kx-btn slot="actions" href="/sources" (navigate)="navigate($event)"
+        ><kx-icon name="plus" size="sm" />Add a source</kx-btn
+      >
+    </kx-empty>
+  } @else {
+    <kx-rail start>
+      <section aria-label="Run history">
+        <kx-segmented
+          class="runs__filter"
+          label="Filter runs"
+          [options]="filters()"
+          (navigate)="navigate($event)"
+        />
+        @if (store.page(); as page) {
+          @if (page.items.length) {
+            <kx-list [runs]="runs()" (navigate)="navigate($event)" />
+          } @else {
+            <kx-empty
+              card
+              compact
+              tone="success"
+              title="No runs with problems"
+              text="Every run Keryx has on record finished cleanly."
+            >
+              <kx-icon slot="icon" name="success" size="lg" />
+              <kx-btn slot="actions" href="/runs" (navigate)="navigate($event)"
+                >Show all runs</kx-btn
+              >
+            </kx-empty>
+          }
+        }
+      </section>
+      @if (detail(); as shown) {
+        <section aria-labelledby="run-title">
+          <kx-stack gap="lg">
+            <kx-card
+              headingId="run-title"
+              [heading]="shown.heading"
+              [badge]="shown.badge"
+              [reference]="shown.reference"
+              [meta]="shown.meta"
+            >
+              <kx-stats four ruled [items]="shown.tiles" />
+            </kx-card>
+            <section aria-labelledby="pipeline-title">
+              <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
+              <kx-timeline [steps]="shown.steps" />
+            </section>
+            <section aria-labelledby="issues-title">
+              <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
+              @if (shown.issues.length) {
+                <kx-list [issues]="shown.issues" />
+              } @else {
+                <kx-empty
+                  card
+                  compact
+                  tone="success"
+                  [level]="4"
+                  title="No issues in this run"
+                  text="Every source responded and nothing was held for review."
+                >
+                  <kx-icon slot="icon" name="success" size="lg" />
+                </kx-empty>
+              }
+            </section>
+          </kx-stack>
+        </section>
+      } @else if (store.detailFailed(); as failure) {
+        <section aria-labelledby="run-title">
+          <h2 id="run-title" class="visually-hidden">{{ selectedTitle() }}</h2>
+          <kx-alert tone="danger" announcement="alert" title="This run didn't load">
+            <p>
+              The run history is up to date; only this run's detail failed.
+              @if (failure.reference; as reference) {
+                Reference {{ reference }}
+              }
+            </p>
+            <kx-btn slot="actions" small [busy]="store.retryingDetail()" (activated)="retryDetail()"
+              >Try again</kx-btn
+            >
+          </kx-alert>
+        </section>
+      } @else if (store.page()?.items?.length === 0) {
+        <kx-empty
+          title="Choose a run"
+          text="Pick a run from the list to see its pipeline steps and issues."
+        >
+          <kx-icon slot="icon" name="runs" size="lg" />
+        </kx-empty>
+      }
+    </kx-rail>
+  }
 </kx-page-body>

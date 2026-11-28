@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RUNS_API } from '@kx/api';
 import {
+  Alert,
   Btn,
   Card,
   Empty,
@@ -21,6 +22,7 @@ import {
   type StatItem,
 } from '@kx/components';
 import {
+  formatClockTime,
   formatCollectedAt,
   formatDuration,
   issueSeverityWord,
@@ -52,6 +54,7 @@ const TORONTO = 'America/Toronto';
 @Component({
   selector: 'kx-runs',
   imports: [
+    Alert,
     Btn,
     Card,
     Empty,
@@ -159,6 +162,29 @@ export default class Runs {
       })),
     };
   });
+
+  /** The empty state's words, naming the first scheduled time once the schedule is read. */
+  protected readonly emptyText = computed(() => {
+    const schedule = this.schedule.schedule();
+    const first = schedule
+      ? `at ${formatClockTime(schedule.next_run_at, schedule.time_zone)}`
+      : 'at the next scheduled time';
+    return `A run is one pass over every source. The first one starts ${first}. Each run is recorded here with what it added and what went wrong.`;
+  });
+
+  /** The chosen run's start, which names its detail even when the detail failed. */
+  protected readonly selectedTitle = computed(() => {
+    const id = this.store.selected();
+    return this.runs().find((run) => run.id === id)?.title ?? '';
+  });
+
+  protected retry(): void {
+    void this.store.retry();
+  }
+
+  protected retryDetail(): void {
+    void this.store.retryDetail();
+  }
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);

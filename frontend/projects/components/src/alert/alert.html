@@ -14,5 +14,6 @@
       <p class="alert__title">{{ title }}</p>
     }
     <ng-content />
+    <div class="alert__actions"><ng-content select="[slot=actions]" /></div>
   </div>
 </div>
