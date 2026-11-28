@@ -20,4 +20,10 @@ public abstract class KeryxException : Exception
     public string Code { get; }
 
     public string Title { get; }
+
+    /// <summary>
+    /// Values a client acts on beside the code, as ProblemDetails extensions (the running run's
+    /// <c>run_id</c>); ids the API itself made, never a value a caller sent.
+    /// </summary>
+    public virtual IReadOnlyDictionary<string, object?> Extensions { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
 }

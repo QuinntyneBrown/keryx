@@ -71,6 +71,11 @@ internal sealed partial class ProblemDetailsMapper(IProblemDetailsService proble
     {
         var problem = new ProblemDetails { Status = refusal.Status, Title = refusal.Title };
         problem.Extensions[Code] = refusal.Code;
+        foreach (var (name, value) in refusal.Extensions)
+        {
+            problem.Extensions[name] = value;
+        }
+
         if (errors is not null)
         {
             // A field is named as the client sent it: snake_case, like every JSON property.

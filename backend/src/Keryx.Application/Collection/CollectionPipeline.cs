@@ -33,7 +33,8 @@ public sealed class CollectionPipeline(
     internal const int ChannelCapacity = 16;
 
     /// <summary>The kinds read over plain HTTP; the platform kinds and news queries need clients not built yet.</summary>
-    private static readonly SourceKind[] Fetchable = [SourceKind.Rss, SourceKind.Website];
+    /// <summary>The kinds of source a run fetches; the rest are read by other means.</summary>
+    internal static readonly SourceKind[] Fetchable = [SourceKind.Rss, SourceKind.Website];
 
     public async Task<RunCounts> ExecuteAsync(Run run, CancellationToken cancellationToken)
     {

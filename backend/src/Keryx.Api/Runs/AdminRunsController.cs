@@ -21,6 +21,12 @@ public sealed class AdminRunsController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         sender.Send(new ListRuns(worker, problems, page, pageSize), cancellationToken);
 
+    /// <summary>Starts a collection run now: <c>202</c>, or <c>409</c> <c>run_in_progress</c> with the running run's id.</summary>
+    [HttpPost]
+    [ProducesResponseType<RunStartedDto>(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> Start(CancellationToken cancellationToken) =>
+        Accepted(await sender.Send(new StartRun(), cancellationToken).ConfigureAwait(false));
+
     [HttpGet("{id}")]
     public Task<RunDto> Get(string id, CancellationToken cancellationToken) => sender.Send(new GetRun(id), cancellationToken);
 }

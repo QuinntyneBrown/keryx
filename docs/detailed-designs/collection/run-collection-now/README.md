@@ -68,8 +68,18 @@ hands execution to the worker.
 - **`CollectionScheduler`** — the worker's execution loop sends `RunCollectionCommand` on a
   pickup interval (`<TO SUPPLY>` seconds) read from `TimeProvider`; the handler finds the
   pending manual run and executes it.
-- **Endpoint** — `POST /admin/v1/runs`: `202` with `{ "id": "run_…" }`; `409` ProblemDetails
-  with `code` `run_in_progress` and `run_id`; `401`/`403` from the staff policy.
+- **Endpoint** — `POST /admin/v1/runs`: `202` with `{ "id": "run_…", "sources_total": 64,
+  "estimated_duration_ms": 252000 }`; `409` ProblemDetails with `code` `run_in_progress` and
+  `run_id`; `401`/`403` from the staff policy. `sources_total` counts the sources a run fetches
+  (RSS and website), as the pipeline will; the new run's own `sources_total` is 0 until the
+  worker begins it, so the notification reads the start's answer, not `getRun(id)`.
+  `estimated_duration_ms` is the duration of the newest collection run that finished without
+  failing, and null when none has; "This usually takes about 4 minutes" is that duration in
+  whole minutes, at least 1, and is left out when it is null. A `KeryxException` may carry
+  extensions (`run_id`), which `ProblemDetailsMapper` writes beside `code`.
+- **First start** — when no worker has looked at the schedule yet, the handler creates the lease
+  as the worker's first look would, with the latest slot already past counted as handled, so a
+  manual run never makes the schedule start a second run for that slot.
 - **Open point** — the Runs running mock reads "started 9:46 AM by Daniel Adeyemi", but the run
   record of L2-019 names no starter field; whether `Run` stores the staff member is
   `<TO SUPPLY>`.
