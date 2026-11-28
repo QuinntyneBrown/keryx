@@ -1,0 +1,18 @@
+<section class="card summary-card" [attr.aria-label]="label()" [attr.aria-busy]="loading() || null">
+  @if (loading()) {
+    <!-- Each line holds a no-break space, so it is as tall as the line it stands for. -->
+    <div class="summary-card__lead">
+      <p class="text-caption"><kx-skeleton [width]="20" />&nbsp;</p>
+      <p class="summary-card__value"><kx-skeleton [width]="60" />&nbsp;</p>
+    </div>
+    <kx-stats class="summary-card__stats" loading [items]="stats()" />
+  } @else if (value(); as value) {
+    <div class="summary-card__lead">
+      <p class="text-caption">{{ caption() }}</p>
+      <code class="summary-card__value truncate" [attr.title]="value">{{ value }}</code>
+    </div>
+    <kx-stats class="summary-card__stats" [items]="stats()" />
+  } @else {
+    <ng-content />
+  }
+</section>

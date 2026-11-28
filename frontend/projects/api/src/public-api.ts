@@ -29,6 +29,7 @@ export {
   type CreateApiClientRequest,
   type CreatedApiClientDto,
 } from './clients/api-clients-api';
+export { API_USAGE_API, type ApiUsageApi, type ApiUsageDto } from './clients/api-usage-api';
 export {
   ARTICLES_API,
   type ArticleCounts,

@@ -3,6 +3,7 @@
 // Description: Staff create an API key from the API screen; the full key is shown once to copy.
 
 import { expect, test, type ApiHandlers } from '../fixtures/test';
+import { USAGE } from '../fixtures/api';
 import { ApiPage } from '../page-objects/admin/api.page';
 import { NewApiKeyDialog } from '../page-objects/admin/new-api-key.dialog';
 import { SourcesPage } from '../page-objects/admin/sources.page';
@@ -22,6 +23,10 @@ const client = (
   scopes,
   created_at: '2026-11-20T14:00:00Z',
   revoked_at: revoked ? '2026-11-21T09:00:00Z' : null,
+  requests_24h: 0,
+  errors_24h: 0,
+  error_rate: 0,
+  last_call_at: null,
 });
 
 const CLIENTS = [
@@ -43,6 +48,7 @@ const pageOf = (items: unknown[]) => ({ items, total: items.length, page: 1, pag
 /** The screen with three clients; "create" answers what a test gives it. */
 function answerApiScreen(api: ApiHandlers, items: unknown[] = CLIENTS): void {
   api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+  api.on('GET', '/admin/v1/api-usage', () => ({ json: USAGE }));
   api.on('GET', '/admin/v1/api-clients', () => ({ json: pageOf(items) }));
 }
 
@@ -119,6 +125,7 @@ test.describe('API keys', () => {
     api,
   }) => {
     let fail = true;
+    api.on('GET', '/admin/v1/api-usage', () => ({ json: USAGE }));
     api.on('GET', '/admin/v1/api-clients', () =>
       fail
         ? { status: 500, json: { code: 'internal', trace_id: 'req_e7740b2f' } }
@@ -294,7 +301,10 @@ test.describe('API keys', () => {
     await expect(screen.key).toHaveText(KEY);
     expect(await screen.keptOutsideTheScreen()).not.toContain(KEY);
 
-    await new SourcesPage(page).navLink.click();
+    const sources = new SourcesPage(page);
+    await sources.navLink.click();
+    // Sources loads lazily: going back before it is shown would cancel the visit, not end it.
+    await expect(sources.heading).toHaveText('Sources');
     await screen.navLink.click();
     await expect(screen.products).toHaveCount(3);
     await expect(screen.callout).toHaveCount(0);

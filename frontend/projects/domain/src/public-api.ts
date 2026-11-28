@@ -151,3 +151,9 @@ export {
   type KeywordList,
   type KeywordWords,
 } from './settings/keyword-words';
+export {
+  formatErrorRate,
+  formatLastCall,
+  formatLatency,
+  requestsLabel,
+} from './clients/usage-words';

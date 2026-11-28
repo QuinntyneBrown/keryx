@@ -181,6 +181,10 @@ beside the three L2-037 names.
   flush beside it; the flush tests keep it and advance its timer.
 - **Retention.** No retention worker exists yet. Deleting usage hours older than 30 days arrives
   with the retention design (journey 23).
+- **Last call.** Articles' `formatRelativeAge` reads "3m ago", not the mock's "2 min ago", so the
+  Last call text has its own helper, `formatLastCall`: "just now" under a minute, "N min ago"
+  under an hour, the time on the same Toronto day, otherwise "Feb 2" (with the year when it is
+  not this year's), and "never".
 - **Errors column.** The table's "Errors" column shows each client's error rate, as the mock
   shows ("0.02%"), and "—" for a client with no requests in the window.
 

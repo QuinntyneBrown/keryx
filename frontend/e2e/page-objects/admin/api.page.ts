@@ -23,6 +23,13 @@ export class ApiPage {
   readonly table: Locator;
   readonly rows: Locator;
   readonly products: Locator;
+  readonly columns: Locator;
+  readonly subLines: Locator;
+  readonly usage: Locator;
+  readonly baseUrlCaption: Locator;
+  readonly baseUrl: Locator;
+  readonly statLabels: Locator;
+  readonly statValues: Locator;
   readonly toast: Locator;
   readonly toastTitle: Locator;
   readonly toastText: Locator;
@@ -49,11 +56,29 @@ export class ApiPage {
     this.table = page.locator('main table.table');
     this.rows = this.table.locator('tbody tr');
     this.products = this.rows.locator('.table__title');
+    this.columns = this.table.locator('thead th');
+    this.subLines = this.rows.locator('.table__sub');
+    this.usage = page.locator('main section.summary-card');
+    this.baseUrlCaption = this.usage.locator('.summary-card__lead .text-caption');
+    this.baseUrl = this.usage.locator('.summary-card__value');
+    this.statLabels = this.usage.locator('.stat__label');
+    this.statValues = this.usage.locator('.stat__value');
     const toast = page.locator('.toast-region .toast');
     this.toast = toast;
     this.toastTitle = toast.locator('.toast__title');
     this.toastText = toast.locator('.toast__text');
     this.toastAction = toast.locator('.toast__action');
+  }
+
+  /** Each row's "Requests · 24h", "Errors" and "Last call" cells, in order. */
+  async usageCells(): Promise<string[][]> {
+    return this.rows.evaluateAll((rows) =>
+      rows.map((row) =>
+        Array.from(row.querySelectorAll('td'))
+          .slice(3, 6)
+          .map((cell) => cell.textContent?.trim() ?? ''),
+      ),
+    );
   }
 
   async open(): Promise<void> {

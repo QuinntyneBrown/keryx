@@ -1,7 +1,13 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, computed, inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
-import { API_CLIENTS_API, NOTIFIER, type ApiClientDto, type CreatedApiClientDto } from '@kx/api';
+import {
+  API_CLIENTS_API,
+  API_USAGE_API,
+  NOTIFIER,
+  type ApiClientDto,
+  type CreatedApiClientDto,
+} from '@kx/api';
 import {
   Badge,
   Btn,
@@ -11,22 +17,51 @@ import {
   Icon,
   PageBody,
   PageHeader,
+  SummaryCard,
   Table,
   Tag,
+  type StatItem,
   type TableColumn,
 } from '@kx/components';
+import {
+  formatCount,
+  formatErrorRate,
+  formatLastCall,
+  formatLatency,
+  requestsLabel,
+} from '@kx/domain';
 import { ApiStore } from '../../clients/api-store';
 import { HttpApiClientsApi } from '../../clients/http-api-clients-api';
+import { HttpApiUsageApi } from '../../clients/http-api-usage-api';
+
+/** Toronto's zone, which last calls read in. */
+const TORONTO = 'America/Toronto';
 
 /**
- * API (docs/mocks/pages/api/). Journey 7 builds its header with "New API key", the key-created
- * callout, the empty and error states, and a table of each client's product, key and scopes with
- * Revoke; the usage summary, usage columns and endpoints arrive with journey 21 (report-api-usage).
+ * API (docs/mocks/pages/api/): "New API key", the usage summary over the last 24 hours, the
+ * key-created callout, and a table of each client's product, key, scopes and usage with Revoke
+ * (manage-api-keys, report-api-usage).
  */
 @Component({
   selector: 'kx-api',
-  imports: [Badge, Btn, Callout, CopyField, Empty, Icon, PageBody, PageHeader, Table, Tag],
-  providers: [{ provide: API_CLIENTS_API, useClass: HttpApiClientsApi }, ApiStore],
+  imports: [
+    Badge,
+    Btn,
+    Callout,
+    CopyField,
+    Empty,
+    Icon,
+    PageBody,
+    PageHeader,
+    SummaryCard,
+    Table,
+    Tag,
+  ],
+  providers: [
+    { provide: API_CLIENTS_API, useClass: HttpApiClientsApi },
+    { provide: API_USAGE_API, useClass: HttpApiUsageApi },
+    ApiStore,
+  ],
   templateUrl: './api.html',
   styleUrl: './api.scss',
 })
@@ -41,6 +76,9 @@ export default class Api {
     { key: 'product', label: 'Product', primary: true },
     { key: 'key', label: 'Key', wide: true },
     { key: 'scopes', label: 'Scopes', wide: true },
+    { key: 'requests', label: 'Requests · 24h', numeric: true, wide: true },
+    { key: 'errors', label: 'Errors', numeric: true, muted: true, wide: true },
+    { key: 'lastCall', label: 'Last call', muted: true, nowrap: true, wide: true },
     { key: 'actions', label: 'Actions', actionsWide: true, hiddenLabel: true, numeric: true },
   ];
 
@@ -48,12 +86,42 @@ export default class Api {
     const state = this.store.state();
     if (state.status !== 'ready') return [];
     const newest = this.store.newClientId();
-    return state.page.items.map((client) => ({
-      client,
-      prefix: `${client.key_prefix}…`,
-      isNew: client.id === newest,
-      revoked: client.revoked_at !== null,
-    }));
+    const now = new Date();
+    return state.page.items.map((client) => {
+      const lastCall = formatLastCall(client.last_call_at, now, TORONTO);
+      return {
+        client,
+        prefix: `${client.key_prefix}…`,
+        isNew: client.id === newest,
+        revoked: client.revoked_at !== null,
+        requests: formatCount(client.requests_24h),
+        errors: formatErrorRate(client.error_rate, client.requests_24h),
+        lastCall,
+        // After the key in the sub-line below 1024 px. One bound value, its separator included: a
+        // literal beside an interpolation is an instruction the initial bundle has not paid for.
+        usageLine: ` · ${requestsLabel(client.requests_24h)} · ${lastCall}`,
+      };
+    });
+  });
+
+  /** The three figures over the last 24 hours (L2-067 AC1); with no requests, 0, — and —. */
+  protected readonly baseUrl = computed(() => {
+    const state = this.store.usage();
+    return state.status === 'ready' ? state.usage.base_url : null;
+  });
+
+  protected readonly usageStats = computed((): StatItem[] => {
+    const state = this.store.usage();
+    const usage = state.status === 'ready' ? state.usage : null;
+    const latency = formatLatency(usage?.p95_latency_ms ?? null);
+    return [
+      { label: 'Requests · 24h', value: usage ? formatCount(usage.requests_24h) : '' },
+      { label: 'p95 latency', ...latency },
+      {
+        label: 'Error rate',
+        value: usage ? formatErrorRate(usage.error_rate, usage.requests_24h) : '',
+      },
+    ];
   });
 
   protected readonly rowKey = (row: unknown) => (row as { client: ApiClientDto }).client.id;

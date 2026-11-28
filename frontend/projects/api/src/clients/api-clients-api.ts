@@ -11,6 +11,13 @@ export interface ApiClientDto {
   scopes: ApiScope[];
   created_at: string;
   revoked_at: string | null;
+  /** Its requests over the current hour and the 23 before it, and how many were 5xx (L2-037). */
+  requests_24h: number;
+  errors_24h: number;
+  /** Errors over requests, from 0 to 1; 0 with no requests. */
+  error_rate: number;
+  /** When it last called, or null if it never has. */
+  last_call_at: string | null;
 }
 
 /** One page of clients, newest first. */

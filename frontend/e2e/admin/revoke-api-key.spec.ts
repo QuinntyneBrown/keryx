@@ -3,6 +3,7 @@
 // Description: Staff revoke a key through a dialog that states the consequence; there is no Undo.
 
 import { expect, test, type ApiHandlers } from '../fixtures/test';
+import { USAGE } from '../fixtures/api';
 import { ApiPage } from '../page-objects/admin/api.page';
 import { NewApiKeyDialog } from '../page-objects/admin/new-api-key.dialog';
 import { RevokeApiKeyDialog } from '../page-objects/admin/revoke-api-key.dialog';
@@ -16,10 +17,15 @@ const WIDGET = {
   scopes: ['articles:read'],
   created_at: '2026-11-20T14:00:00Z',
   revoked_at: null,
+  requests_24h: 0,
+  errors_24h: 0,
+  error_rate: 0,
+  last_call_at: null,
 };
 
 function answerApiScreen(api: ApiHandlers): void {
   api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+  api.on('GET', '/admin/v1/api-usage', () => ({ json: USAGE }));
   api.on('GET', '/admin/v1/api-clients', () => ({
     json: { items: [WIDGET], total: 1, page: 1, page_size: 50 },
   }));
