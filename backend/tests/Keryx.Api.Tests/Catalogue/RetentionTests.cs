@@ -15,11 +15,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Keryx.Api.Tests.Catalogue;
 
 // Acceptance Test
-// Traces to: L2-079 AC1, AC4, AC5; L2-019 AC1
+// Traces to: L2-079 AC1, AC2, AC4, AC5; L2-019 AC1
 // Description: Given "Keep articles for" a number of months, the retention run deletes every
 // article collected before the cutoff (the clock less that many months), with its provenance,
 // and keeps the rest; its run is recorded with worker retention and the number deleted as a
 // number. The period is read at the start of every run, so a shortened one applies at the next.
+// An event goes with its expired article, or, with none, when it started before the cutoff; an
+// organization is kept while an article, an event or a source (by its normalized name) refers to
+// it, and goes when none does.
 // The run is sent as the worker sends it; the worker's schedule is proven on its own.
 public sealed class RetentionTests
 {
@@ -73,6 +76,67 @@ public sealed class RetentionTests
         Assert.Equal([HttpStatusCode.NotFound, HttpStatusCode.OK], await StatusesAsync(staff, [.. older, .. newer]));
         Assert.Equal((0, 1), (await DeletedAsync(staff, first), await DeletedAsync(staff, second)));
     }
+
+    [Fact]
+    public async Task Given_events_and_organizations_When_retention_runs_Then_those_only_expired_records_refer_to_go()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        var ct = TestContext.Current.CancellationToken;
+        var future = new EventTime(factory.Time.GetUtcNow().AddDays(30), "America/Toronto");
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            var byOldArticle = Organization.Named("Riverside Runners", "toronto", null, 1, "Example feed", Cutoff.AddDays(-400));
+            var byKeptArticle = Organization.Named("Grace Fitness", "toronto", null, 1, "Example feed", Cutoff.AddDays(-400));
+            var bySource = Organization.Named("The Grace Toronto Church", "toronto", null, 1, "Example feed", Cutoff.AddDays(-400));
+            var byLaterEvent = Organization.Named("Lakeshore Camp", "toronto", null, 1, "Example feed", Cutoff.AddDays(-400));
+            var byNothing = Organization.Named("Old Mission", "toronto", null, 1, "Example feed", Cutoff.AddDays(-400));
+            store.Sources.Add(Keryx.Domain.Sources.Source.Add(Keryx.Domain.Sources.SourceKind.Rss, "https://grace.example.org/feed", "grace  TORONTO church", "toronto", Cutoff.AddDays(-400)));
+            var old = NewArticle("old", byOldArticle, Cutoff.AddDays(-1));
+            var kept = NewArticle("kept", byKeptArticle, Cutoff.AddDays(1));
+            var unlinkedEarlier = NewArticle("unlinked-earlier", null, Cutoff.AddDays(1));
+            var unlinkedLater = NewArticle("unlinked-later", null, Cutoff.AddDays(1));
+            store.Articles.AddRange(old, kept, unlinkedEarlier, unlinkedLater);
+            store.Organizations.AddRange(bySource, byNothing);
+            store.Events.AddRange(
+                Event("with-old", byOldArticle, old, future),
+                Event("with-kept", null, kept, future),
+                Event("unlinked-earlier", null, unlinkedEarlier, new EventTime(Cutoff.AddTicks(-1), "America/Toronto")),
+                Event("unlinked-later", byLaterEvent, unlinkedLater, new EventTime(Cutoff, "America/Toronto")));
+            await store.SaveChangesAsync(ct);
+
+            // An event whose article went another way keeps no link.
+            store.Articles.RemoveRange(unlinkedEarlier, unlinkedLater);
+            await store.SaveChangesAsync(ct);
+        }
+
+        var runId = await RetainAsync(factory);
+
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            Assert.Equal(["kept"], await store.Articles.Select(article => article.Title).ToListAsync(ct));
+            Assert.Equal(
+                ["with-kept", "unlinked-later"],
+                await store.Events.OrderBy(item => item.Id).Select(item => item.Title).ToListAsync(ct));
+            Assert.Equal(
+                ["Grace Fitness", "Lakeshore Camp", "The Grace Toronto Church"],
+                await store.Organizations.OrderBy(organization => organization.Name).Select(organization => organization.Name).ToListAsync(ct));
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory);
+        // One article, two events and two organizations.
+        Assert.Equal(5, await DeletedAsync(staff, runId));
+    }
+
+    private static Article NewArticle(string title, Organization? organization, DateTimeOffset collectedAt) =>
+        Article.Collect(
+            new ArticleFacts($"https://example.org/{title}", title, "All welcome.", "events", "toronto", [], null, 0.70m, PublicationStatus.Published),
+            organization, 1, "Example feed", collectedAt);
+
+    private static EventRecord Event(string title, Organization? organization, Article article, EventTime start) =>
+        EventRecord.From(
+            new EventFacts($"https://example.org/events/{title}", title, start, null, "Trinity Bellwoods Park", "toronto", 0.70m, PublicationStatus.Published),
+            organization, article, 1, "Example feed", article.CollectedAt);
 
     private static async Task<List<string>> CollectAsync(ApiFactory factory, params DateTimeOffset[] collectedAt)
     {

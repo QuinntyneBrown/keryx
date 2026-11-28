@@ -40,11 +40,33 @@ internal sealed class ApplyRetentionCommandHandler(IAppDbContext db, TimeProvide
 
         var months = await db.Settings.AsNoTracking().Select(settings => settings.RetentionMonths).SingleAsync(cancellationToken).ConfigureAwait(false);
         var cutoff = RetentionPolicy.Cutoff(run.StartedAt, months);
-        var deleted = await DeleteAsync(db.Articles, article => article.CollectedAt < cutoff, cancellationToken).ConfigureAwait(false);
+        // Events first: deleting an article sets its events' link to null.
+        var deleted = await DeleteAsync(
+            db.Events,
+            item => (item.LinkedArticleId == null && item.StartsAtUtc < cutoff) || (item.LinkedArticle != null && item.LinkedArticle.CollectedAt < cutoff),
+            cancellationToken).ConfigureAwait(false);
+        deleted += await DeleteAsync(db.Articles, article => article.CollectedAt < cutoff, cancellationToken).ConfigureAwait(false);
+        deleted += await DeleteOrganizationsAsync(cancellationToken).ConfigureAwait(false);
 
         run.Finish(new RunCounts { Deleted = deleted }, time.GetUtcNow());
         lease.Release(run.PublicId);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Organizations no article, event or source refers to. A source refers to the organization
+    /// its organization name normalizes to; staff keep few sources, so their names are read whole.
+    /// </summary>
+    private async Task<int> DeleteOrganizationsAsync(CancellationToken cancellationToken)
+    {
+        var names = await db.Sources.AsNoTracking().Select(source => source.OrganizationName).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var named = names.Select(OrganizationName.Normalize).Distinct(StringComparer.Ordinal).ToList();
+        return await DeleteAsync(
+            db.Organizations,
+            organization => !named.Contains(organization.NormalizedName)
+                && !db.Articles.Any(article => article.OrganizationId == organization.Id)
+                && !db.Events.Any(item => item.OrganizationId == organization.Id),
+            cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>Deletes the rows that match, a batch at a time, oldest key first; returns how many.</summary>
