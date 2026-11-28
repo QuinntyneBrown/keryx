@@ -30,8 +30,7 @@ as `trace_id`.
 - **`KeryxTelemetry.AddKeryxTelemetry(IServiceCollection, IConfiguration, string defaultServiceName, configureTracing, configureMetrics)`**
   — extension called by the API and the worker. It registers the OpenTelemetry SDK for traces,
   metrics and logs under one service name (`OTEL_SERVICE_NAME`, else the default the caller
-  gives: `keryx-api` or `keryx-worker`), with the `HttpClient` instrumentation, the activity
-  sources and meters below, and the OpenTelemetry logging provider. It adds the OTLP exporter
+  gives: `keryx-api` or `keryx-worker`), with the activity source and meters below, and the OpenTelemetry logging provider. It adds the OTLP exporter
   only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; with none, nothing is exported and the process
   runs the same. Sampling and export intervals are the SDK's defaults (every trace sampled,
   spans and logs exported in batches every 5 seconds, metrics every 60 seconds); each can be
@@ -49,8 +48,10 @@ as `trace_id`.
 - **Request logs** — the API filters the `Microsoft.AspNetCore` log categories to `Warning`,
   because their information lines print each request's full URL with its query string. Those
   lines are neither written to the console nor exported.
-- **`HttpClient` instrumentation options** — `EnrichWithHttpRequestMessage` sets
-  `keryx.source.id`, and `url.full` is never recorded, so a fetch span carries no query.
+- **No `HttpClient` instrumentation.** The source fetcher drives its own `SocketsHttpHandler`
+  through `ISourceFetcher`, so the `source.fetch` span above is the fetch's span. It is named by
+  the source's id, so no URL can reach it. A client span per attempt would carry only a method
+  and a status after redaction, and adds no answer that the run's stage record lacks.
 - **`LogRedaction`** — the logging rules. Log calls use source-generated `LoggerMessage`
   methods whose parameters are ids, counts, kinds and durations only. Scopes and state that
   carry request data are not logged. Exceptions are logged by type and correlation id, never by
@@ -69,10 +70,19 @@ as `trace_id`.
 
 **Worker (`Keryx.Worker`)**
 
-- **`CollectionTelemetry`** — activity source `Keryx.Collection`. `CollectionPipeline` starts a
-  root span `collection.run` per run, a child span per stage (`fetch`, `parse`, `classify`,
-  `deduplicate`, `store`, `publish`), and a span per source fetch tagged with
-  `keryx.source.id`. The retention and alert digest workers each start a root span per run.
+- **`RunTelemetry`** (`Keryx.Application`) — activity source `Keryx.Runs`, used by every worker
+  run. `RunRecordingBehavior` starts the root span of each run, named `<worker>.run`
+  (`collection.run`, `retention.run`, `alert_digest.run`). The run's handler tags it with
+  `keryx.run.id` once it knows the run. A collection pickup that finds no run to execute
+  clears the span's recorded flag, so the pickup every 10 seconds exports nothing. A run that
+  throws ends its span with status `Error` and `error.type`, never a message. The run's
+  correlation id is the trace's id, so the admin app's reference leads to the trace.
+  `CollectionPipeline` adds a child span per stage, `collection.<stage>`, tagged `keryx.stage`.
+  The fetch, parse, classify, deduplicate and store stages stream together, so their spans open
+  together and close when the stream ends; each stage's busy time is in the run's stage record.
+  Publish follows on its own. Under the fetch stage there is a span per source fetch,
+  `source.fetch`, tagged with `keryx.source.id` only. The source is static, as .NET advises for
+  an `ActivitySource`; the Application layer needs nothing beyond `System.Diagnostics` for it.
 - **`CollectionMetrics`** — meter `Keryx.Collection`: histogram `keryx.run.duration`
   (milliseconds), counter `keryx.run.items` tagged `result` = `added`, `updated` or
   `unchanged`, counter `keryx.run.sources_failed`, and histogram `keryx.fetch.duration`
@@ -100,8 +110,8 @@ as `trace_id`.
   carries today (`http.route`, `http.request.method`, `http.response.status_code`,
   `error.type`), the request-log filter and `trace_id` on every ProblemDetails body
   (`L2-094` criteria 1 and 5, and the span half of criterion 2).
-- The `HttpClient` instrumentation and `CollectionTelemetry` arrive with the first worker that
-  fetches (journey 4); `keryx.client.id` and `ApiMetrics` with the first `/v1` endpoint.
+- Journey 25 adds the run traces (`RunTelemetry`), the run metrics, the consumer API's metrics
+  by client, and the log rules.
 - Journey 25 completes the feature: the run traces and run metrics, the `LogRedaction` rules
   for exceptions, and the acceptance tests of criteria 3, 4 and 6.
 

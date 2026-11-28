@@ -1,5 +1,6 @@
 using Keryx.Application.Abstractions;
 using Keryx.Application.Behaviors;
+using Keryx.Application.Telemetry;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ internal sealed partial class SendHeldArticlesDigestCommandHandler(
     {
         var run = Run.Start(RunWorker.AlertDigest, RunTrigger.Schedule, time.GetUtcNow());
         db.Runs.Add(run);
+        RunTelemetry.Covers(run);
         var lease = await db.RunLeases.SingleOrDefaultAsync(candidate => candidate.Worker == RunWorker.AlertDigest, cancellationToken).ConfigureAwait(false);
         if (lease is null)
         {

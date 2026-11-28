@@ -44,6 +44,7 @@ public static class KeryxTelemetry
             .ConfigureResource(resource => resource.AddService(serviceName))
             .WithTracing(tracing =>
             {
+                tracing.AddSource(Keryx.Application.Telemetry.RunTelemetry.SourceName);
                 configureTracing?.Invoke(tracing);
                 tracing.AddProcessor(new TelemetryRedactionProcessor());
             })

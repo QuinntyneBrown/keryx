@@ -1,6 +1,7 @@
 using Keryx.Application.Abstractions;
 using Keryx.Application.Alerts;
 using Keryx.Application.Behaviors;
+using Keryx.Application.Telemetry;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +25,18 @@ internal sealed class RunCollectionCommandHandler(IAppDbContext db, CollectionPi
         var lease = await db.RunLeases.SingleOrDefaultAsync(candidate => candidate.Worker == RunWorker.Collection, cancellationToken).ConfigureAwait(false);
         if (lease?.ActiveRunId is not { } runId)
         {
+            RunTelemetry.Discard();
             return;
         }
 
         var run = await db.Runs.SingleAsync(candidate => candidate.PublicId == runId, cancellationToken).ConfigureAwait(false);
         if (run.ExecutionStarted)
         {
+            RunTelemetry.Discard();
             return;
         }
+
+        RunTelemetry.Covers(run);
 
         // A retry is merged into what the run found before it (L2-008 AC3).
         var baseline = run.RetryPending ? run.RetryBaseline() : null;

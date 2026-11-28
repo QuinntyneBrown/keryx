@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Telemetry;
 using Keryx.Domain.Collection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ public interface IWorkerRunCommand
 /// Records a worker's run that throws (L2-019 AC3): the run the worker's lease names is failed
 /// with a generic reason and a correlation id, the current trace id or a new one, and the lease
 /// is freed so the next scheduled run still starts. The log names the exception's type and the
-/// correlation id, never its message. The exception is not rethrown: the worker goes on.
+/// correlation id, never its message. The exception is not rethrown: the worker goes on. Each
+/// run is one trace, whose root span this starts (L2-094 AC3), so a failed run's correlation id
+/// is its trace's id.
 /// </summary>
 public sealed partial class RunRecordingBehavior<TRequest, TResponse>(
     IServiceScopeFactory scopes, TimeProvider time, ILogger<RunRecordingBehavior<TRequest, TResponse>> logger)
@@ -30,12 +33,15 @@ public sealed partial class RunRecordingBehavior<TRequest, TResponse>(
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(next);
+        using var span = RunTelemetry.StartRun(request.Worker);
         try
         {
             return await next(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
+            span?.SetStatus(ActivityStatusCode.Error);
+            span?.SetTag("error.type", exception.GetType().FullName);
             var correlation = (Activity.Current?.TraceId ?? ActivityTraceId.CreateRandom()).ToHexString();
             RunFailed(logger, RunWordsFor(request.Worker), exception.GetType().Name, correlation);
             await RecordFailureAsync(request.Worker, correlation, cancellationToken).ConfigureAwait(false);

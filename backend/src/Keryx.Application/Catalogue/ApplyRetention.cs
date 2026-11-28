@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Keryx.Application.Abstractions;
 using Keryx.Application.Behaviors;
+using Keryx.Application.Telemetry;
 using Keryx.Domain.Catalogue;
 using Keryx.Domain.Collection;
 using MediatR;
@@ -29,6 +30,7 @@ internal sealed class ApplyRetentionCommandHandler(IAppDbContext db, TimeProvide
     {
         var run = Run.Start(RunWorker.Retention, request.Trigger, time.GetUtcNow());
         db.Runs.Add(run);
+        RunTelemetry.Covers(run);
         var lease = await db.RunLeases.SingleOrDefaultAsync(candidate => candidate.Worker == RunWorker.Retention, cancellationToken).ConfigureAwait(false);
         if (lease is null)
         {

@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Threading.Channels;
 using Keryx.Application.Abstractions;
 using Keryx.Application.Catalogue;
 using Keryx.Application.Scoring;
 using Keryx.Application.Sources;
+using Keryx.Application.Telemetry;
 using Keryx.Domain.Collection;
 using Keryx.Domain.Sources;
 using Microsoft.EntityFrameworkCore;
@@ -65,13 +67,21 @@ public sealed class CollectionPipeline(
 
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
+        // The five streaming stages run together, so their spans open together and close when the
+        // stream ends; each stage's busy time is in the run's stage record (L2-094 AC3).
+        var runSpan = Activity.Current?.Context ?? default;
+        using var fetchSpan = RunTelemetry.StartStage(runSpan, PipelineStage.Fetch);
+        using var parseSpan = RunTelemetry.StartStage(runSpan, PipelineStage.Parse);
+        using var classifySpan = RunTelemetry.StartStage(runSpan, PipelineStage.Classify);
+        using var deduplicateSpan = RunTelemetry.StartStage(runSpan, PipelineStage.Deduplicate);
+        using var storeSpan = RunTelemetry.StartStage(runSpan, PipelineStage.Store);
         var started = time.GetTimestamp();
         var fetched = Channel.CreateBounded<(Source Source, SourceFetchResult Result)>(new BoundedChannelOptions(ChannelCapacity)
         {
             SingleReader = true,
         });
         using var stopFetching = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var fetching = FetchAllAsync(sources, timeout, fetched.Writer, stopFetching.Token);
+        var fetching = FetchAllAsync(sources, timeout, fetchSpan?.Context ?? default, fetched.Writer, stopFetching.Token);
         var storeFailed = false;
 
         int ok = 0, failed = 0, items = 0, relevant = 0, held = 0, offTopic = 0;
@@ -148,6 +158,11 @@ public sealed class CollectionPipeline(
         }
 
         await fetching.ConfigureAwait(false);
+        foreach (var span in new[] { fetchSpan, parseSpan, classifySpan, deduplicateSpan, storeSpan })
+        {
+            span?.Stop();
+        }
+
         var fetchMs = Milliseconds(time.GetTimestamp() - started);
         run.RecordStage(PipelineStage.Fetch, failed > 0 ? StageStatus.DoneWithWarnings : StageStatus.Done, fetchMs,
             new Dictionary<string, int> { ["sources_ok"] = ok, ["sources_failed"] = failed });
@@ -169,6 +184,7 @@ public sealed class CollectionPipeline(
 
         run.RecordStage(PipelineStage.Publish, StageStatus.Running, 0, new Dictionary<string, int>());
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        using var publishSpan = RunTelemetry.StartStage(runSpan, PipelineStage.Publish);
         var publishStarted = time.GetTimestamp();
         var published = await publication.PublishAsync(run, cancellationToken).ConfigureAwait(false);
         run.RecordStage(PipelineStage.Publish, StageStatus.Done, Milliseconds(time.GetTimestamp() - publishStarted),
@@ -204,7 +220,7 @@ public sealed class CollectionPipeline(
     /// others continue; the channel is completed whatever happens, so the reader always ends.
     /// </summary>
     private async Task FetchAllAsync(
-        List<Source> sources, TimeSpan timeout, ChannelWriter<(Source, SourceFetchResult)> writer, CancellationToken cancellationToken)
+        List<Source> sources, TimeSpan timeout, ActivityContext stage, ChannelWriter<(Source, SourceFetchResult)> writer, CancellationToken cancellationToken)
     {
         try
         {
@@ -214,15 +230,18 @@ public sealed class CollectionPipeline(
                 async (entry, token) =>
                 {
                     SourceFetchResult result;
-                    try
+                    using (RunTelemetry.StartFetch(stage, entry.Source))
                     {
-                        result = Uri.TryCreate(entry.Address, UriKind.Absolute, out var address)
-                            ? await fetcher.FetchAsync(new SourceFetchRequest(entry.Kind, address, timeout), token).ConfigureAwait(false)
-                            : SourceFetchResult.Failed(FetchFailureReason.InvalidContent);
-                    }
-                    catch (Exception exception) when (exception is not OperationCanceledException || !token.IsCancellationRequested)
-                    {
-                        result = SourceFetchResult.Failed(FetchFailureReason.Refused);
+                        try
+                        {
+                            result = Uri.TryCreate(entry.Address, UriKind.Absolute, out var address)
+                                ? await fetcher.FetchAsync(new SourceFetchRequest(entry.Kind, address, timeout), token).ConfigureAwait(false)
+                                : SourceFetchResult.Failed(FetchFailureReason.InvalidContent);
+                        }
+                        catch (Exception exception) when (exception is not OperationCanceledException || !token.IsCancellationRequested)
+                        {
+                            result = SourceFetchResult.Failed(FetchFailureReason.Refused);
+                        }
                     }
 
                     await writer.WriteAsync((entry.Source, result), token).ConfigureAwait(false);

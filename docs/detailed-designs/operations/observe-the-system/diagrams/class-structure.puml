@@ -22,11 +22,16 @@ class TelemetryRedactionProcessor {
   -{static} FrozenSet<string> AllowedTags
   +OnEnd(activity: Activity): void
 }
-class CollectionTelemetry {
-  +{static} ActivitySource Source = "Keryx.Collection"
-  +StartRun(runId: string): Activity?
-  +StartStage(stage: StageName): Activity?
-  +StartFetch(sourceId: string): Activity?
+class RunTelemetry {
+  -{static} ActivitySource Source = "Keryx.Runs"
+  ~StartRun(worker: RunWorker): Activity?
+  ~Covers(run: Run): void
+  ~Discard(): void
+  ~StartStage(run: ActivityContext, stage: PipelineStage): Activity?
+  ~StartFetch(stage: ActivityContext, source: Source): Activity?
+}
+class RunRecordingBehavior {
+  +Handle(request, next): TResponse
 }
 class CollectionMetrics {
   -Histogram<double> runDuration
@@ -53,7 +58,8 @@ class ApiError <<TypeScript>> {
 
 BP <|-- TelemetryRedactionProcessor
 KeryxTelemetry ..> TelemetryRedactionProcessor : registers
-KeryxTelemetry ..> CollectionTelemetry : registers source
+KeryxTelemetry ..> RunTelemetry : registers source
+RunRecordingBehavior ..> RunTelemetry : root span per run
 KeryxTelemetry ..> CollectionMetrics : registers meter
 KeryxTelemetry ..> ApiMetrics : registers meter
 ProblemDetailsMapper ..> ApiError : trace_id read by admin app

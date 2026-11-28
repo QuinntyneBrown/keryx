@@ -14,7 +14,7 @@ namespace Keryx.Infrastructure.Telemetry;
 internal sealed class TelemetryRedactionProcessor : BaseProcessor<Activity>
 {
     public static readonly FrozenSet<string> AllowedTags = FrozenSet.ToFrozenSet(
-        ["error.type", "http.request.method", "http.response.status_code", "http.route"],
+        ["error.type", "http.request.method", "http.response.status_code", "http.route", "keryx.run.id", "keryx.source.id", "keryx.stage"],
         StringComparer.Ordinal);
 
     public override void OnEnd(Activity data)

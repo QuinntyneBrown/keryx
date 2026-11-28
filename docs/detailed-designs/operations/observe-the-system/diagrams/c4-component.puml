@@ -9,9 +9,8 @@ Container_Boundary(api, "Keryx API") {
   Component(pdm, "ProblemDetailsMapper", "Exception handler", "Adds trace_id")
 }
 Container_Boundary(worker, "Keryx Worker") {
-  Component(colt, "CollectionTelemetry", "ActivitySource Keryx.Collection", "Run, stage and fetch spans")
+  Component(colt, "RunTelemetry", "ActivitySource Keryx.Runs", "Run, stage and fetch spans; by id, never by URL")
   Component(colm, "CollectionMetrics", "Meter Keryx.Collection", "Run duration, items, sources failed, fetch latency")
-  Component(http, "HttpClient instrumentation", "OpenTelemetry", "Source id, no URL query")
 }
 Container_Boundary(infra, "Keryx Infrastructure") {
   Component(setup, "KeryxTelemetry", "Service registration", "SDK, logging provider, optional OTLP exporter")
@@ -22,7 +21,6 @@ System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
 
 Rel(aspnet, red, "Spans pass through")
 Rel(colt, red, "Spans pass through")
-Rel(http, red, "Spans pass through")
 Rel(red, exp, "Redacted spans")
 Rel(apim, exp, "Metrics")
 Rel(colm, exp, "Metrics")

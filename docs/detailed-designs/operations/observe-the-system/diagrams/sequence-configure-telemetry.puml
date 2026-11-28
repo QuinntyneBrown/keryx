@@ -29,7 +29,7 @@ participant "OTLP collector" as otel
 prog -> setup : AddKeryxTelemetry(services, configuration, "keryx-api", ASP.NET Core instrumentation)
 wprog -> setup : AddKeryxTelemetry(services, configuration, "keryx-worker")
 setup -> setup : Service name: OTEL_SERVICE_NAME, else the caller's default
-setup -> setup : Register the caller's instrumentation, HttpClient instrumentation, sources, meters, logging provider
+setup -> setup : Register the caller's instrumentation, the Keryx.Runs source, meters, logging provider
 setup -> red : Register before export, after the caller's instrumentation
 alt OTEL_EXPORTER_OTLP_ENDPOINT configured
   setup -> exp : Add OTLP exporter for traces, metrics, logs
