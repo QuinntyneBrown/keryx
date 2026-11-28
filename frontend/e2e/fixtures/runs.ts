@@ -168,7 +168,7 @@ export const RUN_2418_ISSUES = [
 ];
 
 /** run_2419's detail mid-run: fetch running with 21 new so far, the other stages waiting. */
-export function runningDetail(): Record<string, unknown> {
+export function runningDetail(fields: Record<string, unknown> = {}): Record<string, unknown> {
   return runDetail('run_2419', {
     duplicates: 4,
     sources_ok: 38,
@@ -180,6 +180,7 @@ export function runningDetail(): Record<string, unknown> {
         stage(name, 'not_run', 0, {}),
       ),
     ],
+    ...fields,
   });
 }
 

@@ -266,6 +266,11 @@ match the no-results state offers the way back to all runs.
 While the selected run is `running`, `RunsStore` polls its detail at most every 3 seconds and
 keeps only the latest response. Polling stops when the run ends or when the page is left.
 
+As built (journey 15): each read of a running run's detail sets one timer of `FOLLOW_MS`
+(3000 ms) for the next read, so a read is never sent sooner than 3 seconds after the last
+answer and never while one is out. The timer is cleared when another run is chosen and when
+the page is destroyed. A read whose run is no longer `running` sets none.
+
 ![Sequence diagram for following a running run](diagrams/sequence-follow-running-run.png)
 
 ### Behaviour — loading, empty and error

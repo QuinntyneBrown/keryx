@@ -11,6 +11,9 @@ function referenceOf(error: unknown): string | null {
 /** Runs shows the 14 most recent collection runs (Decision 10 of L2.md). */
 export const HISTORY_RUNS = 14;
 
+/** A run in progress is read again no sooner than this after its last answer (L2-058 AC2). */
+export const FOLLOW_MS = 3000;
+
 /**
  * Runs' state, held only while the screen is shown: the page of runs, all of them or those with
  * problems, the run the URL names, and the chosen run's detail. Provided on the screen, so its
@@ -27,6 +30,8 @@ export class RunsStore {
   /** Counts list and detail reads, so only the latest one's answer is shown. */
   private listReads = 0;
   private detailReads = 0;
+  /** The next read of the chosen run while it is in progress. */
+  private follow: ReturnType<typeof setTimeout> | undefined;
 
   /** Only runs with problems are listed (`?problems=true`). */
   readonly problems = signal<boolean | null>(null);
@@ -57,6 +62,7 @@ export class RunsStore {
     inject(DestroyRef).onDestroy(() => {
       this.controller.abort();
       this.skeleton.cancel();
+      clearTimeout(this.follow);
     });
   }
 
@@ -146,6 +152,7 @@ export class RunsStore {
 
   private choose(id: string | null): void {
     if (!id || id === this.selected()) return;
+    clearTimeout(this.follow);
     this.selected.set(id);
     this.detail.set(null);
     this.detailFailed.set(null);
@@ -157,7 +164,12 @@ export class RunsStore {
     const current = () => read === this.detailReads && !this.controller.signal.aborted;
     try {
       const detail = await this.api.get(id, this.controller.signal);
-      if (current()) this.detail.set(detail);
+      if (!current()) return;
+      this.detail.set(detail);
+      // A run in progress is read again until it ends, another is chosen or the visit ends.
+      if (detail.outcome === 'running') {
+        this.follow = setTimeout(() => void this.readDetail(id), FOLLOW_MS);
+      }
     } catch (error) {
       if (!current()) return;
       this.detail.set(null);
