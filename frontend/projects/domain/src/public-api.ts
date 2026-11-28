@@ -158,3 +158,4 @@ export {
   requestsLabel,
 } from './clients/usage-words';
 export { exampleRequest, KEY_PLACEHOLDER } from './clients/example-request';
+export { exportFileName, exportStartedNotice, type ExportNotice } from './articles/export-words';

@@ -39,6 +39,9 @@ export class ArticlesPage {
   readonly panelTags: Locator;
   readonly panelAlert: Locator;
   readonly toast: Locator;
+  readonly toastTitle: Locator;
+  readonly toastText: Locator;
+  readonly exportCsv: Locator;
   /** Below 1024 px the panel opens in a modal dialog over the screen. */
   readonly dialog: Locator;
   readonly skeletonRows: Locator;
@@ -91,6 +94,9 @@ export class ArticlesPage {
     this.panelTags = this.detail.locator('.dl dd .badge');
     this.panelAlert = this.detail.locator('.alert');
     this.toast = page.locator('.toast-region .toast');
+    this.toastTitle = this.toast.locator('.toast__title');
+    this.toastText = this.toast.locator('.toast__text');
+    this.exportCsv = header.getByRole('button', { name: 'Export CSV' });
     this.dialog = page.getByRole('dialog');
     this.skeletonRows = this.rows.filter({ has: page.locator('.skeleton') });
     this.loadingStatus = this.panel.locator('[role="status"].visually-hidden');
@@ -103,6 +109,31 @@ export class ArticlesPage {
     this.panelActions = this.detail.locator('.detail-panel__foot .btn');
     this.publish = this.panelActions.filter({ hasText: 'Publish' });
     this.hide = this.panelActions.filter({ hasText: 'Hide from API' });
+  }
+
+  /** Counts the object URLs the page creates and revokes, from before it loads. */
+  async watchObjectUrls(): Promise<void> {
+    await this.page.addInitScript(() => {
+      const counts = { created: 0, revoked: 0 };
+      (window as unknown as { kxObjectUrls: typeof counts }).kxObjectUrls = counts;
+      const create = URL.createObjectURL.bind(URL);
+      const revoke = URL.revokeObjectURL.bind(URL);
+      URL.createObjectURL = (object) => {
+        counts.created += 1;
+        return create(object);
+      };
+      URL.revokeObjectURL = (url) => {
+        counts.revoked += 1;
+        revoke(url);
+      };
+    });
+  }
+
+  objectUrls(): Promise<{ created: number; revoked: number }> {
+    return this.page.evaluate(
+      () =>
+        (window as unknown as { kxObjectUrls: { created: number; revoked: number } }).kxObjectUrls,
+    );
   }
 
   async open(query = ''): Promise<void> {

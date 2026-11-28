@@ -72,6 +72,9 @@ export interface ArticleListQuery {
   category?: string;
 }
 
+/** What an export narrows by: the list's tab, search and filters, without its page. */
+export type ArticleExportQuery = Omit<ArticleListQuery, 'page' | 'pageSize'>;
+
 /** The admin articles (docs/detailed-designs/admin-app/review-articles/). It rejects with an `ApiProblem`. */
 export interface ArticlesApi {
   list(query: ArticleListQuery, signal: AbortSignal): Promise<ArticlePage>;
@@ -86,6 +89,8 @@ export interface ArticlesApi {
   hide(id: string, signal: AbortSignal): Promise<ArticleDecision>;
   /** Undoes this session's decision, naming the status it replaced; `revert_unavailable` once it can't. */
   revert(id: string, previousStatus: ArticleStatus, signal: AbortSignal): Promise<ArticleDecision>;
+  /** The matching articles as a CSV file; more than 50,000 rejects with `export_too_large` (L2-054). */
+  exportCsv(query: ArticleExportQuery, signal: AbortSignal): Promise<Blob>;
 }
 
 export const ARTICLES_API = new InjectionToken<ArticlesApi>('Keryx articles');

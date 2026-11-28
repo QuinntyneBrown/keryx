@@ -3,7 +3,11 @@
     <kx-page-header
       title="Articles"
       description="Everything Keryx has collected. Only published articles are served by the API."
-    />
+    >
+      <kx-btn slot="actions" [disabled]="exportDisabled()" (activated)="exportCsv()"
+        ><kx-icon slot="icon" name="download" size="sm" />Export CSV</kx-btn
+      >
+    </kx-page-header>
     <kx-page-body>
       @let loaded = store.page();
       @if (store.status() === 'error' && !loaded) {

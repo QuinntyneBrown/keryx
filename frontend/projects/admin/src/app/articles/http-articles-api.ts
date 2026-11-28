@@ -3,6 +3,7 @@ import {
   type ArticleCounts,
   type ArticleDecision,
   type ArticleDetail,
+  type ArticleExportQuery,
   type ArticleListQuery,
   type ArticlePage,
   type ArticlesApi,
@@ -10,7 +11,7 @@ import {
   type Region,
 } from '@kx/api';
 import { antiforgeryToken } from '../session/antiforgery';
-import { readJson } from '../session/read-json';
+import { readJson, send } from '../session/read-json';
 
 /** The admin articles over fetch, with the staff session's cookie (ADR 0005). */
 @Injectable()
@@ -25,6 +26,16 @@ export class HttpArticlesApi implements ArticlesApi {
     if (query.region) search.set('region', query.region);
     if (query.category) search.set('category', query.category);
     return readJson<ArticlePage>(`/admin/v1/articles?${search}`, signal);
+  }
+
+  async exportCsv(query: ArticleExportQuery, signal: AbortSignal): Promise<Blob> {
+    const search = new URLSearchParams();
+    if (query.status) search.set('status', query.status);
+    if (query.q) search.set('q', query.q);
+    if (query.region) search.set('region', query.region);
+    if (query.category) search.set('category', query.category);
+    const suffix = search.size ? `?${search}` : '';
+    return (await send(`/admin/v1/articles/export${suffix}`, signal)).blob();
   }
 
   counts(signal: AbortSignal): Promise<ArticleCounts> {

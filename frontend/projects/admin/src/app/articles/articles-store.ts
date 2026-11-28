@@ -24,6 +24,7 @@ export class ArticlesStore {
   private controller: AbortController | null = null;
   private detailController: AbortController | null = null;
   private readonly decisions = new AbortController();
+  private readonly exports = new AbortController();
   private readonly pause = searchPause();
   private readonly skeleton = skeletonDelay();
 
@@ -38,12 +39,15 @@ export class ArticlesStore {
   readonly detail = signal<ArticleDetail | null>(null);
   /** The decision being sent: while one is, another is ignored (L2-052 AC5). */
   readonly decisionInFlight = signal<'publish' | 'hide' | null>(null);
+  /** An export is waiting for its file: "Export CSV" waits too. */
+  readonly exporting = signal(false);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       this.controller?.abort();
       this.detailController?.abort();
       this.decisions.abort();
+      this.exports.abort();
       this.pause.cancel();
       this.skeleton.cancel();
     });
@@ -156,6 +160,27 @@ export class ArticlesStore {
       return error instanceof ApiProblem && error.code === 'article_not_found'
         ? 'missing'
         : 'failed';
+    }
+  }
+
+  /**
+   * The CSV file of the articles the query's tab, search and filters match (L2-054). It rejects
+   * with the API's refusal, or with the abort when the screen is left first.
+   */
+  async exportCsv(query: ArticleQuery): Promise<Blob> {
+    this.exporting.set(true);
+    try {
+      return await this.api.exportCsv(
+        {
+          status: query.status ?? undefined,
+          q: searchTerm(query.q) ?? undefined,
+          region: query.region ?? undefined,
+          category: query.category ?? undefined,
+        },
+        this.exports.signal,
+      );
+    } finally {
+      this.exporting.set(false);
     }
   }
 

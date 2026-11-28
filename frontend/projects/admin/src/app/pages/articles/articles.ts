@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  DOCUMENT,
   ElementRef,
   inject,
   Injector,
@@ -59,9 +60,12 @@ import {
   type ArticleQuery,
   decidedNotice,
   decisionFailedNotice,
+  exportFileName,
+  exportStartedNotice,
 } from '@kx/domain';
 import { ArticlesStore } from '../../articles/articles-store';
 import { HttpArticlesApi } from '../../articles/http-articles-api';
+import { saveFile } from '../../articles/save-file';
 import { ArticlePanel, type ArticlePanelView } from './article-panel/article-panel';
 
 /** Below this width an open article covers the screen in a modal dialog (L2-051 AC2). */
@@ -111,6 +115,7 @@ export default class Articles {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly notifier = inject(NOTIFIER);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
   /** The open article's dialog below 1024 px, and the article it shows. */
   private dialog: { ref: DialogRef<unknown, ArticlePanel>; id: string } | null = null;
   private readonly media = matchMedia(NARROW);
@@ -250,6 +255,22 @@ export default class Articles {
   protected readonly nothingCollected = computed(
     () => this.store.status() === 'ready' && this.store.counts()?.all === 0,
   );
+
+  /**
+   * "Export CSV" waits while the list loads, when it did not load, when nothing has been
+   * collected, and while an export is in flight (L2-054 AC5).
+   */
+  protected readonly exportDisabled = computed(
+    () => this.store.status() !== 'ready' || this.nothingCollected() || this.store.exporting(),
+  );
+
+  /** Says the export started, with the rows the list counts, then saves the file (L2-054 AC1). */
+  protected async exportCsv(): Promise<void> {
+    const name = exportFileName(new Date());
+    this.notifier.notify(exportStartedNotice(name, this.store.page()?.total ?? 0));
+    const file = await this.store.exportCsv(this.query());
+    saveFile(this.document, file, name);
+  }
 
   protected navigate(href: string): void {
     void this.router.navigateByUrl(href);

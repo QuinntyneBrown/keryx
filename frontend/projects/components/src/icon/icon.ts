@@ -33,6 +33,7 @@ export type IconName =
   | 'chevron-right'
   | 'play'
   | 'external'
+  | 'download'
   | 'eye'
   | 'eye-off';
 

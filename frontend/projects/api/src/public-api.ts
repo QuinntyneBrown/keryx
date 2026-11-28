@@ -35,6 +35,7 @@ export {
   type ArticleCounts,
   type ArticleDecision,
   type ArticleDetail,
+  type ArticleExportQuery,
   type ArticleListQuery,
   type ArticlePage,
   type ArticleProvenance,
