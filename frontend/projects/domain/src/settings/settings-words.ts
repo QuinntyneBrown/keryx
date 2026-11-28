@@ -11,11 +11,10 @@ const CRON: Readonly<Record<number, string>> = {
 };
 
 /**
- * The line under "Run every": the cron of the chosen interval and its next run ("next 12:00 PM").
- * Slots are aligned to midnight in `timeZone`, and the next is the first
- * after `now`, as the server's schedule decides (L2-005).
+ * The next scheduled run after `now`: slots are aligned to midnight in `timeZone`, every
+ * `intervalHours`, as the server's schedule decides (L2-005). Exact to the minute.
  */
-export function cronLine(intervalHours: number, now: Date, timeZone: string): string {
+function nextRun(intervalHours: number, now: Date, timeZone: string): Date {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
     hourCycle: 'h23',
@@ -23,11 +22,27 @@ export function cronLine(intervalHours: number, now: Date, timeZone: string): st
     minute: 'numeric',
   }).formatToParts(now);
   const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
-  // Minutes into the Toronto day; the seconds past the minute never change the minute shown.
+  // Minutes into the day there; the seconds past the minute never change the minute shown.
   const intoDay = part('hour') * 60 + part('minute');
   const next = (Math.floor(intoDay / 60 / intervalHours) + 1) * intervalHours * 60;
-  const at = new Date(now.getTime() + (next - intoDay) * 60_000);
-  return `cron: ${CRON[intervalHours]} · next ${formatClockTime(at, timeZone)}`;
+  return new Date(now.getTime() + (next - intoDay) * 60_000);
+}
+
+/** The line under "Run every": the cron of the chosen interval and its next run (L2-070 AC2). */
+export function cronLine(intervalHours: number, now: Date, timeZone: string): string {
+  const at = formatClockTime(nextRun(intervalHours, now, timeZone), timeZone);
+  return `cron: ${CRON[intervalHours]} · next ${at}`;
+}
+
+/**
+ * The save bar's confirmation (L2-071 AC4): "Saved at 9:46 AM. Keryx now collects every 3 hours
+ * — the next run is at 12:00 PM."
+ */
+export function savedLine(intervalHours: number, now: Date, timeZone: string): string {
+  const every =
+    intervalHours === 24 ? 'day' : intervalHours === 1 ? 'hour' : `${intervalHours} hours`;
+  const next = formatClockTime(nextRun(intervalHours, now, timeZone), timeZone);
+  return `Saved at ${formatClockTime(now, timeZone)}. Keryx now collects every ${every} — the next run is at ${next}.`;
 }
 
 /**

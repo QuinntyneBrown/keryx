@@ -1,4 +1,4 @@
-import { cronLine, thresholdHelp } from './settings-words';
+import { cronLine, savedLine, thresholdHelp } from './settings-words';
 
 describe('cronLine', () => {
   // The next slot is the server's rule (L2-005): the rows of AC2 and AC3 are those of
@@ -33,6 +33,31 @@ describe('thresholdHelp', () => {
   for (const [threshold, help] of cases) {
     it(`reads "${help}" at ${threshold}`, () => {
       expect(thresholdHelp(threshold)).toBe(help);
+    });
+  }
+});
+
+describe('savedLine', () => {
+  const cases: [number, string, string][] = [
+    [
+      3,
+      '2026-11-27T09:46:00-05:00',
+      'Saved at 9:46 AM. Keryx now collects every 3 hours — the next run is at 12:00 PM.',
+    ],
+    [
+      1,
+      '2026-11-27T09:46:30-05:00',
+      'Saved at 9:46 AM. Keryx now collects every hour — the next run is at 10:00 AM.',
+    ],
+    [
+      24,
+      '2026-11-27T21:05:00-05:00',
+      'Saved at 9:05 PM. Keryx now collects every day — the next run is at 12:00 AM.',
+    ],
+  ];
+  for (const [hours, now, line] of cases) {
+    it(`reads "${line}"`, () => {
+      expect(savedLine(hours, new Date(now), 'America/Toronto')).toBe(line);
     });
   }
 });

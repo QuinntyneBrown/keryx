@@ -157,7 +157,9 @@
         "success",
         "loading",
         "error",
-        "sign-out-failed"
+        "sign-out-failed",
+        "save-failed",
+        "changed-elsewhere"
       ],
       "requirements": [
         "L2-041",

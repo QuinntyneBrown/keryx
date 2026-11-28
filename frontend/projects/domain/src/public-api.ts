@@ -128,8 +128,8 @@ export {
   summarizeRetry,
   type FailedSource,
 } from './runs/retry-words';
-export { cronLine, thresholdHelp } from './settings/settings-words';
-export { draftOf, settingsEqual, type SettingsDraft } from './settings/settings-draft';
+export { cronLine, savedLine, thresholdHelp } from './settings/settings-words';
+export { draftOf, settingsEqual, settingsOf, type SettingsDraft } from './settings/settings-draft';
 export {
   fixFieldsBar,
   fixFieldsTitle,

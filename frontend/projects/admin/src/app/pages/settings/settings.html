@@ -28,7 +28,7 @@
   }
   @case ('ready') {
     @if (store.draft(); as draft) {
-      <kx-page-body form formId="settings-form" (submitted)="save()">
+      <kx-page-body form formId="settings-form" [busy]="saving()" (submitted)="save()">
         @if (store.errors().length) {
           <kx-alert
             class="settings__summary"
@@ -40,6 +40,37 @@
             (follow)="focusField($event)"
           />
         }
+        @switch (store.saveState().status) {
+          @case ('failed') {
+            <kx-alert
+              class="settings__summary"
+              tone="danger"
+              announcement="alert"
+              title="Settings weren’t saved"
+              ><p>
+                Keryx couldn’t save your changes just now. They’re still here: try again, and if it
+                keeps failing, send the reference below to whoever runs Keryx.
+              </p>
+              @if (failureReference(); as reference) {
+                <p class="mono">Reference {{ reference }}</p>
+              }
+            </kx-alert>
+          }
+          @case ('conflict') {
+            <kx-alert
+              class="settings__summary"
+              tone="warning"
+              announcement="alert"
+              title="Settings changed elsewhere"
+              ><p>
+                Someone saved Settings after you opened them, so nothing was overwritten. Your
+                changes are still here: note them, reload to see the latest settings, then make them
+                again.
+              </p>
+              <kx-btn slot="actions" small (activated)="store.load()">Reload settings</kx-btn>
+            </kx-alert>
+          }
+        }
         <kx-settings-section
           title="Schedule"
           hint="When the collector runs. Times are Toronto time."
@@ -49,6 +80,7 @@
             <kx-segmented
               [choices]="intervals"
               [value]="'' + draft.interval_hours"
+              [disabled]="saving()"
               (choose)="chooseInterval($event)"
             />
             <p class="mono text-subtle settings__schedule">{{ schedule() }}</p>
@@ -61,6 +93,7 @@
           >
             <kx-input-affix suffix="seconds">
               <kx-input
+                [disabled]="saving()"
                 controlId="timeout"
                 [invalid]="!!errorOf('timeout')"
                 [describedBy]="errorOf('timeout') ? 'timeout-error' : undefined"
@@ -77,10 +110,20 @@
           hint="Keryx scores each item for Christian fitness and GTA relevance."
         >
           <kx-field label="Topics">
-            <kx-chip label="Topics" addLabel="Add to Topics" [values]="draft.topics" />
+            <kx-chip
+              label="Topics"
+              addLabel="Add to Topics"
+              [values]="draft.topics"
+              [disabled]="saving()"
+            />
           </kx-field>
           <kx-field label="Exclude">
-            <kx-chip label="Excluded terms" addLabel="Add to Exclude" [values]="draft.exclusions" />
+            <kx-chip
+              label="Excluded terms"
+              addLabel="Add to Exclude"
+              [values]="draft.exclusions"
+              [disabled]="saving()"
+            />
           </kx-field>
           <kx-field
             label="Publish automatically above"
@@ -95,6 +138,7 @@
               [max]="0.9"
               [step]="0.05"
               [decimals]="2"
+              [disabled]="saving()"
               [value]="draft.publish_threshold"
               (valueChange)="store.set('publish_threshold', $event)"
             />
@@ -109,16 +153,19 @@
               label="Focus areas"
               addLabel="Add to Focus areas"
               [values]="draft.focus_areas"
+              [disabled]="saving()"
             />
           </kx-field>
           <fieldset>
             <legend>Also include</legend>
             <kx-switch
+              [disabled]="saving()"
               label="Ontario-wide organisations"
               [checked]="draft.include_ontario_wide"
               (checkedChange)="store.set('include_ontario_wide', $event)"
             />
             <kx-switch
+              [disabled]="saving()"
               label="National Canadian news"
               [checked]="draft.include_national"
               (checkedChange)="store.set('include_national', $event)"
@@ -129,6 +176,7 @@
           <fieldset>
             <legend>Merge duplicates</legend>
             <kx-switch
+              [disabled]="saving()"
               label="Match by URL and similar headline (90%)"
               [checked]="draft.merge_duplicates"
               (checkedChange)="store.set('merge_duplicates', $event)"
@@ -142,6 +190,7 @@
           >
             <kx-input-affix suffix="months">
               <kx-input
+                [disabled]="saving()"
                 controlId="retention"
                 [invalid]="!!errorOf('retention')"
                 [describedBy]="errorOf('retention') ? 'retention-error' : undefined"
@@ -161,6 +210,7 @@
             [error]="errorOf('alert-email')"
           >
             <kx-input
+              [disabled]="saving()"
               controlId="alert-email"
               [invalid]="!!errorOf('alert-email')"
               [describedBy]="errorOf('alert-email') ? 'email-error' : undefined"
@@ -179,6 +229,7 @@
           >
             <kx-input-affix suffix="runs in a row">
               <kx-input
+                [disabled]="saving()"
                 controlId="alert-after"
                 [invalid]="!!errorOf('alert-after')"
                 [describedBy]="errorOf('alert-after') ? 'alert-after-error' : undefined"
@@ -192,11 +243,13 @@
           <fieldset>
             <legend>Also alert</legend>
             <kx-switch
+              [disabled]="saving()"
               label="When a whole run fails"
               [checked]="draft.alert_on_run_failure"
               (checkedChange)="store.set('alert_on_run_failure', $event)"
             />
             <kx-switch
+              [disabled]="saving()"
               label="Daily digest of held articles"
               [checked]="draft.daily_digest"
               (checkedChange)="store.set('daily_digest', $event)"
@@ -219,7 +272,16 @@
           </div>
         </kx-settings-section>
       </kx-page-body>
-      @if (store.dirty()) {
+      @if (saving()) {
+        <kx-save-bar label="Unsaved changes" text="Saving your changes…" live>
+          <kx-btn slot="actions" variant="ghost" disabled>Discard</kx-btn>
+          <kx-btn slot="actions" variant="primary" busy>Saving…</kx-btn>
+        </kx-save-bar>
+      } @else if (savedText(); as text) {
+        <kx-save-bar tone="success" [text]="text">
+          <kx-btn slot="actions" href="/runs" (navigate)="navigate($event)">View runs</kx-btn>
+        </kx-save-bar>
+      } @else if (store.dirty()) {
         <kx-save-bar
           label="Unsaved changes"
           [text]="store.errors().length ? fixBar() : 'You have unsaved changes.'"

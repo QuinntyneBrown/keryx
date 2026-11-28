@@ -31,6 +31,7 @@ import {
 import {
   cronLine,
   fixFieldsBar,
+  savedLine,
   fixFieldsTitle,
   thresholdHelp,
   type SettingsField,
@@ -90,6 +91,18 @@ export default class Settings {
   protected readonly summary = computed<AlertItem[]>(() =>
     this.store.errors().map((error) => ({ id: error.field, text: error.summary })),
   );
+  protected readonly saving = computed(() => this.store.saveState().status === 'saving');
+  protected readonly savedText = computed(() => {
+    const save = this.store.saveState();
+    const draft = this.store.draft();
+    return save.status === 'saved' && draft
+      ? savedLine(draft.interval_hours, save.at, 'America/Toronto')
+      : null;
+  });
+  protected readonly failureReference = computed(() => {
+    const save = this.store.saveState();
+    return save.status === 'failed' ? save.reference : null;
+  });
   protected readonly fixTitle = computed(() => fixFieldsTitle(this.store.errors().length));
   protected readonly fixBar = computed(() => fixFieldsBar(this.store.errors().length));
   protected readonly thresholdHelp = computed(() =>
@@ -111,8 +124,8 @@ export default class Settings {
   }
 
   /** "Save changes", or Enter in a field: a refused save moves focus to the summary. */
-  protected save(): void {
-    if (this.store.save()) return;
+  protected async save(): Promise<void> {
+    if (await this.store.save()) return;
     afterNextRender(() => this.focus('.alert--danger'), { injector: this.injector });
   }
 

@@ -143,8 +143,9 @@ this design's; the ranges are those of `L2-070`.
   (`pages/settings/success.html`).
 - **Save failed** — the entries stay, the bar stays, and an alert says the settings were not
   saved, with a reference. **Changed elsewhere** (`409` `settings_changed`) — nothing is
-  overwritten and staff are told to reload, with their entries on screen. Neither state is in
-  the mocks; their copy and markup are `<TO SUPPLY>`.
+  overwritten and staff are told to reload, with their entries on screen
+  (`pages/settings/save-failed.html`, `pages/settings/changed-elsewhere.html`). "Reload
+  settings" reads them again, replacing the entries.
 - **Loading** and **error** — skeletons after 300 ms (`pages/settings/loading.html`) and
   "Settings didn't load" with the page error state of `L2-073` (`pages/settings/error.html`).
 - **Narrow viewports** — below 768 px each section's description stacks above its fields, and

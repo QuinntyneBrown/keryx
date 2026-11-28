@@ -51,3 +51,28 @@ export function settingsEqual(a: SettingsDraft, b: SettingsDraft): boolean {
       : x === y;
   });
 }
+
+/**
+ * What a save sends for valid entries: numbers as numbers, an empty e-mail as none, and the
+ * version the settings were loaded at (L2-071 AC7).
+ */
+export function settingsOf(draft: SettingsDraft, version: string): SettingsDto {
+  const email = draft.alert_email.trim();
+  return {
+    interval_hours: draft.interval_hours,
+    timeout_seconds: Number(draft.timeout_seconds),
+    publish_threshold: draft.publish_threshold,
+    topics: [...draft.topics],
+    exclusions: [...draft.exclusions],
+    focus_areas: [...draft.focus_areas],
+    include_ontario_wide: draft.include_ontario_wide,
+    include_national: draft.include_national,
+    merge_duplicates: draft.merge_duplicates,
+    retention_months: Number(draft.retention_months),
+    alert_email: email || null,
+    alert_failure_streak: Number(draft.alert_failure_streak),
+    alert_on_run_failure: draft.alert_on_run_failure,
+    daily_digest: draft.daily_digest,
+    version,
+  };
+}

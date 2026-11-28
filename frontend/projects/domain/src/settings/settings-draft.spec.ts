@@ -1,5 +1,5 @@
 import type { SettingsDto } from '@kx/api';
-import { draftOf, settingsEqual, type SettingsDraft } from './settings-draft';
+import { draftOf, settingsEqual, settingsOf, type SettingsDraft } from './settings-draft';
 
 const saved: SettingsDto = {
   interval_hours: 6,
@@ -50,5 +50,34 @@ describe('settingsEqual', () => {
 
   it('reads no e-mail as an empty entry', () => {
     expect(draftOf(saved).alert_email).toBe('');
+  });
+});
+
+describe('settingsOf', () => {
+  it('sends the saved settings back as they came', () => {
+    expect(settingsOf(draftOf(saved), '1')).toEqual(saved);
+  });
+
+  it('sends typed numbers as numbers, an empty e-mail as none and the loaded version', () => {
+    const sent = settingsOf(
+      {
+        ...draftOf(saved),
+        timeout_seconds: ' 45 ',
+        retention_months: '12',
+        alert_failure_streak: '5',
+        alert_email: '  ',
+      },
+      '8',
+    );
+    expect([
+      sent.timeout_seconds,
+      sent.retention_months,
+      sent.alert_failure_streak,
+      sent.alert_email,
+      sent.version,
+    ]).toEqual([45, 12, 5, null, '8']);
+    expect(settingsOf({ ...draftOf(saved), alert_email: ' ops@keryx.ca ' }, '1').alert_email).toBe(
+      'ops@keryx.ca',
+    );
   });
 });

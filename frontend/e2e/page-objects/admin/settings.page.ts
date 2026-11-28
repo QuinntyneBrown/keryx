@@ -45,6 +45,11 @@ export class SettingsPage {
   readonly summary: Locator;
   readonly summaryTitle: Locator;
   readonly summaryLinks: Locator;
+  readonly saving: Locator;
+  readonly viewRuns: Locator;
+  readonly failure: Locator;
+  readonly changed: Locator;
+  readonly reload: Locator;
 
   constructor(private readonly page: Page) {
     const header = page.locator('main header.page-header');
@@ -88,6 +93,11 @@ export class SettingsPage {
     this.summary = page.locator('main .alert--danger');
     this.summaryTitle = this.summary.locator('.alert__title');
     this.summaryLinks = this.summary.locator('.alert__list a');
+    this.saving = this.saveBar.getByRole('button', { name: 'Saving…' });
+    this.viewRuns = this.saveBar.getByRole('link', { name: 'View runs' });
+    this.failure = page.locator('main .alert--danger', { hasText: 'Settings weren’t saved' });
+    this.changed = page.locator('main .alert--warning');
+    this.reload = this.changed.getByRole('button', { name: 'Reload settings' });
   }
 
   async open(path = '/settings'): Promise<void> {

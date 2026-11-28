@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · dirty — Keryx mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="settings">
+<meta name="mock:state" content="dirty">
+<meta name="mock:requirements" content="L2-041, L2-070, L2-071, L2-072">
+<meta name="description" content="Two settings changed and not yet saved: the sticky save bar appears.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar__head">
+    <a class="brand" href="../../pages/overview/default.html" aria-label="Keryx, go to overview"><svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true"><rect class="brand__tile" width="40" height="40" rx="10"/><g class="brand__strokes"><path d="M15 9V31"/><path d="M9 16H15"/><path d="M15 16L28.5 9"/><path d="M20 20L29 31"/></g></svg><span class="brand__word">keryx</span></a>
+    <span class="sidebar__tag">Admin</span>
+  </div>
+  <nav class="sidebar__nav" aria-label="Primary">
+    <a class="nav-link" href="../../pages/overview/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+    <a class="nav-link" href="../../pages/articles/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>Articles</a>
+    <a class="nav-link" href="../../pages/runs/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>Runs<span class="nav-link__badge" aria-label="2 failing sources">2</span></a>
+    <a class="nav-link" href="../../pages/sources/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>Sources</a>
+    <a class="nav-link" href="../../pages/api/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></svg>API</a>
+    <a class="nav-link" href="../../pages/settings/default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar__foot">
+    <p class="sidebar__caption">Next collection</p>
+    <p class="sidebar__value num">12:00 PM <span>· in 2h 14m</span></p>
+    <p class="sidebar__caption">Every 6 hours, Toronto time</p>
+    <div class="sidebar__user">
+      <span class="avatar" aria-hidden="true">DA</span>
+      <div>
+        <p class="sidebar__user-name truncate">Daniel Adeyemi</p>
+        <p class="sidebar__caption truncate">Owner</p>
+      </div>
+    </div>
+  </div>
+</aside>
+<main id="main" class="app__main">
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>Settings</h1>
+      <p class="page-header__description">How Keryx collects, filters and stores news.</p>
+    </div>
+  </header>
+  <form class="page-body page-body--form" novalidate>
+    <div class="alert alert--danger" role="alert" style="margin-bottom: var(--space-4)"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><div class="alert__body"><p class="alert__title">Settings weren’t saved</p><p>Keryx couldn’t save your changes just now. They’re still here: try again, and if it keeps failing, send the reference below to whoever runs Keryx.</p><p class="mono">Reference req_5c1e0f7a</p></div></div>
+    <section class="settings-section" aria-labelledby="s-schedule">
+      <div><h2 class="text-h3" id="s-schedule">Schedule</h2><p class="settings-section__hint">When the collector runs. Times are Toronto time.</p></div>
+      <div class="settings-section__fields">
+        <fieldset>
+          <legend>Run every</legend>
+          <div class="segmented"><button class="segmented__option" type="button" aria-pressed="false">1 hour</button><button class="segmented__option" type="button" aria-pressed="true">3 hours</button><button class="segmented__option" type="button" aria-pressed="false">6 hours</button><button class="segmented__option" type="button" aria-pressed="false">12 hours</button><button class="segmented__option" type="button" aria-pressed="false">Day</button></div>
+          <p class="mono text-subtle" style="margin-top: var(--space-2)">cron: 0 */3 * * * · next 12:00 PM</p>
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="timeout">Timeout per source</label>
+          <div class="input-affix"><input class="input input--short" id="timeout" type="text" inputmode="numeric" value="30"><span class="input-affix__suffix">seconds</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-relevance">
+      <div><h2 class="text-h3" id="s-relevance">Relevance</h2><p class="settings-section__hint">Keryx scores each item for Christian fitness and GTA relevance.</p></div>
+      <div class="settings-section__fields">
+        <div class="field"><p class="field__label">Topics</p><ul class="chips" aria-label="Topics"><li class="chip">fitness<button class="chip__remove" type="button" aria-label="Remove fitness"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">running<button class="chip__remove" type="button" aria-label="Remove running"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">strength<button class="chip__remove" type="button" aria-label="Remove strength"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">sports ministry<button class="chip__remove" type="button" aria-label="Remove sports ministry"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">wellness<button class="chip__remove" type="button" aria-label="Remove wellness"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">church<button class="chip__remove" type="button" aria-label="Remove church"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">faith<button class="chip__remove" type="button" aria-label="Remove faith"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">nutrition<button class="chip__remove" type="button" aria-label="Remove nutrition"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li><a class="chip chip--add" role="button" href="../../dialogs/add-keyword/default.html" aria-label="Add to Topics"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add</a></li></ul></div>
+        <div class="field"><p class="field__label">Exclude</p><ul class="chips" aria-label="Excluded terms"><li class="chip">casino<button class="chip__remove" type="button" aria-label="Remove casino"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">supplement ads<button class="chip__remove" type="button" aria-label="Remove supplement ads"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">sponsored<button class="chip__remove" type="button" aria-label="Remove sponsored"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li><a class="chip chip--add" role="button" href="../../dialogs/add-keyword/default.html" aria-label="Add to Excluded terms"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add</a></li></ul></div>
+        <div class="field">
+          <label class="field__label" for="threshold">Publish automatically above</label>
+          <div class="range"><input id="threshold" type="range" min="0.3" max="0.9" step="0.05" value="0.65" aria-describedby="threshold-help"><output class="range__value" for="threshold">0.65</output></div>
+          <p class="field__help" id="threshold-help">Scores from 0.45 to 0.65 wait in Needs review. Below 0.45 are hidden.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-geography">
+      <div><h2 class="text-h3" id="s-geography">Geography</h2><p class="settings-section__hint">Articles outside these areas are scored lower.</p></div>
+      <div class="settings-section__fields">
+        <div class="field"><p class="field__label">Focus areas</p><ul class="chips" aria-label="Focus areas"><li class="chip">Toronto<button class="chip__remove" type="button" aria-label="Remove Toronto"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Mississauga<button class="chip__remove" type="button" aria-label="Remove Mississauga"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Brampton<button class="chip__remove" type="button" aria-label="Remove Brampton"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Markham<button class="chip__remove" type="button" aria-label="Remove Markham"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Vaughan<button class="chip__remove" type="button" aria-label="Remove Vaughan"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Oakville<button class="chip__remove" type="button" aria-label="Remove Oakville"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Richmond Hill<button class="chip__remove" type="button" aria-label="Remove Richmond Hill"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Pickering<button class="chip__remove" type="button" aria-label="Remove Pickering"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li class="chip">Ajax<button class="chip__remove" type="button" aria-label="Remove Ajax"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></li><li><a class="chip chip--add" role="button" href="../../dialogs/add-keyword/default.html" aria-label="Add to Focus areas"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add</a></li></ul></div>
+        <fieldset>
+          <legend>Also include</legend>
+          <label class="switch"><input type="checkbox" role="switch" checked>Ontario-wide organisations</label>
+          <label class="switch"><input type="checkbox" role="switch">National Canadian news</label>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-storage">
+      <div><h2 class="text-h3" id="s-storage">Storage</h2><p class="settings-section__hint">What’s kept in the database.</p></div>
+      <div class="settings-section__fields">
+        <fieldset>
+          <legend>Merge duplicates</legend>
+          <label class="switch"><input type="checkbox" role="switch" checked>Match by URL and similar headline (90%)</label>
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="retention">Keep articles for</label>
+          <div class="input-affix"><input class="input input--short" id="retention" type="text" inputmode="numeric" value="24"><span class="input-affix__suffix">months</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-alerts">
+      <div><h2 class="text-h3" id="s-alerts">Alerts</h2><p class="settings-section__hint">Who hears about problems.</p></div>
+      <div class="settings-section__fields">
+        <div class="field">
+          <label class="field__label" for="alert-email">E-mail</label>
+          <input class="input input--medium" id="alert-email" type="email" autocomplete="email" value="ops@keryx.ca">
+        </div>
+        <div class="field">
+          <label class="field__label" for="alert-after">Alert when a source fails</label>
+          <div class="input-affix"><input class="input input--short" id="alert-after" type="text" inputmode="numeric" value="3"><span class="input-affix__suffix">runs in a row</span></div>
+        </div>
+        <fieldset>
+          <legend>Also alert</legend>
+          <label class="switch"><input type="checkbox" role="switch" checked>When a whole run fails</label>
+          <label class="switch"><input type="checkbox" role="switch" checked>Daily digest of held articles</label>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="s-account">
+      <div><h2 class="text-h3" id="s-account">Account</h2><p class="settings-section__hint">Who is signed in on this device.</p></div>
+      <div class="settings-section__fields">
+        <div class="field">
+          <span class="field__label">Signed in as</span>
+          <p>Daniel Adeyemi · Owner</p>
+        </div>
+        <div><a class="btn" role="button" href="../../pages/sign-in/signed-out.html">Sign out</a></div>
+      </div>
+    </section>
+  </form>
+  <div class="save-bar" role="region" aria-label="Unsaved changes">
+    <p class="save-bar__text">You have unsaved changes.</p>
+    <div class="cluster"><a class="btn btn--ghost" role="button" href="../../pages/settings/default.html">Discard</a><a class="btn btn--primary" role="button" href="../../pages/settings/submitting.html">Save changes</a></div>
+  </div>
+</main>
+</div>
+<p class="mock-note" style="bottom: 5rem; right: 1rem;">A failed save keeps every entry and the save bar; the alert gives the reference to send.</p>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Settings</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="dirty.html">dirty</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="submitting.html">submitting</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="sign-out-failed.html">sign-out-failed</a></li>
+    <li><a href="save-failed.html" aria-current="page">save-failed</a></li>
+    <li><a href="changed-elsewhere.html">changed-elsewhere</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>
