@@ -39,8 +39,6 @@ internal sealed class TestExistingSourceFetchHandler(IAppDbContext db, SourceTes
         var source = await db.Sources.AsNoTracking()
             .SingleOrDefaultAsync(candidate => candidate.PublicId == request.Id, cancellationToken).ConfigureAwait(false)
             ?? throw new SourceNotFoundException();
-        return Uri.TryCreate(source.Address, UriKind.Absolute, out var address)
-            ? await tester.TestAsync(source.Kind, address, cancellationToken).ConfigureAwait(false)
-            : SourceTestResult.Unreachable(FetchFailureReason.Refused);
+        return await tester.TestStoredAsync(source, cancellationToken).ConfigureAwait(false);
     }
 }

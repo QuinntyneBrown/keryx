@@ -87,6 +87,13 @@ The feature is a vertical slice from the two dialogs to the database.
   change and an `AuditEntry` in one unit of work. It then calls `SourceTester` once and returns
   the result beside the saved source. The test leaves the stored health unchanged, as a test
   fetch does under L2-002; whether a save should instead reset health is `<TO SUPPLY>`.
+  - As built (journey 17): a save keeps the stored health; the next run sets it from the new
+    address. The response is `SourceSaved` (`source`, `test`). The validator shares the create
+    rules (`SourceFieldRules`); a news query's address is its query text, so it need only be
+    given (up to 2048 characters) and its test is `refused` without a request. Collision
+    compares `CanonicalUrl.Normalize` of the new address against the other sources of the same
+    kind, so the source's own address in another spelling is no collision. The `AuditEntry`
+    arrives with journey 24 (staff actions are audited), which adds it to every staff action.
 - **`RemoveSourceCommandHandler`** — calls `Source.Remove(now)`, which sets `RemovedAt` from
   `TimeProvider`. The row stays so every `Provenance` that references it keeps resolving. Active
   sources exclude removed ones in the run's source list, in `GET /admin/v1/sources`, in

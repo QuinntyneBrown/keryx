@@ -46,7 +46,18 @@ public sealed class AdminSourcesController(ISender sender) : ControllerBase
     [HttpGet("{id}")]
     public Task<SourceDto> Get(string id, CancellationToken cancellationToken) =>
         sender.Send(new GetSource(id), cancellationToken);
+
+    /// <summary>Saves a source's address, organization and region, and test-fetches the saved address (L2-003 AC1).</summary>
+    [HttpPut("{id}")]
+    public Task<SourceSaved> Update(string id, UpdateSourceBody body, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        return sender.Send(new UpdateSource(id, body.Address, body.OrganizationName, body.Region), cancellationToken);
+    }
 }
+
+/// <summary>What staff send to change a source; its kind is not editable (L2-003).</summary>
+public sealed record UpdateSourceBody(string? Address, string? OrganizationName, string? Region);
 
 /// <summary>What staff send to add a source.</summary>
 public sealed record CreateSourceBody(string? Kind, string? Address, string? OrganizationName, string? Region);

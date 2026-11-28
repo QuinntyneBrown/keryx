@@ -75,6 +75,18 @@ public sealed class Source
         Health = held > 0 ? SourceHealth.NeedsLook : SourceHealth.Healthy;
     }
 
+    /// <summary>
+    /// Staff changed its address, organization or region (L2-003 AC1); the next run fetches the
+    /// new address. Its kind and its health do not change.
+    /// </summary>
+    public void Update(string address, string organizationName, string regionSlug)
+    {
+        Address = address;
+        NormalizedAddress = CanonicalUrl.Normalize(address);
+        OrganizationName = organizationName;
+        RegionSlug = regionSlug;
+    }
+
     /// <summary>A source staff added (L2-001); the next collection run fetches it.</summary>
     public static Source Add(SourceKind kind, string address, string organizationName, string regionSlug, DateTimeOffset now) =>
         new()

@@ -36,6 +36,15 @@ public sealed class SourceTester(
     IFeedParser parser,
     IRelevanceScorer scorer)
 {
+    /// <summary>Tests a source in the catalogue at its stored address; a news query is refused without a request.</summary>
+    public async Task<SourceTestResult> TestStoredAsync(Source source, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return Uri.TryCreate(source.Address, UriKind.Absolute, out var address)
+            ? await TestAsync(source.Kind, address, cancellationToken).ConfigureAwait(false)
+            : SourceTestResult.Unreachable(FetchFailureReason.Refused);
+    }
+
     public async Task<SourceTestResult> TestAsync(SourceKind kind, Uri address, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(address);
