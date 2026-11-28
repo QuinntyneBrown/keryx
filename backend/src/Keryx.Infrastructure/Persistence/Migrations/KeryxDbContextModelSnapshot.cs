@@ -22,6 +22,42 @@ namespace Keryx.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Keryx.Domain.Alerts.AlertRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("IssueId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<long?>("RunId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssueId")
+                        .IsUnique();
+
+                    b.HasIndex("RunId")
+                        .IsUnique();
+
+                    b.ToTable("AlertRecords", (string)null);
+                });
+
             modelBuilder.Entity("Keryx.Domain.Catalogue.Article", b =>
                 {
                     b.Property<long>("Id")
@@ -852,6 +888,19 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StaffSessions");
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Alerts.AlertRecord", b =>
+                {
+                    b.HasOne("Keryx.Domain.Collection.RunIssue", null)
+                        .WithMany()
+                        .HasForeignKey("IssueId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Keryx.Domain.Collection.Run", null)
+                        .WithMany()
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Keryx.Domain.Catalogue.Article", b =>

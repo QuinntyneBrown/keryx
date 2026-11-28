@@ -96,6 +96,15 @@ public sealed class RunIssue
         Detail = detail;
     }
 
+    /// <summary>Staff silence an open issue: it raises no alert while muted (L2-020 AC2, L2-077 AC3).</summary>
+    public void Mute()
+    {
+        if (State == IssueState.Open)
+        {
+            State = IssueState.Muted;
+        }
+    }
+
     /// <summary>The problem is over; a later recurrence is a new issue. Closing clears a mute.</summary>
     public void Close() => State = IssueState.Closed;
 }

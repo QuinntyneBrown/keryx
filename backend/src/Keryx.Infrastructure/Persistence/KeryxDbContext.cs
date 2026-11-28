@@ -32,6 +32,8 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences => Set<Keryx.Domain.Collection.IssueOccurrence>();
 
+    public DbSet<Keryx.Domain.Alerts.AlertRecord> AlertRecords => Set<Keryx.Domain.Alerts.AlertRecord>();
+
     public DbSet<Keryx.Domain.Catalogue.Article> Articles => Set<Keryx.Domain.Catalogue.Article>();
 
     public DbSet<Keryx.Domain.Catalogue.StagedArticle> StagedArticles => Set<Keryx.Domain.Catalogue.StagedArticle>();

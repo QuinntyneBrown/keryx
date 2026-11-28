@@ -41,6 +41,17 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
+    /// The mail service that alerts are sent through, for the worker, and the admin app's origin
+    /// their links lead to (L2-077).
+    /// </summary>
+    public static IServiceCollection AddMail(this IServiceCollection services)
+    {
+        services.AddOptions<Keryx.Application.Alerts.AlertOptions>().BindConfiguration(Keryx.Application.Alerts.AlertOptions.Section);
+        services.AddSingleton<Keryx.Application.Alerts.IMailSender, Mail.UnconfiguredMailSender>();
+        return services;
+    }
+
+    /// <summary>
     /// The source fetcher, for the processes that fetch sources. It needs the contact URL its
     /// User-Agent names, and a process without it does not start (L2-021 AC3, L2-096).
     /// </summary>

@@ -31,6 +31,8 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Collection.IssueOccurrence> IssueOccurrences { get; }
 
+    DbSet<Keryx.Domain.Alerts.AlertRecord> AlertRecords { get; }
+
     DbSet<Keryx.Domain.Catalogue.Article> Articles { get; }
 
     DbSet<Keryx.Domain.Catalogue.StagedArticle> StagedArticles { get; }

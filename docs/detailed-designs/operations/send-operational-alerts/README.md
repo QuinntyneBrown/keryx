@@ -55,13 +55,15 @@ MediatR handlers to the mail contract and its SMTP client.
   `Run` with worker `alert_digest`. When the digest switch is off, or no article is
   `needs_review`, or no alert address is set, it sends nothing. Otherwise it sends one e-mail
   with the count, up to 20 titles as text and a link to Articles filtered to "Needs review". It
-  finishes the run. The counts the digest run records, and its outcome when the mail service
-  fails, are `<TO SUPPLY>`.
+  finishes the run. The digest run records no articles, so its counts are all 0; its outcome is
+  `succeeded`, or `completed_with_issues` with an `alert_not_sent` warning when the mail service
+  fails. A digest that was not sent is not retried: the next morning's replaces it.
 - **`AlertComposer`** — builds `MailMessage` values in plain text. Links point only to the admin
   app's configured origin. A message holds no connection string, key or stack trace; the reason
-  is the issue's generic kind and bounded detail (`L2-020`). The exact wording of each e-mail and
-  the admin route for "Needs review" (for example `/articles?status=needs_review`) are
-  `<TO SUPPLY>`.
+  is the issue's generic kind and bounded detail (`L2-020`). Text from a source (its name, a
+  title) has its line breaks and runs of spaces collapsed to one space, so it cannot forge a
+  line. "Needs review" is `/articles?status=needs_review` and a run is `/runs?run={id}`. The
+  wording is under "E-mail wording" below.
 - **`IMailSender`** — contract with `SendAsync(MailMessage, CancellationToken)`. Handlers never
   open their own connection.
 - **`MailMessage`** — `To`, `Subject`, `PlainTextBody`.
@@ -71,7 +73,10 @@ MediatR handlers to the mail contract and its SMTP client.
 - **`Settings`** — `AlertEmail` (at most 254 characters), `FailureStreakThreshold` (1 to 20),
   `AlertOnRunFailure`, `DailyDigestEnabled`.
 - **`RunIssue`** — `Severity`, `Kind`, `ConsecutiveRuns`, `Since`, `Muted`, `ClosedAt`. The
-  issue kind recorded for a mail failure is `<TO SUPPLY>`: the kinds of `L2-020` include none.
+  issue kind recorded for a mail failure is `alert_not_sent`, added to the kinds of `L2-020`:
+  a `warning` concerning the worker (no source, no stage), with the detail "An alert e-mail
+  could not be sent. Keryx tries it once more on the next run." (or, for the digest, "The daily
+  digest could not be sent."). The admin app titles it "Alert e-mail not sent".
 - **`AlertRecord`** — `AlertKind Kind` (`source_failing`, `run_failed`), `IssueId` or `RunId`,
   `Attempts`, `SentAt`. One record per issue gives "once per streak"; `Attempts` at most 2
   gives "retried on the next run at most".
@@ -82,12 +87,82 @@ MediatR handlers to the mail contract and its SMTP client.
 **Infrastructure (`Keryx.Infrastructure`)**
 
 - **`SmtpMailSender`** — implements `IMailSender` against the mail service with credentials
-  from configuration, over TLS, with a timeout (`<TO SUPPLY>` seconds). The credential is never
+  from configuration, over TLS, with a timeout of 30 seconds. The credential is never
   logged or traced (`L2-084`). Tests use a fake `IMailSender` and never a real mail service.
+  It is built on MailKit (ADR 0014). Port 465 uses TLS from the first byte and any other port
+  requires STARTTLS; a server that offers neither is a failed send. With no mail host
+  configured, the worker sends no e-mail and logs that once at start; nothing is recorded as an
+  issue, since no alert could ever be delivered.
 
 **Admin app**
 
 - No new screen. The Alerts section of Settings (`L2-070`) edits the four settings above.
+
+## E-mail wording
+
+Times are Toronto time, written as "Fri 27 Nov, 10:00 AM". `{origin}` is
+`Keryx__AdminApp__Origin`. Every message ends with the line "Change alerts in Settings:
+{origin}/settings".
+
+**Source-failing alert**
+
+```text
+Subject: Keryx: {source} has failed {n} runs in a row
+
+{source} has failed {n} collection runs in a row, since {since}.
+
+Reason: {kind title}. {detail}
+
+See the latest run: {origin}/runs?run={run id}
+
+You won't get another e-mail about this until the source recovers and fails again. To stop
+these e-mails for this problem, mute the issue on the run.
+```
+
+`{kind title}` is the admin app's title for the issue's kind ("Feed returned 404", "Source timed
+out", "Source blocked Keryx", "Feed couldn't be read").
+
+**Failed-run alert**
+
+```text
+Subject: Keryx: a collection run failed
+
+The collection run that started {started} failed {at the {stage} stage | before it finished}.
+
+Reason: {failure reason}
+Reference: {correlation id}
+
+See the run: {origin}/runs?run={run id}
+```
+
+The reason is the run's own generic failure reason. The reference line appears only when the
+run has a correlation id.
+
+**Daily digest**
+
+```text
+Subject: Keryx: {n} article(s) need review
+
+{n} article(s) are waiting in Needs review.
+
+- {title}
+  (up to 20, newest first)
+…and {n - 20} more.
+
+Review them: {origin}/articles?status=needs_review
+```
+
+## Implementation notes (journey 19)
+
+- A collection run's handler publishes `RunFinishedNotification` after the run is saved, and so
+  does the run-recording behaviour after it records a run that threw; alerts are raised only for
+  collection runs. A digest run never raises alerts, so a mail failure cannot cause an e-mail.
+- A retried alert is composed again from the issue or run when it is retried, so it states the
+  streak as it is then. A retry that fails too adds its own `alert_not_sent` warning, and the
+  record is not tried again.
+- The mail settings are read only by the worker: `Keryx__Mail__Host`, `Keryx__Mail__Port`,
+  `Keryx__Mail__Username`, `Keryx__Mail__Password`, `Keryx__Mail__From` and
+  `Keryx__AdminApp__Origin` (`tools/deploy/configuration.md`).
 
 ## Requirements
 

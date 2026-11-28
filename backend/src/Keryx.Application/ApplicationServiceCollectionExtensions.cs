@@ -28,6 +28,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Sources.SourceTester>();
         services.AddScoped<Collection.CollectionPipeline>();
         services.AddScoped<Collection.SourceIssueTracker>();
+        services.AddSingleton<Alerts.AlertComposer>();
         services.AddScoped<Catalogue.ArticleIngestion>();
         services.AddScoped<Catalogue.ArticlePublication>();
         services.AddSingleton<Scoring.IRelevanceScorer, Scoring.RelevanceScorer>();

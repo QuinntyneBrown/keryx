@@ -19,6 +19,7 @@ public static class WorkerHost
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddSourceFetching();
+        builder.Services.AddMail();
         builder.Services.AddKeryxTelemetry(builder.Configuration, KeryxTelemetry.WorkerServiceName);
 
         // One gate, which every worker awaits before its first schedule.

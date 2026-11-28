@@ -35,6 +35,12 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>DNS: every host resolves to a public address unless a test says otherwise.</summary>
     public FakeHostResolver Hosts { get; } = new();
 
+    /// <summary>The mail service: every alert sent, or a failure a test chooses.</summary>
+    public FakeMailSender Mail { get; } = new();
+
+    /// <summary>The admin app's origin, the only place an alert links to.</summary>
+    public static readonly Uri AdminOrigin = new("https://admin.keryx.test");
+
     /// <summary>The migrations, which the API must never touch: a test asserts it was never called.</summary>
     public RecordingMigrator Migrator { get; } = new();
 
@@ -66,6 +72,9 @@ public class ApiFactory : WebApplicationFactory<Program>
             services.AddSingleton<IHostResolver>(Hosts);
             services.RemoveAll<IDatabaseMigrator>();
             services.AddSingleton<IDatabaseMigrator>(Migrator);
+            services.RemoveAll<Keryx.Application.Alerts.IMailSender>();
+            services.AddSingleton<Keryx.Application.Alerts.IMailSender>(Mail);
+            services.Configure<Keryx.Application.Alerts.AlertOptions>(options => options.Origin = AdminOrigin);
 
             // The probe endpoints of this assembly: a request to validate and a handler that throws.
             var probes = typeof(ProbeController).Assembly;

@@ -95,3 +95,20 @@ internal sealed class IssueOccurrenceConfiguration : IEntityTypeConfiguration<Is
         builder.HasIndex(occurrence => new { occurrence.RunId, occurrence.IssueId }).IsUnique();
     }
 }
+
+internal sealed class AlertRecordConfiguration : IEntityTypeConfiguration<Keryx.Domain.Alerts.AlertRecord>
+{
+    public void Configure(EntityTypeBuilder<Keryx.Domain.Alerts.AlertRecord> builder)
+    {
+        builder.ToTable("AlertRecords");
+        builder.HasKey(record => record.Id);
+        builder.Property(record => record.Kind).HasConversion(
+            kind => kind == Keryx.Domain.Alerts.AlertKind.SourceFailing ? "source_failing" : "run_failed",
+            word => word == "source_failing" ? Keryx.Domain.Alerts.AlertKind.SourceFailing : Keryx.Domain.Alerts.AlertKind.RunFailed).HasMaxLength(16);
+        // One alert per issue (once per streak) and one per run.
+        builder.HasOne<RunIssue>().WithMany().HasForeignKey(record => record.IssueId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(record => record.IssueId).IsUnique();
+        builder.HasOne<Run>().WithMany().HasForeignKey(record => record.RunId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(record => record.RunId).IsUnique();
+    }
+}
