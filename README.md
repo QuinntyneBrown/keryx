@@ -5,169 +5,122 @@
   </picture>
 </h1>
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-</p>
+Keryx collects news and events from churches, fitness groups, and other organizations.
+Coverage starts in Toronto and the Greater Toronto Area and extends worldwide. Products
+read published records through a versioned API. Staff manage sources and review what gets
+published in a separate admin app.
 
-Keryx is a news aggregator for everything Christian and fitness: events, new organizations,
-churches and the news around them, primarily in Toronto and the Greater Toronto Area, and
-also around the world. It has three parts:
+## How it works
 
-- **Workers:** run daily searches and add or update records in the database, which holds
-  everything Keryx knows about Christian and fitness.
-- **API:** other products call it directly for information to publish or use on their own
-  websites. [Christian Fitness](https://github.com/QuinntyneBrown/christian-fitness) is the
-  first of them.
-- **Admin web app (staff):** see when each worker last ran and how many records it added or
-  updated, and run minor queries of the database. Keryx has no public website of its own.
+1. The collection worker fetches sources on a schedule, merges duplicate records, and tracks
+   where each item came from. A relevance score determines which articles are published,
+   held for review, or hidden.
+2. Staff use the Angular admin app to review publication decisions, maintain sources, and
+   monitor collection runs. They can start a run on demand or retry the sources that failed.
+3. Products use scoped API keys to read published articles, events, organizations, sources,
+   categories, regions, and collection status.
 
-> **Status:** specified, designed and scaffolded. The requirements
-> ([L1](docs/specs/L1.md), [L2](docs/specs/L2.md)), the [detailed designs](docs/detailed-designs/),
-> the [mocks](docs/mocks/README.md) of every admin screen and state, and the
-> [design system](docs/design-system/README.md) extracted from them are in place. The skeleton
-> runs: the Angular workspace with its four projects and a placeholder shell, the .NET solution
-> with health endpoints, the `migrate` and `seed` commands, startup validation of settings and
-> OpenTelemetry, and CI. No feature is built yet: [docs/journeys.md](docs/journeys.md) lists
-> the journeys in order and how far each one is.
+See the [journey tracker](docs/journeys.md) for implementation status.
 
-## Contents
+## Use the API
 
-- [Architecture](#architecture)
-- [Repository layout](#repository-layout)
-- [Getting started](#getting-started)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [Security](#security)
-- [Support](#support)
-- [License](#license)
+Ask a Keryx staff member for the API base URL and a key with the `articles:read` scope.
+Set `KERYX_API_URL` and `KERYX_API_KEY` in your shell, then request the five most recent
+published articles.
 
-## Architecture
-
-The stack is the same as Christian Fitness.
-
-| Layer     | Technology                                                                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------------- |
-| Frontend  | Angular (standalone, signals, `OnPush`, zoneless), CDK, Playwright for E2E                                    |
-| Backend   | .NET clean architecture: Domain, Application (MediatR), Infrastructure (EF Core), Api (controllers), Worker (scheduled hosted services) |
-| Telemetry | OpenTelemetry                                                                                                 |
-| CI        | GitHub Actions: lint, build and one critical acceptance path per feature                                      |
-
-## Repository layout
-
-```text
-├── frontend/          Angular workspace
-│   ├── projects/
-│   │   ├── admin/     admin app
-│   │   ├── components/ presentation components
-│   │   ├── domain/    pure rules and helpers
-│   │   └── api/       contracts: DTOs, service interfaces, injection tokens
-│   └── e2e/           Playwright specs, page objects and the shared fixture
-├── backend/
-│   ├── src/           Keryx.{Domain,Application,Infrastructure,Api,Worker,Cli}
-│   └── tests/         Keryx.{Application,Api}.Tests
-├── tools/             video-record, video-audio, video-build: the slice films; deploy: the release
-└── docs/              specs, detailed designs, mocks, design system, ADRs, videos
+```sh
+curl --fail-with-body \
+  --header "Authorization: Bearer ${KERYX_API_KEY}" \
+  "${KERYX_API_URL}/v1/articles?limit=5"
 ```
 
-## Getting started
+If the response includes a nonempty `next_cursor`, pass it as the `cursor` query parameter
+to read the next page. The running API serves its OpenAPI document at `/openapi/v1.json`.
 
-### Prerequisites
+## Develop locally
 
-- [Node.js](https://nodejs.org/) 24 and npm
-- [.NET SDK](https://dotnet.microsoft.com/download) 10 (`backend/global.json` pins the version)
-- [PostgreSQL](https://www.postgresql.org/) (the skeleton was checked on 16), only to run the
-  API, the worker or the CLI: no test needs it
-- Git
-
-### Clone
+Clone the repository. Start each set of commands below from its root.
 
 ```sh
 git clone https://github.com/QuinntyneBrown/keryx.git
 cd keryx
 ```
 
-### Frontend
+### Build and test
+
+For the backend, install the .NET 10 SDK specified in [global.json](backend/global.json).
+The tests use an in-memory database and fake sources.
+
+```sh
+cd backend
+dotnet build
+dotnet test --no-build
+```
+
+For the admin app, install Node.js 24 and npm. Playwright starts the app and supplies API
+responses, so you can exercise staff workflows without configuring a database or identity
+provider.
 
 ```sh
 cd frontend
 npm ci
-npx playwright install chromium   # once, for the end-to-end specs
-npm start                         # the admin app
-npm run lint                      # ESLint, including the dependency direction
-npm run format:check              # Prettier
-npm run build                     # failing beyond the angular.json budgets
-npm test                          # unit tests of the domain and components libraries
-npm run e2e                       # Playwright behaviour specs
+npm run build
+npm test
+npx playwright install chromium
+npm run e2e
 ```
 
-Presentation components live in `frontend/projects/components/`, one folder per
-[design-system component](docs/design-system/components/) under its design-system name, and
-the app composes them: build a missing one there first, never in the app.
+### Run the services
 
-### Backend
+To run the backend against PostgreSQL, set the following environment variables in the
+shells that will launch each process. The [configuration guide](tools/deploy/configuration.md)
+covers connection strings, identity provider registration, and optional settings.
 
-The tests need no database and no network.
+| Environment variable | Used by | Value |
+| --- | --- | --- |
+| `ConnectionStrings__Keryx` | CLI, API, worker | PostgreSQL connection string |
+| `Keryx__Fetch__UserAgentContactUrl` | API, worker | HTTPS page identifying the collector and its operator |
+| `Keryx__Oidc__Authority` | API | HTTPS issuer URL for staff sign-in |
+| `Keryx__Oidc__ClientId` | API | Client ID registered with the identity provider |
+
+Apply migrations and seed the database before starting the API. Both CLI commands are safe
+to repeat.
 
 ```sh
 cd backend
-dotnet tool restore                            # dotnet-ef, for adding a migration
-dotnet build                                   # analysers on, warnings are errors
-dotnet test                                    # Application and Api tests, EF Core InMemory
-dotnet format --verify-no-changes              # the format check CI runs
+dotnet run --project src/Keryx.Cli -- migrate
+dotnet run --project src/Keryx.Cli -- seed
+dotnet run --project src/Keryx.Api
 ```
 
-To run the processes, set `ConnectionStrings__Keryx` to a PostgreSQL connection string. The API
-also requires the staff identity provider settings `Keryx__Oidc__Authority` and `Keryx__Oidc__ClientId`.
-The API and the worker both require `Keryx__Fetch__UserAgentContactUrl`, the https page their
-requests to sources name. Every
-setting is in [tools/deploy/configuration.md](tools/deploy/configuration.md); a missing
-required one stops a process at startup, naming it.
+Request `GET /health/ready` at the API's listening address. A `200 Healthy` response means
+the API can reach the database and the schema matches the build. To start scheduled collection,
+run the worker in a separate terminal.
 
 ```sh
-dotnet run --project src/Keryx.Cli -- migrate  # the API never migrates on startup
-dotnet run --project src/Keryx.Cli -- seed     # regions, categories, default settings; safe to repeat
-dotnet run --project src/Keryx.Api             # the API other products call
-dotnet run --project src/Keryx.Worker          # the daily searches
+cd backend
+dotnet run --project src/Keryx.Worker
 ```
 
-`GET /health/live` answers when the API runs and `GET /health/ready` when its database is at
-the schema this build expects. A schema change is a new migration:
-
-```sh
-dotnet ef migrations add <Name> --project src/Keryx.Infrastructure --startup-project src/Keryx.Infrastructure --output-dir Persistence/Migrations
-```
+To start the Angular development server, run `npm start` from `frontend/`. For live staff
+sign-in, serve the app and its `/admin/v1/` API routes under the same HTTPS origin and
+register the callback URL ending in `/admin/v1/auth/callback` with the identity provider.
 
 ## Documentation
 
-| Path                     | Contents                                     |
-| ------------------------ | -------------------------------------------- |
-| `docs/specs/`            | L1 and L2 requirements                       |
-| `docs/detailed-designs/` | Per-feature software design documents        |
-| `docs/mocks/`            | HTML mocks for every admin screen and state  |
-| `docs/design-system/`    | Tokens, foundations, components and patterns; the logo and favicon in `assets/brand/` |
-| `docs/adr/`              | Architecture decision records                |
-| `docs/journeys.md`       | The journeys in build order, with effort and how complete each is |
-| `docs/estimates/`        | Effort and percent complete per detailed design, and a brief roadmap |
-| `docs/lessons-learned.md` | What each journey taught; read before starting one |
-| `tools/deploy/`          | What a release runs and every setting a deployment needs |
-| `AGENTS.md`              | Engineering rules for people and AI agents   |
-| `.claude/skills/`, `.agents/skills/` | Agent skills: requirements, designs, mocks, design system, incremental implementation |
+| To learn about | Start here |
+| --- | --- |
+| Product scope and delivery progress | [Requirements](docs/specs/L1.md) · [User journeys](docs/journeys.md) |
+| System architecture and design decisions | [Detailed designs](docs/detailed-designs/) · [Architecture decision records](docs/adr/) |
+| Admin app structure and interface | [Frontend guide](frontend/README.md) · [Design system](docs/design-system/README.md) · [Screen mocks](docs/mocks/README.md) |
+| Deployment, health checks, and telemetry | [Configuration guide](tools/deploy/configuration.md) |
 
-## Contributing
+## Contributing and support
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue
-or pull request. Everyone taking part is expected to follow the
-[Code of Conduct](CODE_OF_CONDUCT.md).
-
-## Security
-
-Please do not report security vulnerabilities through public GitHub issues. See
-[SECURITY.md](SECURITY.md).
-
-## Support
-
-See [SUPPORT.md](SUPPORT.md) for how to get help.
+For development conventions and the pull request workflow, see the [contributing guide](CONTRIBUTING.md)
+and [code of conduct](CODE_OF_CONDUCT.md). For help, see [support](SUPPORT.md).
+Report vulnerabilities privately through the [security policy](SECURITY.md).
 
 ## License
 
-Copyright (c) 2026 Quinntyne Brown. Licensed under the [MIT License](LICENSE).
+Keryx is licensed under the [MIT License](LICENSE).

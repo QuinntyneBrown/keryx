@@ -1,0 +1,999 @@
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  * Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  * Install
+  * Lint
+  * Format check
+  * Build
+  * Read the Playwright version
+  * Restore the Playwright browser
+  * Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  * Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  * Lint
+  * Format check
+  * Build
+  * Read the Playwright version
+  * Restore the Playwright browser
+  * Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  * Format check
+  * Build
+  * Read the Playwright version
+  * Restore the Playwright browser
+  * Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  * Build
+  * Read the Playwright version
+  * Restore the Playwright browser
+  * Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Restore the Playwright browser
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+* Frontend (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  * Critical behaviour specs
+  * Keep the Playwright traces
+  * Post Restore the Playwright browser
+  * Post Run actions/setup-node@v5
+  * Post Run actions/checkout@v5
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push less than a minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  * Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  * Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+* Backend (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  * Acceptance tests
+  * Post Restore the NuGet cache
+  * Post Run actions/setup-dotnet@v5
+  * Post Run actions/checkout@v5
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
+✓ main CI · 46095665146
+Triggered via push about 1 minute ago
+
+JOBS
+✓ Backend in 1m53s (ID 140826305575)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-dotnet@v5
+  ✓ Restore the NuGet cache
+  ✓ Restore
+  ✓ Format check
+  ✓ Build (warnings as errors)
+  ✓ Acceptance tests
+  ✓ Post Restore the NuGet cache
+  ✓ Post Run actions/setup-dotnet@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+✓ Frontend in 35s (ID 140826305710)
+  ✓ Set up job
+  ✓ Run actions/checkout@v5
+  ✓ Run actions/setup-node@v5
+  ✓ Install
+  ✓ Lint
+  ✓ Format check
+  ✓ Build
+  ✓ Read the Playwright version
+  ✓ Restore the Playwright browser
+  - Install the Playwright browser
+  ✓ Critical behaviour specs
+  - Keep the Playwright traces
+  ✓ Post Restore the Playwright browser
+  ✓ Post Run actions/setup-node@v5
+  ✓ Post Run actions/checkout@v5
+  ✓ Complete job
+
+ANNOTATIONS
+-   22 passed (7.6s)
+Frontend: .github#36
+
