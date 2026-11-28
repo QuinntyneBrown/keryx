@@ -698,3 +698,60 @@ Lessons:
 - "Make the fixture's before differ from what a mutant leaves" shaped the Undo tests: the list
   answers with or without the source by a flag the handlers set, so a missing reload shows.
 
+## Journey 18: Staff changes settings
+
+Seven slices:
+- `GET` and `PUT /admin/v1/settings` with a version, and a region for each new focus area;
+- the form showing every saved value, with skeletons and the error state;
+- the save bar and Discard;
+- the error summary;
+- the save, with its confirmation, failure and conflict states;
+- the chip lists and their Add dialog;
+- the leave confirmation and the browser's prompt.
+
+The library gained switch, range, chip, input-affix and save-bar, the button variant of
+segmented, and the form variant of page-body. The initial total stayed at 253.61 kB.
+
+What slowed it:
+- Four states had no mock: a failed save, a refused save, the Exclude and Focus-areas dialogs,
+  and the leave confirmation. Each was added as a mock before it was built.
+- A test namespace named `Settings` hid the `Settings` entity in every test file of the
+  assembly, which broke an unrelated fake's build.
+- A `*/` in a doc comment ("cron: 0 */3 * * *") ended the comment.
+- `scheduleLine` already existed, for Runs, so the domain's barrel refused a second one.
+
+Lessons:
+- **Name a test folder after its feature, not after an entity.** `Keryx.Api.Tests.Settings`
+  shadowed `Keryx.Domain.Settings` for the whole test assembly; `AdminSettings` did not.
+- **A submit button outside its form names it with `form`.** Enter in a field submits only a form
+  that has a submit button. The save bar's "Save changes" sits outside the form, so `kx-btn`
+  gained a `form` input and `kx-page-body` a form id. One handler, `submitted`, serves the button
+  and Enter.
+- **The CDK hides the page while a modal is open.** A role locator (`getByRole('list', …)`) finds
+  nothing behind a dialog. Assert the page after it closes, or prove the absence through
+  something that follows.
+- **`toHaveText` normalizes whitespace, so it cannot prove a trim.** Prove it by what is sent:
+  a mutant that skipped trimming survived until the test read the `PUT` body.
+- **Let mutants decide what a state reset is for.** Clearing "new" chips on Discard survived
+  because nothing can show it, and it was removed. Clearing them on load died to a real case:
+  reloading after a conflict, when the server's list holds the value just added. The same held
+  for the `beforeunload` listener: releasing it after a load, a save and on destroy each needed
+  its own test.
+- **Hold a `beforeunload` listener only while something is unsaved.** The store adds and removes
+  it as the entries change, and needs no `effect`, so `main` did not grow. Playwright proves it
+  with `page.close({ runBeforeUnload: true })` and the `dialog` event.
+- **Write a test's counts as their parts.** `5 + 5 + (8 + 1) + (3 + 1) + (9 + 1)` caught my
+  miscount at once, where one total would have been corrected to whatever the page showed.
+- **Two timers need a test that overlaps them.** Clearing the confirmation's timer at each new
+  state survived until a second save within 8 seconds was tested.
+
+**How earlier lessons worked.**
+- "Diff the initial total after a first use of an Angular API" was cheap here: `afterNextRender`
+  and the CDK dialog were already paid for, and `effect` was avoided. Every slice read 253.61 kB.
+- "Make bad data bad by construction" shaped the validation tables: one row for each bound, on
+  both sides, in the server's and the client's suites.
+- "Take old text from the file as it is now" was needed again. Prettier rewrapped the Settings
+  template between slices, and a stale anchor stopped one edit script before it wrote anything.
+  An earlier loop, though, wrote files before its assert failed, and a second script had to
+  finish it. Assert every file before writing any.
+
