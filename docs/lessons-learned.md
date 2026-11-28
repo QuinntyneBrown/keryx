@@ -967,3 +967,55 @@ after the drain. The CI failure itself was not reproduced.
 - "Have the mutation loop say when a mutant did not apply" flagged two mutants: one run exited 1
   with no failed count (a compile error) and one reported `NO-CHANGE`.
 
+
+## Journey 23: Worker applies retention
+
+Five slices, backend only:
+- articles collected before the cutoff, and the run's `deleted` count;
+- events, and organizations that nothing still refers to;
+- old runs with what hangs off them, closed issues with no occurrence left, and API usage after
+  30 days;
+- batches of 1,000, and what a failed batch keeps;
+- the worker each night at 03:00 Toronto time.
+
+The design's four open points were settled before any code:
+- the 03:00 slot;
+- the order of deletes (events before articles);
+- `deleted` as the count's name;
+- tracked batch deletes in place of `ExecuteDeleteAsync`.
+
+Audit entries wait for journey 24, which creates them.
+
+What slowed it:
+- The order the design gave, articles then events, would have lost the events. Deleting an
+  article sets its events' link to null, so the rule "an event goes with its expired article"
+  could no longer find them. A mutant that put articles first proved it.
+- Slice 4's tests passed at once, because slice 1 had already built the batches. They counted
+  only after mutants on the batch size failed them.
+- A mutant applied to the first of two identical predicates and survived. The first predicate
+  only chose which issue alerts to delete, and the test had no alert for an open issue. A shared
+  `Expression` for the two predicates now keeps them from drifting apart.
+- A mutant that wrapped the run in a transaction failed every test, because InMemory has no
+  transactions. That proves nothing about the batches, and it is not counted.
+
+Lessons:
+- **Delete what a set-null key points at before what it points to.** Otherwise the rule that
+  finds the dependent no longer matches it.
+- **Use a tracked batch delete where InMemory must run it.** Read at most 1,000, remove them and
+  save. It deletes owned rows with their owner on every provider, and a save fault can count
+  each batch.
+- **Delete dependents in their own batches, through a subquery on the expiring owner.** The
+  database's cascade then has nothing left to do, and InMemory, which cascades only tracked
+  rows, leaves no orphans.
+- **A mutant on a repeated predicate hits one copy.** Name the predicate once, or mutate each
+  copy.
+- **Share a daily slot between workers.** `DailySlot.NextAfter` now serves both the digest and
+  retention, and each has its own case table across the changes of clock.
+
+**How earlier lessons worked.**
+- "An absence needs a barrier": each worker test waits for the timer of the next night, so the
+  run it reads is the last one.
+- "A redundant flush is code no test can see": the early return on a short batch saved one
+  empty read, could not be seen, and was removed.
+- "Prove a bound on a stored store": 2,500 articles added straight to the store kept the batch
+  tests under a second each.
