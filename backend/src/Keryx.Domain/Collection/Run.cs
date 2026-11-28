@@ -140,11 +140,11 @@ public sealed class Run
     /// The run finished every stage. It succeeded unless a source failed; held items are the
     /// classify stage's warning and leave the run succeeded (L2-007).
     /// </summary>
-    public void Finish(RunCounts counts, DateTimeOffset now)
+    public void Finish(RunCounts counts, DateTimeOffset now, bool withIssues = false)
     {
         ArgumentNullException.ThrowIfNull(counts);
         Counts = counts;
-        Outcome = counts.SourcesFailed > 0 ? RunOutcome.CompletedWithIssues : RunOutcome.Succeeded;
+        Outcome = counts.SourcesFailed > 0 || withIssues ? RunOutcome.CompletedWithIssues : RunOutcome.Succeeded;
         End(now);
     }
 

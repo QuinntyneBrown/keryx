@@ -29,6 +29,7 @@ public static class WorkerHost
         // Each worker is its own hosted service with its own loop, so one failing stops no other.
         builder.Services.AddHostedService<CollectionScheduler>();
         builder.Services.AddHostedService<CollectionRunner>();
+        builder.Services.AddHostedService<AlertDigestWorker>();
 
         configure?.Invoke(builder);
         return builder.Build();

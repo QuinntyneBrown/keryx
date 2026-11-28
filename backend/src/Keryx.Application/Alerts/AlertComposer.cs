@@ -55,6 +55,29 @@ public sealed partial class AlertComposer(IOptions<AlertOptions> options)
             Footer());
     }
 
+    /// <summary>How many titles the digest lists (L2-078 AC1).</summary>
+    public const int DigestTitles = 20;
+
+    public MailMessage Digest(string to, int count, IReadOnlyList<string?> newest)
+    {
+        ArgumentNullException.ThrowIfNull(newest);
+        var n = count.ToString(CultureInfo.InvariantCulture);
+        var titles = string.Concat(newest.Select(title => $"- {OneLine(title ?? "Untitled post")}\n"));
+        var more = count > newest.Count
+            ? string.Create(CultureInfo.InvariantCulture, $"…and {count - newest.Count} more.\n")
+            : string.Empty;
+        return new MailMessage(
+            to,
+            count == 1 ? "Keryx: 1 article needs review" : $"Keryx: {n} articles need review",
+            (count == 1 ? "1 article is" : $"{n} articles are") + " waiting in Needs review.\n" +
+            "\n" +
+            titles +
+            more +
+            "\n" +
+            $"Review them: {Link("/articles?status=needs_review")}\n" +
+            Footer());
+    }
+
     private string Footer() => $"\nChange alerts in Settings: {Link("/settings")}\n";
 
     private string Link(string pathAndQuery)

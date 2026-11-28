@@ -19,7 +19,7 @@ public sealed record RunFinishedNotification(string RunId) : INotification;
 /// attempted.
 /// </summary>
 internal sealed partial class RaiseRunAlertsHandler(
-    IAppDbContext db, IMailSender mail, AlertComposer composer, TimeProvider time, ILogger<RaiseRunAlertsHandler> logger)
+    IAppDbContext db, IMailSender mail, AlertComposer composer, AlertNotSentTracker tracker, TimeProvider time, ILogger<RaiseRunAlertsHandler> logger)
     : INotificationHandler<RunFinishedNotification>
 {
     internal const string NotSentDetail = "An alert e-mail could not be sent. Keryx tries it once more on the next run.";
@@ -93,7 +93,7 @@ internal sealed partial class RaiseRunAlertsHandler(
             }
         }
 
-        await TrackNotSentAsync(run, notSent, outbox.Count - notSent, cancellationToken).ConfigureAwait(false);
+        await tracker.TrackAsync(run, notSent, outbox.Count - notSent, NotSentDetail, cancellationToken).ConfigureAwait(false);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -113,45 +113,6 @@ internal sealed partial class RaiseRunAlertsHandler(
 
         var source = await db.Sources.SingleAsync(candidate => candidate.Id == issue.SourceId, cancellationToken).ConfigureAwait(false);
         return composer.SourceFailing(to, source, issue, latest);
-    }
-
-    /// <summary>
-    /// Sends the mail service refused are one warning issue, continued while they happen run after
-    /// run (L2-020 AC1) and closed by the next send it takes.
-    /// </summary>
-    private async Task TrackNotSentAsync(Run run, int notSent, int sent, CancellationToken cancellationToken)
-    {
-        var open = await db.RunIssues
-            .SingleOrDefaultAsync(issue => issue.Kind == IssueKind.AlertNotSent && issue.Worker == run.Worker && issue.State != IssueState.Closed, cancellationToken)
-            .ConfigureAwait(false);
-        if (notSent == 0)
-        {
-            if (sent > 0)
-            {
-                open?.Close();
-            }
-
-            return;
-        }
-
-        var previous = await db.Runs.AsNoTracking()
-            .Where(other => other.Worker == run.Worker && other.Id != run.Id && other.StartedAt <= run.StartedAt)
-            .OrderByDescending(other => other.StartedAt).ThenByDescending(other => other.Id)
-            .Select(other => (long?)other.Id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-        var continues = open is not null && previous is { } previousId && await db.IssueOccurrences
-            .AnyAsync(occurrence => occurrence.IssueId == open.Id && occurrence.RunId == previousId, cancellationToken).ConfigureAwait(false);
-        if (continues)
-        {
-            open!.Continue(NotSentDetail);
-        }
-        else
-        {
-            open?.Close();
-            open = RunIssue.AlertNotSent(run.Worker, NotSentDetail, time.GetUtcNow());
-            db.RunIssues.Add(open);
-        }
-
-        db.IssueOccurrences.Add(IssueOccurrence.Of(open, run, time.GetUtcNow()));
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "An alert e-mail could not be sent: {ExceptionType}.")]
