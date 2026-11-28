@@ -23,9 +23,13 @@
         [attr.aria-current]="run.current ? 'true' : null"
         (click)="follow($event, run.href)"
       >
-        <span class="run-item__icon" [attr.data-tone]="run.tone"
-          ><kx-icon [name]="run.tone" size="sm"
-        /></span>
+        <span class="run-item__icon" [attr.data-tone]="run.tone">
+          @if (run.tone === 'info') {
+            <kx-spinner small />
+          } @else {
+            <kx-icon [name]="run.tone" size="sm" />
+          }
+        </span>
         <span class="list__body">
           <span class="visually-hidden">{{ run.word }}:&ngsp;</span>
           <span class="list__title">{{ run.title }}</span>

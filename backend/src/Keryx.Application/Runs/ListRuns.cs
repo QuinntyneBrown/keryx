@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Keryx.Application.Runs;
 
-/// <summary>A run in a list: when, how it was started, how it went and its headline counts, all as numbers.</summary>
+/// <summary>
+/// A run in a list: when, how it was started, how it went and its headline counts, all as numbers.
+/// A run in progress tells how many of its sources it has checked so far (L2-058 AC1).
+/// </summary>
 public sealed record RunSummaryDto(
     string Id,
     string Trigger,
@@ -16,7 +19,9 @@ public sealed record RunSummaryDto(
     long? DurationMs,
     string Outcome,
     int Added,
-    int SourcesFailed);
+    int SourcesFailed,
+    int SourcesChecked,
+    int SourcesTotal);
 
 /// <summary>A page of runs, with the total that matched.</summary>
 public sealed record RunPageDto(IReadOnlyList<RunSummaryDto> Items, int Total, int Page, int PageSize);
@@ -75,7 +80,8 @@ internal sealed class ListRunsHandler(IAppDbContext db) : IRequestHandler<ListRu
             .ToListAsync(cancellationToken).ConfigureAwait(false);
         return new RunPageDto(
             [.. items.Select(run => new RunSummaryDto(run.PublicId, RunWords.Trigger(run.Trigger), run.StartedAt, run.FinishedAt,
-                run.DurationMs, RunWords.Outcome(run.Outcome), run.Counts.Added, run.Counts.SourcesFailed))],
+                run.DurationMs, RunWords.Outcome(run.Outcome), run.Counts.Added, run.Counts.SourcesFailed, run.SourcesChecked,
+                run.SourcesTotal))],
             total, page, size);
     }
 }

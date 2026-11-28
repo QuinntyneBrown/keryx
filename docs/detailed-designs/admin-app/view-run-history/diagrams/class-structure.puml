@@ -31,6 +31,8 @@ package "frontend/projects/api" {
     +outcome: RunOutcome
     +added: number
     +sources_failed: number
+    +sources_checked: number
+    +sources_total: number
   }
   class RunDto {
     +worker: string

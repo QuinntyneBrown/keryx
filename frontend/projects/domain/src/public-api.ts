@@ -81,6 +81,8 @@ export { issueSeverityWord, issueTitle, issueWhen } from './overview/issue-words
 export {
   issueStreakLabel,
   runFailedFlag,
+  runElapsedMs,
+  runHowLine,
   runLineMeta,
   runOutcomeLabel,
   scheduleLine,
@@ -90,11 +92,13 @@ export {
 export {
   formatStageDuration,
   PIPELINE_STAGES,
+  runningStageMs,
   stageDetail,
   stageName,
   stageState,
   stageStatusLabel,
   stageSummary,
   stageTime,
+  type RunProgress,
   type StageView,
 } from './runs/stage-words';

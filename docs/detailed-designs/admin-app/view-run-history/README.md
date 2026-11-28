@@ -107,7 +107,7 @@ Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-
 
 | Method and path | Request | Response | Errors |
 |---|---|---|---|
-| `GET /admin/v1/runs` | `worker` (default `collection`), `problems=true`, `page`, `page_size` (at most 50; the screen sends 14) | Page envelope (`items`, `total`, `page`, `page_size`, as the articles list) with `items` of `RunSummaryDto`: `id`, `trigger`, `started_at`, `finished_at`, `duration_ms`, `outcome`, `added`, `sources_failed`; newest first; `page_size` defaults to 10; `problems=true` keeps runs that failed or completed with issues | `401` `session_expired`, `403`, `400` `invalid_page` (page or page size) or `invalid_filter` (worker or problems) |
+| `GET /admin/v1/runs` | `worker` (default `collection`), `problems=true`, `page`, `page_size` (at most 50; the screen sends 14) | Page envelope (`items`, `total`, `page`, `page_size`, as the articles list) with `items` of `RunSummaryDto`: `id`, `trigger`, `started_at`, `finished_at`, `duration_ms`, `outcome`, `added`, `sources_failed`, `sources_checked`, `sources_total`; newest first; `page_size` defaults to 10; `problems=true` keeps runs that failed or completed with issues | `401` `session_expired`, `403`, `400` `invalid_page` (page or page size) or `invalid_filter` (worker or problems) |
 | `GET /admin/v1/runs/{id}` | — | `RunDto`: the fields of `L2-019` (`worker`, `trigger`, `started_at`, `finished_at`, `duration_ms`, `outcome`, `added`, `updated`, `unchanged`, `duplicates`, `held`, `off_topic`, `rejected`, `sources_ok`, `sources_failed`, and while running `sources_checked` and `sources_total`), `stages` (`StageResultDto`: `stage`, `status`, `duration_ms`, stage counts, generic `reason`) and `issues` (`RunIssueDto`: `id`, `severity`, `kind`, `subject_type`, `subject_id`, `subject_name`, `detail`, `consecutive_runs`, `since`, `muted`) | `404` (code `run_not_found`), `401`, `403` |
 
 Every count, duration and score is a number; the admin app formats them. The exact names of the
@@ -164,6 +164,15 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   member can switch back. Choosing a run clears the run shown before and its error, and its
   detail's skeleton follows after its own 300 ms; only the history's first load announces
   "Loading runs…".
+- A run in progress (`L2-058` AC1) is drawn as served, without polling (journey 15 adds it):
+  its row turns a small `spinner` in the info colour with the hidden word "Running" and reads
+  "38 of 64 sources checked · 1m 32s so far · manual", from `sources_checked` and
+  `sources_total`, which the list serves for every run (additive: a finished run serves both as
+  its total). Its card reads "Manual · running for 1m 32s" (`runHowLine`); the running stage's
+  time is the run's time so far less what the stages before it took (`runningStageMs`); a
+  running fetch reads "38 of 64 sources checked"; the stages still to come read "Waiting", and
+  publish "Waiting — API is serving the 6:00 AM run", naming the newest listed run that finished
+  without failing, or plain "Waiting" when none is listed.
 - A run with no issues says "No issues in this run" in a compact success state under the
   section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two

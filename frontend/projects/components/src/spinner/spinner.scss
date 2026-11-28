@@ -13,6 +13,11 @@
   animation: spin var(--duration-spin) linear infinite;
 }
 
+.spinner--sm {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
 @keyframes spin {
   to {
     rotate: 360deg;

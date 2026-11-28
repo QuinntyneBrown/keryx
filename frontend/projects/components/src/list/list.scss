@@ -87,6 +87,10 @@ li:first-child > .list__item {
   &[data-tone='danger'] {
     color: var(--color-danger-icon);
   }
+
+  &[data-tone='info'] {
+    color: var(--color-info-icon);
+  }
 }
 
 .run-item__flag {

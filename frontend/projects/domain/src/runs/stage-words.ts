@@ -102,22 +102,60 @@ export interface StageView {
   reason: string | null;
 }
 
-/** A stage's time: its duration, or "—" for a stage that did not run. */
-export function stageTime(result: StageView): string {
-  return result.status === 'not_run' ? '—' : formatStageDuration(result.duration_ms);
+/** How far a run in progress has got, for its stages' lines; null once it has finished. */
+export interface RunProgress {
+  checked: number;
+  total: number;
+  /** When the run the API still serves started, as "6:00 AM"; null when it serves none. */
+  serving: string | null;
+}
+
+/**
+ * How long the running stage has run: the run's time so far less what the stages before it
+ * took, never negative.
+ */
+export function runningStageMs(
+  stages: readonly Pick<StageView, 'status' | 'duration_ms'>[],
+  elapsedMs: number,
+): number {
+  const before = stages
+    .filter((stage) => stage.status !== 'running' && stage.status !== 'not_run')
+    .reduce((sum, stage) => sum + stage.duration_ms, 0);
+  return Math.max(0, elapsedMs - before);
+}
+
+/**
+ * A stage's time: its duration, the running stage's time so far, or "—" for a stage that did
+ * not run.
+ */
+export function stageTime(result: StageView, runningMs = 0): string {
+  if (result.status === 'not_run') return '—';
+  return formatStageDuration(result.status === 'running' ? runningMs : result.duration_ms);
 }
 
 /**
  * What a stage's line says (L2-057 AC2, AC3): its summary when it finished; the generic reason
  * the run recorded when it failed; "Skipped" when a failure stopped it, publish adding that the
- * API still serves the previous run.
+ * API still serves the previous run. While the run is in progress (L2-058 AC1) a running fetch
+ * tells the sources checked so far, and the stages still to come are "Waiting", publish naming
+ * the run the API serves meanwhile.
  */
-export function stageDetail(result: StageView): string {
+export function stageDetail(result: StageView, progress: RunProgress | null = null): string {
   switch (result.status) {
     case 'failed':
       return result.reason ?? 'This stage failed.';
     case 'not_run':
+      if (progress) {
+        return result.stage === 'publish' && progress.serving
+          ? `Waiting — API is serving the ${progress.serving} run`
+          : 'Waiting';
+      }
       return result.stage === 'publish' ? 'Skipped — API still serving previous run' : 'Skipped';
+    case 'running':
+      if (progress && result.stage === 'fetch') {
+        return `${progress.checked} of ${progress.total} sources checked`;
+      }
+      return stageSummary(result.stage, result.counts);
     default:
       return stageSummary(result.stage, result.counts);
   }

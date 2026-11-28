@@ -1,5 +1,6 @@
 import {
   formatStageDuration,
+  runningStageMs,
   stageDetail,
   stageTime,
   PIPELINE_STAGES,
@@ -97,5 +98,40 @@ describe('stageTime and stageDetail', () => {
   ])('%o reads %s and %s', (stage, time, detail) => {
     expect(stageTime(stage)).toBe(time);
     expect(stageDetail(stage)).toBe(detail);
+  });
+
+  // L2-058 AC1: while the run is in progress, the running stage tells how far it has got and the
+  // stages after it wait, publish naming the run the API still serves.
+  const progress = { checked: 38, total: 64, serving: '6:00 AM' };
+  it.each([
+    [result('fetch', 'running'), 92_000, '1:32', '38 of 64 sources checked'],
+    [result('parse', 'running'), 5_000, '0:05', '3 candidate items from feeds, pages and posts'],
+    [result('store', 'not_run'), 0, '—', 'Waiting'],
+    [result('publish', 'not_run'), 0, '—', 'Waiting — API is serving the 6:00 AM run'],
+    [result('parse', 'done'), 0, '0:02', '3 candidate items from feeds, pages and posts'],
+  ])('mid-run, %o reads %s and %s', (stage, runningMs, time, detail) => {
+    expect(stageTime(stage, runningMs)).toBe(time);
+    expect(stageDetail(stage, progress)).toBe(detail);
+  });
+
+  it('waits on publish without naming a run when the API serves none', () => {
+    expect(stageDetail(result('publish', 'not_run'), { ...progress, serving: null })).toBe(
+      'Waiting',
+    );
+  });
+});
+
+describe('runningStageMs', () => {
+  const stage = (status: string, duration_ms: number) => ({ status, duration_ms });
+
+  it.each([
+    // Fetch running from the start: all of the run's time is its own.
+    [[stage('running', 0), stage('not_run', 0)], 92_000, 92_000],
+    // Fetch took 60 s, so parse has run for the rest.
+    [[stage('done', 60_000), stage('running', 0), stage('not_run', 0)], 92_000, 32_000],
+    // A clock behind the server never makes a negative time.
+    [[stage('done', 60_000), stage('running', 0)], 50_000, 0],
+  ])('%o after %i ms has run %i ms', (stages, elapsed, ms) => {
+    expect(runningStageMs(stages, elapsed)).toBe(ms);
   });
 });

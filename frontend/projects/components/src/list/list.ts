@@ -2,6 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { Badge, type BadgeTone } from '../badge/badge';
 import { Icon } from '../icon/icon';
 import { Skeleton } from '../skeleton/skeleton';
+import { Spinner } from '../spinner/spinner';
 
 /** One row of a list: a title, a meta line, an aside ("2h ago") and an optional badge. */
 export interface ListEntry {
@@ -21,7 +22,8 @@ export interface RunListItem {
   id: string;
   href: string;
   current: boolean;
-  tone: 'success' | 'warning' | 'danger';
+  /** `info` is a run in progress, shown turning. */
+  tone: 'success' | 'warning' | 'danger' | 'info';
   word: string;
   title: string;
   meta: string;
@@ -50,7 +52,7 @@ export interface IssueListItem {
  */
 @Component({
   selector: 'kx-list',
-  imports: [Badge, Icon, Skeleton],
+  imports: [Badge, Icon, Skeleton, Spinner],
   templateUrl: './list.html',
   styleUrl: './list.scss',
 })

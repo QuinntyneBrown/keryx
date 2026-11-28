@@ -1,6 +1,7 @@
 import {
   issueStreakLabel,
   runFailedFlag,
+  runHowLine,
   runLineMeta,
   runOutcomeLabel,
   scheduleLine,
@@ -28,6 +29,10 @@ describe('runOutcomeLabel', () => {
   });
 });
 
+// 9:47:32 AM in Toronto; the runs below started at 9:46 AM.
+const NOW = new Date('2026-11-28T14:47:32Z');
+const STARTED = '2026-11-28T14:46:00Z';
+
 describe('runLineMeta', () => {
   it.each([
     ['succeeded', 'schedule', 12, 231_000, '12 new · 3m 51s'],
@@ -35,8 +40,44 @@ describe('runLineMeta', () => {
     ['succeeded', 'manual', 8, 220_000, '8 new · 3m 40s · manual'],
     ['failed', 'schedule', 0, 48_000, 'Failed · 0m 48s'],
     ['failed', 'manual', 0, 48_000, 'Failed · 0m 48s · manual'],
-  ] as const)('a %s %s run adding %i in %i ms reads %s', (outcome, trigger, added, ms, words) => {
-    expect(runLineMeta({ outcome, trigger, added, duration_ms: ms })).toBe(words);
+    // L2-058 AC1: a run in progress tells how far it has got and for how long, so far.
+    ['running', 'manual', 21, null, '38 of 64 sources checked · 1m 32s so far · manual'],
+    ['running', 'schedule', 21, null, '38 of 64 sources checked · 1m 32s so far'],
+  ] as const)('a %s %s run adding %i in %s ms reads %s', (outcome, trigger, added, ms, words) => {
+    const run = {
+      outcome,
+      trigger,
+      added,
+      duration_ms: ms,
+      started_at: STARTED,
+      sources_checked: 38,
+      sources_total: 64,
+    };
+    expect(runLineMeta(run, NOW)).toBe(words);
+  });
+
+  it('never reads a negative time when the clock lags the server', () => {
+    const run = {
+      outcome: 'running' as const,
+      trigger: 'schedule',
+      added: 0,
+      duration_ms: null,
+      started_at: '2026-11-28T14:48:00Z',
+      sources_checked: 0,
+      sources_total: 64,
+    };
+    expect(runLineMeta(run, NOW)).toBe('0 of 64 sources checked · 0m 00s so far');
+  });
+});
+
+describe('runHowLine', () => {
+  it.each([
+    ['schedule', 'completed_with_issues', 252_000, 'Schedule · took 4m 12s'],
+    ['manual', 'succeeded', 220_000, 'Manual · took 3m 40s'],
+    ['manual', 'running', null, 'Manual · running for 1m 32s'],
+    ['schedule', 'running', null, 'Schedule · running for 1m 32s'],
+  ] as const)('a %s %s run of %s ms reads %s', (trigger, outcome, ms, words) => {
+    expect(runHowLine({ trigger, outcome, duration_ms: ms, started_at: STARTED }, NOW)).toBe(words);
   });
 });
 

@@ -12,6 +12,8 @@ export class RunsPage {
   readonly runMetas: Locator;
   readonly runWords: Locator;
   readonly runFlags: Locator;
+  /** The spinner of a run in progress, in place of its outcome's icon. */
+  readonly runSpinners: Locator;
   readonly current: Locator;
   readonly detail: Locator;
   readonly detailHeading: Locator;
@@ -68,6 +70,7 @@ export class RunsPage {
     this.runMetas = this.runs.locator('.list__meta');
     this.runWords = this.runs.locator('.visually-hidden');
     this.runFlags = this.runs.locator('.run-item__flag');
+    this.runSpinners = this.runs.locator('.spinner');
     this.current = this.runs.and(page.locator('[aria-current="true"]'));
     this.detail = main.locator('section[aria-labelledby="run-title"]');
     this.detailHeading = this.detail.locator('#run-title');
@@ -149,5 +152,39 @@ export class RunsPage {
     return this.page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
     );
+  }
+
+  /** A row's spinner and flag, by the row's place in the list. */
+  rowSpinner(index: number): Locator {
+    return this.runs.nth(index).locator('.spinner');
+  }
+
+  rowFlag(index: number): Locator {
+    return this.runs.nth(index).locator('.run-item__flag');
+  }
+
+  /**
+   * How the running row's spinner looks beside the icons of other rows: its width against a
+   * finished row's icon, and its colour against the info icon colour.
+   */
+  spinnerLook(): Promise<{ width: number; iconWidth: number; color: string; info: string }> {
+    return this.history.evaluate((history) => {
+      const spinner = history.querySelector<HTMLElement>('.run-item .spinner');
+      const icon = history.querySelector<HTMLElement>(
+        '.run-item__icon:not([data-tone="info"]) svg',
+      );
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--color-info-icon)';
+      history.append(probe);
+      const info = getComputedStyle(probe).color;
+      probe.remove();
+      return {
+        // Its layout width: it turns, so its bounding box grows as it does.
+        width: spinner?.offsetWidth ?? 0,
+        iconWidth: icon?.getBoundingClientRect().width ?? -1,
+        color: spinner ? getComputedStyle(spinner).borderTopColor : '',
+        info,
+      };
+    });
   }
 }

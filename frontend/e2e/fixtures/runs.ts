@@ -19,6 +19,8 @@ export function historyRun(
     duration_ms: outcome === 'running' ? null : duration_s * 1000,
     outcome,
     added,
+    sources_checked: 64,
+    sources_total: 64,
     sources_failed,
   };
 }
@@ -41,6 +43,16 @@ export const RUN_HISTORY = [
   historyRun('run_2405', '2026-11-25T11:00:00Z', 'succeeded', 19, 242),
 ];
 
+/** 9:47:32 AM in Toronto: run_2419, started by hand at 9:46 AM, has run for 1m 32s. */
+export const RUNNING_NOW = new Date('2026-11-28T14:47:32Z');
+
+/** run_2419 in progress, as the running mock shows it: 38 of 64 sources checked. */
+export const RUNNING_RUN = {
+  ...historyRun('run_2419', '2026-11-28T14:46:00Z', 'running', 21, 0, 0, 'manual'),
+  sources_checked: 38,
+  sources_total: 64,
+};
+
 /** The shell's schedule: every 6 hours, next at 12:00 PM Toronto time, 2 sources failing. */
 export function shellSchedule(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -60,7 +72,7 @@ export function runDetail(
   id: string,
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> {
-  const row = RUN_HISTORY.find((run) => run.id === id) ?? RUN_HISTORY[0];
+  const row = [RUNNING_RUN, ...RUN_HISTORY].find((run) => run.id === id) ?? RUN_HISTORY[0];
   const failed = row['sources_failed'] as number;
   return {
     ...row,
@@ -154,3 +166,19 @@ export const RUN_2418_ISSUES = [
     3,
   ),
 ];
+
+/** run_2419's detail mid-run: fetch running with 21 new so far, the other stages waiting. */
+export function runningDetail(): Record<string, unknown> {
+  return runDetail('run_2419', {
+    duplicates: 4,
+    sources_ok: 38,
+    sources_checked: 38,
+    sources_total: 64,
+    stages: [
+      stage('fetch', 'running', 0, {}),
+      ...['parse', 'classify', 'deduplicate', 'store', 'publish'].map((name) =>
+        stage(name, 'not_run', 0, {}),
+      ),
+    ],
+  });
+}

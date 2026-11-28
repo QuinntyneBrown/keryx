@@ -33,13 +33,15 @@ import {
 import {
   formatClockTime,
   formatCollectedAt,
-  formatDuration,
   issueSeverityWord,
   issueStreakLabel,
   issueTitle,
   PIPELINE_STAGES,
   runFailedFlag,
+  runElapsedMs,
+  runHowLine,
   runLineMeta,
+  runningStageMs,
   runOutcomeLabel,
   runTone,
   scheduleLine,
@@ -120,7 +122,7 @@ export default class Runs {
       tone: runTone(run.outcome) as RunListItem['tone'],
       word: runOutcomeLabel(run.outcome),
       title: formatCollectedAt(run.started_at, now, zone),
-      meta: runLineMeta(run),
+      meta: runLineMeta(run, now),
       flag: runFailedFlag(run.sources_failed),
     }));
   });
@@ -146,6 +148,13 @@ export default class Runs {
   protected readonly detail = computed(() => {
     const run = this.store.detail();
     if (!run) return null;
+    const now = this.schedule.now();
+    const running = run.outcome === 'running';
+    const elapsed = runElapsedMs(run.started_at, now);
+    const progress = running
+      ? { checked: run.sources_checked, total: run.sources_total, serving: this.serving() }
+      : null;
+    const stageMs = running ? runningStageMs(run.stages, elapsed) : 0;
     const tiles: StatItem[] = [
       { label: 'New articles', value: String(run.added), size: 'md' },
       { label: 'Duplicates skipped', value: String(run.duplicates), size: 'md' },
@@ -158,10 +167,10 @@ export default class Runs {
       },
     ];
     return {
-      heading: formatCollectedAt(run.started_at, this.schedule.now(), this.zone()),
+      heading: formatCollectedAt(run.started_at, now, this.zone()),
       badge: { text: runOutcomeLabel(run.outcome), tone: runTone(run.outcome) },
       reference: run.id,
-      meta: `${run.trigger === 'manual' ? 'Manual' : 'Schedule'} · took ${formatDuration(run.duration_ms ?? 0)}`,
+      meta: runHowLine(run, now),
       tiles,
       // The six stages in the pipeline's order, whatever order they were served in (L2-057 AC2).
       steps: PIPELINE_STAGES.flatMap((name): TimelineStep[] => {
@@ -173,8 +182,8 @@ export default class Runs {
             state: stageState(result.status),
             word: stageStatusLabel(result.status),
             name: stageName(name),
-            time: stageTime(result),
-            detail: stageDetail(result),
+            time: stageTime(result, stageMs),
+            detail: stageDetail(result, progress),
           },
         ];
       }),
@@ -188,6 +197,19 @@ export default class Runs {
         streak: issueStreakLabel(issue.severity, issue.consecutive_runs),
       })),
     };
+  });
+
+  /**
+   * When the run the API serves while one is in progress started, as "6:00 AM": the newest
+   * listed run that finished and did not fail.
+   */
+  private readonly serving = computed(() => {
+    const run = this.store
+      .page()
+      ?.items.find(
+        (item) => item.outcome === 'succeeded' || item.outcome === 'completed_with_issues',
+      );
+    return run ? formatClockTime(run.started_at, this.zone()) : null;
   });
 
   /** The empty state's words, naming the first scheduled time once the schedule is read. */

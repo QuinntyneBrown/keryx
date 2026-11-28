@@ -11,6 +11,9 @@ export interface RunSummary {
   outcome: RunOutcome;
   added: number;
   sources_failed: number;
+  /** How many of the run's sources it has checked so far, of how many (L2-058 AC1). */
+  sources_checked: number;
+  sources_total: number;
 }
 
 /** A page of runs, newest first, with the total that matched. */
