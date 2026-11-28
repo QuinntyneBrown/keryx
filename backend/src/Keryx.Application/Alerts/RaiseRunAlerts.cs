@@ -11,8 +11,9 @@ public sealed record RunFinishedNotification(string RunId) : INotification;
 
 /// <summary>
 /// Raises a finished collection run's alerts to the alert address: one for each source whose
-/// failure streak has just reached the threshold. With no alert address, or no mail service,
-/// nothing is attempted.
+/// failure streak has just reached the threshold, and one for the run itself when it failed and
+/// "When a whole run fails" is on. With no alert address, or no mail service, nothing is
+/// attempted.
 /// </summary>
 internal sealed class RaiseRunAlertsHandler(IAppDbContext db, IMailSender mail, AlertComposer composer, TimeProvider time)
     : INotificationHandler<RunFinishedNotification>
@@ -47,6 +48,15 @@ internal sealed class RaiseRunAlertsHandler(IAppDbContext db, IMailSender mail, 
             record = AlertRecord.ForIssue(issue);
             db.AlertRecords.Add(record);
             await mail.SendAsync(composer.SourceFailing(settings.AlertEmail, source, issue, run), cancellationToken).ConfigureAwait(false);
+            record.Sent(time.GetUtcNow());
+        }
+
+        // A failed run is never executed again (a retry of one is a new run), so it alerts once.
+        if (run.Outcome == RunOutcome.Failed && settings.AlertOnRunFailure)
+        {
+            var record = AlertRecord.ForRun(run);
+            db.AlertRecords.Add(record);
+            await mail.SendAsync(composer.RunFailed(settings.AlertEmail, run), cancellationToken).ConfigureAwait(false);
             record.Sent(time.GetUtcNow());
         }
 

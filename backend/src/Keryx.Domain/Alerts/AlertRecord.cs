@@ -40,6 +40,12 @@ public sealed class AlertRecord
         return new AlertRecord { Kind = AlertKind.SourceFailing, IssueId = issue.Id };
     }
 
+    public static AlertRecord ForRun(Run run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        return new AlertRecord { Kind = AlertKind.RunFailed, RunId = run.Id };
+    }
+
     public void Sent(DateTimeOffset now)
     {
         Attempts++;

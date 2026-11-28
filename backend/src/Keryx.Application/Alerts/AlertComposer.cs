@@ -36,6 +36,25 @@ public sealed partial class AlertComposer(IOptions<AlertOptions> options)
             Footer());
     }
 
+    public MailMessage RunFailed(string to, Run run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        var stage = run.Stages.FirstOrDefault(result => result.Status == StageStatus.Failed) is { } failed
+            ? $"at the {Runs.RunWords.Stage(failed.Stage)} stage"
+            : "before it finished";
+        var reference = run.CorrelationId is { } correlation ? $"Reference: {correlation}\n" : string.Empty;
+        return new MailMessage(
+            to,
+            "Keryx: a collection run failed",
+            $"The collection run that started {When(run.StartedAt)} failed {stage}.\n" +
+            "\n" +
+            $"Reason: {OneLine(run.FailureReason ?? string.Empty)}\n" +
+            reference +
+            "\n" +
+            $"See the run: {Link($"/runs?run={run.PublicId}")}\n" +
+            Footer());
+    }
+
     private string Footer() => $"\nChange alerts in Settings: {Link("/settings")}\n";
 
     private string Link(string pathAndQuery)

@@ -58,6 +58,9 @@ public sealed partial class RunRecordingBehavior<TRequest, TResponse>(
         run.Fail(GenericReason, correlation, time.GetUtcNow());
         lease.Release(runId);
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        // Alerts follow the saved outcome (L2-077 AC4).
+        await scope.ServiceProvider.GetRequiredService<IPublisher>()
+            .Publish(new Alerts.RunFinishedNotification(runId), cancellationToken).ConfigureAwait(false);
     }
 
     private static string RunWordsFor(RunWorker worker) => Runs.RunWords.Worker(worker);
