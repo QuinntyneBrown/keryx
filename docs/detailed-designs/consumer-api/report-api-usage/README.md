@@ -93,9 +93,9 @@ database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-pa
   returns `base_url`, the public API base URL setting (L2-096).
 - **`ApiUsageSummary`** (`Keryx.Domain`) — pure calculation: error rate as errors over requests,
   `0` when there were no requests; p95 latency from the merged histogram, `null` when there were
-  no requests. The 95th percentile's rank is `ceil(0.95 × requests)`. Within the bucket that
-  holds that rank, the value is interpolated linearly between the bucket's lower and upper bounds
-  (the first bucket starts at 0) and rounded to a whole millisecond. A rank in the bucket above
+  no requests. The 95th percentile's rank is `0.95 × requests`. Within the bucket that holds that
+  rank, the value is interpolated linearly between the bucket's lower and upper bounds (the first
+  bucket starts at 0) and rounded half away from zero to a whole millisecond. A rank in the bucket above
   10,000 ms reads 10,000, the highest bound known, as Prometheus' `histogram_quantile` does. It has a unit test per row of its case table.
 - **Window** — "last 24 hours" is the usage hours whose `HourStart` is within 24 hours before now,
   read from `TimeProvider`: the current hour's row and the 23 before it. The window therefore

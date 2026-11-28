@@ -15,6 +15,8 @@ public sealed class StartupValidationAcceptanceTests
 {
     private const int MissingSetting = 2;
 
+    private const string BaseUrl = "--Keryx:Api:PublicBaseUrl=https://api.keryx.test/v1";
+
     private static readonly string Message = $"Missing required setting: ConnectionStrings__Keryx{Environment.NewLine}";
 
     // A process that did start is stopped after this long, so a missing check fails the test instead of hanging it.
@@ -32,7 +34,7 @@ public sealed class StartupValidationAcceptanceTests
         var exitCode = await HostRunner.RunAsync(
             () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={connectionString}",
                 "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test",
-                "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector"]),
+                "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector", BaseUrl]),
             error,
             startedAnyway.Token);
 
@@ -47,11 +49,33 @@ public sealed class StartupValidationAcceptanceTests
         using var startedAnyway = new CancellationTokenSource(StartedAnyway);
         var exitCode = await HostRunner.RunAsync(
             () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
-                "--Keryx:Oidc:Authority=", "--Keryx:Oidc:ClientId=", "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector"]),
+                "--Keryx:Oidc:Authority=", "--Keryx:Oidc:ClientId=", "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector", BaseUrl]),
             error, startedAnyway.Token);
         Assert.Equal(MissingSetting, exitCode);
         Assert.Contains("Keryx__Oidc__Authority", error.ToString(), StringComparison.Ordinal);
         Assert.Contains("Keryx__Oidc__ClientId", error.ToString(), StringComparison.Ordinal);
+    }
+
+    // L2-096, L2-067: the consumer API's public base address is required: an http(s) address ending in /v1.
+    [Theory]
+    [InlineData("")]
+    [InlineData("not a url")]
+    [InlineData("ftp://api.keryx.test/v1")]
+    [InlineData("https://api.keryx.test/")]
+    public async Task Given_no_public_base_url_When_the_API_starts_Then_it_stops_naming_the_setting(string baseUrl)
+    {
+        using var error = new StringWriter();
+        using var startedAnyway = new CancellationTokenSource(StartedAnyway);
+
+        var exitCode = await HostRunner.RunAsync(
+            () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
+                "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test",
+                "--Keryx:Fetch:UserAgentContactUrl=https://keryx.example/collector", $"--Keryx:Api:PublicBaseUrl={baseUrl}"]),
+            error,
+            startedAnyway.Token);
+
+        Assert.Equal(MissingSetting, exitCode);
+        Assert.Equal($"Missing required setting: Keryx__Api__PublicBaseUrl{Environment.NewLine}", error.ToString());
     }
 
     // L2-021 AC3: the contact URL every request names is required, and must be https.
@@ -67,7 +91,7 @@ public sealed class StartupValidationAcceptanceTests
         var exitCode = await HostRunner.RunAsync(
             () => ApiHost.Build(["--urls", "http://127.0.0.1:0", $"--ConnectionStrings:Keryx={TestStore.UnusedConnection}",
                 "--Keryx:Oidc:Authority=https://id.example.test", "--Keryx:Oidc:ClientId=keryx-test",
-                $"--Keryx:Fetch:UserAgentContactUrl={contactUrl}"]),
+                $"--Keryx:Fetch:UserAgentContactUrl={contactUrl}", BaseUrl]),
             error,
             startedAnyway.Token);
 

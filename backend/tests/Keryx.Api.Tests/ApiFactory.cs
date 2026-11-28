@@ -52,6 +52,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Keryx:Oidc:ClientId", "keryx-test");
         builder.UseSetting("ConnectionStrings:Keryx", TestStore.UnusedConnection);
         builder.UseSetting("Keryx:Fetch:UserAgentContactUrl", "https://keryx.example/about-our-collector");
+        builder.UseSetting("Keryx:Api:PublicBaseUrl", "https://api.keryx.test/v1");
         // No OTLP endpoint, whatever the machine's environment says: a test reaches no network.
         builder.UseSetting("OTEL_EXPORTER_OTLP_ENDPOINT", string.Empty);
         builder.ConfigureTestServices(services =>

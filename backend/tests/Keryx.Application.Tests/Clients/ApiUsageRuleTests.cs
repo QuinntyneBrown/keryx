@@ -37,6 +37,34 @@ public sealed class ApiUsageRuleTests
     public void A_request_falls_in_the_first_bucket_whose_bound_it_does_not_exceed(double milliseconds, int bucket) =>
         Assert.Equal(bucket, LatencyBuckets.IndexOf(TimeSpan.FromMilliseconds(milliseconds)));
 
+    // The 95th percentile's rank is 0.95 × requests; within the bucket holding it the value is
+    // interpolated between the bucket's bounds and rounded half away from zero. Buckets: ≤10, ≤25,
+    // ≤50, ≤100, ≤250, ≤500, ≤1000, ≤2500, ≤5000, ≤10000 ms, and above.
+    [Theory]
+    [InlineData(new int[] { }, null)]
+    [InlineData(new[] { 1, 0, 8, 0, 0, 1 }, 375)]
+    [InlineData(new[] { 0, 0, 19, 0, 0, 1 }, 50)]
+    [InlineData(new[] { 10 }, 10)]
+    [InlineData(new[] { 0, 10 }, 24)]
+    [InlineData(new[] { 47, 3 }, 13)] // rank 47.5, half-way between 12 and 13: half away from zero
+    [InlineData(new[] { 0, 0, 0, 1 }, 98)]
+    [InlineData(new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100 }, 10_000)]
+    [InlineData(new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 99 }, 10_000)]
+    public void The_p95_is_read_from_the_bucket_holding_its_rank(int[] counts, int? p95)
+    {
+        var buckets = new int[LatencyBuckets.Count];
+        counts.CopyTo(buckets, 0);
+
+        Assert.Equal(p95, ApiUsageSummary.P95LatencyMs(buckets));
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0.0)]
+    [InlineData(10, 1, 0.1)]
+    [InlineData(4, 4, 1.0)]
+    public void The_error_rate_is_errors_over_requests_and_0_with_none(int requests, int errors, double rate) =>
+        Assert.Equal(rate, ApiUsageSummary.ErrorRate(requests, errors));
+
     [Fact]
     public void A_call_counted_late_never_moves_the_last_call_back()
     {

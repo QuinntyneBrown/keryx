@@ -79,6 +79,7 @@ covers connection strings, identity provider registration, and optional settings
 | Environment variable | Used by | Value |
 | --- | --- | --- |
 | `ConnectionStrings__Keryx` | CLI, API, worker | PostgreSQL connection string |
+| `Keryx__Api__PublicBaseUrl` | API | The consumer API's public address, ending in `/v1` |
 | `Keryx__Fetch__UserAgentContactUrl` | API, worker | HTTPS page identifying the collector and its operator |
 | `Keryx__Oidc__Authority` | API | HTTPS issuer URL for staff sign-in |
 | `Keryx__Oidc__ClientId` | API | Client ID registered with the identity provider |

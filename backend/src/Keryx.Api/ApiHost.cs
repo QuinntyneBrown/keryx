@@ -61,6 +61,9 @@ public static class ApiHost
                     return Task.CompletedTask;
                 };
             });
+        builder.Services.AddOptions<Keryx.Application.Clients.ConsumerApiOptions>().BindConfiguration(Keryx.Application.Clients.ConsumerApiOptions.Section)
+            .Validate(options => Keryx.Application.Clients.ConsumerApiOptions.IsValid(options.PublicBaseUrl), Keryx.Application.Clients.ConsumerApiOptions.MissingPublicBaseUrl)
+            .ValidateOnStart();
         builder.Services.AddOptions<SessionLimits>().BindConfiguration("Keryx:Session")
             .Validate(limits => limits.IdleMinutes > 0 && limits.LifetimeHours > 0,
                 "Session idle minutes and lifetime hours must be positive.").ValidateOnStart();

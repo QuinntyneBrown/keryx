@@ -21,6 +21,7 @@ committed.
 | `Keryx__Oidc__ClientSecret` | Confidential client credential when required by the provider. | Unset. | Yes | API |
 | `Keryx__RateLimits__ClientPermitsPerMinute` | Requests a product's API client may send to `/v1` in a minute; the next is `429` with `Retry-After`. Each API instance counts on its own, so n instances allow up to n times this. Positive integer. | 600 | No | API |
 | `Keryx__RateLimits__UnauthenticatedPermitsPerMinute` | Requests with no valid API key one address may send to `/v1` in a minute. The address is the connection's: behind a proxy, configure forwarded headers for it, or every caller shares the proxy's address. Positive integer. | 60 | No | API |
+| `Keryx__Api__PublicBaseUrl` | The consumer API's public address, ending in `/v1`, such as `https://api.keryx.ca/v1`. The API screen shows it to staff, who give it to the products that call the API. | Required: an absolute `http(s)` address ending in `/v1`. | No | API |
 | `Keryx__Fetch__UserAgentContactUrl` | An `https` page saying what Keryx's collector is and how to reach its operator. Every request to a source names it in its `User-Agent`, as `Keryx/<version> (+<url>)`. | Required. | No | API, worker |
 | `Keryx__Mail__Host` | The mail service alerts and the daily digest are sent through, for example `smtp.example.com`. | Unset: no e-mail is sent, and the worker logs that once at start. | No | Worker |
 | `Keryx__Mail__Port` | Its port. Port 465 uses TLS from the first byte; any other port must offer STARTTLS. Each send gives up after 30 seconds. | 587 | No | Worker |
