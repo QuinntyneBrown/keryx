@@ -841,3 +841,64 @@ Lessons:
   should.
 - "Read the initial total after each new Angular API": `afterNextRender` was already paid for,
   and the total stayed 253.61 kB.
+
+## Journey 21: Staff monitors API usage
+
+Six slices:
+- the consumer API counts each `/v1` request per client and hour, and each client's row reads its
+  last 24 hours;
+- `GET /admin/v1/api-usage` with the base address (a new required setting) and p95 latency from
+  bucket counts;
+- the flush service that writes the counts every 60 s and on stop, keeping them when a save
+  fails;
+- the summary card and the usage columns on the API screen;
+- the endpoints list and its example panel, with the `endpoint` and `code-panel` components;
+- the loading skeletons, the usage-only error with Try again, and the pager.
+
+The design's seven open points were settled in its README before the first test: what counts,
+the flush interval, the latency buckets, the window, the error-rate rounding, and the two missing
+mock states (`usage-error`, `paged`), which were added first.
+
+What slowed it:
+- The initial total moved from 253.61 to 253.65 kB in slice 4. Bisecting took eight builds and
+  ended at three cell templates of the form `{{ row.x }}`. The stats showed no new input in
+  `main`, only a few more bytes in Angular inputs it already had: the minifier's names had
+  shifted. The growth was accepted, and the total stayed there through slices 5 and 6.
+- In zsh, an unquoted `$FILES` is one word, not a list. A backup loop over it copied nothing, and
+  the files were saved only by an earlier step's copies.
+- The older API specs build their own client objects. Without the new usage fields,
+  `last_call_at` was `undefined`, and the page threw "Invalid time value".
+- The API keys failure seen once in journey 20 came back and could be reproduced. The test
+  clicked back to API while Sources was still loading, which cancelled that visit, so the screen
+  never left. A Settings test failed 2 times in 120 runs for a similar reason: it pressed Escape
+  before the guard had opened its dialog.
+- L2-067 puts the endpoints beside their example from 1024 px; the design-system pages said
+  1280 px. The requirement won, and both pages were corrected.
+- The 300 ms skeleton's cancel on an answer survived its mutant. It was redundant: `slow` matters
+  only while loading, and each load resets it. The code was removed; no test was added for it.
+
+Lessons:
+- **A bundle growth with no new input in `main` is renaming, not code.** Before bisecting a growth
+  under 0.1 kB, diff the stats inputs of `main` (`dist/admin/browser-stats.json`, paths cut at
+  `node_modules/`). If no input was added and only existing ones changed by a few bytes, the
+  minifier renamed things; record it and move on.
+- **List paths in a zsh loop literally, or use an array.** `for f in $FILES` does not split. Use
+  `files=(a b c); for f in $files`.
+- **A new field on a DTO means grepping every fixture that builds it.** Search the specs for
+  another field of the DTO (`revoked_at:`), not only the shared fixture.
+- **Wait for the screen or dialog before acting away from it.** After a click that loads a lazy
+  route or opens a dialog through a guard, assert its heading or focused control before the next
+  click or key.
+- **When a requirement and the design system disagree, follow the requirement and correct the
+  design-system page in the same change.**
+- **A mutant that survives may show redundant code.** Remove the code rather than write a test
+  for it.
+
+**How earlier lessons worked.**
+- "Have the mutation loop say when a mutant did not apply" caught two more mutants against
+  rewrapped lines. A run that exited 1 with no failed count turned out to be a compile error, not
+  a killed mutant.
+- "Diff `--stats-json` inputs against a base build" settled the bundle question. The stats file
+  is `browser-stats.json`, not `stats.json`.
+- "Watch the API keys spec before calling it flaky": watching it led to the real cause, and it
+  was fixed rather than retried.

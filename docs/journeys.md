@@ -24,7 +24,7 @@ The Settings percentage includes completed slices on `journey/18-change-settings
 | 18 | Staff changes settings | Staff change schedule, scoring, geography, retention and alerts | 4 | 100 |
 | 19 | Staff receives alerts | Staff e-mailed on failing sources, failed runs and daily digest | 3 | 100 |
 | 20 | Staff mutes an issue | Staff silence a known issue, with Undo | 1 | 100 |
-| 21 | Staff monitors API usage | Staff see traffic, latency, errors and per-product usage | 3 | 95 |
+| 21 | Staff monitors API usage | Staff see traffic, latency, errors and per-product usage | 3 | 100 |
 | 22 | Staff exports articles | Staff download filtered articles as CSV | 2 | 0 |
 | 23 | Worker applies retention | Records past the retention period are deleted | 2 | 0 |
 | 24 | Staff actions are audited | Every state-changing staff action is recorded | 2 | 0 |
