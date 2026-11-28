@@ -5,9 +5,9 @@ import { RUNS_API, type RunDetail, type RunPage } from '@kx/api';
 export const HISTORY_RUNS = 14;
 
 /**
- * Runs' state, held only while the screen is shown: the page of runs, the run the URL names,
- * and the chosen run's detail. Provided on the screen, so its requests end with the visit
- * (L2-089).
+ * Runs' state, held only while the screen is shown: the page of runs, all of them or those with
+ * problems, the run the URL names, and the chosen run's detail. Provided on the screen, so its
+ * requests end with the visit (L2-089).
  */
 @Injectable()
 export class RunsStore {
@@ -15,9 +15,12 @@ export class RunsStore {
   private readonly controller = new AbortController();
   /** The run the URL names, or null for the newest. */
   private requested: string | null = null;
-  /** Counts detail reads, so only the latest one's answer is shown. */
-  private reads = 0;
+  /** Counts list and detail reads, so only the latest one's answer is shown. */
+  private listReads = 0;
+  private detailReads = 0;
 
+  /** Only runs with problems are listed (`?problems=true`). */
+  readonly problems = signal<boolean | null>(null);
   /** The runs once read, newest first. */
   readonly page = signal<RunPage | null>(null);
   /** The chosen run: the one the URL names, else the newest once the list is read. */
@@ -28,17 +31,31 @@ export class RunsStore {
     inject(DestroyRef).onDestroy(() => this.controller.abort());
   }
 
-  async load(): Promise<void> {
-    const page = await this.api.list({ page: 1, pageSize: HISTORY_RUNS }, this.controller.signal);
-    if (this.controller.signal.aborted) return;
-    this.page.set(page);
-    if (!this.requested) this.choose(page.items[0]?.id ?? null);
+  /**
+   * The URL names a run, or none, and whether only runs with problems are listed. A new filter
+   * reads the list again; the run named is chosen, or the newest once the list is read.
+   */
+  request(id: string | null, problems: boolean): void {
+    this.requested = id;
+    if (problems !== this.problems()) {
+      this.problems.set(problems);
+      this.page.set(null);
+      this.selected.set(null);
+      this.detail.set(null);
+      void this.load();
+    }
+    this.choose(id ?? this.page()?.items[0]?.id ?? null);
   }
 
-  /** The URL names a run, or none: that run is chosen, or the newest once the list is read. */
-  request(id: string | null): void {
-    this.requested = id;
-    this.choose(id ?? this.page()?.items[0]?.id ?? null);
+  private async load(): Promise<void> {
+    const read = ++this.listReads;
+    const page = await this.api.list(
+      { page: 1, pageSize: HISTORY_RUNS, problems: this.problems() ?? false },
+      this.controller.signal,
+    );
+    if (read !== this.listReads || this.controller.signal.aborted) return;
+    this.page.set(page);
+    if (!this.requested) this.choose(page.items[0]?.id ?? null);
   }
 
   private choose(id: string | null): void {
@@ -48,8 +65,8 @@ export class RunsStore {
   }
 
   private async readDetail(id: string): Promise<void> {
-    const read = ++this.reads;
+    const read = ++this.detailReads;
     const detail = await this.api.get(id, this.controller.signal);
-    if (read === this.reads && !this.controller.signal.aborted) this.detail.set(detail);
+    if (read === this.detailReads && !this.controller.signal.aborted) this.detail.set(detail);
   }
 }

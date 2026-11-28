@@ -25,6 +25,8 @@ export interface RunPage {
 export interface RunQuery {
   page: number;
   pageSize: number;
+  /** Only runs that failed, completed with issues or had a failed source. */
+  problems?: boolean;
 }
 
 /** An issue still open, as last seen in a run. Its names came from a source: render them as text. */

@@ -8,6 +8,7 @@ export class HttpRunsApi implements RunsApi {
   list(query: RunQuery, signal: AbortSignal): Promise<RunPage> {
     const params = new URLSearchParams({
       worker: 'collection',
+      ...(query.problems ? { problems: 'true' } : {}),
       page: String(query.page),
       page_size: String(query.pageSize),
     });

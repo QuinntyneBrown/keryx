@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RUNS_API } from '@kx/api';
 import {
+  Btn,
   Card,
   Empty,
   Icon,
@@ -9,11 +10,13 @@ import {
   PageBody,
   PageHeader,
   Rail,
+  Segmented,
   Stack,
   Stats,
   Timeline,
   type IssueListItem,
   type RunListItem,
+  type SegmentedOption,
   type TimelineStep,
   type StatItem,
 } from '@kx/components';
@@ -48,7 +51,20 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-runs',
-  imports: [Card, Empty, Icon, List, PageBody, PageHeader, Rail, Stack, Stats, Timeline],
+  imports: [
+    Btn,
+    Card,
+    Empty,
+    Icon,
+    List,
+    PageBody,
+    PageHeader,
+    Rail,
+    Segmented,
+    Stack,
+    Stats,
+    Timeline,
+  ],
   templateUrl: './runs.html',
   styleUrl: './runs.scss',
   providers: [{ provide: RUNS_API, useClass: HttpRunsApi }, RunsStore],
@@ -77,7 +93,7 @@ export default class Runs {
     const selected = this.store.selected();
     return page.items.map((run) => ({
       id: run.id,
-      href: `/runs?run=${run.id}`,
+      href: this.store.problems() ? `/runs?problems=true&run=${run.id}` : `/runs?run=${run.id}`,
       current: run.id === selected,
       tone: runTone(run.outcome) as RunListItem['tone'],
       word: runOutcomeLabel(run.outcome),
@@ -85,6 +101,15 @@ export default class Runs {
       meta: runLineMeta(run),
       flag: runFailedFlag(run.sources_failed),
     }));
+  });
+
+  /** "All runs" and "With problems", the one shown current (L2-056 AC2). */
+  protected readonly filters = computed((): SegmentedOption[] => {
+    const problems = this.store.problems() === true;
+    return [
+      { label: 'All runs', href: '/runs', current: !problems },
+      { label: 'With problems', href: '/runs?problems=true', current: problems },
+    ];
   });
 
   /** The chosen run's card: its start, its outcome, its reference and how it ran (L2-057 AC1). */
@@ -142,9 +167,8 @@ export default class Runs {
   constructor() {
     this.schedule.load();
     const subscription = this.route.queryParamMap.subscribe((params) =>
-      this.store.request(params.get('run')),
+      this.store.request(params.get('run'), params.get('problems') === 'true'),
     );
     inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
-    void this.store.load();
   }
 }

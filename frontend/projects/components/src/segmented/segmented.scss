@@ -1,0 +1,43 @@
+// The segmented control (docs/design-system/components/segmented.html).
+:host {
+  display: block;
+}
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  padding: var(--space-0-5);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.segmented__option {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-sm);
+  padding: var(--space-1) var(--space-3);
+  border-radius: calc(var(--radius-md) - var(--space-0-5));
+  color: var(--color-fg-muted);
+  font: var(--text-body-sm);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  // The current view is filled; its `aria-current` says so to a screen reader too.
+  &[aria-current='true'] {
+    background: var(--color-accent);
+    color: var(--color-fg-on-accent);
+  }
+}
+
+@media (forced-colors: active) {
+  .segmented__option[aria-current='true'] {
+    outline: 2px solid Highlight;
+  }
+}

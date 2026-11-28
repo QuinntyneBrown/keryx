@@ -32,6 +32,12 @@ export class RunsPage {
   readonly issueSubjects: Locator;
   readonly issueDetails: Locator;
   readonly noIssues: Locator;
+  readonly filter: Locator;
+  readonly allRuns: Locator;
+  readonly withProblems: Locator;
+  /** The history's state when no run matches, and the detail's when no run is chosen. */
+  readonly noResults: Locator;
+  readonly chooseRun: Locator;
 
   constructor(private readonly page: Page) {
     const main = page.locator('main');
@@ -66,6 +72,11 @@ export class RunsPage {
     this.issueSubjects = this.issueTitles.locator('.text-muted');
     this.issueDetails = this.issues.locator('.issue__detail');
     this.noIssues = issues.locator('.empty');
+    this.filter = main.getByRole('group', { name: 'Filter runs' });
+    this.allRuns = this.filter.getByRole('link', { name: 'All runs' });
+    this.withProblems = this.filter.getByRole('link', { name: 'With problems' });
+    this.noResults = this.history.locator('.empty');
+    this.chooseRun = main.locator('.empty').filter({ hasText: 'Choose a run' });
   }
 
   /** Each run's icon tone, in list order. */

@@ -53,3 +53,4 @@ export { Progress } from './progress/progress';
 export { Spinner } from './spinner/spinner';
 export { Card } from './card/card';
 export { Timeline, type TimelineState, type TimelineStep } from './timeline/timeline';
+export { Segmented, type SegmentedOption } from './segmented/segmented';

@@ -2,7 +2,28 @@
 <kx-page-body>
   <kx-rail start>
     <section aria-label="Run history">
-      <kx-list [runs]="runs()" (navigate)="navigate($event)" />
+      <kx-segmented
+        class="runs__filter"
+        label="Filter runs"
+        [options]="filters()"
+        (navigate)="navigate($event)"
+      />
+      @if (store.page(); as page) {
+        @if (page.items.length) {
+          <kx-list [runs]="runs()" (navigate)="navigate($event)" />
+        } @else {
+          <kx-empty
+            card
+            compact
+            tone="success"
+            title="No runs with problems"
+            text="Every run Keryx has on record finished cleanly."
+          >
+            <kx-icon slot="icon" name="success" size="lg" />
+            <kx-btn slot="actions" href="/runs" (navigate)="navigate($event)">Show all runs</kx-btn>
+          </kx-empty>
+        }
+      }
     </section>
     @if (detail(); as shown) {
       <section aria-labelledby="run-title">
@@ -39,6 +60,13 @@
           </section>
         </kx-stack>
       </section>
+    } @else if (store.page()?.items?.length === 0) {
+      <kx-empty
+        title="Choose a run"
+        text="Pick a run from the list to see its pipeline steps and issues."
+      >
+        <kx-icon slot="icon" name="runs" size="lg" />
+      </kx-empty>
     }
   </kx-rail>
 </kx-page-body>

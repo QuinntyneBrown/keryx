@@ -142,6 +142,12 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
   `pages/runs/failed.html` lists Store third and shows "Could not connect to database —
   ECONNREFUSED": the screen keeps the pipeline's order (AC2) and shows no connection detail
   (AC6, `L2-020`), which the server never serves.
+- "With problems" reads the list again with `problems=true`; a run chosen under it keeps the
+  filter in its link (`?problems=true&run=…`). The list shown is always the filter chosen last:
+  a switch clears the list, the chosen run and its detail until its answer arrives. With no
+  match the history shows "No runs with problems" and the detail "Choose a run", as
+  `pages/runs/no-results.html`, except its text: the server filters every run on record, not
+  the last 30 days, so it reads "Every run Keryx has on record finished cleanly."
 - A run with no issues says "No issues in this run" in a compact success state under the
   section's heading (a level-4 title); `pages/runs/success.html` gained that state.
 - `formatRunDuration` is the Overview design's `formatDuration`, whose seconds now read with two
