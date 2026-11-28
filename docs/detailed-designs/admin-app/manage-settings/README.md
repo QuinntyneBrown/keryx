@@ -150,6 +150,17 @@ this design's; the ranges are those of `L2-070`.
 - **Narrow viewports** — below 768 px each section's description stacks above its fields, and
   every control is at least 44 px tall on a touch device.
 
+**Implementation notes (journey 18)**
+
+- The version is the settings row's own counter, raised by every save and mapped as an EF Core
+  concurrency token, so two saves racing from the same reading cannot both write.
+- A focus area that is a region already, by name ignoring case or by slug ("Richmond-Hill"),
+  adds no region. A new one is ranked after the places in focus and before the wider areas
+  (GTA, Ontario, Canada, Global).
+- Chip values are stored trimmed.
+- The `AuditEntry` of a save is stored by Audit staff actions (journey 24), which adds the audit
+  log to every staff change at once. Until then a save records no audit entry.
+
 ## Requirements
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a

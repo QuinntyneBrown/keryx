@@ -6,6 +6,7 @@ using Keryx.Application.Abstractions;
 using Keryx.Application.Seeding;
 using Keryx.Domain;
 using Keryx.Domain.Reference;
+using Keryx.Domain.Seeding;
 using Keryx.Domain.Sources;
 using Keryx.Infrastructure.Persistence;
 using MediatR;
@@ -72,7 +73,7 @@ public sealed class SeedDataCommandHandlerTests : IAsyncDisposable
             db.Regions.Add(new Region("toronto", "City of Toronto", "America/Toronto", rank: 5));
             db.Regions.Add(new Region("gta", "GTA", "America/Toronto", rank: 999));
             db.Categories.Add(new Category("events", "Happenings", rank: 9));
-            db.Settings.Add(new Settings { IntervalHours = 12, RetentionMonths = 6 });
+            db.Settings.Add(Settings.Create(SeedData.DefaultValues() with { IntervalHours = 12, RetentionMonths = 6 }));
             db.Sources.Add(Source.SeededNewsQuery("toronto-church-fitness", "Renamed by staff", "\"church\" AND gym", "gta", Start.AddDays(-30)));
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }

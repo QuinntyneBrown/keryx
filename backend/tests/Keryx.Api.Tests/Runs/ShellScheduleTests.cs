@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Keryx.Api.Tests.Session;
 using Keryx.Domain;
+using Keryx.Domain.Seeding;
 using Keryx.Domain.Sources;
 using Keryx.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -81,7 +82,7 @@ public sealed class ShellScheduleTests
             var db = scope.ServiceProvider.GetRequiredService<KeryxDbContext>();
             db.Settings.Remove(await db.Settings.SingleAsync(TestContext.Current.CancellationToken));
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-            db.Settings.Add(new Settings { IntervalHours = 12, RetentionMonths = 6 });
+            db.Settings.Add(Settings.Create(SeedData.DefaultValues() with { IntervalHours = 12, RetentionMonths = 6 }));
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 

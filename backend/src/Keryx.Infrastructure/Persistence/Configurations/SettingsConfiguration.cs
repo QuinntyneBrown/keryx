@@ -15,5 +15,6 @@ internal sealed class SettingsConfiguration : IEntityTypeConfiguration<Settings>
         builder.Property(settings => settings.Id).ValueGeneratedNever();
         builder.Property(settings => settings.PublishThreshold).HasPrecision(3, 2);
         builder.Property(settings => settings.AlertEmail).HasMaxLength(254);
+        builder.Property(settings => settings.Version).IsConcurrencyToken();
     }
 }

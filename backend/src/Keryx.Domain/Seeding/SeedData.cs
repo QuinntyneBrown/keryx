@@ -47,23 +47,24 @@ public static class SeedData
     ];
 
     /// <summary>The settings a new deployment starts with: the values the mocks show.</summary>
-    public static Settings DefaultSettings() => new()
-    {
-        IntervalHours = 6,
-        TimeoutSeconds = 30,
-        PublishThreshold = 0.60m,
-        Topics = ["fitness", "running", "strength", "sports ministry", "wellness", "church", "faith", "nutrition"],
-        Exclusions = ["casino", "supplement ads", "sponsored"],
-        FocusAreas = ["Toronto", "Mississauga", "Brampton", "Markham", "Vaughan", "Oakville", "Richmond Hill", "Pickering", "Ajax"],
-        IncludeOntarioWide = true,
-        IncludeNational = false,
-        MergeDuplicates = true,
-        RetentionMonths = 24,
-        AlertEmail = null,
-        AlertFailureStreak = 3,
-        AlertOnRunFailure = true,
-        DailyDigest = true,
-    };
+    public static Settings DefaultSettings() => Settings.Create(DefaultValues());
+
+    /// <summary>The default values, which a test may change one by one with <c>with</c>.</summary>
+    public static SettingsValues DefaultValues() => new(
+        IntervalHours: 6,
+        TimeoutSeconds: 30,
+        PublishThreshold: 0.60m,
+        Topics: ["fitness", "running", "strength", "sports ministry", "wellness", "church", "faith", "nutrition"],
+        Exclusions: ["casino", "supplement ads", "sponsored"],
+        FocusAreas: ["Toronto", "Mississauga", "Brampton", "Markham", "Vaughan", "Oakville", "Richmond Hill", "Pickering", "Ajax"],
+        IncludeOntarioWide: true,
+        IncludeNational: false,
+        MergeDuplicates: true,
+        RetentionMonths: 24,
+        AlertEmail: null,
+        AlertFailureStreak: 3,
+        AlertOnRunFailure: true,
+        DailyDigest: true);
 
     /// <summary>The news query sources; staff cannot add this kind (L2-001).</summary>
     public static IReadOnlyList<Source> NewsQuerySources(DateTimeOffset now) =>
