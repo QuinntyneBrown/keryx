@@ -50,6 +50,9 @@ export class SettingsStore {
   private readonly entries = signal<SettingsDraft | null>(null);
   private readonly skeleton = skeletonDelay();
   private confirmation: ReturnType<typeof setTimeout> | undefined;
+  /** The browser's own leave prompt, asked for only while there are unsaved changes (AC6). */
+  private readonly unload = (event: BeforeUnloadEvent) => event.preventDefault();
+  private unloadGuarded = false;
 
   readonly state = this.current.asReadonly();
   readonly draft = this.entries.asReadonly();
@@ -72,6 +75,7 @@ export class SettingsStore {
       this.controller?.abort();
       this.skeleton.cancel();
       clearTimeout(this.confirmation);
+      this.guardUnload(false);
     });
   }
 
@@ -88,6 +92,7 @@ export class SettingsStore {
       const saved = await this.api.getSettings(controller.signal);
       if (controller.signal.aborted) return;
       this.entries.set(draftOf(saved));
+      this.guardUnload();
       this.current.set({ status: 'ready', saved });
     } catch (error) {
       if (controller.signal.aborted) return;
@@ -102,6 +107,7 @@ export class SettingsStore {
   discard(): void {
     const state = this.current();
     if (state.status === 'ready') this.entries.set(draftOf(state.saved));
+    this.guardUnload();
     this.errors.set([]);
     this.settle({ status: 'idle' });
   }
@@ -147,6 +153,7 @@ export class SettingsStore {
       if (controller.signal.aborted) return true;
       this.current.set({ status: 'ready', saved });
       this.entries.set(draftOf(saved));
+      this.guardUnload();
       this.fresh.set(NONE_NEW);
       this.settle({ status: 'saved', at: new Date() });
       this.confirmation = setTimeout(() => this.settle({ status: 'idle' }), SAVED_FOR_MS);
@@ -167,7 +174,20 @@ export class SettingsStore {
   /** Changes one entry of the draft; it ends a save's confirmation (L2-071 AC4). */
   set<K extends keyof SettingsDraft>(field: K, value: SettingsDraft[K]): void {
     this.entries.update((draft) => (draft ? { ...draft, [field]: value } : draft));
+    this.guardUnload();
     if (this.saveState().status === 'saved') this.settle({ status: 'idle' });
+  }
+
+  /**
+   * Adds or removes the `beforeunload` listener as the entries come to differ from the saved
+   * settings, or no longer do: a listener held when nothing is unsaved would ask for nothing and
+   * keep the page out of the back-forward cache.
+   */
+  private guardUnload(dirty = this.dirty()): void {
+    if (dirty === this.unloadGuarded) return;
+    this.unloadGuarded = dirty;
+    if (dirty) window.addEventListener('beforeunload', this.unload);
+    else window.removeEventListener('beforeunload', this.unload);
   }
 
   private settle(state: SaveState): void {

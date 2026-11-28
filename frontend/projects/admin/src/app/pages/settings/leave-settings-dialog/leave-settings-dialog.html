@@ -1,0 +1,15 @@
+<kx-dialog
+  small
+  title="Leave without saving?"
+  description="Your changes to Settings aren’t saved."
+  [titleId]="titleId"
+  [descriptionId]="descriptionId"
+  (dismiss)="stay()"
+  (submitted)="leave()"
+>
+  <p>
+    If you leave now, they’re lost and Keryx keeps its saved settings. Stay to save or discard them.
+  </p>
+  <kx-btn slot="actions" (activated)="stay()">Stay</kx-btn>
+  <kx-btn slot="actions" variant="danger-solid" submit>Leave</kx-btn>
+</kx-dialog>

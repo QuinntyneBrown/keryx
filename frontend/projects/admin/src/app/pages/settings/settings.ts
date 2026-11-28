@@ -38,6 +38,7 @@ import {
   type SettingsField,
 } from '@kx/domain';
 import { HttpSettingsApi } from '../../settings/http-settings-api';
+import type { LeavesSafely } from '../../settings/unsaved-changes-guard';
 import { SettingsStore } from '../../settings/settings-store';
 
 /**
@@ -67,7 +68,7 @@ import { SettingsStore } from '../../settings/settings-store';
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
 })
-export default class Settings {
+export default class Settings implements LeavesSafely {
   private readonly session = inject(SESSION_API);
   private readonly staff = inject(CURRENT_STAFF);
   private readonly router = inject(Router);
@@ -155,6 +156,27 @@ export default class Settings {
     ref.closed.subscribe((value) => {
       if (value) this.store.add(list, value);
     });
+  }
+
+  /**
+   * With unsaved changes, asks before Settings is left for another screen (L2-071 AC6): Leave
+   * resolves true, and Stay, Close or Escape false, which keeps every entry.
+   */
+  async canLeave(): Promise<boolean> {
+    if (!this.store.dirty()) return true;
+    const [{ Dialog }, dialog] = await Promise.all([
+      import('@angular/cdk/dialog'),
+      import('./leave-settings-dialog/leave-settings-dialog'),
+    ]);
+    const ref = this.injector.get(Dialog).open<boolean>(dialog.LeaveSettingsDialog, {
+      injector: this.injector,
+      ariaModal: true,
+      ariaLabelledBy: dialog.LEAVE_SETTINGS_TITLE_ID,
+      ariaDescribedBy: dialog.LEAVE_SETTINGS_DESCRIPTION_ID,
+      autoFocus: dialog.LEAVE_SETTINGS_AUTO_FOCUS,
+      backdropClass: 'kx-backdrop',
+    });
+    return new Promise((resolve) => ref.closed.subscribe((leave) => resolve(leave === true)));
   }
 
   /** Follows a summary line to its field. */

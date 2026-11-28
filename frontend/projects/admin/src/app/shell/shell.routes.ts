@@ -3,6 +3,7 @@ import { OVERVIEW_API, RUNS_API } from '@kx/api';
 import { HttpOverviewApi } from '../overview/http-overview-api';
 import { HttpRunsApi } from '../runs/http-runs-api';
 import AppShell from './app-shell';
+import { unsavedChangesGuard } from '../settings/unsaved-changes-guard';
 
 /**
  * The screens inside the shell. The shell is this lazy route tree's own component, not a
@@ -47,6 +48,7 @@ export default [
         path: 'settings',
         title: 'Settings · Keryx',
         loadComponent: () => import('../pages/settings/settings'),
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: '**',

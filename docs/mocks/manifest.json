@@ -418,6 +418,22 @@
         "empty": "The screen lists nothing.",
         "error": "The screen makes no request that can fail."
       }
+    },
+    {
+      "id": "leave-settings",
+      "kind": "dialog",
+      "title": "Leave Settings",
+      "opens_from": "settings",
+      "not_applicable": {
+        "invalid": "A confirmation with no inputs.",
+        "busy": "Leaving sends nothing."
+      },
+      "states": [
+        "default"
+      ],
+      "requirements": [
+        "L2-071"
+      ]
     }
   ]
 }

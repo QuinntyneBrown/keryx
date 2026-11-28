@@ -54,8 +54,9 @@ Keryx database, a relational database (PostgreSQL, [ADR 0001](../../../adr/0001-
   for 8 seconds or until the next edit, and releases that timer on destroy.
 - **`unsavedChangesGuard`** — `CanDeactivateFn` on the Settings route. When the store is dirty
   it asks the staff member to confirm leaving; choosing to stay cancels the navigation and
-  loses nothing. The in-app confirmation has no mock; its presentation is `<TO SUPPLY>` and is
-  added to the mocks and the design system before it is built (`L2-098` criterion 5).
+  loses nothing. The in-app confirmation is the "Leave without saving?" dialog
+  (`dialogs/leave-settings/default.html`), built from the library's dialog: focus starts on
+  Stay, and Stay, Close or Escape cancel the navigation.
 - **`beforeunload` listener** — registered by `SettingsPage` while the store is dirty, so closing
   the tab or reloading raises the browser's own leave prompt. It is removed when the store is
   clean and when the page is destroyed.
