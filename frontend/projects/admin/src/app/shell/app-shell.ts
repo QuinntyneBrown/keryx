@@ -12,7 +12,12 @@ import {
   Toast,
   ToastRegion,
 } from '@kx/components';
-import { failingSourcesLabel } from '@kx/domain';
+import {
+  collectionRecurrence,
+  failingSourcesLabel,
+  formatClockTime,
+  formatCountdown,
+} from '@kx/domain';
 import { NotifierStore } from '../notifier/notifier-store';
 import { CollectionWatcher } from '../schedule/collection-watcher';
 import { ScheduleStore } from '../schedule/schedule-store';
@@ -46,7 +51,21 @@ export default class AppShell {
   /** The path shown, without its query or fragment; it marks the current navigation link. */
   private readonly path = signal(this.pathOf(this.router.url));
 
-  private readonly schedule = inject(ScheduleStore);
+  protected readonly schedule = inject(ScheduleStore);
+  /** The next collection in the sidebar footer, in the schedule's zone (L2-042 AC1). */
+  protected readonly nextCollection = computed(() => {
+    const next = this.schedule.schedule();
+    return next ? formatClockTime(next.next_run_at, next.time_zone) : undefined;
+  });
+  /** How long until then; it moves on with the store's clock, with no request (AC6). */
+  protected readonly countdown = computed(() => {
+    const next = this.schedule.schedule();
+    return next ? formatCountdown(this.schedule.now(), next.next_run_at) : undefined;
+  });
+  protected readonly recurrence = computed(() => {
+    const next = this.schedule.schedule();
+    return next ? collectionRecurrence(next.interval_hours, next.time_zone) : undefined;
+  });
   /** The sources whose last fetch failed, counted on the Runs link (L2-042 AC3). */
   protected readonly failingSources = computed(
     () => this.schedule.schedule()?.failing_sources ?? 0,

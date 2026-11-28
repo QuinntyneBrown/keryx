@@ -3,7 +3,9 @@
 // Description: The admin app opens on Overview inside the shell, built only from design-system components
 
 import { expect, test } from '../fixtures/test';
-import { shellSchedule } from '../fixtures/runs';
+import type { Page } from '@playwright/test';
+import { OVERVIEW_NOW, overviewRun, overviewStatus } from '../fixtures/overview';
+import { runDetail, runningDetail, shellSchedule } from '../fixtures/runs';
 import { ShellPage } from '../page-objects/admin/shell.page';
 
 // Overview's description: text only its own lazy chunk holds.
@@ -198,5 +200,125 @@ test.describe('Failing sources on Runs', () => {
 
     await expect(shell.runsLink).toHaveText('Runs');
     await expect(shell.runsBadge).toHaveCount(0);
+  });
+});
+
+/** Every request the page sent so far has reached the server: one it sends now arrives after. */
+async function settled(page: Page): Promise<void> {
+  await page.evaluate(() => fetch('/admin/v1/regions').then((response) => response.ok));
+}
+
+test.describe('Next collection in the sidebar', () => {
+  // L2-042 AC1 and AC7: 2h 14m before the 12:00 PM run, from 1024 px.
+  test('shows the next collection, its countdown and the schedule from 1024 px', async ({
+    page,
+  }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    const shell = new ShellPage(page);
+    await shell.resize(1024);
+
+    await shell.open('/settings');
+
+    await expect(shell.nextCollection).toHaveText('12:00 PM · in 2h 14m');
+    await expect(shell.collectionCaptions).toHaveText([
+      'Next collection',
+      'Every 6 hours, Toronto time',
+    ]);
+  });
+
+  test('says "every hour" for a one-hour schedule', async ({ page, api }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    api.on('GET', '/admin/v1/overview/schedule', () => ({
+      json: shellSchedule({ interval_hours: 1, next_run_at: '2026-11-28T15:00:00Z' }),
+    }));
+    const shell = new ShellPage(page);
+
+    await shell.open('/settings');
+
+    await expect(shell.nextCollection).toHaveText('10:00 AM · in 14m');
+    await expect(shell.collectionCaptions).toHaveText([
+      'Next collection',
+      'Every hour, Toronto time',
+    ]);
+  });
+
+  // L2-042 AC7: below 1024 px the footer is not shown.
+  test('hides the next collection below 1024 px', async ({ page }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    const shell = new ShellPage(page);
+    await shell.resize(1023);
+
+    await shell.open('/settings');
+
+    await expect(shell.nextCollection).toBeHidden();
+  });
+
+  // L2-042 AC6: a minute later the countdown reads one minute less, with no request.
+  test('counts down each minute without asking the server', async ({ page, api }) => {
+    await page.clock.install({ time: OVERVIEW_NOW });
+    let scheduleReads = 0;
+    api.on('GET', '/admin/v1/overview/schedule', () => {
+      scheduleReads += 1;
+      return { json: shellSchedule() };
+    });
+    const shell = new ShellPage(page);
+    await shell.open('/settings');
+    await expect(shell.nextCollection).toHaveText('12:00 PM · in 2h 14m');
+
+    await page.clock.runFor(60_000);
+
+    await expect(shell.nextCollection).toHaveText('12:00 PM · in 2h 13m');
+    await settled(page);
+    expect(scheduleReads).toBe(1);
+  });
+
+  // L2-042 AC6: once 12:00 PM passes the shell asks again; while the run is in progress the
+  // footer says so, and once it ends it names the 6:00 PM run.
+  test('says it is collecting during the scheduled run, then names the next', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.install({ time: OVERVIEW_NOW });
+    let phase: 'waiting' | 'running' | 'ended' = 'waiting';
+    api.on('GET', '/admin/v1/overview/schedule', () => ({
+      json: shellSchedule(phase === 'waiting' ? {} : { next_run_at: '2026-11-28T23:00:00Z' }),
+    }));
+    api.on('GET', '/admin/v1/overview/status', () => ({
+      json: overviewStatus(
+        phase === 'running'
+          ? {
+              current_run: overviewRun({
+                id: 'run_2419',
+                started_at: '2026-11-28T17:00:00Z',
+                finished_at: null,
+                duration_ms: null,
+                outcome: 'running',
+              }),
+            }
+          : {},
+      ),
+    }));
+    api.on('GET', '/admin/v1/runs/run_2419', () => ({
+      json:
+        phase === 'running'
+          ? runningDetail()
+          : runDetail('run_2419', { outcome: 'succeeded', added: 47, sources_failed: 0 }),
+    }));
+    const shell = new ShellPage(page);
+    await shell.open('/settings');
+    await expect(shell.nextCollection).toHaveText('12:00 PM · in 2h 14m');
+
+    phase = 'running';
+    await page.clock.fastForward('02:14:30');
+    await expect(async () => {
+      await page.clock.runFor(1000);
+      await expect(shell.nextCollection).toHaveText('Collecting now…', { timeout: 50 });
+    }).toPass({ intervals: [0], timeout: 10_000 });
+
+    phase = 'ended';
+    await expect(async () => {
+      await page.clock.runFor(1000);
+      await expect(shell.nextCollection).toHaveText(/6:00 PM · in 5h \d+m$/, { timeout: 50 });
+    }).toPass({ intervals: [0], timeout: 10_000 });
   });
 });

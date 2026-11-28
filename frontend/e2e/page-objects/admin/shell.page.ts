@@ -26,6 +26,9 @@ export class ShellPage {
   /** The card's icon disc and action row, which take no room while nothing is in them. */
   /** The sidebar footer and the signed-in person in it. */
   readonly footer: Locator;
+  /** The next collection in the footer: its captions and the time with its countdown. */
+  readonly collectionCaptions: Locator;
+  readonly nextCollection: Locator;
   readonly avatar: Locator;
   readonly userName: Locator;
   readonly userRole: Locator;
@@ -49,6 +52,8 @@ export class ShellPage {
     this.headings = page.locator('h1');
     this.description = this.main.locator('.page-header__description');
     this.footer = this.sidebar.locator('.sidebar__foot');
+    this.collectionCaptions = this.footer.locator(':scope > .sidebar__caption');
+    this.nextCollection = this.footer.locator('.sidebar__value');
     this.avatar = this.footer.locator('.sidebar__user .avatar');
     this.userName = this.footer.locator('.sidebar__user-name');
     this.userRole = this.footer.locator('.sidebar__user .sidebar__caption');

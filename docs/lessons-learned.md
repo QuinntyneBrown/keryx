@@ -1159,3 +1159,19 @@ Lessons:
 **How earlier lessons worked.**
 - "A new default in a shared flow means running the whole suite" found the three Runs specs in
   one run.
+
+## Issue 6: The sidebar shows the next collection
+
+One slice, frontend only, stacked on issue 5. `Sidebar` already took the next collection, the
+countdown, the schedule and `collecting`; `ScheduleStore` already ticked its clock and asked
+again once the time passed. The shell now binds them, with `collectionRecurrence` added to the
+domain helpers.
+
+Lessons:
+- **A regular expression in `toHaveText` is not whitespace-normalized; a string is.** Anchor
+  the end, not the start, when the component's text begins with a space.
+- **Prove a clock rule by slowing the clock, not by deleting the binding.** Raising the
+  store's tick to two minutes killed the one-minute countdown spec for the right reason.
+
+**How earlier lessons worked.**
+- The scheduled-run spec's `toPass({ intervals: [0] })` step loop carried over unchanged.
