@@ -151,7 +151,7 @@ test.describe('Sources columns and paging', () => {
     expect(queries).toEqual(Array(3).fill('?page=1&page_size=12'));
   });
 
-  test('reads the same page again on Try again', async ({ page, api }) => {
+  test('reads the same page of the same kind again on Try again', async ({ page, api }) => {
     const queries: string[] = [];
     api.on('GET', '/admin/v1/sources', (request) => {
       queries.push(new URL(request.url()).search);
@@ -160,11 +160,11 @@ test.describe('Sources columns and paging', () => {
         : { json: pageOf(3, [source(25)]) };
     });
     const sources = new SourcesPage(page);
-    await sources.open('?page=3');
+    await sources.open('?kind=rss&page=3');
 
     await sources.tryAgain.click();
 
     await expect(sources.row(0).name).toHaveText('Source 25');
-    expect(queries).toEqual(['?page=3&page_size=12', '?page=3&page_size=12']);
+    expect(queries).toEqual(['?page=3&page_size=12&kind=rss', '?page=3&page_size=12&kind=rss']);
   });
 });

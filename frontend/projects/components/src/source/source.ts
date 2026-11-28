@@ -2,7 +2,8 @@ import { Component, computed, input } from '@angular/core';
 import type { SourceKind } from '@kx/api';
 import { Icon, type IconName } from '../icon/icon';
 
-const KIND_ICONS: Record<SourceKind, IconName> = {
+/** The icon that stands for a kind of source, as the source cell shows it. */
+export const KIND_ICONS: Readonly<Record<SourceKind, IconName>> = {
   rss: 'rss',
   website: 'globe',
   instagram: 'instagram',

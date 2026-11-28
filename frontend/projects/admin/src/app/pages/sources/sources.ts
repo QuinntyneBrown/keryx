@@ -1,16 +1,19 @@
-import { Component, computed, DestroyRef, inject, Injector } from '@angular/core';
+import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NOTIFIER, SOURCES_API, type SourceListItem } from '@kx/api';
+import { NOTIFIER, SOURCES_API, type SourceKind, type SourceListItem } from '@kx/api';
 import {
   Btn,
   Empty,
+  FilterChip,
   Health,
+  KIND_ICONS,
   Icon,
   PageBody,
   PageHeader,
   Pagination,
   Source,
   Table,
+  type FilterChipOption,
   type TableColumn,
 } from '@kx/components';
 import {
@@ -18,8 +21,11 @@ import {
   formatSourceAddress,
   nothingRelevantNotice,
   sourceHealthLabel,
+  SOURCE_KINDS,
   sourceKindLabel,
+  sourceKindOf,
   sourceLastFetched,
+  sourcesNoResults,
   sourcesRange,
   sourcesSummary,
 } from '@kx/domain';
@@ -41,7 +47,7 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-sources',
-  imports: [Btn, Empty, Health, Icon, PageBody, PageHeader, Pagination, Source, Table],
+  imports: [Btn, Empty, FilterChip, Health, Icon, PageBody, PageHeader, Pagination, Source, Table],
   providers: [{ provide: SOURCES_API, useClass: HttpSourcesApi }, SourcesStore],
   templateUrl: './sources.html',
   styleUrl: './sources.scss',
@@ -61,6 +67,30 @@ export default class Sources {
     { key: 'articles', label: 'Articles · 30d', wide: true, numeric: true },
     { key: 'lastFetched', label: 'Last fetched', wide: true, muted: true, nowrap: true },
   ];
+
+  /** The kind the URL narrows the list to, or null for every kind (L2-062 AC4). */
+  protected readonly kind = signal<SourceKind | null>(null);
+
+  /** All, then each kind, the one in force pressed. */
+  protected readonly chips = computed((): FilterChipOption[] => {
+    const kind = this.kind();
+    return [
+      { value: 'all', label: 'All', pressed: kind === null },
+      ...SOURCE_KINDS.map((each) => ({
+        value: each,
+        label: sourceKindLabel(each),
+        pressed: each === kind,
+      })),
+    ];
+  });
+
+  /** No source is of the kind chosen (L2-062 AC5); null otherwise. */
+  protected readonly noResults = computed(() => {
+    const state = this.store.state();
+    const kind = this.kind();
+    if (state.status !== 'ready' || !kind || state.page.total > 0) return null;
+    return { ...sourcesNoResults(kind, state.page.all_count), icon: KIND_ICONS[kind] };
+  });
 
   protected readonly description = computed(() => {
     const state = this.store.state();
@@ -93,7 +123,7 @@ export default class Sources {
   protected readonly range = computed(() => {
     const state = this.store.state();
     return state.status === 'ready'
-      ? sourcesRange(state.page.page, state.page.page_size, state.page.total)
+      ? sourcesRange(state.page.page, state.page.page_size, state.page.total, this.kind())
       : '';
   });
 
@@ -106,10 +136,20 @@ export default class Sources {
 
   constructor() {
     // The page is in the URL, so a reload or a shared link opens it.
-    const subscription = this.route.queryParamMap.subscribe(
-      (params) => void this.store.load(pageParam(params.get('page'))),
-    );
+    const subscription = this.route.queryParamMap.subscribe((params) => {
+      const kind = sourceKindOf(params.get('kind'));
+      this.kind.set(kind);
+      void this.store.load(pageParam(params.get('page')), kind);
+    });
     inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
+  }
+
+  /** A kind chip: the list shows that kind, or every kind, from its first page (L2-062 AC4). */
+  protected choose(value: string): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { kind: sourceKindOf(value), page: null },
+    });
   }
 
   /** Previous or Next: the page goes in the URL, which loads it. */

@@ -1,5 +1,9 @@
-// Sources composes library components; it adds only the narrow screen's health line under the
-// source's name (docs/mocks/pages/sources/default.html, below 1024 px).
+// Sources composes library components; it adds only the space under the kind chips and the
+// narrow screen's health line under the source's name (docs/mocks/pages/sources/).
+.sources__kinds {
+  margin-bottom: var(--space-4);
+}
+
 .sources__narrow-health {
   display: block;
   margin-top: var(--space-0-5);

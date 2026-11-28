@@ -11,6 +11,50 @@ const KIND_LABELS: Record<SourceKind, string> = {
   news_query: 'News query',
 };
 
+/** Every kind, in the order the kind chips show them (L2-062 AC4). */
+export const SOURCE_KINDS: readonly SourceKind[] = [
+  'rss',
+  'website',
+  'instagram',
+  'eventbrite',
+  'news_query',
+];
+
+/** A kind inside a sentence, "23 RSS sources": the label, lower-cased unless a name. */
+const KIND_NOUNS: Record<SourceKind, string> = {
+  rss: 'RSS',
+  website: 'website',
+  instagram: 'Instagram',
+  eventbrite: 'Eventbrite',
+  news_query: 'news query',
+};
+
+/** What one source of a kind is: "an Eventbrite organiser". */
+const KIND_ONE: Record<SourceKind, string> = {
+  rss: 'an RSS feed',
+  website: 'a website',
+  instagram: 'an Instagram account',
+  eventbrite: 'an Eventbrite organiser',
+  news_query: 'a news query',
+};
+
+/** The kind a URL names, or null for every kind and for a word Keryx does not know. */
+export function sourceKindOf(value: string | null): SourceKind | null {
+  return SOURCE_KINDS.find((kind) => kind === value) ?? null;
+}
+
+/**
+ * The no-results state for a kind no source is (L2-062 AC5): "No Eventbrite sources" and "None
+ * of the 64 sources is an Eventbrite organiser. Show every type, or add one."
+ */
+export function sourcesNoResults(kind: SourceKind, all: number): { title: string; text: string } {
+  const none =
+    all === 1
+      ? `The one source isn’t ${KIND_ONE[kind]}.`
+      : `None of the ${NUMBER.format(all)} sources is ${KIND_ONE[kind]}.`;
+  return { title: `No ${KIND_NOUNS[kind]} sources`, text: `${none} Show every type, or add one.` };
+}
+
 /** The name of a kind as staff read it: "RSS", "News query". */
 export function sourceKindLabel(kind: SourceKind): string {
   return KIND_LABELS[kind];
@@ -80,8 +124,15 @@ export interface SourceCounts {
 }
 
 /** "Showing 1–12 of 64 sources, failing first." under the Sources table (L2-062 AC1). */
-export function sourcesRange(page: number, pageSize: number, total: number): string {
-  return `${pageRange(page, pageSize, total, ['source', 'sources'])}, failing first.`;
+export function sourcesRange(
+  page: number,
+  pageSize: number,
+  total: number,
+  kind: SourceKind | null = null,
+): string {
+  const noun = kind ? `${KIND_NOUNS[kind]} ` : '';
+  const range = pageRange(page, pageSize, total, [`${noun}source`, `${noun}sources`]);
+  return `${range}, failing first.`;
 }
 
 /** When a source was last fetched, "Today, 6:01 AM", or "Not yet" before its first run. */

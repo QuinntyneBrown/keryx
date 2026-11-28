@@ -1,0 +1,45 @@
+// Filter chips (docs/design-system/components/filter-chip.html).
+:host {
+  display: block;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-sm);
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-border-emphasis);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-muted);
+  font: var(--text-body-sm);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  // The chip in force is filled; `aria-pressed` says so to a screen reader too.
+  &[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-fg-on-accent);
+  }
+}
+
+@media (forced-colors: active) {
+  .filter-chip {
+    border: 1px solid CanvasText;
+  }
+
+  .filter-chip[aria-pressed='true'] {
+    outline: 2px solid Highlight;
+  }
+}

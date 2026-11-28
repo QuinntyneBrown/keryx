@@ -2,7 +2,9 @@ import {
   formatSourceAddress,
   sourceHealthLabel,
   sourceKindLabel,
+  sourceKindOf,
   sourceLastFetched,
+  sourcesNoResults,
   sourcesRange,
   sourcesSummary,
 } from '../public-api';
@@ -79,12 +81,65 @@ describe('sourceHealthLabel', () => {
 
 describe('sourcesRange', () => {
   it.each([
-    [1, 64, 'Showing 1–12 of 64 sources, failing first.'],
-    [6, 64, 'Showing 61–64 of 64 sources, failing first.'],
-    [1, 1, 'Showing 1–1 of 1 source, failing first.'],
-    [1, 0, 'Showing 0 sources, failing first.'],
-  ])('page %i of %i sources', (page, total, expected) => {
-    expect(sourcesRange(page, 12, total)).toBe(expected);
+    [1, 64, null, 'Showing 1–12 of 64 sources, failing first.'],
+    [6, 64, null, 'Showing 61–64 of 64 sources, failing first.'],
+    [1, 1, null, 'Showing 1–1 of 1 source, failing first.'],
+    [1, 0, null, 'Showing 0 sources, failing first.'],
+    [1, 23, 'rss', 'Showing 1–12 of 23 RSS sources, failing first.'],
+    [1, 1, 'news_query', 'Showing 1–1 of 1 news query source, failing first.'],
+    [1, 3, 'website', 'Showing 1–3 of 3 website sources, failing first.'],
+  ] as const)('page %i of %i sources of kind %s', (page, total, kind, expected) => {
+    expect(sourcesRange(page, 12, total, kind)).toBe(expected);
+  });
+});
+
+describe('sourceKindOf', () => {
+  it.each([
+    ['rss', 'rss'],
+    ['news_query', 'news_query'],
+    ['fax', null],
+    ['RSS', null],
+    [null, null],
+  ] as const)('reads %s as %s', (value, kind) => {
+    expect(sourceKindOf(value)).toBe(kind);
+  });
+});
+
+describe('sourcesNoResults', () => {
+  // L2-062 AC5, as pages/sources/no-results.html words it for Eventbrite.
+  it.each([
+    [
+      'eventbrite',
+      64,
+      'No Eventbrite sources',
+      'None of the 64 sources is an Eventbrite organiser. Show every type, or add one.',
+    ],
+    [
+      'rss',
+      1200,
+      'No RSS sources',
+      'None of the 1,200 sources is an RSS feed. Show every type, or add one.',
+    ],
+    [
+      'website',
+      2,
+      'No website sources',
+      'None of the 2 sources is a website. Show every type, or add one.',
+    ],
+    [
+      'instagram',
+      1,
+      'No Instagram sources',
+      'The one source isn’t an Instagram account. Show every type, or add one.',
+    ],
+    [
+      'news_query',
+      5,
+      'No news query sources',
+      'None of the 5 sources is a news query. Show every type, or add one.',
+    ],
+  ] as const)('%s among %i', (kind, all, title, text) => {
+    expect(sourcesNoResults(kind, all)).toEqual({ title, text });
   });
 });
 

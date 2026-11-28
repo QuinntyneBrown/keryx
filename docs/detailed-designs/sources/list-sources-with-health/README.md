@@ -62,6 +62,15 @@ that derives health during a run.
   and reloads from page 1. A kind with no source shows the `empty--compact` no-results state "No
   Eventbrite sources" / "None of the 64 sources is an Eventbrite organiser. Show every type, or add
   one." with "Show all types" and "Add source".
+  - As built (journey 17): the chips are the design system's `filter-chip` (`kx-filter-chip`
+    in the components library), toggle buttons in a group named "Filter by source type", as
+    the design system specifies for the product; the mocks draw them as links with
+    `aria-current` only so they can be clicked through. The kind is in the URL (`?kind=rss`,
+    absent for All; a word Keryx does not know reads as All), and choosing a chip drops the
+    page. The range names the kind ("Showing 1–12 of 23 RSS sources, failing first."). The
+    other kinds' no-results words follow the mock's: "No RSS sources" / "None of the 64
+    sources is an RSS feed. …", "a website", "an Instagram account", "a news query", and with
+    one source "The one source isn’t …".
 - **`sourceHealthLabel`** — domain helper with unit tests producing "Healthy", "Needs a look: 6
   held for review", "Failing: 404 Not Found" and "Failing: Timeout · 4 runs". The label for each
   other reason and the count at which " · N runs" appears are `<TO SUPPLY>`; the mock shows it for

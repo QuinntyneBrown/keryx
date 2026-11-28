@@ -1,0 +1,12 @@
+<div class="filter-chips" role="group" [attr.aria-label]="label()">
+  @for (option of options(); track option.value) {
+    <button
+      class="filter-chip"
+      type="button"
+      [attr.aria-pressed]="option.pressed ? 'true' : 'false'"
+      (click)="chosen.emit(option.value)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
