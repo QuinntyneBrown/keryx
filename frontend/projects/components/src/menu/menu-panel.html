@@ -1,0 +1,38 @@
+<div
+  #menu
+  class="menu"
+  role="menu"
+  tabindex="-1"
+  [attr.aria-label]="data.label"
+  (keydown)="data.keydown($event)"
+  (focusout)="data.focusout($event, menu)"
+>
+  @for (item of data.items; track item.id) {
+    @if (item.danger) {
+      <div class="menu__divider" role="separator"></div>
+    }
+    @if (item.href) {
+      <a
+        [attr.class]="item.danger ? 'menu__item menu__item--danger' : 'menu__item'"
+        role="menuitem"
+        tabindex="-1"
+        [href]="item.href"
+        target="_blank"
+        rel="noopener noreferrer"
+        (click)="data.followed()"
+        ><kx-icon [name]="item.icon" size="sm" />{{ item.label
+        }}<span class="visually-hidden">&ngsp;(opens in a new tab)</span></a
+      >
+    } @else {
+      <button
+        [attr.class]="item.danger ? 'menu__item menu__item--danger' : 'menu__item'"
+        role="menuitem"
+        tabindex="-1"
+        type="button"
+        (click)="data.choose(item.id)"
+      >
+        <kx-icon [name]="item.icon" size="sm" />{{ item.label }}
+      </button>
+    }
+  }
+</div>

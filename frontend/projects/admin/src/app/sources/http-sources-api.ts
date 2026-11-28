@@ -41,6 +41,14 @@ export class HttpSourcesApi implements SourcesApi {
     });
   }
 
+  async testSource(id: string, signal: AbortSignal): Promise<SourceTestResult> {
+    const token = await antiforgeryToken(signal);
+    return readJson<SourceTestResult>(`/admin/v1/sources/${encodeURIComponent(id)}/test`, signal, {
+      method: 'POST',
+      headers: { 'X-XSRF-TOKEN': token },
+    });
+  }
+
   async create(source: NewSource, signal: AbortSignal): Promise<SourceDetail> {
     const token = await antiforgeryToken(signal);
     return readJson<SourceDetail>('/admin/v1/sources', signal, {

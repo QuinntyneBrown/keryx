@@ -8,6 +8,7 @@ export {
   sourceKindLabel,
   sourceKindOf,
   sourceLastFetched,
+  sourceSiteLink,
   sourcesNoResults,
   sourcesRange,
   sourcesSummary,
@@ -22,6 +23,7 @@ export {
 } from './sources/source-form-validation';
 export {
   nothingRelevantNotice,
+  sourceTestNotice,
   testFetchSummary,
   type TestFetchSummary,
 } from './sources/test-fetch-words';

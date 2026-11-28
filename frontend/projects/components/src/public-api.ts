@@ -54,4 +54,5 @@ export { Spinner } from './spinner/spinner';
 export { Card } from './card/card';
 export { Timeline, type TimelineState, type TimelineStep } from './timeline/timeline';
 export { FilterChip, type FilterChipOption } from './filter-chip/filter-chip';
+export { Menu, type MenuItem } from './menu/menu';
 export { Segmented, type SegmentedOption } from './segmented/segmented';

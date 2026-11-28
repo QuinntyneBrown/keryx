@@ -2,6 +2,8 @@
   class="icon-btn"
   type="button"
   [attr.aria-label]="label()"
+  [attr.aria-haspopup]="haspopup()"
+  [attr.aria-expanded]="expanded() === null ? null : expanded() ? 'true' : 'false'"
   [disabled]="disabled()"
   (click)="activated.emit()"
 >

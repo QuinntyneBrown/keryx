@@ -30,7 +30,8 @@
   translate: -50% -50%;
 }
 
-.icon-btn:hover {
+.icon-btn:hover,
+.icon-btn[aria-expanded='true'] {
   background: var(--color-bg-subtle-hover);
   color: var(--color-fg-default);
 }

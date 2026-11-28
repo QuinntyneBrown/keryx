@@ -87,3 +87,19 @@ export function nothingRelevantNotice(
     text: `The test fetch for ${organisation} found ${count(kind, result.items_found, SHORT_ITEMS)} and none matched your topics.`,
   };
 }
+
+/**
+ * How "Test fetch now" went (L2-063 AC3): "Tested Redeemed Run Club Toronto" and the sentence of
+ * the add dialog. An unreachable source's health is not changed by a test, so the notice says
+ * when it is.
+ */
+export function sourceTestNotice(kind: SourceKind, name: string, result: SourceTestResult): Notice {
+  const summary = testFetchSummary(kind, result);
+  return {
+    tone: summary.tone,
+    title: `Tested ${name}`,
+    text: result.reachable
+      ? summary.text
+      : `${summary.text} Its health changes when a run fetches it.`,
+  };
+}

@@ -66,6 +66,11 @@ export interface SourcesApi {
   regions(signal: AbortSignal): Promise<Region[]>;
   /** Test-fetches an address before it is added. An unreachable one resolves, with a reason. */
   testAddress(kind: SourceKind, address: string, signal: AbortSignal): Promise<SourceTestResult>;
+  /**
+   * Test-fetches a source in the catalogue, leaving its health as it is (L2-063 AC3); refuses
+   * `source_not_found` when it was removed meanwhile.
+   */
+  testSource(id: string, signal: AbortSignal): Promise<SourceTestResult>;
   /** Adds a source; a refusal names its `code` (`source_exists`, `unsafe_address`, …). */
   create(source: NewSource, signal: AbortSignal): Promise<SourceDetail>;
 }

@@ -71,6 +71,7 @@ test.describe('Sources columns and paging', () => {
       'Region',
       'Articles · 30d',
       'Last fetched',
+      'Actions',
     ]);
     const redeemed = sources.row(0);
     await expect(redeemed.health).toHaveText('Failing: 404 Not Found');

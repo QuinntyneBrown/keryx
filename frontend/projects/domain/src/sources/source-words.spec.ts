@@ -4,6 +4,7 @@ import {
   sourceKindLabel,
   sourceKindOf,
   sourceLastFetched,
+  sourceSiteLink,
   sourcesNoResults,
   sourcesRange,
   sourcesSummary,
@@ -167,5 +168,19 @@ describe('sourcesSummary', () => {
     [{ all: 1234, failing: 0, needsLook: 0 }, '1,234 sources across the GTA'],
   ])('summarises %o as %s', (counts, expected) => {
     expect(sourcesSummary(counts)).toBe(expected);
+  });
+});
+
+describe('sourceSiteLink', () => {
+  // L2-063 AC4: only http(s) opens, never a script or a query.
+  it.each([
+    ['https://redeemedrun.ca/feed', { host: 'redeemedrun.ca', url: 'https://redeemedrun.ca/feed' }],
+    ['http://www.Example.ca/a?b=1', { host: 'example.ca', url: 'http://www.example.ca/a?b=1' }],
+    ['javascript:alert(1)', null],
+    ['data:text/html,hi', null],
+    ['ftp://files.example.ca/feed', null],
+    ['"church" AND fitness near:Toronto', null],
+  ] as const)('%s', (address, link) => {
+    expect(sourceSiteLink(address)).toEqual(link);
   });
 });

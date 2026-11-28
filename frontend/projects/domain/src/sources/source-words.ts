@@ -148,3 +148,18 @@ export function sourcesSummary({ all, failing, needsLook }: SourceCounts): strin
   if (needsLook > 0) parts.push(`${NUMBER.format(needsLook)} need a look`);
   return parts.join(' · ');
 }
+
+/**
+ * The site a source's "Open <host>" item opens (L2-063 AC4): its host and its address, only for an
+ * `http` or `https` URL. A news query, or any other address, has none.
+ */
+export function sourceSiteLink(address: string): { host: string; url: string } | null {
+  let url: URL;
+  try {
+    url = new URL(address);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+  return { host: url.hostname.replace(/^www\./, ''), url: url.href };
+}

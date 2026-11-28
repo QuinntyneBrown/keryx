@@ -97,6 +97,7 @@ test.describe('Sources', () => {
         'Region',
         'Articles · 30d',
         'Last fetched',
+        'Actions',
       ]);
       await expect(sources.rows).toHaveCount(3);
       const failing = sources.row(0);

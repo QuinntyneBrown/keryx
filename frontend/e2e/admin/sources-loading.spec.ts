@@ -57,6 +57,7 @@ test('shows skeleton rows while the first answer is slow, then the sources', asy
     'Region',
     'Articles · 30d',
     'Last fetched',
+    'Actions',
   ]);
 
   answer();

@@ -1,5 +1,5 @@
 import type { SourceKind, SourceTestResult } from '@kx/api';
-import { nothingRelevantNotice, testFetchSummary } from '../public-api';
+import { nothingRelevantNotice, sourceTestNotice, testFetchSummary } from '../public-api';
 
 const reached = (found: number, relevant: number): SourceTestResult => ({
   reachable: true,
@@ -62,5 +62,27 @@ describe('nothingRelevantNotice', () => {
     ['no test', null],
   ])('says nothing more after %s', (_, result) => {
     expect(nothingRelevantNotice('rss', result, 'LifePoint')).toBeNull();
+  });
+});
+
+describe('sourceTestNotice', () => {
+  // L2-063 AC3: the add dialog's sentence, titled with the source; a failed test adds when
+  // its health changes, since the test leaves it.
+  const result = (reachable: boolean, reason: string | null, found: number, relevant: number) =>
+    ({ reachable, reason, items_found: found, items_relevant: relevant }) as SourceTestResult;
+  it.each([
+    [result(true, null, 12, 3), 'success', 'Test fetch found 12 items — 3 look relevant.'],
+    [result(true, null, 4, 0), 'warning', 'Test fetch found 4 items — none look relevant.'],
+    [
+      result(false, 'timeout', 0, 0),
+      'warning',
+      'Test fetch timed out. Check the address, or try again later. Its health changes when a run fetches it.',
+    ],
+  ] as const)('%o', (outcome, tone, text) => {
+    expect(sourceTestNotice('rss', 'Redeemed Run Club Toronto', outcome)).toEqual({
+      tone,
+      title: 'Tested Redeemed Run Club Toronto',
+      text,
+    });
   });
 });

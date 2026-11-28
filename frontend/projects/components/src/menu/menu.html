@@ -1,0 +1,9 @@
+<kx-icon-btn
+  #trigger
+  [label]="label()"
+  haspopup="menu"
+  [expanded]="open()"
+  (activated)="toggle(trigger)"
+  (keydown)="triggerKeydown($event, trigger)"
+  ><kx-icon name="more"
+/></kx-icon-btn>

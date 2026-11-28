@@ -23,6 +23,9 @@ export class SourcesPage {
   readonly rows: Locator;
   /** The kind chips: All, RSS, Website, Instagram, Eventbrite, News query (L2-062 AC4). */
   readonly chips: Locator;
+  /** The open row menu and its items (L2-063). */
+  readonly menu: Locator;
+  readonly menuItems: Locator;
   /** The page body, busy while the first answer is out (L2-073). */
   readonly body: Locator;
   readonly skeletonRows: Locator;
@@ -59,6 +62,8 @@ export class SourcesPage {
     this.columns = this.table.locator('thead th');
     this.rows = this.table.locator('tbody tr');
     this.body = page.locator('main .page-body');
+    this.menu = page.getByRole('menu');
+    this.menuItems = this.menu.getByRole('menuitem');
     this.skeletonRows = this.rows.filter({ has: page.locator('.skeleton') });
     this.loadingStatus = page.getByRole('status').filter({ hasText: 'Loading sources…' });
     this.kindGroup = page.getByRole('group', { name: 'Filter by source type' });
@@ -90,11 +95,16 @@ export class SourcesPage {
       region: row.locator('td.table__muted').first(),
       articles: row.locator('td.num'),
       lastFetched: row.locator('td.table__muted').nth(1),
+      actions: row.getByRole('button', { name: /^Actions for / }),
     };
   }
 
   chip(label: string): Locator {
     return this.kindGroup.getByRole('button', { name: label, exact: true });
+  }
+
+  menuItem(name: string | RegExp): Locator {
+    return this.menu.getByRole('menuitem', { name });
   }
 
   search(): string {

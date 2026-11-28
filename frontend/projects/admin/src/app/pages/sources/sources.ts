@@ -8,6 +8,7 @@ import {
   Health,
   KIND_ICONS,
   Icon,
+  Menu,
   PageBody,
   PageHeader,
   Pagination,
@@ -15,6 +16,7 @@ import {
   Source,
   Table,
   type FilterChipOption,
+  type MenuItem,
   type TableColumn,
 } from '@kx/components';
 import {
@@ -26,6 +28,7 @@ import {
   sourceKindLabel,
   sourceKindOf,
   sourceLastFetched,
+  sourceSiteLink,
   sourcesNoResults,
   sourcesRange,
   sourcesSummary,
@@ -54,6 +57,7 @@ const TORONTO = 'America/Toronto';
     FilterChip,
     Health,
     Icon,
+    Menu,
     PageBody,
     PageHeader,
     Pagination,
@@ -79,6 +83,7 @@ export default class Sources {
     { key: 'region', label: 'Region', wide: true, muted: true },
     { key: 'articles', label: 'Articles · 30d', wide: true, numeric: true },
     { key: 'lastFetched', label: 'Last fetched', wide: true, muted: true, nowrap: true },
+    { key: 'actions', label: 'Actions', actions: true, hiddenLabel: true },
   ];
 
   /** The kind the URL narrows the list to, or null for every kind (L2-062 AC4). */
@@ -129,6 +134,7 @@ export default class Sources {
       ),
       articles: formatCount(item.articles_30d),
       lastFetched: sourceLastFetched(item.last_fetched_at, now, zone),
+      actions: rowActions(item),
     }));
   });
 
@@ -167,6 +173,11 @@ export default class Sources {
       relativeTo: this.route,
       queryParams: { kind: sourceKindOf(value), page: null },
     });
+  }
+
+  /** A row menu's item was chosen (L2-063). */
+  protected act(action: string, source: SourceListItem): void {
+    if (action === 'test') void this.store.testSource(source);
   }
 
   /** Previous or Next: the page goes in the URL, which loads it. */
@@ -234,4 +245,13 @@ export default class Sources {
 function pageParam(value: string | null): number {
   const page = Number(value);
   return Number.isInteger(page) && page >= 1 ? page : 1;
+}
+
+/** A row's menu: "Test fetch now", then "Open <host>" for an http(s) address (L2-063 AC1, AC4). */
+function rowActions(source: SourceListItem): MenuItem[] {
+  const site = sourceSiteLink(source.address);
+  const open: MenuItem[] = site
+    ? [{ id: 'open', label: `Open ${site.host}`, icon: 'external', href: site.url }]
+    : [];
+  return [{ id: 'test', label: 'Test fetch now', icon: 'refresh' }, ...open];
 }

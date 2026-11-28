@@ -1,6 +1,13 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { ApiProblem, SOURCES_API, type SourceKind, type SourcePage } from '@kx/api';
-import { skeletonDelay } from '@kx/domain';
+import {
+  ApiProblem,
+  NOTIFIER,
+  SOURCES_API,
+  type SourceKind,
+  type SourceListItem,
+  type SourcePage,
+} from '@kx/api';
+import { skeletonDelay, sourceTestNotice } from '@kx/domain';
 
 export type SourcesState =
   | { status: 'loading' }
@@ -18,6 +25,9 @@ export const SOURCES_PAGE_SIZE = 12;
 @Injectable()
 export class SourcesStore {
   private readonly api = inject(SOURCES_API);
+  private readonly notifier = inject(NOTIFIER);
+  /** Ends what the screen started that outlives one load, such as a test fetch. */
+  private readonly screen = new AbortController();
   private controller: AbortController | null = null;
   private readonly current = signal<SourcesState>({ status: 'loading' });
 
@@ -32,6 +42,7 @@ export class SourcesStore {
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       this.controller?.abort();
+      this.screen.abort();
       this.skeleton.cancel();
     });
   }
@@ -56,6 +67,36 @@ export class SourcesStore {
       this.current.set({
         status: 'error',
         reference: error instanceof ApiProblem ? (error.reference ?? null) : null,
+      });
+    }
+  }
+
+  /**
+   * "Test fetch now" (L2-063 AC3): tests the source and says how it went, leaving the rows as
+   * they are. A source removed meanwhile is said, and the list read again; any other refusal
+   * says the test did not run, with "Try again".
+   */
+  async testSource(source: SourceListItem): Promise<void> {
+    try {
+      const result = await this.api.testSource(source.id, this.screen.signal);
+      this.notifier.notify(sourceTestNotice(source.kind, source.organization_name, result));
+    } catch (error) {
+      if (this.screen.signal.aborted) return;
+      if (error instanceof ApiProblem && error.code === 'source_not_found') {
+        this.notifier.notify({
+          tone: 'danger',
+          title: 'Source not found',
+          text: `${source.organization_name} was removed meanwhile, so the list is read again.`,
+        });
+        void this.load();
+        return;
+      }
+      const reference = error instanceof ApiProblem ? error.reference : null;
+      this.notifier.notify({
+        tone: 'danger',
+        title: 'Test fetch didn’t run',
+        text: `Keryx couldn’t reach its API just now.${reference ? ` Reference ${reference}` : ''}`,
+        action: { label: 'Try again', run: () => void this.testSource(source) },
       });
     }
   }
