@@ -52,6 +52,13 @@
   margin-top: var(--space-1);
 }
 
+.skeleton--tile {
+  flex: none;
+  width: var(--size-tile);
+  height: var(--size-tile);
+  border-radius: var(--radius-md);
+}
+
 .skeleton--circle {
   flex: none;
   width: var(--size-tile-lg);

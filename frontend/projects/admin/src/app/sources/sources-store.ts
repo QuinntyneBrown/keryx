@@ -1,5 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, SOURCES_API, type SourceKind, type SourcePage } from '@kx/api';
+import { skeletonDelay } from '@kx/domain';
 
 export type SourcesState =
   | { status: 'loading' }
@@ -21,12 +22,18 @@ export class SourcesStore {
   private readonly current = signal<SourcesState>({ status: 'loading' });
 
   readonly state = this.current.asReadonly();
+  private readonly skeleton = skeletonDelay();
+  /** A load has had no answer for 300 ms: skeleton rows stand in (L2-073 AC1). */
+  readonly slow = signal(false);
   /** The page and kind shown, or asked for: a reload reads them again. */
   private page = 1;
   private kind: SourceKind | null = null;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.controller?.abort());
+    inject(DestroyRef).onDestroy(() => {
+      this.controller?.abort();
+      this.skeleton.cancel();
+    });
   }
 
   async load(page = this.page, kind = this.kind): Promise<void> {
@@ -36,6 +43,8 @@ export class SourcesStore {
     const controller = new AbortController();
     this.controller = controller;
     this.current.set({ status: 'loading' });
+    this.slow.set(false);
+    this.skeleton.run(() => this.slow.set(true));
     try {
       const result = await this.api.list(
         { page, pageSize: SOURCES_PAGE_SIZE, ...(kind ? { kind } : {}) },

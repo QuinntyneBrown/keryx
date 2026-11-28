@@ -6,7 +6,9 @@ import { Component, computed, input } from '@angular/core';
  */
 @Component({ selector: 'kx-skeleton', templateUrl: './skeleton.html', styleUrl: './skeleton.scss' })
 export class Skeleton {
-  readonly shape = input<'text' | 'title' | 'pill' | 'stat' | 'circle' | 'icon' | 'chart'>('text');
+  readonly shape = input<'text' | 'title' | 'pill' | 'stat' | 'circle' | 'icon' | 'tile' | 'chart'>(
+    'text',
+  );
   /** A share of the line it sits on, for text of uneven length. */
   readonly width = input<20 | 30 | 40 | 60 | 80 | null>(null);
 

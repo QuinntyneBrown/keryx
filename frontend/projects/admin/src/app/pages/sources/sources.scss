@@ -1,5 +1,18 @@
 // Sources composes library components; it adds only the space under the kind chips and the
 // narrow screen's health line under the source's name (docs/mocks/pages/sources/).
+.sources__skeleton {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.sources__skeleton-lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .sources__kinds {
   margin-bottom: var(--space-4);
 }

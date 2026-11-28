@@ -23,6 +23,10 @@ export class SourcesPage {
   readonly rows: Locator;
   /** The kind chips: All, RSS, Website, Instagram, Eventbrite, News query (L2-062 AC4). */
   readonly chips: Locator;
+  /** The page body, busy while the first answer is out (L2-073). */
+  readonly body: Locator;
+  readonly skeletonRows: Locator;
+  readonly loadingStatus: Locator;
   private readonly kindGroup: Locator;
   /** "Showing 1–12 of 64 sources, failing first." under the table. */
   readonly range: Locator;
@@ -54,6 +58,9 @@ export class SourcesPage {
     this.caption = this.table.locator('caption');
     this.columns = this.table.locator('thead th');
     this.rows = this.table.locator('tbody tr');
+    this.body = page.locator('main .page-body');
+    this.skeletonRows = this.rows.filter({ has: page.locator('.skeleton') });
+    this.loadingStatus = page.getByRole('status').filter({ hasText: 'Loading sources…' });
     this.kindGroup = page.getByRole('group', { name: 'Filter by source type' });
     this.chips = this.kindGroup.locator('.filter-chip');
     const pagination = page.locator('main .pagination');

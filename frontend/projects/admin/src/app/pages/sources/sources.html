@@ -9,8 +9,32 @@
     ><kx-icon name="plus" size="sm" />Add source</kx-btn
   >
 </kx-page-header>
-<kx-page-body>
+<kx-page-body [busy]="state.status === 'loading'">
   @switch (state.status) {
+    @case ('loading') {
+      @if (store.slow()) {
+        <p class="visually-hidden" role="status">Loading sources…</p>
+        <kx-table
+          caption="Sources, failing first"
+          [columns]="columns"
+          [rows]="skeletonRows"
+          [rowKey]="skeletonKey"
+          [cells]="{
+            source: skeletonSource,
+            health: skeletonText,
+            region: skeletonText,
+            articles: skeletonText,
+            lastFetched: skeletonText,
+          }"
+        />
+        <ng-template #skeletonSource
+          ><span class="sources__skeleton"
+            ><kx-skeleton shape="tile" /><span class="sources__skeleton-lines"
+              ><kx-skeleton [width]="60" /><kx-skeleton [width]="40" /></span></span
+        ></ng-template>
+        <ng-template #skeletonText><kx-skeleton /></ng-template>
+      }
+    }
     @case ('error') {
       <kx-empty
         card

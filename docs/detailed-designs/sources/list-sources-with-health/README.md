@@ -88,6 +88,10 @@ that derives health during a run.
   ("redeemedrun.ca/feed") and a news query's text as given. Both are bound as text, never HTML.
 - **Loading** — when the first response takes over 300 ms, 12 `skeleton` rows shaped like the
   table appear and the main region carries `aria-busy="true"` (L2-073).
+  - As built (journey 17): any load that has had no answer for 300 ms shows them, a first
+    load or a new page or kind, with the visually hidden status "Loading sources…". The
+    source cell's skeleton is a tile and two lines; `kx-skeleton` gains the design system's
+    `tile` shape for it.
 - **Empty** — with no source, the header reads "No sources yet." and the `empty--card` block
   shows "Add the first source", the explanation of what a source is, and "Add a source".
 - **Error** — a failed list request shows the page error state: "Sources didn't load", the shared

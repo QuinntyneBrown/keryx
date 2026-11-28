@@ -11,6 +11,7 @@ import {
   PageBody,
   PageHeader,
   Pagination,
+  Skeleton,
   Source,
   Table,
   type FilterChipOption,
@@ -47,7 +48,19 @@ const TORONTO = 'America/Toronto';
  */
 @Component({
   selector: 'kx-sources',
-  imports: [Btn, Empty, FilterChip, Health, Icon, PageBody, PageHeader, Pagination, Source, Table],
+  imports: [
+    Btn,
+    Empty,
+    FilterChip,
+    Health,
+    Icon,
+    PageBody,
+    PageHeader,
+    Pagination,
+    Skeleton,
+    Source,
+    Table,
+  ],
   providers: [{ provide: SOURCES_API, useClass: HttpSourcesApi }, SourcesStore],
   templateUrl: './sources.html',
   styleUrl: './sources.scss',
@@ -133,6 +146,10 @@ export default class Sources {
   });
 
   protected readonly rowKey = (row: unknown) => (row as { item: SourceListItem }).item.id;
+
+  /** Twelve rows of skeletons, a page, so the table does not shift when it arrives. */
+  protected readonly skeletonRows = Array.from({ length: 12 }, (_, i) => ({ key: `s${i}` }));
+  protected readonly skeletonKey = (row: unknown) => (row as { key: string }).key;
 
   constructor() {
     // The page is in the URL, so a reload or a shared link opens it.
