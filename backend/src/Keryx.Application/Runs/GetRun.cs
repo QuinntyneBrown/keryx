@@ -31,6 +31,7 @@ public sealed record RunDto(
     int SourcesFailed,
     int SourcesChecked,
     int SourcesTotal,
+    int Deleted,
     IReadOnlyList<StageResultDto> Stages,
     IReadOnlyList<RunIssueDto> Issues)
 {
@@ -42,7 +43,7 @@ public sealed record RunDto(
             run.PublicId, RunWords.Worker(run.Worker), RunWords.Trigger(run.Trigger), run.StartedAt, run.FinishedAt, run.DurationMs,
             RunWords.Outcome(run.Outcome), run.FailureReason, run.CorrelationId, counts.Added, counts.Updated, counts.Unchanged,
             counts.Duplicates, counts.Held, counts.OffTopic, counts.Rejected, counts.SourcesOk, counts.SourcesFailed,
-            run.SourcesChecked, run.SourcesTotal,
+            run.SourcesChecked, run.SourcesTotal, counts.Deleted,
             [.. run.Stages.OrderBy(stage => stage.Stage).Select(stage => new StageResultDto(
                 RunWords.Stage(stage.Stage), RunWords.Status(stage.Status), stage.DurationMs,
                 new Dictionary<string, int>(stage.Counts), stage.Reason))],

@@ -34,24 +34,34 @@ ctx --> handler : e.g. 24 months
 handler -> policy : Cutoff(now, months)
 policy --> handler : Cutoff instant
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Delete up to 1,000 articles collected before cutoff, with provenance
-  ctx -> db : Set-based delete, commit batch
+  handler -> ctx : Read up to 1,000 events whose article expires, or with none and started before cutoff
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
 end
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Delete up to 1,000 events linked only to deleted articles
-  ctx -> db : Set-based delete, commit batch
+  handler -> ctx : Read up to 1,000 articles collected before cutoff, with provenance
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
 end
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Delete up to 1,000 organizations no article, event or source refers to
-  ctx -> db : Set-based delete, commit batch
+  handler -> ctx : Read up to 1,000 organizations no article, event or source refers to
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
 end
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Delete up to 1,000 runs started before cutoff, with stage results and issues
-  ctx -> db : Set-based delete, commit batch
+  handler -> ctx : Read up to 1,000 finished runs started before cutoff, with stages, occurrences, staged items, alerts; then closed issues with none left
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
 end
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Delete up to 1,000 audit entries before cutoff (L2-085)
-  ctx -> db : Set-based delete, commit batch
+  handler -> ctx : Read up to 1,000 API usage hours older than 30 days (L2-037)
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
+end
+loop until fewer than 1,000 rows deleted
+  handler -> ctx : Read up to 1,000 audit entries before cutoff (L2-085, journey 24)
+  handler -> ctx : Remove them and save
+  ctx -> db : Commit batch
 end
 handler -> run : Finish succeeded with number deleted as a number
 handler -> ctx : Save run

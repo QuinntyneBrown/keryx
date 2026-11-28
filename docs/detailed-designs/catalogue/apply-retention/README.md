@@ -33,9 +33,12 @@ The slice runs from a hosted service in the worker through one MediatR command t
 
 - **`RetentionWorker`** — `BackgroundService` that waits for the next daily slot by reading
   `TimeProvider` and sends one `ApplyRetentionCommand` with trigger `schedule`. It checks
-  nothing itself. The time of day of the slot is `<TO SUPPLY>`. A test proves the schedule by
+  nothing itself. The slot is 03:00 Toronto time, outside the 08:00 digest and the working day;
+  03:00 is never skipped or repeated in Toronto, whose clocks change at 02:00. A test proves the schedule by
   advancing `FakeTimeProvider`, never by sleeping. When the command throws, the worker sends
-  `RecordRunFailureCommand` (run recording subsystem, `L2-019`) and waits for the next slot.
+  `RecordRunFailureCommand` (run recording subsystem, `L2-019`) and waits for the next slot. As
+  for every worker, the run recording behaviour fails the run its lease names, and the worker
+  logs the exception's type alone.
 
 **Application (`Keryx.Application`)**
 
@@ -43,13 +46,20 @@ The slice runs from a hosted service in the worker through one MediatR command t
 - **`ApplyRetentionCommandHandler`** — opens a `Run` with worker `retention`, reads
   `Settings.RetentionMonths`, computes the cutoff from `TimeProvider`, and deletes expired
   records through `IAppDbContext` in batches of at most 1,000 rows, in this order:
-  1. articles whose `CollectedAt` is earlier than the cutoff, with their provenance entries;
-  2. events whose linked articles are all deleted;
-  3. organizations that no article, event or source refers to;
-  4. runs whose `StartedAt` is earlier than the cutoff, with their stage results and issues;
-  5. audit entries whose `OccurredAt` is earlier than the cutoff.
-  It finishes the run with the number deleted as a number. Whether an event with no linked
-  article expires by its own collected time or by its start time is `<TO SUPPLY>`.
+  1. events whose linked article expires, and events with no linked article whose start time
+     is earlier than the cutoff (every event is created with the article it was found in; one
+     has none only if that article went another way). Events go first because deleting an
+     article sets its events' link to null;
+  2. articles whose `CollectedAt` is earlier than the cutoff, with their provenance entries;
+  3. organizations that no article, event or source refers to (a source refers to the
+     organization whose normalized name is its organization name's);
+  4. finished runs whose `StartedAt` is earlier than the cutoff, with their stage results, their
+     issue occurrences, their staged items and their alert records; then closed issues left
+     with no occurrence. A running run is never deleted, and an open or muted issue is kept;
+  5. API usage hours older than 30 days, whatever the retention period (`L2-037` AC5);
+  6. audit entries whose `OccurredAt` is earlier than the cutoff, added by journey 24 with the
+     audit log, which does not exist before it.
+  It finishes the run with the number deleted as a number.
 - **`RetentionPolicy`** — pure domain service holding `Cutoff(now, months)` and the dependency
   rules above, with a direct unit test per case.
 - **`RetentionResult`** — counts per record type and their total `Deleted`.
@@ -63,16 +73,20 @@ The slice runs from a hosted service in the worker through one MediatR command t
   stable identity (`L2-009`), never derives an id from a value that a delete frees, so a deleted
   record's id is never reused.
 - **`Run`** — recorded with worker `retention`, trigger, `started_at`, `finished_at`, outcome and
-  the number deleted. The name of the deleted-count field is `<TO SUPPLY>`: `L2-019` lists the
-  collection counts and no `deleted` field.
+  the number deleted, in a count named `deleted` beside the collection counts. It is added to
+  the run's detail (`GET /admin/v1/runs/{id}`) as a number; every other worker's runs read 0.
+  The run list's summaries carry a few collection counts only and are unchanged. An added
+  field breaks no client of the admin API.
 
 **Infrastructure (`Keryx.Infrastructure`)**
 
 - **`KeryxDbContext`** — maps the cascade from article to provenance and from run to stage
-  result and issue. Each batch uses a set-based delete (`ExecuteDeleteAsync`) bounded to 1,000
-  rows and commits on its own, so a failure keeps the batches already committed. Because the
-  EF Core InMemory provider does not support set-based deletes, tests inject a fault through
-  `IAppDbContext`; the test approach for the batch delete is `<TO SUPPLY>`.
+  result and issue. Each batch reads at most 1,000 expired rows, removes them and saves, so it
+  commits on its own and a failure keeps the batches already committed. A tracked delete is
+  used rather than a set-based one (`ExecuteDeleteAsync`): it deletes owned provenance and
+  stage results with their owner on every provider, and it runs on the EF Core InMemory
+  provider, which has no set-based delete. Tests prove the batches by arming a save fault
+  through `IAppDbContext` after a number of saves, and count what was kept.
 
 **Admin app and API**
 

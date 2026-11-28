@@ -17,7 +17,7 @@ public sealed class GetRunTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [
         "id", "worker", "trigger", "started_at", "finished_at", "duration_ms", "outcome", "failure_reason", "correlation_id",
         "added", "updated", "unchanged", "duplicates", "held", "off_topic", "rejected", "sources_ok", "sources_failed",
-        "sources_checked", "sources_total", "stages", "issues",
+        "sources_checked", "sources_total", "deleted", "stages", "issues",
     ];
 
     private static readonly string[] Stages = ["fetch", "parse", "classify", "deduplicate", "store", "publish"];
@@ -61,7 +61,7 @@ public sealed class GetRunTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(2, body.GetProperty("sources_failed").GetInt32());
         Assert.Equal(64, body.GetProperty("sources_checked").GetInt32());
         Assert.Equal(64, body.GetProperty("sources_total").GetInt32());
-        foreach (var name in new[] { "unchanged", "held", "rejected" })
+        foreach (var name in new[] { "unchanged", "held", "rejected", "deleted" })
         {
             Assert.Equal(0, body.GetProperty(name).GetInt32());
         }

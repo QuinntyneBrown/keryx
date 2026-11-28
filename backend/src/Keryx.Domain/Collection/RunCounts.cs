@@ -20,4 +20,7 @@ public sealed record RunCounts
     public int SourcesOk { get; init; }
 
     public int SourcesFailed { get; init; }
+
+    /// <summary>The records a retention run deleted (L2-079 AC4); 0 for every other worker.</summary>
+    public int Deleted { get; init; }
 }

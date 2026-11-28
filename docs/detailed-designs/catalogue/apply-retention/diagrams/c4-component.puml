@@ -12,7 +12,7 @@ Container_Boundary(app, "Keryx Application and Domain") {
   Component(run, "Run", "Domain entity", "Retention run with number deleted")
 }
 Container_Boundary(infra, "Keryx Infrastructure") {
-  Component(ctx, "KeryxDbContext", "EF Core DbContext", "IAppDbContext; set-based batch deletes")
+  Component(ctx, "KeryxDbContext", "EF Core DbContext", "IAppDbContext; batch deletes of 1,000 rows")
 }
 ContainerDb(db, "Keryx database", "EF Core relational store", "Records, runs, audit")
 

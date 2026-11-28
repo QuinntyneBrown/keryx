@@ -1186,6 +1186,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                             b1.Property<int>("Added")
                                 .HasColumnType("integer");
 
+                            b1.Property<int>("Deleted")
+                                .HasColumnType("integer");
+
                             b1.Property<int>("Duplicates")
                                 .HasColumnType("integer");
 
