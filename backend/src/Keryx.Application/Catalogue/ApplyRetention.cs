@@ -18,7 +18,8 @@ public sealed record ApplyRetentionCommand(RunTrigger Trigger) : IRequest, IWork
 /// Records a run with worker <c>retention</c>, reads the retention period staff set at its start,
 /// and deletes what has expired in batches of at most <see cref="BatchSize"/> rows, each saved on
 /// its own (L2-079). The run is finished with the number deleted: articles, events,
-/// organizations, runs, issues and hours of API usage; what goes with them is not counted.
+/// organizations, runs, issues, hours of API usage and audit entries; what goes with them is not
+/// counted.
 /// </summary>
 internal sealed class ApplyRetentionCommandHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ApplyRetentionCommand>
 {
@@ -51,6 +52,7 @@ internal sealed class ApplyRetentionCommandHandler(IAppDbContext db, TimeProvide
         deleted += await DeleteRunsAsync(cutoff, cancellationToken).ConfigureAwait(false);
         var usageCutoff = run.StartedAt - RetentionPolicy.UsageKept;
         deleted += await DeleteAsync(db.ApiUsageHours, hour => hour.HourStart < usageCutoff, cancellationToken).ConfigureAwait(false);
+        deleted += await DeleteAsync(db.AuditEntries, entry => entry.OccurredAt < cutoff, cancellationToken).ConfigureAwait(false);
 
         run.Finish(new RunCounts { Deleted = deleted }, time.GetUtcNow());
         lease.Release(run.PublicId);

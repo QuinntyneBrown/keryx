@@ -59,7 +59,7 @@ loop until fewer than 1,000 rows deleted
   ctx -> db : Commit batch
 end
 loop until fewer than 1,000 rows deleted
-  handler -> ctx : Read up to 1,000 audit entries before cutoff (L2-085, journey 24)
+  handler -> ctx : Read up to 1,000 audit entries before cutoff (L2-085)
   handler -> ctx : Remove them and save
   ctx -> db : Commit batch
 end

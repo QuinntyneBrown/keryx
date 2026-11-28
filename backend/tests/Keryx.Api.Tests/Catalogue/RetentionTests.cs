@@ -5,6 +5,7 @@ using Keryx.Api.Tests.Fakes;
 using Keryx.Api.Tests.Session;
 using Keryx.Application.Catalogue;
 using Keryx.Domain.Alerts;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Catalogue;
 using Keryx.Domain.Clients;
 using Keryx.Domain.Collection;
@@ -17,7 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Keryx.Api.Tests.Catalogue;
 
 // Acceptance Test
-// Traces to: L2-079 AC1, AC2, AC3, AC4, AC5; L2-019 AC1; L2-037 AC5
+// Traces to: L2-079 AC1, AC2, AC3, AC4, AC5; L2-019 AC1; L2-037 AC5; L2-085 AC4
 // Description: Given "Keep articles for" a number of months, the retention run deletes every
 // article collected before the cutoff (the clock less that many months), with its provenance,
 // and keeps the rest; its run is recorded with worker retention and the number deleted as a
@@ -27,7 +28,7 @@ namespace Keryx.Api.Tests.Catalogue;
 // it, and goes when none does. A finished run started before the cutoff goes with its stages,
 // issue occurrences, staged items and alert records, and a closed issue left with no occurrence
 // goes with it; a running run, an open issue and an issue that still occurs are kept. API usage
-// hours go after 30 days, whatever the period. Deletes go in batches of at most 1,000, each
+// hours go after 30 days, whatever the period; audit entries go after the period. Deletes go in batches of at most 1,000, each
 // saved on its own: a failure keeps the batches saved, fails the run with a generic reason, and
 // the next run deletes the rest.
 // The run is sent as the worker sends it; the worker's schedule is proven on its own.
@@ -193,6 +194,30 @@ public sealed class RetentionTests
         using var staff = await StaffClient.OpenAsync(factory);
         // One run, one issue and one hour of usage.
         Assert.Equal(3, await DeletedAsync(staff, runId));
+    }
+
+    [Fact]
+    public async Task Given_audit_entries_older_than_24_months_When_retention_runs_Then_they_are_deleted_and_counted()
+    {
+        using var factory = new ApiFactory();
+        await StaffClient.SeedAsync(factory);
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            store.AuditEntries.AddRange(
+                AuditEntry.Of("staff-example", AuditAction.ArticlePublished, "art_aaaaaaaaaaaa", null, Cutoff.AddTicks(-1)),
+                AuditEntry.Of("staff-example", AuditAction.SettingsSaved, "settings", ["retention_months"], Cutoff));
+            await store.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        var runId = await RetainAsync(factory);
+
+        await using (var store = TestStore.Open(factory.Store))
+        {
+            Assert.Equal([Cutoff], await store.AuditEntries.Select(entry => entry.OccurredAt).ToListAsync(TestContext.Current.CancellationToken));
+        }
+
+        using var staff = await StaffClient.OpenAsync(factory);
+        Assert.Equal(1, await DeletedAsync(staff, runId));
     }
 
     [Fact]
