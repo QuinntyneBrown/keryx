@@ -26,7 +26,11 @@
     </kx-empty>
   } @else {
     <kx-rail start>
-      <section aria-label="Run history">
+      <section
+        class="runs__history"
+        aria-label="Run history"
+        [attr.data-away]="viewing() ? '' : null"
+      >
         <kx-segmented
           class="runs__filter"
           label="Filter runs"
@@ -36,7 +40,7 @@
         />
         @if (store.page(); as page) {
           @if (page.items.length) {
-            <kx-list [runs]="runs()" (navigate)="navigate($event)" />
+            <kx-list [runs]="runs()" (navigate)="openRun($event)" />
           } @else {
             <kx-empty
               card
@@ -55,74 +59,90 @@
           <kx-list [runPlaceholders]="10" />
         }
       </section>
-      @if (detail(); as shown) {
-        <section aria-labelledby="run-title">
+      <div class="runs__detail" [attr.data-chosen]="viewing() ? '' : null">
+        @if (viewing()) {
+          <kx-btn
+            class="runs__back"
+            variant="ghost"
+            small
+            [href]="backHref()"
+            (navigate)="goBack($event)"
+            ><kx-icon name="chevron-left" size="sm" />Back to runs</kx-btn
+          >
+        }
+        @if (detail(); as shown) {
+          <section aria-labelledby="run-title">
+            <kx-stack gap="lg">
+              <kx-card
+                headingId="run-title"
+                [heading]="shown.heading"
+                [badge]="shown.badge"
+                [reference]="shown.reference"
+                [meta]="shown.meta"
+              >
+                <kx-stats four ruled [items]="shown.tiles" />
+              </kx-card>
+              <section aria-labelledby="pipeline-title">
+                <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
+                <kx-timeline [steps]="shown.steps" />
+              </section>
+              <section aria-labelledby="issues-title">
+                <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
+                @if (shown.issues.length) {
+                  <kx-list [issues]="shown.issues" />
+                } @else {
+                  <kx-empty
+                    card
+                    compact
+                    tone="success"
+                    [level]="4"
+                    title="No issues in this run"
+                    text="Every source responded and nothing was held for review."
+                  >
+                    <kx-icon slot="icon" name="success" size="lg" />
+                  </kx-empty>
+                }
+              </section>
+            </kx-stack>
+          </section>
+        } @else if (store.detailFailed(); as failure) {
+          <section aria-labelledby="run-title">
+            <h2 id="run-title" class="visually-hidden">{{ selectedTitle() }}</h2>
+            <kx-alert tone="danger" announcement="alert" title="This run didn't load">
+              <p>
+                The run history is up to date; only this run's detail failed.
+                @if (failure.reference; as reference) {
+                  Reference {{ reference }}
+                }
+              </p>
+              <kx-btn
+                slot="actions"
+                small
+                [busy]="store.retryingDetail()"
+                (activated)="retryDetail()"
+                >Try again</kx-btn
+              >
+            </kx-alert>
+          </section>
+        } @else if ((store.listLoading() || store.detailLoading()) && store.slow()) {
           <kx-stack gap="lg">
-            <kx-card
-              headingId="run-title"
-              [heading]="shown.heading"
-              [badge]="shown.badge"
-              [reference]="shown.reference"
-              [meta]="shown.meta"
-            >
-              <kx-stats four ruled [items]="shown.tiles" />
+            <kx-card loading>
+              <kx-stats four ruled loading [items]="loadingTiles" />
             </kx-card>
-            <section aria-labelledby="pipeline-title">
-              <h3 id="pipeline-title" class="runs__section-title">Pipeline</h3>
-              <kx-timeline [steps]="shown.steps" />
-            </section>
-            <section aria-labelledby="issues-title">
-              <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
-              @if (shown.issues.length) {
-                <kx-list [issues]="shown.issues" />
-              } @else {
-                <kx-empty
-                  card
-                  compact
-                  tone="success"
-                  [level]="4"
-                  title="No issues in this run"
-                  text="Every source responded and nothing was held for review."
-                >
-                  <kx-icon slot="icon" name="success" size="lg" />
-                </kx-empty>
-              }
+            <section>
+              <h3 class="runs__section-title">Pipeline</h3>
+              <kx-timeline [placeholders]="6" />
             </section>
           </kx-stack>
-        </section>
-      } @else if (store.detailFailed(); as failure) {
-        <section aria-labelledby="run-title">
-          <h2 id="run-title" class="visually-hidden">{{ selectedTitle() }}</h2>
-          <kx-alert tone="danger" announcement="alert" title="This run didn't load">
-            <p>
-              The run history is up to date; only this run's detail failed.
-              @if (failure.reference; as reference) {
-                Reference {{ reference }}
-              }
-            </p>
-            <kx-btn slot="actions" small [busy]="store.retryingDetail()" (activated)="retryDetail()"
-              >Try again</kx-btn
-            >
-          </kx-alert>
-        </section>
-      } @else if ((store.listLoading() || store.detailLoading()) && store.slow()) {
-        <kx-stack gap="lg">
-          <kx-card loading>
-            <kx-stats four ruled loading [items]="loadingTiles" />
-          </kx-card>
-          <section>
-            <h3 class="runs__section-title">Pipeline</h3>
-            <kx-timeline [placeholders]="6" />
-          </section>
-        </kx-stack>
-      } @else if (store.page()?.items?.length === 0) {
-        <kx-empty
-          title="Choose a run"
-          text="Pick a run from the list to see its pipeline steps and issues."
-        >
-          <kx-icon slot="icon" name="runs" size="lg" />
-        </kx-empty>
-      }
+        } @else if (store.page()?.items?.length === 0) {
+          <kx-empty
+            title="Choose a run"
+            text="Pick a run from the list to see its pipeline steps and issues."
+          >
+            <kx-icon slot="icon" name="runs" size="lg" />
+          </kx-empty>
+        }
+      </div>
     </kx-rail>
   }
 </kx-page-body>

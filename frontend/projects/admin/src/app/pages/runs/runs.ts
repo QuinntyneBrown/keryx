@@ -1,4 +1,13 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RUNS_API } from '@kx/api';
 import {
@@ -77,6 +86,16 @@ export default class Runs {
   private readonly schedule = inject(ScheduleStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
+  /** The run the URL names: below 1024 px it takes the list's place. */
+  protected readonly viewing = signal<string | null>(null);
+
+  /** Back to the list, keeping its filter (L2-056 AC7). */
+  protected readonly backHref = computed(() =>
+    this.store.problems() ? '/runs?problems=true' : '/runs',
+  );
 
   /** The zone times read in: the schedule's, or Toronto's until it is read. */
   private readonly zone = computed(() => this.schedule.schedule()?.time_zone ?? TORONTO);
@@ -198,11 +217,35 @@ export default class Runs {
     void this.router.navigateByUrl(href);
   }
 
+  /** Opens a run; below 1024 px focus moves to the way back, the first thing in its place. */
+  protected async openRun(href: string): Promise<void> {
+    await this.router.navigateByUrl(href);
+    this.afterRender(() =>
+      this.host.nativeElement.querySelector<HTMLElement>('.runs__back a')?.focus(),
+    );
+  }
+
+  /** Returns to the list, with focus on the run it came from. */
+  protected async goBack(href: string): Promise<void> {
+    const from = this.viewing();
+    await this.router.navigateByUrl(href);
+    this.afterRender(() =>
+      this.host.nativeElement
+        .querySelector<HTMLElement>(`a.run-item[href$="run=${CSS.escape(from ?? '')}"]`)
+        ?.focus(),
+    );
+  }
+
+  private afterRender(action: () => void): void {
+    afterNextRender(action, { injector: this.injector });
+  }
+
   constructor() {
     this.schedule.load();
-    const subscription = this.route.queryParamMap.subscribe((params) =>
-      this.store.request(params.get('run'), params.get('problems') === 'true'),
-    );
+    const subscription = this.route.queryParamMap.subscribe((params) => {
+      this.viewing.set(params.get('run'));
+      this.store.request(params.get('run'), params.get('problems') === 'true');
+    });
     inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
   }
 }

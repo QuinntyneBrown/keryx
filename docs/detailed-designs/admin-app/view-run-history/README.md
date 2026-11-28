@@ -187,7 +187,11 @@ header, is not among the `L2-019` fields; its source is `<TO SUPPLY>`.
 - **Narrow viewports** — below 1024 px the detail sits below or in place of the list with a
   way back to the list, and nothing scrolls horizontally (`L2-056` criterion 7). The tiles sit
   in two rows of two below 640 px and in one row of four from 640 px (`L2-057` criterion 7).
-  The way-back control is not in the mocks; its markup is `<TO SUPPLY>`.
+  The way back is a small ghost `btn` link "Back to runs" with a `chevron-left` icon above the
+  run's card (`pages/runs/narrow-detail.html`): below 1024 px a run the URL names takes the
+  list's place, and without one the list shows alone. It keeps the filter (`/runs` or
+  `/runs?problems=true`). Opening a run moves focus to it; going back returns focus to the run
+  it came from.
 
 ## Requirements
 

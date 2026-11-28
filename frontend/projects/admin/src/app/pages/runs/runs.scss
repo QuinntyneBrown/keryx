@@ -7,6 +7,25 @@
   margin-bottom: var(--space-3);
 }
 
+.runs__back {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+// Below 1024 px a chosen run takes the list's place, with a way back (pages/runs/narrow-detail).
+@media (max-width: 63.99rem) {
+  .runs__history[data-away],
+  .runs__detail:not([data-chosen]) {
+    display: none;
+  }
+}
+
+@media (min-width: 64rem) {
+  .runs__back {
+    display: none;
+  }
+}
+
 .runs__filter {
   margin-bottom: var(--space-3);
 }

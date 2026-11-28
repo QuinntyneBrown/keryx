@@ -47,6 +47,9 @@ export class RunsPage {
   /** The detail's own error, while the list stays usable. */
   readonly detailError: Locator;
   readonly body: Locator;
+  /** Below 1024 px, the way from a run back to the list (`pages/runs/narrow-detail.html`). */
+  readonly back: Locator;
+  readonly tiles: Locator;
   readonly loadingStatus: Locator;
   /** Skeleton rows standing in for the history, and the card and stages for the detail. */
   readonly runSkeletons: Locator;
@@ -98,6 +101,8 @@ export class RunsPage {
     this.pageStateActions = this.pageState.locator('.empty__actions .btn');
     this.detailError = main.locator('section[aria-labelledby="run-title"] .alert');
     this.body = main.locator('.page-body');
+    this.back = main.getByRole('link', { name: 'Back to runs' });
+    this.tiles = this.detail.locator('.stats .stat');
     this.loadingStatus = this.body.getByRole('status');
     this.runSkeletons = this.history.locator('li.list__item.run-item:has(.skeleton)');
     this.cardSkeleton = main.locator('.card:has(.skeleton)');
@@ -137,5 +142,12 @@ export class RunsPage {
 
   async open(query = ''): Promise<void> {
     await this.page.goto(`/runs${query}`);
+  }
+
+  /** Whether the page scrolls sideways, which no width may make it do. */
+  scrollsSideways(): Promise<boolean> {
+    return this.page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
   }
 }
