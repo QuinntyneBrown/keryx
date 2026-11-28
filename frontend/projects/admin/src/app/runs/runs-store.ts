@@ -1,6 +1,7 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ApiProblem, RUNS_API, type RunDetail, type RunPage } from '@kx/api';
 import { skeletonDelay } from '@kx/domain';
+import { ScheduleStore } from '../schedule/schedule-store';
 
 /** A failed read's reference, the response's trace id, for staff to quote. */
 function referenceOf(error: unknown): string | null {
@@ -18,6 +19,7 @@ export const HISTORY_RUNS = 14;
 @Injectable()
 export class RunsStore {
   private readonly api = inject(RUNS_API);
+  private readonly schedule = inject(ScheduleStore);
   private readonly controller = new AbortController();
   private readonly skeleton = skeletonDelay();
   /** The run the URL names, or null for the newest. */
@@ -129,6 +131,11 @@ export class RunsStore {
       this.listFailed.set(null);
       this.opening.set(false);
       this.page.set(page);
+      // The full history's newest run says whether one is in progress; a filtered list cannot.
+      if (!this.problems()) {
+        const newest = page.items[0];
+        this.schedule.track(newest?.outcome === 'running' ? newest : null);
+      }
       if (!this.requested) this.choose(page.items[0]?.id ?? null);
     } catch (error) {
       if (current()) this.listFailed.set({ reference: referenceOf(error) });

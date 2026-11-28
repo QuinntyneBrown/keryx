@@ -103,13 +103,18 @@ test.describe('Run now', () => {
   test('shows the run already in progress, with no error, from Runs', async ({ page, api }) => {
     await page.clock.setFixedTime(RUNNING_NOW);
     api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
-    api.on('POST', '/admin/v1/runs', () => ({
-      status: 409,
-      json: { status: 409, code: 'run_in_progress', run_id: 'run_2419', trace_id: 'req_1' },
-    }));
+    let refused = false;
+    api.on('POST', '/admin/v1/runs', () => {
+      refused = true;
+      return {
+        status: 409,
+        json: { status: 409, code: 'run_in_progress', run_id: 'run_2419', trace_id: 'req_1' },
+      };
+    });
     api.on('GET', '/admin/v1/runs', () => ({
       json: {
-        items: [RUNNING_RUN, ...RUN_HISTORY.slice(0, 13)],
+        // The run began after Runs was read: only a second read finds it.
+        items: refused ? [RUNNING_RUN, ...RUN_HISTORY.slice(0, 13)] : RUN_HISTORY,
         total: 15,
         page: 1,
         page_size: 14,

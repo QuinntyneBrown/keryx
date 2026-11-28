@@ -18,6 +18,7 @@ import {
   type Region,
   type RunSummary,
 } from '@kx/api';
+import { ScheduleStore } from '../schedule/schedule-store';
 
 /** The run chart's span: the last 14 collection runs (L2-044). */
 export const CHART_RUNS = 14;
@@ -48,6 +49,7 @@ export type Section<T> =
 export class OverviewStore {
   private readonly api = inject(OVERVIEW_API);
   private readonly runs = inject(RUNS_API);
+  private readonly schedule = inject(ScheduleStore);
   private readonly articles = inject(ARTICLES_API);
   private readonly controller = new AbortController();
   private readonly skeleton = skeletonDelay();
@@ -103,7 +105,11 @@ export class OverviewStore {
 
   /** Each section's signal and the request that fills it. */
   private readonly readers = {
-    status: this.reader(this.status, (abort) => this.api.status(abort)),
+    status: this.reader(this.status, async (abort) => {
+      const status = await this.api.status(abort);
+      this.schedule.track(status.current_run);
+      return status;
+    }),
     chart: this.reader(this.chart, async (abort) => {
       const page = await this.runs.list({ page: 1, pageSize: CHART_RUNS }, abort);
       return page.items;

@@ -31,6 +31,7 @@ import {
   type StatItem,
 } from '@kx/components';
 import {
+  collectionRunningLine,
   formatClockTime,
   formatCollectedAt,
   issueSeverityWord,
@@ -104,6 +105,8 @@ export default class Runs {
 
   /** "Scheduled every 6 hours · next at 12:00 PM (in 2h 14m)" once the schedule is read. */
   protected readonly description = computed(() => {
+    const active = this.schedule.active();
+    if (active) return collectionRunningLine(active.startedAt, this.zone());
     const schedule = this.schedule.schedule();
     return schedule ? scheduleLine(schedule, this.schedule.now()) : undefined;
   });

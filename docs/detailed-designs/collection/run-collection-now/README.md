@@ -96,6 +96,11 @@ hands execution to the worker.
   dismissed or its action is taken (`L2-075` AC3); `NotifierStore` sets no timer for one, which
   it had done before this journey. A press while a start is out sends nothing, even before the
   busy state renders.
+  While a run is in progress, the button reads a disabled, busy "Collecting…" on both screens
+  (`L2-058` AC4). `ScheduleStore.active` holds that run as the screens last read it: Overview from
+  its status's `current_run`, Runs from the newest run of its unfiltered list (a filtered list
+  says nothing either way). Runs' header then reads "A collection is running now · started 9:46
+  AM". The mock's "by Daniel Adeyemi" is left out: a run does not record who started it.
 - **First start** — when no worker has looked at the schedule yet, the handler creates the lease
   as the worker's first look would, with the latest slot already past counted as handled, so a
   manual run never makes the schedule start a second run for that slot.

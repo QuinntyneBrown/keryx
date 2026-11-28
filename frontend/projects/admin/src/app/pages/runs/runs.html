@@ -1,6 +1,8 @@
 <kx-page-header title="Runs" [description]="description()">
-  <kx-btn slot="actions" variant="primary" [busy]="schedule.starting()" (activated)="runNow()"
-    ><kx-icon name="play" size="sm" />Run now</kx-btn
+  <kx-btn slot="actions" variant="primary" [busy]="schedule.collecting()" (activated)="runNow()"
+    ><kx-icon slot="icon" name="play" size="sm" />{{
+      schedule.collecting() ? 'Collecting…' : 'Run now'
+    }}</kx-btn
   >
 </kx-page-header>
 <kx-page-body [busy]="store.listLoading()">
