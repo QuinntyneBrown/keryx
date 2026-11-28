@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using FluentValidation;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Errors;
 using Keryx.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,11 @@ public sealed record ArticleExportRowDto(
 public sealed record ArticleExport(string FileName, IAsyncEnumerable<ArticleExportRowDto> Rows);
 
 /// <summary>Every article the staff list would show for this filter, newest collected first, as a CSV file (L2-054).</summary>
-public sealed record ExportArticles(string? Status, string? Q, string? Region, string? Category) : IRequest<ArticleExport>, IAdminArticleFilter;
+public sealed record ExportArticles(string? Status, string? Q, string? Region, string? Category) : IRequest<ArticleExport>, IAdminArticleFilter
+{
+    /// <summary>The most rows one export holds (L2-054 AC2).</summary>
+    public const int MaxRows = 50_000;
+}
 
 internal sealed class ExportArticlesValidator : AbstractValidator<ExportArticles>
 {
@@ -43,15 +48,22 @@ internal sealed class ExportArticlesValidator : AbstractValidator<ExportArticles
 }
 
 /// <summary>
-/// Narrows the articles as the list does and returns their rows unread: the caller streams them,
-/// so the whole file is never built in memory. The file is named for today's date in Toronto.
+/// Narrows the articles as the list does and counts them: above <see cref="ExportArticles.MaxRows"/>
+/// the export is refused. Otherwise it returns their rows unread: the caller streams them, so the
+/// whole file is never built in memory. The file is named for today's date in Toronto.
 /// </summary>
 internal sealed class ExportArticlesHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ExportArticles, ArticleExport>
 {
-    public Task<ArticleExport> Handle(ExportArticles request, CancellationToken cancellationToken)
+    public async Task<ArticleExport> Handle(ExportArticles request, CancellationToken cancellationToken)
     {
         var today = TimeZoneInfo.ConvertTime(time.GetUtcNow(), TorontoTime.Zone);
-        var rows = AdminArticleFilter.Apply(db, request)
+        var matching = AdminArticleFilter.Apply(db, request);
+        if (await matching.CountAsync(cancellationToken).ConfigureAwait(false) > ExportArticles.MaxRows)
+        {
+            throw new ExportTooLargeException();
+        }
+
+        var rows = matching
             .OrderByDescending(article => article.CollectedAt).ThenByDescending(article => article.Id)
             .Select(article => new
             {
@@ -71,7 +83,7 @@ internal sealed class ExportArticlesHandler(IAppDbContext db, TimeProvider time)
                 row.PublicId, row.Title, row.Organization, row.Category, row.RegionSlug, row.Score,
                 GetAdminArticleHandler.StatusWord(row.Status), row.PublishedAt, row.CollectedAt, row.Url));
         var name = string.Create(CultureInfo.InvariantCulture, $"articles-{today:yyyy-MM-dd}.csv");
-        return Task.FromResult(new ArticleExport(name, rows));
+        return new ArticleExport(name, rows);
     }
 }
 
