@@ -3,6 +3,7 @@
 // Description: Staff open "Add a source" from Sources, fill it and close it
 
 import { expect, test, type ApiHandlers } from '../fixtures/test';
+import { EditSourceDialog } from '../page-objects/admin/edit-source.dialog';
 import { AddSourceDialog } from '../page-objects/admin/add-source.dialog';
 import { SourcesPage } from '../page-objects/admin/sources.page';
 
@@ -443,6 +444,39 @@ test.describe('Add a source', () => {
     await expect(sources.toastText).toHaveText(
       'The test fetch for LifePoint Fitness Ministry found 6 pages and none matched your topics.',
     );
+    await expect(sources.toastAction).toHaveText('Edit source');
+    api.on('GET', `/admin/v1/sources/${ADDED.id}`, () => ({
+      json: {
+        ...ADDED,
+        article_count: 0,
+        created_at: '2026-11-28T14:46:00Z',
+        last_succeeded_at: null,
+      },
+    }));
+
+    await sources.toastAction.click();
+
+    const edit = new EditSourceDialog(page);
+    await expect(edit.title).toHaveText('Edit source');
+    await expect(edit.url).toHaveValue('https://lifepointfit.ca/events');
+    await expect(edit.organisation).toHaveValue('LifePoint Fitness Ministry');
+
+    api.on('PUT', `/admin/v1/sources/${ADDED.id}`, () => ({
+      json: {
+        source: {
+          ...ADDED,
+          article_count: 0,
+          created_at: '2026-11-28T14:46:00Z',
+          last_succeeded_at: null,
+        },
+        test: { reachable: true, reason: null, items_found: 6, items_relevant: 2 },
+      },
+    }));
+    const before = lists;
+    await edit.submit.click();
+
+    await expect(sources.toastTitle).toHaveText('Source saved');
+    await expect.poll(() => lists).toBe(before + 1);
   });
 
   // L2-064 AC8, L2-074: a bottom sheet below 640 px.

@@ -2,8 +2,11 @@
 
 ## Status
 
-Accepted, 28 November 2026 (journey 16, staff retry failed sources). Superseded in part when
-journey 17 (staff maintain sources) builds the edit source dialog.
+Superseded, 28 November 2026, by journey 17 (staff maintain sources), as its Consequences
+foresaw. "Edit source" now opens the edit source dialog for the one source still failing, from
+wherever the notification is. "Edit sources" still opens Sources, which lists failing sources
+first; L2-062 has no health filter to narrow it further. Accepted, 28 November 2026 (journey 16,
+staff retry failed sources).
 
 ## Context
 

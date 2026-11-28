@@ -174,3 +174,9 @@ li:first-child > .list__item {
   font: var(--text-caption);
   color: var(--color-fg-subtle);
 }
+
+.list__actions {
+  display: flex;
+  flex: none;
+  gap: var(--space-2);
+}

@@ -1,12 +1,6 @@
 import { Component, computed, DestroyRef, inject, Injector, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  NOTIFIER,
-  SOURCES_API,
-  type SourceKind,
-  type SourceListItem,
-  type SourceSaved,
-} from '@kx/api';
+import { NOTIFIER, SOURCES_API, type SourceKind, type SourceListItem } from '@kx/api';
 import {
   Btn,
   Empty,
@@ -33,9 +27,7 @@ import {
   SOURCE_KINDS,
   sourceKindLabel,
   sourceKindOf,
-  lastFetchFailure,
   sourceLastFetched,
-  sourceSavedNotice,
   sourceSiteLink,
   sourcesNoResults,
   sourcesRange,
@@ -45,7 +37,6 @@ import { ScheduleStore } from '../../schedule/schedule-store';
 import { HttpSourcesApi } from '../../sources/http-sources-api';
 import { SourcesStore } from '../../sources/sources-store';
 import type { SourceAdded } from './add-source-dialog/add-source-dialog';
-import type { EditSourceData } from './edit-source-dialog/edit-source-dialog';
 import type { RemoveSourceData } from './remove-source-dialog/remove-source-dialog';
 
 /** What the header says when it cannot count the catalogue: while loading, or after a failure. */
@@ -222,39 +213,16 @@ export default class Sources {
     });
   }
 
-  /**
-   * Opens "Edit source" on a row's source (L2-065). The dialog's code loads when it is first
-   * opened; focus returns to the row's menu button whether it is saved or closed.
-   */
+  /** Opens "Edit source" on a row's source (L2-065); saved, the page is read again in place. */
   private async editSource(source: SourceListItem): Promise<void> {
-    const opener = document.activeElement;
-    const data: EditSourceData = {
-      source,
-      lastFetch: lastFetchFailure(
-        source,
-        this.schedule.now(),
-        this.schedule.schedule()?.time_zone ?? TORONTO,
-      ),
-    };
-    const [{ Dialog }, dialog] = await Promise.all([
-      import('@angular/cdk/dialog'),
-      import('./edit-source-dialog/edit-source-dialog'),
-    ]);
-    const ref = this.injector.get(Dialog).open<SourceSaved>(dialog.EditSourceDialog, {
-      injector: this.injector,
-      data,
-      ariaModal: true,
-      ariaLabelledBy: dialog.EDIT_SOURCE_TITLE_ID,
-      ariaDescribedBy: dialog.EDIT_SOURCE_DESCRIPTION_ID,
-      autoFocus: '#source-url',
-      restoreFocus: opener instanceof HTMLElement ? opener : true,
-      backdropClass: 'kx-backdrop',
-    });
-    ref.closed.subscribe((saved) => {
-      if (!saved) return;
-      this.notifier.notify(sourceSavedNotice(source.kind, saved.test));
-      void this.store.refresh();
-    });
+    const { openEditSource } = await import('../../sources/edit-source');
+    if (await openEditSource(this.injector, source)) await this.store.refresh();
+  }
+
+  /** "Edit source" from the add warning: the new source, known by its id. */
+  private async editAdded(id: string, name: string): Promise<void> {
+    const { editSourceById } = await import('../../sources/edit-source');
+    if (await editSourceById(this.injector, id, name)) await this.store.refresh();
   }
 
   /** Previous or Next: the page goes in the URL, which loads it. */
@@ -297,9 +265,16 @@ export default class Sources {
    * even when the dialog was opened from the empty state, which the list replaces (L2-064 AC5).
    * The next run's time joins the sentence when runs are scheduled (journey 4).
    */
-  private async added({ organisation, kind, test }: SourceAdded, addButton: Btn): Promise<void> {
+  private async added(
+    { id, organisation, kind, test }: SourceAdded,
+    addButton: Btn,
+  ): Promise<void> {
+    const warning = nothingRelevantNotice(kind, test, organisation);
     this.notifier.notify(
-      nothingRelevantNotice(kind, test, organisation) ?? {
+      (warning && {
+        ...warning,
+        action: { label: 'Edit source', run: () => void this.editAdded(id, organisation) },
+      }) ?? {
         tone: 'success',
         title: 'Source added',
         text: `${organisation} will be checked on the next run.`,

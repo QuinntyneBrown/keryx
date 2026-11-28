@@ -43,6 +43,8 @@ interface Focusable {
 
 /** What the dialog closes with when the source was added. */
 export interface SourceAdded {
+  /** Its id, which the warning's "Edit source" opens. */
+  id: string;
   organisation: string;
   kind: SourceKind;
   /** The test fetch of the address that was added, when one finished. */
@@ -201,6 +203,7 @@ export class AddSourceDialog {
       this.ref.disableClose = false;
       const hint = this.hintState();
       this.ref.close({
+        id: created.id,
         organisation: created.organization_name,
         kind: this.kind(),
         test:

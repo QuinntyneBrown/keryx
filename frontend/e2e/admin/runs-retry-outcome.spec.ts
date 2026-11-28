@@ -2,12 +2,14 @@
 // Traces to: L2-059 AC2, AC3
 // Description: When a retry of a run's failed sources ends, the run's tiles update without a
 // reload and one notification says which sources responded and which still fail, with "Edit
-// source" or "Edit sources", which open Sources (ADR 0012).
+// source", which opens the dialog for the source still failing, or "Edit sources", which opens
+// Sources, failing first.
 
 import type { Page } from '@playwright/test';
 import { expect, test, type ApiHandlers } from '../fixtures/test';
 import { OVERVIEW_NOW } from '../fixtures/overview';
 import { RUN_2418_ISSUES, RUN_HISTORY, runDetail } from '../fixtures/runs';
+import { EditSourceDialog } from '../page-objects/admin/edit-source.dialog';
 import { RunsPage } from '../page-objects/admin/runs.page';
 
 type Phase = 'failed' | 'retrying' | 'ended';
@@ -55,6 +57,23 @@ function retryOf(api: ApiHandlers, stillFailing: Record<string, unknown>[]): (ne
       needs_look_count: 0,
     },
   }));
+  api.on('GET', '/admin/v1/sources/src_iss_1', () => ({
+    json: {
+      id: 'src_iss_1',
+      kind: 'rss',
+      address: 'https://redeemedrun.ca/feed',
+      organization_name: 'Redeemed Run Club Toronto',
+      region: 'toronto',
+      health: 'failing',
+      failure_reason: 'not_found',
+      consecutive_failures: 2,
+      article_count: 31,
+      created_at: '2026-11-01T12:00:00Z',
+      last_fetched_at: '2026-11-28T11:01:00Z',
+      last_succeeded_at: null,
+    },
+  }));
+  api.on('GET', '/admin/v1/regions', () => ({ json: { items: [] } }));
   return (next) => (phase = next);
 }
 
@@ -96,9 +115,14 @@ test.describe('Retry outcome', () => {
     await expect(runs.tileValues).toHaveText(['47', '18', '63', '1']);
     await expect(runs.detailBadge).not.toHaveText('Running');
 
+    await expect(runs.toastAction).toHaveText('Edit source');
+
     await runs.toastAction.click();
 
-    await expect(page).toHaveURL(/\/sources$/);
+    const dialog = new EditSourceDialog(page);
+    await expect(dialog.title).toHaveText('Edit source');
+    await expect(dialog.url).toHaveValue('https://redeemedrun.ca/feed');
+    await expect(page).toHaveURL(/\/runs/);
   });
 
   test('says both failed again, with their reasons', async ({ page, api }) => {
@@ -115,5 +139,9 @@ test.describe('Retry outcome', () => {
     );
     await expect(runs.toastAction).toHaveText('Edit sources');
     await expect(runs.toast).toHaveClass(/toast--danger/);
+
+    await runs.toastAction.click();
+
+    await expect(page).toHaveURL(/\/sources$/);
   });
 });

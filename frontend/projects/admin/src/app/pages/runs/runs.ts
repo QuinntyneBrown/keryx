@@ -199,6 +199,7 @@ export default class Runs {
         subject: issue.subject_name,
         detail: issue.detail,
         streak: issueStreakLabel(issue.severity, issue.consecutive_runs),
+        editable: issue.subject_type === 'source' && issue.subject_id !== null,
       })),
     };
   });
@@ -237,6 +238,22 @@ export default class Runs {
 
   protected retryDetail(): void {
     void this.store.retryDetail();
+  }
+
+  /**
+   * An issue's "Edit source" (L2-057 AC4, L2-065): the same dialog as Sources, for the source the
+   * issue is about. Saved, the run is read again; focus returns to the button either way.
+   */
+  protected async editSource(issueId: string): Promise<void> {
+    const issue = this.store.detail()?.issues.find((item) => item.id === issueId);
+    if (!issue?.subject_id) return;
+    const { editSourceById } = await import('../../sources/edit-source');
+    const saved = await editSourceById(
+      this.injector,
+      issue.subject_id,
+      issue.subject_name ?? 'The source',
+    );
+    if (saved) this.store.reload();
   }
 
   protected navigate(href: string): void {

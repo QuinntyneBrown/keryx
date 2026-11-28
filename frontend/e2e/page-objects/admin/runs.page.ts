@@ -158,6 +158,16 @@ export class RunsPage {
     );
   }
 
+  /** An issue's "Edit source" button, named for its source (L2-057 AC4). */
+  issueEdit(source: string): Locator {
+    return this.detail.getByRole('button', { name: `Edit source for ${source}`, exact: true });
+  }
+
+  /** Every issue's "Edit source" button. */
+  issueEdits(): Locator {
+    return this.detail.getByRole('button', { name: /^Edit source for / });
+  }
+
   async open(query = ''): Promise<void> {
     await this.page.goto(`/runs${query}`);
   }

@@ -141,6 +141,7 @@ describe('failedSources', () => {
     severity,
     kind: 'source_timeout',
     subject_type,
+    subject_id: subject_type === 'source' ? 'src_a' : null,
     subject_name,
   });
 
@@ -148,7 +149,7 @@ describe('failedSources', () => {
     [
       'an error about a named source',
       [issue('error', 'source', 'A')],
-      [{ name: 'A', kind: 'source_timeout' }],
+      [{ name: 'A', kind: 'source_timeout', id: 'src_a' }],
     ],
     ['a warning about a source', [issue('warning', 'source', 'A')], []],
     ['an error about a stage', [issue('error', 'stage', 'Store')], []],

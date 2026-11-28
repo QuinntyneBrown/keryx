@@ -64,7 +64,9 @@ with the same pipeline as any run ([run-collection-pipeline](../run-collection-p
     failed again" with each source's failure ("returned 404", "timed out", "was blocked",
     "answered with nothing Keryx can read"); all recovered is a success, "The source
     recovered" or "All n sources recovered", with no action. "Edit source" (one still fails)
-    and "Edit sources" (more) open Sources until journey 17 builds the edit dialog (ADR 0012).
+    opens the edit source dialog for it, wherever staff are. "Edit sources" (more) opens
+    Sources, which lists failing sources first. Journey 17 built the dialog, superseding
+    ADR 0012.
   - The summary is raised by the shell, not `RunsStore`: the store tells `CollectionWatcher`
     the run is a retry of those sources (`expectRetry`), and `ScheduleStore` announces that
     run's end with `summarizeRetry` in place of the collection outcome notice, once. So the

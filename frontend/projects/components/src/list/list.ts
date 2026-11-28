@@ -1,5 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Badge, type BadgeTone } from '../badge/badge';
+import { Btn } from '../btn/btn';
 import { Icon } from '../icon/icon';
 import { Skeleton } from '../skeleton/skeleton';
 import { Spinner } from '../spinner/spinner';
@@ -43,6 +44,8 @@ export interface IssueListItem {
   subject: string | null;
   detail: string;
   streak: string | null;
+  /** It concerns a source, so it offers "Edit source" (L2-057 AC4); a stage's issue does not. */
+  editable?: boolean;
 }
 
 /**
@@ -52,7 +55,7 @@ export interface IssueListItem {
  */
 @Component({
   selector: 'kx-list',
-  imports: [Badge, Icon, Skeleton, Spinner],
+  imports: [Badge, Btn, Icon, Skeleton, Spinner],
   templateUrl: './list.html',
   styleUrl: './list.scss',
 })
@@ -64,6 +67,8 @@ export class List {
   readonly issues = input<readonly IssueListItem[]>([]);
   /** A plain click on a run emits its `href` for the app's router. */
   readonly navigate = output<string>();
+  /** An issue's "Edit source" was pressed: its id. */
+  readonly editSource = output<string>();
   /** Skeleton rows standing in while the entries load, in place of them. */
   readonly placeholders = input(0);
   /** Skeleton run rows standing in while the history loads. */

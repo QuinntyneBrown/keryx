@@ -1,5 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ApiProblem,
@@ -34,6 +34,7 @@ export class ScheduleStore {
   private readonly watcher = inject(CollectionWatcher);
   private readonly router = inject(Router);
   private readonly dialog = inject(Dialog);
+  private readonly injector = inject(Injector);
   private readonly controller = new AbortController();
   private requested = false;
 
@@ -61,11 +62,20 @@ export class ScheduleStore {
    * Says how the run ended (L2-076 AC2–AC4), once: the watcher ends each run once. "View run"
    * closes any dialog and opens the run; "Retry now" starts another, which the watcher follows.
    */
+  /** Opens "Edit source" where staff are, loading it when first wanted. */
+  private async editSource(id: string, name: string): Promise<void> {
+    const { editSourceById } = await import('../sources/edit-source');
+    await editSourceById(this.injector, id, name);
+  }
+
   private announce(run: RunDetail): void {
     const retried = this.watcher.takeRetry(run.id);
     if (retried) {
-      // A retry says which of its sources recovered; "Edit source" opens Sources (ADR 0012).
-      const summary = summarizeRetry(retried, failedSources(run.issues));
+      // A retry says which of its sources recovered. "Edit source" opens the dialog for the one
+      // still failing; "Edit sources" opens Sources, which lists failing sources first.
+      const failing = failedSources(run.issues);
+      const summary = summarizeRetry(retried, failing);
+      const one = failing.length === 1 ? failing[0] : null;
       this.notifier.notify({
         tone: summary.tone,
         title: summary.title,
@@ -76,7 +86,8 @@ export class ScheduleStore {
                 label: summary.action,
                 run: () => {
                   this.dialog.closeAll();
-                  void this.router.navigateByUrl('/sources');
+                  if (one?.id) void this.editSource(one.id, one.name);
+                  else void this.router.navigateByUrl('/sources');
                 },
               },
             }

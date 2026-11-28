@@ -60,6 +60,16 @@
           }
         </div>
       </div>
+      @if (issue.editable) {
+        <div class="list__actions">
+          <kx-btn
+            small
+            [label]="'Edit source for ' + (issue.subject ?? 'this source')"
+            (activated)="editSource.emit(issue.id)"
+            >Edit source</kx-btn
+          >
+        </div>
+      }
     </li>
   }
   @for (entry of entries(); track entry.id) {

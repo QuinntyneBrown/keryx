@@ -103,7 +103,7 @@
               <section aria-labelledby="issues-title">
                 <h3 id="issues-title" class="runs__section-title">Issues in this run</h3>
                 @if (shown.issues.length) {
-                  <kx-list [issues]="shown.issues" />
+                  <kx-list [issues]="shown.issues" (editSource)="editSource($event)" />
                 } @else {
                   <kx-empty
                     card

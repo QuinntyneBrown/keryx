@@ -68,6 +68,18 @@ The feature is a vertical slice from the two dialogs to the database.
     row's menu button.
 - **Opening from Runs** — `RunsPage` opens the same `EditSourceDialog` for an issue's source and
   binds `SOURCES_API` in the dialog's injector; on save it refreshes its own data.
+  - As built (journey 17): `sources/edit-source.ts` opens the dialog from anywhere.
+    - `openEditSource(injector, source)` binds `SOURCES_API` in the dialog's injector, words the
+      last-fetch alert from `ScheduleStore`'s clock and zone, and says "Source saved".
+    - `editSourceById(injector, id, name)` reads `GET /admin/v1/sources/{id}` first, for a Runs
+      issue (its `subject_id`), the retry notification's "Edit source" (the one source still
+      failing, superseding ADR 0012), and the "Source added, but nothing looked relevant"
+      warning, which now has "Edit source".
+    - A source removed meanwhile gives "Source not found" / "<name> was removed meanwhile.". A
+      failed read gives "Keryx couldn’t open the source" / "Try again in a moment. Reference …",
+      with "Try again".
+    - An issue's button reads "Edit source", named "Edit source for <source>"; a stage's issue has
+      none. Saved from Runs, the run is read again in place, so focus returns to the button.
 - **`RemoveSourceDialog`** — CDK Dialog titled "Remove Redeemed Run Club Toronto?" (the
   organization name) that says "Keryx stops checking redeemedrun.ca/feed." and "The 31 articles
   already collected from this source stay in the database and in the API…". Focus starts on

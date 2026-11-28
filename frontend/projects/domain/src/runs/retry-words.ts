@@ -29,6 +29,8 @@ export function retryStartedNotice(
 export interface FailedSource {
   name: string;
   kind: string;
+  /** The source's id, which "Edit source" opens (L2-059 AC2). */
+  id?: string | null;
 }
 
 /** A run's failed sources: its `error` issues about a source that names one. */
@@ -37,12 +39,13 @@ export function failedSources(
     severity: string;
     kind: string;
     subject_type: string;
+    subject_id?: string | null;
     subject_name: string | null;
   }[],
 ): FailedSource[] {
   return issues
     .filter((i) => i.severity === 'error' && i.subject_type === 'source' && i.subject_name)
-    .map((i) => ({ name: i.subject_name as string, kind: i.kind }));
+    .map((i) => ({ name: i.subject_name as string, kind: i.kind, id: i.subject_id ?? null }));
 }
 
 /** What a failed source did, as said once the retry has ended: [first time, still]. */
