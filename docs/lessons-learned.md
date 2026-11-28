@@ -1019,3 +1019,56 @@ Lessons:
   empty read, could not be seen, and was removed.
 - "Prove a bound on a stored store": 2,500 articles added straight to the store kept the batch
   tests under a second each.
+
+## Journey 24: Staff actions are audited
+
+Six slices, backend only:
+- decisions on articles (publish, hide, Undo), recorded only when something changed;
+- sources (add, edit, remove, restore) and API keys (create, revoke), with no key in any entry;
+- muting and unmuting issues, and starting and retrying runs;
+- settings saves, by the names of the fields that changed;
+- refused requests and failed sign-ins, counted in `keryx.auth.refused` and logged without the
+  credential;
+- retention deletes audit entries older than the period.
+
+The design's open points were settled before any code:
+- Undo, Unmute and Restore are audited;
+- a retry records `run_retried` and `run_started`;
+- the refusal reasons and the metric's unit and tags;
+- operators read the table, so there is no read endpoint.
+
+One point was changed, and the design now says why. The design had a pipeline behaviour write
+each entry after its handler. That cannot keep the promise that an entry and its change are
+saved together, because the handler has already saved. Each handler now calls
+`IAuditTrail.Record` before its own `SaveChanges`, so one save holds both.
+
+What slowed it:
+- The first full run failed the refusal test. OpenTelemetry subscribes to a meter by its name,
+  and the API tests run several hosts at once, so the exporter also counted other hosts'
+  refusals. A `MeterListener` filtered on the host's own `IMeterFactory` scope counts only that
+  host. A presence check on the exported metric still proves the exporter is wired.
+- Removal mutants failed the build rather than a test, because the analyser rejects an unused
+  constructor parameter. Writing `_ = audit;` in the mutant let them build.
+- Two mutants survived until the tests grew:
+  - recording local time survived until each entry was asserted to have offset zero;
+  - comparing e-mail without case survived until a case-only row was added to the table.
+
+Lessons:
+- **Record an audit entry in the same save as the change.** A behaviour that runs after the
+  handler cannot do it. A repeat that changes nothing then records nothing, without any extra
+  check.
+- **Count a metric per host by the meter factory's scope.** Exported metrics are shared by
+  name across every host in the process.
+- **Observe refusals in one middleware around authentication and authorization.** It sees every
+  401 and 403, whichever handler made it, and it reads the route template from the endpoint.
+  Only the sign-in callback, which has no endpoint, reports for itself.
+- **Give a case table a row that only one comparison catches.** The case-only e-mail row is what
+  makes an ordinal comparison testable.
+
+**How earlier lessons worked.**
+- "Delete what a set-null key points at first" did not apply: audit entries refer to nothing.
+  They went last, through the same batch delete.
+- "Prove an absence by exact keys": the API-key test lists every field of every entry, so no key
+  or prefix can hide in one.
+- "A redundant flush is code no test can see": the always-record mutant was equivalent, because
+  an unsaved entry is thrown away, so nothing was removed for it.
