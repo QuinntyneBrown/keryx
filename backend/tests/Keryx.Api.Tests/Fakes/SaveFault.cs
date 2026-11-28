@@ -51,6 +51,8 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
         ? throw new InvalidOperationException("could not connect to server: Connection refused (10.0.0.12:5432)")
         : inner.ApiUsageHours;
 
+    public DbSet<Keryx.Domain.Audit.AuditEntry> AuditEntries => inner.AuditEntries;
+
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Another request claimed the lease between this one's read and its save: its run is saved

@@ -23,9 +23,9 @@ box "Backend — Keryx API application" #D1FADF
   participant "AdminSettingsController" as ctrl
 end box
 box "Backend — Keryx Application and Domain" #ECFDF3
-  participant "AuditBehavior" as beh
-  participant "SaveSettingsCommandHandler" as h
+  participant "UpdateSettingsHandler" as h
   participant "SettingsDiff" as diff
+  participant "AuditTrail" as trail
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
   database "Keryx database" as db
@@ -33,16 +33,15 @@ end box
 actor -> page : Change alert e-mail and failure streak; Save changes
 page -> client : PUT /admin/v1/settings
 client -> ctrl : Request
-ctrl -> beh : Send SaveSettingsCommand
-beh -> h : Call handler
+ctrl -> h : Send UpdateSettings
 h -> db : Load saved settings
 db --> h : Settings
 h -> diff : ChangedFields(saved, submitted)
-diff --> h : ["alert_email", "failure_streak"]
-h --> beh : Saved (pending in unit of work)
-beh -> db : Save settings and AuditEntry(settings_saved, settings, field names only) (L2-085)
-db --> beh : Commit result
-beh --> ctrl : Result
+diff --> h : ["alert_email", "alert_failure_streak"]
+h -> trail : Record(settings_saved, settings, field names only) (L2-085)
+h -> db : SaveChanges: settings and entry in one commit
+db --> h : Committed
+h --> ctrl : Saved settings
 ctrl --> client : 200
 client --> page : Saved
 page --> actor : Confirm save

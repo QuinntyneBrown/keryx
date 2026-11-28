@@ -33,6 +33,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Catalogue.ArticleIngestion>();
         services.AddScoped<Catalogue.ArticlePublication>();
         services.AddSingleton<Scoring.IRelevanceScorer, Scoring.RelevanceScorer>();
+        services.AddScoped<Audit.IAuditTrail, Audit.AuditTrail>();
         return services;
     }
 }

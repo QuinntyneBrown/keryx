@@ -45,5 +45,7 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours { get; }
 
+    DbSet<Keryx.Domain.Audit.AuditEntry> AuditEntries { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

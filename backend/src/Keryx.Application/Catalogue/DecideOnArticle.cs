@@ -1,6 +1,8 @@
 using FluentValidation;
 using Keryx.Application.Abstractions;
+using Keryx.Application.Audit;
 using Keryx.Application.Errors;
+using Keryx.Domain.Audit;
 using Keryx.Domain.Catalogue;
 using Keryx.Domain.Collection;
 using MediatR;
@@ -51,29 +53,33 @@ public sealed record ArticleDecisionDto(string Id, string Status, string Decided
         article.PreviousStatus is { } previous ? GetAdminArticleHandler.StatusWord(previous) : null);
 }
 
-/// <summary>Publish and hide: each loads the article, decides, and saves only a change, so a repeat writes nothing.</summary>
-internal sealed class DecideOnArticleHandler(IAppDbContext db, TimeProvider time) :
+/// <summary>
+/// Publish, hide and Undo: each loads the article, decides, and saves only a change, with its audit
+/// entry, so a repeat writes nothing and records nothing (L2-085).
+/// </summary>
+internal sealed class DecideOnArticleHandler(IAppDbContext db, IAuditTrail audit, TimeProvider time) :
     IRequestHandler<PublishArticle, ArticleDecisionDto>,
     IRequestHandler<HideArticle, ArticleDecisionDto>,
     IRequestHandler<RevertArticleDecision, ArticleDecisionDto>
 {
     public Task<ArticleDecisionDto> Handle(PublishArticle request, CancellationToken cancellationToken) =>
-        DecideAsync(request.Id, (article, now) => article.Publish(now, request.Session), cancellationToken);
+        DecideAsync(request.Id, AuditAction.ArticlePublished, (article, now) => article.Publish(now, request.Session), cancellationToken);
 
     public Task<ArticleDecisionDto> Handle(HideArticle request, CancellationToken cancellationToken) =>
-        DecideAsync(request.Id, (article, now) => article.Hide(now, request.Session), cancellationToken);
+        DecideAsync(request.Id, AuditAction.ArticleHidden, (article, now) => article.Hide(now, request.Session), cancellationToken);
 
     public Task<ArticleDecisionDto> Handle(RevertArticleDecision request, CancellationToken cancellationToken) =>
-        DecideAsync(request.Id, (article, _) => article.RevertTo(RevertArticleDecisionValidator.StatusWords[request.PreviousStatus!], request.Session)
+        DecideAsync(request.Id, AuditAction.ArticleReverted, (article, _) => article.RevertTo(RevertArticleDecisionValidator.StatusWords[request.PreviousStatus!], request.Session)
             ? true
             : throw new RevertUnavailableException(), cancellationToken);
 
-    private async Task<ArticleDecisionDto> DecideAsync(string id, Func<Article, DateTimeOffset, bool> decide, CancellationToken cancellationToken)
+    private async Task<ArticleDecisionDto> DecideAsync(string id, AuditAction action, Func<Article, DateTimeOffset, bool> decide, CancellationToken cancellationToken)
     {
         var article = await db.Articles.SingleOrDefaultAsync(candidate => candidate.PublicId == id, cancellationToken).ConfigureAwait(false)
             ?? throw new ArticleNotFoundException();
         if (decide(article, time.GetUtcNow()))
         {
+            audit.Record(action, article.PublicId);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 

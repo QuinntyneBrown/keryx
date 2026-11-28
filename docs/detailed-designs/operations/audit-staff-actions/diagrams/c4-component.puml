@@ -4,26 +4,26 @@ LAYOUT_WITH_LEGEND()
 title Components — Audit staff actions
 
 Container_Boundary(api, "Keryx API") {
-  Component(ctrl, "Admin…Controller", "ASP.NET Core controller", "Sends one auditable command")
+  Component(ctrl, "Admin…Controller", "ASP.NET Core controller", "Sends one command")
   Component(cur, "HttpContextCurrentStaff", "ICurrentStaff", "Subject id from the sub claim")
   Component(ref, "AccessRefusalMetrics", "Auth event observer", "Counts and logs 401, 403, failed sign-in")
   Component(authn, "OIDC handler, ApiKeyAuthenticationHandler, authorization result handler", "ASP.NET Core auth", "Raise refusal events")
 }
 Container_Boundary(app, "Keryx Application and Domain") {
-  Component(beh, "AuditBehavior", "MediatR pipeline behaviour", "Adds AuditEntry after success")
-  Component(h, "…CommandHandler", "MediatR handler", "Applies the change")
+  Component(h, "…Handler", "MediatR handler", "Applies the change and records it")
+  Component(trail, "AuditTrail", "IAuditTrail, scoped", "Adds AuditEntry to the unit of work")
   Component(diff, "SettingsDiff", "Application service", "Changed field names only")
   Component(entry, "AuditEntry", "Domain entity", "Subject id, action, target id, time")
 }
 ContainerDb(db, "Keryx database", "EF Core relational store", "Changes and audit entries")
 System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
 
-Rel(ctrl, beh, "Sends IAuditableCommand")
-Rel(beh, h, "Calls")
-Rel(beh, cur, "Reads subject id from")
-Rel(beh, entry, "Creates")
+Rel(ctrl, h, "Sends command")
+Rel(h, trail, "Records action and target, before its save")
+Rel(trail, cur, "Reads subject id from")
+Rel(trail, entry, "Creates")
 Rel(h, diff, "Uses for Settings")
-Rel(beh, db, "Commits change and entry", "IAppDbContext")
+Rel(h, db, "Saves change and entry in one SaveChanges", "IAppDbContext")
 Rel(authn, ref, "Reports refusals to")
 Rel(ref, otel, "Exports metric and log", "OTLP")
 @enduml

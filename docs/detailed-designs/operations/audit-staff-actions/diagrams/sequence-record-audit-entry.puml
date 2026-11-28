@@ -24,8 +24,8 @@ box "Backend — Keryx API application" #D1FADF
   participant "HttpContextCurrentStaff" as cur
 end box
 box "Backend — Keryx Application and Domain" #ECFDF3
-  participant "AuditBehavior" as beh
-  participant "PublishArticleCommandHandler" as h
+  participant "DecideOnArticleHandler" as h
+  participant "AuditTrail" as trail
   participant "AuditEntry" as entry
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
@@ -34,20 +34,19 @@ end box
 actor -> page : Publish a held article
 page -> client : Build typed request
 client -> ctrl : POST publish for art_…
-ctrl -> beh : Send PublishArticleCommand
-beh -> h : Call handler
-alt handler succeeds
-  h --> beh : Status changed (pending in unit of work)
-  beh -> cur : SubjectId
-  cur --> beh : sub claim
-  beh -> entry : New(subject id, article_published, art_…, now) (L2-085)
-  beh -> db : Save change and audit entry in one unit of work
-  db --> beh : Commit result
-  beh --> ctrl : Result
+ctrl -> h : Send PublishArticle
+h -> db : Load article
+alt the status changes
+  h -> trail : Record(article_published, art_…)
+  trail -> cur : SubjectId
+  cur --> trail : sub claim
+  trail -> entry : New(subject id, article_published, art_…, now) (L2-085)
+  h -> db : SaveChanges: the status and the entry in one commit
+  db --> h : Committed, or neither
+  h --> ctrl : Decision
   ctrl --> client : 200
-else handler fails
-  h --> beh : Exception
-  beh --> ctrl : Exception; no entry written
+else the article is missing, or the save fails
+  h --> ctrl : Exception; nothing saved, no entry
   ctrl --> client : ProblemDetails
 end
 client --> page : Feature result

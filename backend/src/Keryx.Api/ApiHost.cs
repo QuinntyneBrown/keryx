@@ -69,6 +69,8 @@ public static class ApiHost
             .Validate(limits => limits.IdleMinutes > 0 && limits.LifetimeHours > 0,
                 "Session idle minutes and lifetime hours must be positive.").ValidateOnStart();
         builder.Services.AddSingleton<StaffTicketStore>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<Keryx.Application.Audit.ICurrentStaff, Keryx.Api.Audit.HttpContextCurrentStaff>();
         builder.Services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
             .Configure<StaffTicketStore, TimeProvider, Microsoft.Extensions.Options.IOptions<SessionLimits>>((options, store, clock, limits) =>
             {
