@@ -77,6 +77,10 @@ hands execution to the worker.
   failing, and null when none has; "This usually takes about 4 minutes" is that duration in
   whole minutes, at least 1, and is left out when it is null. A `KeryxException` may carry
   extensions (`run_id`), which `ProblemDetailsMapper` writes beside `code`.
+- **A lost race** — the save fails on the lease's concurrency token when another start claimed
+  it first; the handler reads the lease's run (a projection, from the store) and refuses with
+  `run_in_progress` and that run's id, saving nothing of its own. Tests inject the conflict
+  through `IAppDbContext` (`SaveFault.LeaseRace`), since EF Core InMemory checks no token.
 - **First start** — when no worker has looked at the schedule yet, the handler creates the lease
   as the worker's first look would, with the latest slot already past counted as handled, so a
   manual run never makes the schedule start a second run for that slot.

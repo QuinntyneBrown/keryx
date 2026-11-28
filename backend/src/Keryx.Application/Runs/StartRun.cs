@@ -52,7 +52,24 @@ internal sealed class StartRunHandler(IAppDbContext db, TimeProvider time) : IRe
         var run = Run.Start(RunWorker.Collection, RunTrigger.Manual, now);
         db.Runs.Add(run);
         lease.Claim(run.PublicId);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Another start claimed the lease first (L2-006 AC3): its run is the one in progress.
+            var winner = await db.RunLeases
+                .Where(candidate => candidate.Worker == RunWorker.Collection)
+                .Select(candidate => candidate.ActiveRunId)
+                .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+            if (winner is null)
+            {
+                throw;
+            }
+
+            throw new RunInProgressException(winner);
+        }
 
         var sources = await db.Sources.CountAsync(source => CollectionPipeline.Fetchable.Contains(source.Kind), cancellationToken).ConfigureAwait(false);
         var last = await db.Runs.AsNoTracking()

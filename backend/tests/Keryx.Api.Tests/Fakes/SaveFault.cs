@@ -45,7 +45,21 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
     public DbSet<Keryx.Domain.Clients.ApiClient> ApiClients => inner.ApiClients;
 
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Another request claimed the lease between this one's read and its save: its run is saved
+        // first, and this save then fails on the lease's version, as the database fails it.
+        if (fault.LeaseRace is { } winner && inner.ChangeTracker.Entries<Keryx.Domain.Collection.Run>().Any(entry => entry.State == EntityState.Added))
+        {
+            fault.LeaseRace = null;
+            await winner().ConfigureAwait(false);
+            throw new DbUpdateConcurrencyException("The lease was changed by another request.");
+        }
+
+        return await Saved(cancellationToken).ConfigureAwait(false);
+    }
+
+    private Task<int> Saved(CancellationToken cancellationToken) =>
         fault.Armed && (inner.ChangeTracker.Entries<Source>().Any(entry => entry.State == EntityState.Added)
             || inner.ChangeTracker.Entries<Keryx.Domain.Clients.ApiClient>().Any(entry => entry.State == EntityState.Added))
             ? throw new DbUpdateException("duplicate key value violates unique constraint")
@@ -64,5 +78,11 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
         /// <summary>How many saves that stage records succeed before the store fault fires.</summary>
         public int StoreSavesBeforeFailing { get; set; }
+
+        /// <summary>
+        /// The next save that adds a run loses a race for the lease: this runs the winning request's
+        /// save, then the save fails on the lease's concurrency token.
+        /// </summary>
+        public Func<Task>? LeaseRace { get; set; }
     }
 }
