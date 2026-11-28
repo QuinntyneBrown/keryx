@@ -60,11 +60,16 @@ as `trace_id`.
 **API (`Keryx.Api`)**
 
 - **ASP.NET Core instrumentation** — records `http.route` from the endpoint's route template,
-  method, status and duration. `Filter` and `EnrichWithHttpRequest` add `keryx.client.id` (the
-  client's public id, never its key or prefix) for `/v1`.
-- **`ApiMetrics`** — meter `Keryx.Api`: counter `keryx.api.requests`, histogram
-  `keryx.api.request.duration` (milliseconds) and counter `keryx.api.errors`, each tagged by
-  route template and client id.
+  method, status and duration, on the span and on the histogram `http.server.request.duration`
+  (`s`). Its count is the number of requests, its buckets are the latency, and its
+  `http.response.status_code` and `error.type` tags are the errors.
+- **Client on consumer requests** — `ApiUsageMiddleware`, which already reads the authenticated
+  client of each `/v1` request, adds `keryx.client.id` (the client's public id, never its key or
+  prefix) to the request's measurement through `IHttpMetricsTagsFeature`, and to its span. A
+  request with no valid key carries no client. The design first had a separate `ApiMetrics`
+  meter with `keryx.api.requests`, `keryx.api.request.duration` and `keryx.api.errors`. That would
+  repeat the framework's own instrument under other names. Enriching it is the way ASP.NET Core
+  documents, and it gives the same three measures by route template and client.
 - **`ProblemDetailsMapper`** — adds `trace_id` from `Activity.Current.TraceId` to every
   ProblemDetails body (`L2-031`).
 

@@ -22,9 +22,9 @@ box "Frontend — Keryx Admin application" #E0F2FE
 end box
 box "Backend — Keryx API application" #D1FADF
   participant "ASP.NET Core instrumentation" as inst
+  participant "ApiUsageMiddleware" as usage
   participant "Controller" as ctrl
   participant "ProblemDetailsMapper" as pdm
-  participant "ApiMetrics" as metrics
 end box
 box "Backend — Keryx Infrastructure" #FFF4E5
   participant "TelemetryRedactionProcessor" as red
@@ -41,7 +41,10 @@ else error
   ctrl -> pdm : Exception
   pdm --> inst : ProblemDetails with code and trace_id = current trace id (L2-094)
 end
-inst -> metrics : Record(route template, client id, status, duration)
+opt /v1 request with a valid key
+  usage -> inst : keryx.client.id (public id) on the span and on http.server.request.duration
+end
+inst -> inst : Record http.server.request.duration by route template, status, error type
 inst -> red : End span
 red -> red : Keep allow-listed tags; drop query, body, headers, key, cookie, e-mail, name
 red -> exp : Export span

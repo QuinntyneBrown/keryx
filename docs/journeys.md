@@ -28,4 +28,4 @@ The Settings percentage includes completed slices on `journey/18-change-settings
 | 22 | Staff exports articles | Staff download filtered articles as CSV | 2 | 100 |
 | 23 | Worker applies retention | Records past the retention period are deleted | 2 | 100 |
 | 24 | Staff actions are audited | Every state-changing staff action is recorded | 2 | 100 |
-| 25 | Operator observes the system | Traces, metrics and logs exported without private data | 2 | 70 |
+| 25 | Operator observes the system | Traces, metrics and logs exported without private data | 2 | 85 |

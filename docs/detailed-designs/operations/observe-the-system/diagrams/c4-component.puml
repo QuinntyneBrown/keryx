@@ -5,7 +5,7 @@ title Components — Observe the system
 
 Container_Boundary(api, "Keryx API") {
   Component(aspnet, "ASP.NET Core instrumentation", "OpenTelemetry", "Route template, method, status, duration, client id")
-  Component(apim, "ApiMetrics", "Meter Keryx.Api", "Requests, duration, errors")
+  Component(apim, "ApiUsageMiddleware", "Middleware", "Tags request measurement and span with keryx.client.id")
   Component(pdm, "ProblemDetailsMapper", "Exception handler", "Adds trace_id")
 }
 Container_Boundary(worker, "Keryx Worker") {
@@ -22,7 +22,7 @@ System_Ext(otel, "OTLP collector", "Receives traces, metrics and logs")
 Rel(aspnet, red, "Spans pass through")
 Rel(colt, red, "Spans pass through")
 Rel(red, exp, "Redacted spans")
-Rel(apim, exp, "Metrics")
+Rel(apim, aspnet, "Adds the client id to")
 Rel(colm, exp, "Metrics")
 Rel(setup, red, "Registers")
 Rel(setup, exp, "Adds when configured")
