@@ -87,6 +87,8 @@ hands execution to the worker.
   run's id; Runs then reads its list again and opens `/runs?run=<id>`, and Overview reads its
   status and chart again, whose `current_run` shows the running state. The button is a primary
   `btn` with the `play` icon, busy while the request is out.
+  A `run_in_progress` refusal resolves with the problem's `run_id` (`ApiProblem.runId`, read
+  from the body by `problemOf`), and the screen shows that run with no notification.
 - **First start** — when no worker has looked at the schedule yet, the handler creates the lease
   as the worker's first look would, with the latest slot already past counted as handled, so a
   manual run never makes the schedule start a second run for that slot.

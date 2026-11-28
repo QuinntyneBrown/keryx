@@ -1,5 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { NOTIFIER, OVERVIEW_API, RUNS_API, type ShellSchedule } from '@kx/api';
+import { ApiProblem, NOTIFIER, OVERVIEW_API, RUNS_API, type ShellSchedule } from '@kx/api';
 import { collectionStartedText } from '@kx/domain';
 
 /** How often the countdown to the next run is worked out again. */
@@ -35,7 +35,8 @@ export class ScheduleStore {
 
   /**
    * Starts a collection run (L2-047 AC1): says so with how many sources it checks, and resolves
-   * with the new run's id for the screen to show it.
+   * with the new run's id for the screen to show it. A run already in progress is no error: it
+   * resolves with that run's id, unannounced (AC2).
    */
   async runNow(): Promise<string | null> {
     this.starting.set(true);
@@ -47,6 +48,11 @@ export class ScheduleStore {
         text: collectionStartedText(started.sources_total, started.estimated_duration_ms),
       });
       return started.id;
+    } catch (error) {
+      if (error instanceof ApiProblem && error.code === 'run_in_progress') {
+        return error.runId ?? null;
+      }
+      throw error;
     } finally {
       this.starting.set(false);
     }

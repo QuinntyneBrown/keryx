@@ -27,5 +27,6 @@ export async function problemOf(response: Response): Promise<ApiProblem> {
   const code = typeof body?.code === 'string' ? body.code : undefined;
   const reference = typeof body?.trace_id === 'string' ? body.trace_id : undefined;
   const errors = body?.errors && typeof body.errors === 'object' ? body.errors : undefined;
-  return new ApiProblem(response.status, code, reference, errors);
+  const runId = typeof body?.run_id === 'string' ? body.run_id : undefined;
+  return new ApiProblem(response.status, code, reference, errors, runId);
 }

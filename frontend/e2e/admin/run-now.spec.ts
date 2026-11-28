@@ -99,4 +99,72 @@ test.describe('Run now', () => {
     await expect(overview.eyebrow).toHaveText('Current run');
     await expect(overview.headline).toHaveText('Collecting news now…');
   });
+  // L2-047 AC2: a run already in progress is no error; the screen shows that run.
+  test('shows the run already in progress, with no error, from Runs', async ({ page, api }) => {
+    await page.clock.setFixedTime(RUNNING_NOW);
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/runs', () => ({
+      status: 409,
+      json: { status: 409, code: 'run_in_progress', run_id: 'run_2419', trace_id: 'req_1' },
+    }));
+    api.on('GET', '/admin/v1/runs', () => ({
+      json: {
+        items: [RUNNING_RUN, ...RUN_HISTORY.slice(0, 13)],
+        total: 15,
+        page: 1,
+        page_size: 14,
+      },
+    }));
+    api.on('GET', '/admin/v1/runs/run_2419', () => ({ json: runningDetail() }));
+    const runs = new RunsPage(page);
+    await runs.open('?run=run_2418');
+    await expect(runs.detailHeading).toHaveText('Today, 6:00 AM');
+
+    await runs.runNow.click();
+
+    await expect.poll(() => runs.search()).toBe('?run=run_2419');
+    await expect(runs.detailBadge).toHaveText('Running');
+    await expect(runs.toast).toHaveCount(0);
+  });
+
+  test('shows the run already in progress, with no error, from Overview', async ({ page, api }) => {
+    await page.clock.setFixedTime(OVERVIEW_NOW);
+    let refused = false;
+    api.on('GET', '/admin/v1/auth/antiforgery', () => ({ json: { request_token: 'tok_1' } }));
+    api.on('POST', '/admin/v1/runs', () => {
+      refused = true;
+      return {
+        status: 409,
+        json: { status: 409, code: 'run_in_progress', run_id: 'run_2419', trace_id: 'req_1' },
+      };
+    });
+    // The run began after Overview was read: only a second read finds it.
+    api.on('GET', '/admin/v1/overview/status', () => ({
+      json: overviewStatus(
+        refused
+          ? {
+              current_run: overviewRun({
+                id: 'run_2419',
+                started_at: '2026-11-28T14:40:00Z',
+                finished_at: null,
+                duration_ms: null,
+                outcome: 'running',
+                added: 4,
+                sources_ok: 12,
+                sources_checked: 12,
+                sources_total: 64,
+              }),
+            }
+          : {},
+      ),
+    }));
+    const overview = new OverviewPage(page);
+    await overview.open();
+    await expect(overview.eyebrow).toHaveText('Last run');
+
+    await overview.runNow.click();
+
+    await expect(overview.eyebrow).toHaveText('Current run');
+    await expect(overview.toast).toHaveCount(0);
+  });
 });

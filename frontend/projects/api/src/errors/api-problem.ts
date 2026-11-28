@@ -9,6 +9,8 @@ export class ApiProblem extends Error {
     readonly code?: string,
     readonly reference?: string,
     readonly errors?: Readonly<Record<string, readonly string[]>>,
+    /** The run in progress, when a start was refused with `run_in_progress`. */
+    readonly runId?: string,
   ) {
     super(`Keryx API request failed (${status}${code ? ` ${code}` : ''})`);
   }
