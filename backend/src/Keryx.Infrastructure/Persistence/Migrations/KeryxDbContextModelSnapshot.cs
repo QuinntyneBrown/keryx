@@ -429,6 +429,9 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("character varying(12)");
 
+                    b.Property<DateTimeOffset?>("LastCallAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("NormalizedName")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -465,6 +468,39 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ApiClients", (string)null);
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Clients.ApiUsageHour", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ClientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Errors")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("HourStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LatencyBucketCounts")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("Requests")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId", "HourStart")
+                        .IsUnique();
+
+                    b.ToTable("ApiUsageHours", (string)null);
                 });
 
             modelBuilder.Entity("Keryx.Domain.Collection.IssueOccurrence", b =>
@@ -1108,6 +1144,15 @@ namespace Keryx.Infrastructure.Persistence.Migrations
                     b.HasOne("Keryx.Domain.Collection.Run", null)
                         .WithMany()
                         .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Keryx.Domain.Clients.ApiUsageHour", b =>
+                {
+                    b.HasOne("Keryx.Domain.Clients.ApiClient", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -8,7 +8,7 @@ namespace Keryx.Application.Clients;
 /// <summary>A page of clients, active and revoked alike, newest first.</summary>
 public sealed record ListApiClients(int Page, int PageSize) : IRequest<ApiClientPage>;
 
-internal sealed class ListApiClientsHandler(IAppDbContext db) : IRequestHandler<ListApiClients, ApiClientPage>
+internal sealed class ListApiClientsHandler(IAppDbContext db, TimeProvider time) : IRequestHandler<ListApiClients, ApiClientPage>
 {
     /// <summary>The API screen's page size, and the largest a request may ask for.</summary>
     public const int MaxPageSize = 50;
@@ -25,6 +25,7 @@ internal sealed class ListApiClientsHandler(IAppDbContext db) : IRequestHandler<
             .OrderByDescending(client => client.CreatedAt).ThenByDescending(client => client.Id)
             .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
-        return new ApiClientPage([.. clients.Select(ApiClientDto.From)], total, request.Page, request.PageSize);
+        var items = await ClientUsage.ReadAsync(db, clients, time.GetUtcNow(), cancellationToken).ConfigureAwait(false);
+        return new ApiClientPage(items, total, request.Page, request.PageSize);
     }
 }

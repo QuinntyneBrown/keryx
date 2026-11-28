@@ -44,6 +44,8 @@ public sealed class KeryxDbContext(DbContextOptions<KeryxDbContext> options) : D
 
     public DbSet<Keryx.Domain.Clients.ApiClient> ApiClients => Set<Keryx.Domain.Clients.ApiClient>();
 
+    public DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours => Set<Keryx.Domain.Clients.ApiUsageHour>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

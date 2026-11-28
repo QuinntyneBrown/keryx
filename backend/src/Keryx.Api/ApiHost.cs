@@ -107,6 +107,7 @@ public static class ApiHost
 
             await next(context).ConfigureAwait(false);
         });
+        app.UseMiddleware<ApiUsageMiddleware>();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
         app.Use(AdminBodyLimit.EnforceAsync);

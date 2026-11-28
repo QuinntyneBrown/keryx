@@ -47,6 +47,8 @@ public sealed class SaveFault(KeryxDbContext inner, SaveFault.Switch fault) : IA
 
     public DbSet<Keryx.Domain.Clients.ApiClient> ApiClients => inner.ApiClients;
 
+    public DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours => inner.ApiUsageHours;
+
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Another request claimed the lease between this one's read and its save: its run is saved

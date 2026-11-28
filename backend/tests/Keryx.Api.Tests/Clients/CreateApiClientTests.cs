@@ -59,7 +59,7 @@ public sealed class CreateApiClientTests
         var item = Assert.Single(listed.GetProperty("items").EnumerateArray());
         Assert.DoesNotContain(key, listed.GetRawText(), StringComparison.Ordinal);
         Assert.Equal(
-            ["created_at", "id", "key_prefix", "product_name", "revoked_at", "scopes"],
+            ["created_at", "error_rate", "errors_24h", "id", "key_prefix", "last_call_at", "product_name", "requests_24h", "revoked_at", "scopes"],
             item.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal));
     }
 

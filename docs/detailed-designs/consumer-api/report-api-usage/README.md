@@ -53,23 +53,26 @@ database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-pa
   completes, it sends one `RecordApiUsageCommand` with the client id, the status code, the elapsed
   milliseconds and the completion time from `TimeProvider`. It passes no path, query string,
   address, header or body (L2-037). Requests that fail authentication have no client and are
-  not counted; whether they shall count towards the whole-API figures is `<TO SUPPLY>`.
+  not counted, in the whole-API figures either: those are the sum of the clients' rows, so the
+  tiles and the table always agree. A request that authenticates and is then refused (`403`
+  `insufficient_scope`, `429`) has a client and is counted.
 - **`RecordApiUsageCommandHandler`** (`Keryx.Application`) — classifies the status with
   `ApiUsageClassifier` and adds the request to `IApiUsageAccumulator`.
 - **`ApiUsageClassifier`** (`Keryx.Domain`) — pure rule: every response is a request; a status
   from 500 to 599 is also an error; a `4xx` is not. It has a unit test per row of its case table.
 - **`IApiUsageAccumulator`** (`Keryx.Application`) and **`InMemoryApiUsageAccumulator`**
   (`Keryx.Infrastructure`) — adds counts in memory per client and hour, so a request causes no
-  database write. The flush interval is `<TO SUPPLY>`.
+  database write. It is flushed every 60 seconds and on shutdown, so a crash loses at most one
+  minute of counts.
 - **`ApiUsageFlushService`** (`Keryx.Api`, hosted service) — on each interval of a timer created
   from `TimeProvider`, and on shutdown, sends one `FlushApiUsageCommand`.
 - **`FlushApiUsageCommandHandler`** — drains the accumulator and, in one unit of work, adds the
   counts to each `ApiUsageHour` row (creating it when absent) and moves each client's
   `LastCallAt` forward.
 - **`ApiUsageHour`** (`Keryx.Domain`) — entity keyed by `ClientId` and `HourStart` (UTC) with
-  `Requests`, `Errors` and `LatencyBucketCounts`. The latency bucket boundaries are
-  `<TO SUPPLY>`; L2-037 allows counts per client per hour only, so p95 latency is derived from
-  bucket counts.
+  `Requests`, `Errors` and `LatencyBucketCounts`. L2-037 allows counts per client per hour only,
+  so p95 latency is derived from bucket counts. The buckets' upper bounds are 10, 25, 50, 100,
+  250, 500, 1,000, 2,500, 5,000 and 10,000 ms, and one bucket above 10,000 ms.
 - **`ApiClient.LastCallAt`** (`Keryx.Domain`) — time of the client's last call, or `null` if it
   has never called.
 
@@ -81,8 +84,8 @@ database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-pa
   — `page` (from 1) and `page_size` (1 to 50, default 50); a value out of range gives `400`
   `invalid_page`. The handler orders clients newest first, active and revoked alike (a revoked
   client stays listed with its usage, L2-036), and sums each client's `ApiUsageHour` rows over the
-  last 24 hours. The newest-first order is taken from the key-created mock and is otherwise
-  `<TO SUPPLY>`.
+  last 24 hours. Clients are ordered newest first by creation, then by id, as the key-created
+  mock shows.
 - **`AdminApiUsageController`** — `GET /admin/v1/api-usage`, under `StaffPolicy`, sends one
   `GetApiUsageQuery`.
 - **`GetApiUsageQueryHandler`** — sums every client's usage hours over the last 24 hours and
@@ -90,10 +93,13 @@ database (PostgreSQL, [ADR 0001](../../../adr/0001-postgresql-and-the-backend-pa
   returns `base_url`, the public API base URL setting (L2-096).
 - **`ApiUsageSummary`** (`Keryx.Domain`) — pure calculation: error rate as errors over requests,
   `0` when there were no requests; p95 latency from the merged histogram, `null` when there were
-  no requests. It has a unit test per row of its case table.
+  no requests. The 95th percentile's rank is `ceil(0.95 × requests)`. Within the bucket that
+  holds that rank, the value is interpolated linearly between the bucket's lower and upper bounds
+  (the first bucket starts at 0) and rounded to a whole millisecond. A rank in the bucket above
+  10,000 ms reads 10,000, the highest bound known, as Prometheus' `histogram_quantile` does. It has a unit test per row of its case table.
 - **Window** — "last 24 hours" is the usage hours whose `HourStart` is within 24 hours before now,
-  read from `TimeProvider`. With hourly rows, the window can include part of a 25th hour; the
-  exact boundary is `<TO SUPPLY>`.
+  read from `TimeProvider`: the current hour's row and the 23 before it. The window therefore
+  covers between 23 and 24 hours, and never part of a 25th.
 - **Retention** — `RetentionWorker` sends `ApplyRetentionCommand`, whose handler
   `ApplyRetentionCommandHandler` deletes `ApiUsageHour` rows older than 30 days, measured from now
   read from `TimeProvider` (L2-037). The run is recorded as every worker run is.
@@ -140,12 +146,15 @@ beside the three L2-037 names.
   key"; the endpoints section is still shown.
 - **Errors** — when the usage request fails and the clients request succeeds, the tiles show an
   inline error with "Try again" and the table stays usable; the markup of that inline error is
-  `<TO SUPPLY>` (no mock state). When both fail, the page shows the L2-073 error state "API keys
+  `pages/api/usage-error.html`: an `alert` (danger) in the summary card's place, "Usage didn't
+  load", "The keys below are up to date; only the usage figures failed. Reference req_…", and
+  "Try again". The base URL comes with the usage, so it is not shown then either. When both fail, the page shows the L2-073 error state "API keys
   and usage didn't load" with "Reference req_…", "Try again" and "Go to overview".
 - **Loading** — after 300 ms without data, `skeleton` items shaped as the tiles, table and
   endpoints, with `aria-busy="true"` and the status "Loading API usage…".
 - **Paging** — the endpoint pages at 50 clients; the mocks show no pager on this screen, so its
-  control is `<TO SUPPLY>`.
+  control is the `pagination` component under the table (`pages/api/paged.html`), shown only when
+  there is a second page: "Previous" and "Next", each disabled at its end.
 
 **Domain library (`frontend/projects/domain`)**
 
@@ -153,12 +162,23 @@ beside the three L2-037 names.
   AM"), a date ("Feb 2"), or "never" for `null`, in Toronto time. Its thresholds are fixed in its
   own design.
 - **`formatErrorRate`** — a rate from 0 to 1 as a percentage ("0.05%", "0.4%", "0%"), or "—"
-  when there were no requests. The rounding rule beyond the mock's examples is `<TO SUPPLY>`.
+  when there were no requests. Below 1% it shows up to two decimals and from 1% up to one, with
+  trailing zeros dropped ("0.4%", "12.5%", "3%"). A rate above 0 that would round to "0%" reads
+  "<0.01%".
 - **`formatCount`** and **`formatLatency`** — "52,826" and "84" with the unit "ms".
 
 **Components library (`frontend/projects/components`)** — `page-header`, `summary-card`,
 `stats`, `stat`, `table`, `badge`, `tag`, `list`, `endpoint`, `split`, `code-panel`, `empty`,
 `skeleton`, `alert`, `btn`.
+
+## Implementation notes (journey 21)
+
+- **Base URL.** The base URL is the new setting `Keryx__Api__PublicBaseUrl` (`Keryx.Api`): an
+  absolute `http(s)` address ending in `/v1`. It is required: startup stops without it (L2-096).
+- **Retention.** No retention worker exists yet. Deleting usage hours older than 30 days arrives
+  with the retention design (journey 23).
+- **Errors column.** The table's "Errors" column shows each client's error rate, as the mock
+  shows ("0.02%"), and "—" for a client with no requests in the window.
 
 ## Requirements
 

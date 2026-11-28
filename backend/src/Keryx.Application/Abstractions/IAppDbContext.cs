@@ -43,5 +43,7 @@ public interface IAppDbContext
 
     DbSet<Keryx.Domain.Clients.ApiClient> ApiClients { get; }
 
+    DbSet<Keryx.Domain.Clients.ApiUsageHour> ApiUsageHours { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

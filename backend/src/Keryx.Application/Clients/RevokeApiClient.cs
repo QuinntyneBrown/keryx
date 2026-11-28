@@ -16,7 +16,7 @@ internal sealed class RevokeApiClientHandler(IAppDbContext db, TimeProvider time
             ?? throw new ApiClientNotFoundException();
         client.Revoke(time.GetUtcNow());
         await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return ApiClientDto.From(client);
+        return (await ClientUsage.ReadAsync(db, [client], time.GetUtcNow(), cancellationToken).ConfigureAwait(false))[0];
     }
 }
 

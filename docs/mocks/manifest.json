@@ -90,7 +90,9 @@
         "no-results",
         "loading",
         "empty",
-        "error"
+        "error",
+        "detail-error",
+        "narrow-detail"
       ],
       "not_applicable": {},
       "requirements": [
@@ -135,7 +137,9 @@
         "endpoint",
         "loading",
         "empty",
-        "error"
+        "error",
+        "usage-error",
+        "paged"
       ],
       "not_applicable": {},
       "requirements": [

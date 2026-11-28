@@ -40,6 +40,18 @@ public sealed class ApiClient
 
     public bool IsActive => RevokedAt is null;
 
+    /// <summary>When it last called the consumer API, or null if it never has (L2-037).</summary>
+    public DateTimeOffset? LastCallAt { get; private set; }
+
+    /// <summary>Records a call; an older call counted late never moves it back.</summary>
+    public void Called(DateTimeOffset at)
+    {
+        if (LastCallAt is null || at > LastCallAt)
+        {
+            LastCallAt = at;
+        }
+    }
+
     public static ApiClient Create(string productName, IEnumerable<string> scopes, string key, string keyHash, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(productName);

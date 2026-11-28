@@ -35,6 +35,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IFeedParser, FeedParser>();
         services.AddSingleton<Keryx.Application.Clients.IApiKeyGenerator, Clients.ApiKeyGenerator>();
         services.AddSingleton<Keryx.Application.Clients.IRateWindowStore, Clients.InMemoryRateWindowStore>();
+        services.AddSingleton<Keryx.Application.Clients.IApiUsageAccumulator, Clients.InMemoryApiUsageAccumulator>();
         services.AddScoped<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHealthChecks().AddCheck<DatabaseReadinessCheck>("database", tags: [HealthTags.Ready]);
         return services;
